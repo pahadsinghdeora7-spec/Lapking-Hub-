@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+// src/App.jsx
+
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Link,
   useLocation,
-} from 'react-router-dom';
-import Home from './pages/Home.jsx';
-import Categories from './pages/Categories.jsx';
-import Cart from './pages/Cart.jsx';
-import Orders from './pages/Orders.jsx';
-import Account from './pages/Account.jsx';
+} from "react-router-dom";
+
+import Home from "./pages/Home.jsx";
+import Categories from "./pages/Categories.jsx";
+import Cart from "./pages/Cart.jsx";
+import Orders from "./pages/Orders.jsx";
+import Account from "./pages/Account.jsx";
+
+import "./Styles.css"; // CSS yahi naam se rakha hai (S capital)
+
+// ------- HEADER ---------
 
 function Header() {
   return (
@@ -19,12 +26,14 @@ function Header() {
         <button className="icon-button">
           <span className="material-icons">menu</span>
         </button>
+
         <div className="logo-wrap">
           <div className="logo-icon">👑</div>
           <span className="logo-text">
             Lapking<span className="logo-text-bold">Hub</span>
           </span>
         </div>
+
         <div className="header-actions">
           <button className="icon-button">
             <span className="material-icons">favorite_border</span>
@@ -46,31 +55,37 @@ function Header() {
   );
 }
 
+// ------- BOTTOM NAV ---------
+
 function BottomNav() {
   const location = useLocation();
   const path = location.pathname;
 
-  const isActive = (p) => (path === p ? 'bn-item active' : 'bn-item');
+  const isActive = (p) => (path === p ? "bn-item active" : "bn-item");
 
   return (
     <nav className="bottom-nav">
-      <Link to="/" className={isActive('/')}>
+      <Link to="/" className={isActive("/")}>
         <span className="material-icons">home</span>
         <span>Home</span>
       </Link>
-      <Link to="/categories" className={isActive('/categories')}>
+
+      <Link to="/categories" className={isActive("/categories")}>
         <span className="material-icons">apps</span>
         <span>Categories</span>
       </Link>
-      <Link to="/cart" className={isActive('/cart')}>
+
+      <Link to="/cart" className={isActive("/cart")}>
         <span className="material-icons">shopping_cart</span>
         <span>Cart</span>
       </Link>
-      <Link to="/orders" className={isActive('/orders')}>
+
+      <Link to="/orders" className={isActive("/orders")}>
         <span className="material-icons">inventory_2</span>
         <span>Orders</span>
       </Link>
-      <Link to="/account" className={isActive('/account')}>
+
+      <Link to="/account" className={isActive("/account")}>
         <span className="material-icons">person</span>
         <span>Account</span>
       </Link>
@@ -78,17 +93,28 @@ function BottomNav() {
   );
 }
 
+// ------- WHATSAPP FLOATING BUTTON ---------
+
 function WhatsAppButton() {
-  const whatsappNumber = '9873670361'; // aapka number
-  const message = encodeURIComponent('Hi, I want to enquire about Lapking Hub products.');
+  const whatsappNumber = "9873670361"; // aapka number
+  const message = encodeURIComponent(
+    "Hi, I want to enquire about Lapking Hub products."
+  );
   const url = `https://wa.me/91${whatsappNumber}?text=${message}`;
 
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="wa-fab">
-      💬
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="wa-fab"
+    >
+      <span className="material-icons">whatsapp</span>
     </a>
   );
 }
+
+// ------- MAIN APP ---------
 
 export default function App() {
   return (
