@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase Project Settings → API se copy karo
-const supabaseUrl = 'https://YOUR_PROJECT_ID.supabase.co';
-const supabaseAnonKey = 'YOUR_ANON_PUBLIC_KEY';
+const supabaseUrl = 'https://aulrnbxtzmjczalspmuv.supabase.co';
+const supabaseAnonKey = 'sb_publishable_4YoKd1pRffAWkcmg7-pAtg_iDp4hMmC';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
