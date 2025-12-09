@@ -1,461 +1,365 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
-// Single admin PIN
-const ADMIN_PIN = "9876";
-
 function App() {
-  // ---- ADMIN LOGIN STATE (always defined) ----
+  const [pinEntered, setPinEntered] = useState(false);
   const [pinInput, setPinInput] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [pinError, setPinError] = useState("");
+  const ADMIN_PIN = "4321";
 
-  // ---- PRODUCT FORM FIELDS (always defined, hooks top pe) ----
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [brand, setBrand] = useState("");
-  const [price, setPrice] = useState("");
-  const [partNumber, setPartNumber] = useState("");
-  const [compatibleModel, setCompatibleModel] = useState("");
-  const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState(0);
+  const [form, setForm] = useState({
+    name: "",
+    category: "",
+    brand: "",
+    price: "",
+    partNumber: "",
+    compatibleModel: "",
+    description: "",
+    quantity: 0,
+  });
 
-  // ---- IMAGE FILES ----
   const [mainImage, setMainImage] = useState(null);
-  const [image2, setImage2] = useState(null);
-  const [image3, setImage3] = useState(null);
-  const [image4, setImage4] = useState(null);
-
-  // ---- UI STATE ----
+  const [extraImages, setExtraImages] = useState([null, null, null]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
 
-  // ---------- HELPER: fetch products ----------
-  async function fetchProducts() {
+  // --------- helpers ---------
+  const handleChange = (e) => {
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  };
+
+  const handleQuantityChange = (delta) => {
+    setForm((f) => ({
+      ...f,
+      quantity: Math.max(0, (parseInt(f.quantity || 0, 10) || 0) + delta),
+    }));
+  };
+
+  const handleExtraImageChange = (index, file) => {
+    setExtraImages((imgs) => {
+      const copy = [...imgs];
+      copy[index] = file;
+      return copy;
+    });
+  };
+
+  const resetForm = () => {
+    setForm({
+      name: "",
+      category: "",
+      brand: "",
+      price: "",
+      partNumber: "",
+      compatibleModel: "",
+      description: "",
+      quantity: 0,
+    });
+    setMainImage(null);
+    setExtraImages([null, null, null]);
+  };
+
+  // --------- load products on start ---------
+  useEffect(() => {
+    if (pinEntered) {
+      fetchProducts();
+    }
+  }, [pinEntered]);
+
+  const fetchProducts = async () => {
+    setError("");
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .order("id", { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Fetch error:", error);
+      console.error("Fetch products error:", error);
+      setError(error.message);
       return;
     }
     setProducts(data || []);
-  }
-
-  // ---------- HELPER: upload single image ----------
-  async function uploadImage(file) {
-    if (!file) return null;
-
-    const filePath = `products/${Date.now()}-${file.name}`;
-
-    const { error } = await supabase.storage
-      .from("products")
-      .upload(filePath, file);
-
-    if (error) {
-      console.error("Upload error:", error);
-      throw error;
-    }
-
-    const { data } = supabase.storage.from("products").getPublicUrl(filePath);
-    return data.publicUrl;
-  }
-
-  // ---------- ADMIN LOGIN HANDLER ----------
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (pinInput === ADMIN_PIN) {
-      setIsAdmin(true);
-      setPinError("");
-    } else {
-      setPinError("Galat PIN hai.");
-    }
   };
 
-  // ---------- PRODUCT SAVE HANDLER ----------
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // ---- image upload helper ----
+  const uploadImage = async (file) => {
+    if (!file) return null;
+
+    const fileName = `${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      throw uploadError;
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("products").getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
+  // --------- save product ---------
+  const handleSave = async () => {
+    setError("");
+
+    if (!form.name || !form.category || !form.brand || !form.price) {
+      setError("Name, Category, Brand, Price required hai.");
+      return;
+    }
+
+    if (!mainImage) {
+      setError("Main image zaroori hai.");
+      return;
+    }
+
     setLoading(true);
-    setMessage("");
-
     try {
-      const mainUrl = await uploadImage(mainImage);
-      const url2 = await uploadImage(image2);
-      const url3 = await uploadImage(image3);
-      const url4 = await uploadImage(image4);
+      // 1) upload main image + extras
+      const [mainUrl, img2, img3, img4] = await Promise.all([
+        uploadImage(mainImage),
+        uploadImage(extraImages[0]),
+        uploadImage(extraImages[1]),
+        uploadImage(extraImages[2]),
+      ]);
 
-      const { error } = await supabase.from("products").insert({
-        name,
-        category,
-        brand,
-        price: price ? Number(price) : null,
-        part_number: partNumber,
-        compatible_model: compatibleModel,
-        description,
-        quantity,
+      // 2) insert product row
+      const { error: insertError } = await supabase.from("products").insert({
+        name: form.name,
+        category: form.category,
+        brand: form.brand,
+        price: parseFloat(form.price || 0),
+        part_number: form.partNumber,
+        compatible_model: form.compatibleModel,
+        description: form.description,
+        quantity: parseInt(form.quantity || 0, 10) || 0,
         image_main: mainUrl,
-        image_2: url2,
-        image_3: url3,
-        image_4: url4,
+        image_2: img2,
+        image_3: img3,
+        image_4: img4,
       });
 
-      if (error) throw error;
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        throw insertError;
+      }
 
-      setMessage("✅ Product saved successfully");
-
-      setName("");
-      setCategory("");
-      setBrand("");
-      setPrice("");
-      setPartNumber("");
-      setCompatibleModel("");
-      setDescription("");
-      setQuantity(0);
-      setMainImage(null);
-      setImage2(null);
-      setImage3(null);
-      setImage4(null);
-
+      resetForm();
       await fetchProducts();
     } catch (err) {
-      console.error(err);
-      setMessage("❌ Error: " + err.message);
+      console.error("Save product failed:", err);
+      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------- FETCH PRODUCTS ONLY AFTER LOGIN ----------
-  useEffect(() => {
-    if (isAdmin) {
-      fetchProducts();
-    }
-  }, [isAdmin]);
-
-  // ---------- UI: AGAR ADMIN LOGIN NAHI HUA (PIN SCREEN) ----------
-  if (!isAdmin) {
+  // --------- PIN screen ---------
+  if (!pinEntered) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#f3f4f6",
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        <form
-          onSubmit={handleLogin}
-          style={{
-            background: "#fff",
-            padding: 20,
-            borderRadius: 10,
-            boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-            width: 320,
+      <div style={{ maxWidth: 400, margin: "40px auto", textAlign: "center" }}>
+        <h2>Lapking Hub – Admin Login</h2>
+        <p>Sirf aapke liye private PIN login 😊</p>
+        <input
+          type="password"
+          value={pinInput}
+          onChange={(e) => setPinInput(e.target.value)}
+          placeholder="Enter admin PIN"
+          style={{ padding: 8, width: "100%", marginBottom: 12 }}
+        />
+        <button
+          onClick={() => {
+            if (pinInput === ADMIN_PIN) {
+              setPinEntered(true);
+              setPinInput("");
+            } else {
+              alert("Galat PIN");
+            }
           }}
         >
-          <h2 style={{ marginBottom: 10, textAlign: "center" }}>
-            Lapking Hub – Admin
-          </h2>
-          <p
-            style={{
-              fontSize: 13,
-              marginBottom: 16,
-              textAlign: "center",
-              color: "#6b7280",
-            }}
-          >
-            Sirf single admin ke liye secure PIN.
-          </p>
-
-          <input
-            type="password"
-            placeholder="Admin PIN"
-            value={pinInput}
-            onChange={(e) => setPinInput(e.target.value)}
-            style={{
-              width: "100%",
-              padding: 8,
-              marginBottom: 10,
-              borderRadius: 6,
-              border: "1px solid #d1d5db",
-            }}
-          />
-
-          {pinError && (
-            <p style={{ color: "red", fontSize: 13, marginBottom: 8 }}>
-              {pinError}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: 8,
-              borderRadius: 6,
-              border: "none",
-              backgroundColor: "#2563eb",
-              color: "#fff",
-              fontWeight: 600,
-            }}
-          >
-            Enter Admin Panel
-          </button>
-        </form>
+          Login
+        </button>
       </div>
     );
   }
 
-  // ---------- UI: ADMIN PANEL (LOGIN KE BAAD) ----------
+  // --------- MAIN ADMIN UI ---------
   return (
-    <div
-      style={{
-        maxWidth: 1000,
-        margin: "0 auto",
-        padding: 16,
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
-      <div
+    <div style={{ maxWidth: 900, margin: "20px auto", padding: "0 12px" }}>
+      <header
         style={{
           display: "flex",
           justifyContent: "space-between",
-          marginBottom: 16,
           alignItems: "center",
+          marginBottom: 16,
         }}
       >
-        <div>
-          <h1 style={{ marginBottom: 4 }}>Lapking Hub – Admin Panel</h1>
-          <p style={{ margin: 0, fontSize: 13, color: "#6b7280" }}>
-            Single admin: aap hi owner ho 😊
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            setIsAdmin(false);
-            setPinInput("");
-          }}
-          style={{
-            padding: "4px 10px",
-            borderRadius: 6,
-            border: "1px solid #d1d5db",
-            background: "#fff",
-            fontSize: 12,
-          }}
-        >
-          Logout
-        </button>
-      </div>
+        <h1>Lapking Hub – Admin Panel</h1>
+        <button onClick={() => setPinEntered(false)}>Logout</button>
+      </header>
+      <p style={{ marginTop: -10, marginBottom: 20 }}>
+        Single admin: aap hi owner ho 😊
+      </p>
 
-      {/* PRODUCT FORM */}
-      <form
-        onSubmit={handleSubmit}
+      {/* Add Product form */}
+      <section
         style={{
           border: "1px solid #ddd",
           borderRadius: 8,
           padding: 16,
-          marginBottom: 32,
+          marginBottom: 24,
         }}
       >
-        <h2 style={{ marginBottom: 12 }}>Add Product</h2>
+        <h2>Add Product</h2>
 
         <input
+          name="name"
           placeholder="Product Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          value={form.name}
+          onChange={handleChange}
+          style={{ width: "100%", margin: "6px 0", padding: 6 }}
         />
-
         <input
-          placeholder="Category (Keyboard, Charger...)"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          name="category"
+          placeholder="Category (Keyboard, Charger…)"
+          value={form.category}
+          onChange={handleChange}
+          style={{ width: "100%", margin: "6px 0", padding: 6 }}
         />
-
         <input
-          placeholder="Brand / Sub-category (Dell, HP...)"
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          name="brand"
+          placeholder="Brand / Sub-category (Dell, HP…)"
+          value={form.brand}
+          onChange={handleChange}
+          style={{ width: "100%", margin: "6px 0", padding: 6 }}
         />
-
         <input
-          type="number"
+          name="price"
           placeholder="Price (₹)"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          value={form.price}
+          onChange={handleChange}
+          style={{ width: "100%", margin: "6px 0", padding: 6 }}
         />
-
         <input
+          name="partNumber"
           placeholder="Part Number"
-          value={partNumber}
-          onChange={(e) => setPartNumber(e.target.value)}
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          value={form.partNumber}
+          onChange={handleChange}
+          style={{ width: "100%", margin: "6px 0", padding: 6 }}
         />
-
         <input
+          name="compatibleModel"
           placeholder="Compatible Model"
-          value={compatibleModel}
-          onChange={(e) => setCompatibleModel(e.target.value)}
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          value={form.compatibleModel}
+          onChange={handleChange}
+          style={{ width: "100%", margin: "6px 0", padding: 6 }}
         />
-
         <textarea
+          name="description"
           placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={form.description}
+          onChange={handleChange}
           rows={3}
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          style={{ width: "100%", margin: "6px 0", padding: 6 }}
         />
 
-        <div style={{ marginBottom: 12, display: "flex", alignItems: "center" }}>
-          <span style={{ marginRight: 8 }}>Quantity:</span>
-          <button
-            type="button"
-            onClick={() => setQuantity((q) => (q > 0 ? q - 1 : 0))}
-            style={{ padding: "4px 10px", marginRight: 4 }}
-          >
-            -
-          </button>
+        <div style={{ margin: "10px 0" }}>
+          <span>Quantity:&nbsp;</span>
+          <button onClick={() => handleQuantityChange(-1)}>-</button>
           <input
             type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value) || 0)}
-            style={{ width: 80, textAlign: "center", marginRight: 4, padding: 4 }}
+            value={form.quantity}
+            readOnly
+            style={{ width: 60, textAlign: "center", margin: "0 8px" }}
           />
-          <button
-            type="button"
-            onClick={() => setQuantity((q) => q + 1)}
-            style={{ padding: "4px 10px" }}
-          >
-            +
-          </button>
+          <button onClick={() => handleQuantityChange(1)}>+</button>
         </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label>Main Image:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setMainImage(e.target.files ? e.target.files[0] : null)
-            }
-            style={{ display: "block", marginTop: 4 }}
-          />
+        <div style={{ margin: "10px 0" }}>
+          <div>
+            <strong>Main Image:</strong>{" "}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setMainImage(e.target.files[0] || null)}
+            />
+          </div>
+          <div>
+            <strong>Extra Image 2 (optional):</strong>{" "}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleExtraImageChange(0, e.target.files[0])}
+            />
+          </div>
+          <div>
+            <strong>Extra Image 3 (optional):</strong>{" "}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleExtraImageChange(1, e.target.files[0])}
+            />
+          </div>
+          <div>
+            <strong>Extra Image 4 (optional):</strong>{" "}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleExtraImageChange(2, e.target.files[0])}
+            />
+          </div>
         </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label>Extra Image 2 (optional):</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setImage2(e.target.files ? e.target.files[0] : null)
-            }
-            style={{ display: "block", marginTop: 4 }}
-          />
-        </div>
+        {error && (
+          <div style={{ color: "red", marginBottom: 8 }}>Error: {error}</div>
+        )}
 
-        <div style={{ marginBottom: 8 }}>
-          <label>Extra Image 3 (optional):</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setImage3(e.target.files ? e.target.files[0] : null)
-            }
-            style={{ display: "block", marginTop: 4 }}
-          />
-        </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <label>Extra Image 4 (optional):</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setImage4(e.target.files ? e.target.files[0] : null)
-            }
-            style={{ display: "block", marginTop: 4 }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: "8px 16px",
-            borderRadius: 4,
-            border: "none",
-            backgroundColor: "#2563eb",
-            color: "#fff",
-            fontWeight: 600,
-          }}
-        >
+        <button onClick={handleSave} disabled={loading}>
           {loading ? "Saving..." : "Save Product"}
         </button>
+      </section>
 
-        {message && <p style={{ marginTop: 12 }}>{message}</p>}
-      </form>
-
-      <h2 style={{ marginBottom: 12 }}>Products List</h2>
-      {products.length === 0 && <p>No products yet. Add your first product.</p>}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
-        }}
-      >
-        {products.map((p) => (
-          <div
-            key={p.id}
-            style={{
-              border: "1px solid #eee",
-              borderRadius: 8,
-              padding: 8,
-            }}
-          >
-            {p.image_main && (
-              <img
-                src={p.image_main}
-                alt={p.name}
+      {/* Products list */}
+      <section>
+        <h2>Products List</h2>
+        {products.length === 0 ? (
+          <p>No products yet. Add your first product.</p>
+        ) : (
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {products.map((p) => (
+              <li
+                key={p.id}
                 style={{
-                  width: "100%",
-                  height: 140,
-                  objectFit: "cover",
-                  borderRadius: 6,
-                  marginBottom: 6,
+                  border: "1px solid #ddd",
+                  borderRadius: 8,
+                  padding: 10,
+                  marginBottom: 10,
+                  display: "flex",
+                  gap: 12,
                 }}
-              />
-            )}
-            <h3 style={{ fontSize: 16, marginBottom: 4 }}>{p.name}</h3>
-            <p style={{ fontSize: 13, margin: 0 }}>
-              {p.brand} · {p.category}
-            </p>
-            <p style={{ fontSize: 13, margin: "4px 0" }}>
-              Price: ₹{p.price ?? "-"}
-            </p>
-            <p style={{ fontSize: 12, margin: "4px 0" }}>
-              Qty in stock: {p.quantity ?? 0}
-            </p>
-            {p.part_number && (
-              <p style={{ fontSize: 12, margin: "4px 0" }}>
-                Part: {p.part_number}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
+              >
+                {p.image_main && (
+                  <img
+                    src={p.image_main}
+                    alt={p.name}
+                    style={{ width: 80, height: 80, objectFit: "cover" }}
+                  />
+                )}
+                <div>
+                  <strong>{p.name}</strong>
+                  <div>
+                    {p.brand} • {p.category}
+                  </div>
+                  <div>₹{p.price}</div>
+                  <div>Qty: {p.quantity}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
