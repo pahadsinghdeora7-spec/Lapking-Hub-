@@ -1,15 +1,70 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 
-// 👇 Yahi aapka admin PIN hai (change kar sakte ho)
+// Single admin PIN
 const ADMIN_PIN = "9876";
 
 function App() {
-  // ---- SIMPLE ADMIN LOGIN (SINGLE USER) ----
+  // ---- ADMIN LOGIN STATE (always defined) ----
   const [pinInput, setPinInput] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [pinError, setPinError] = useState("");
 
+  // ---- PRODUCT FORM FIELDS (always defined, hooks top pe) ----
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [brand, setBrand] = useState("");
+  const [price, setPrice] = useState("");
+  const [partNumber, setPartNumber] = useState("");
+  const [compatibleModel, setCompatibleModel] = useState("");
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState(0);
+
+  // ---- IMAGE FILES ----
+  const [mainImage, setMainImage] = useState(null);
+  const [image2, setImage2] = useState(null);
+  const [image3, setImage3] = useState(null);
+  const [image4, setImage4] = useState(null);
+
+  // ---- UI STATE ----
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [products, setProducts] = useState([]);
+
+  // ---------- HELPER: fetch products ----------
+  async function fetchProducts() {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Fetch error:", error);
+      return;
+    }
+    setProducts(data || []);
+  }
+
+  // ---------- HELPER: upload single image ----------
+  async function uploadImage(file) {
+    if (!file) return null;
+
+    const filePath = `products/${Date.now()}-${file.name}`;
+
+    const { error } = await supabase.storage
+      .from("products")
+      .upload(filePath, file);
+
+    if (error) {
+      console.error("Upload error:", error);
+      throw error;
+    }
+
+    const { data } = supabase.storage.from("products").getPublicUrl(filePath);
+    return data.publicUrl;
+  }
+
+  // ---------- ADMIN LOGIN HANDLER ----------
   const handleLogin = (e) => {
     e.preventDefault();
     if (pinInput === ADMIN_PIN) {
@@ -20,7 +75,67 @@ function App() {
     }
   };
 
-  // Agar admin login nahi hua hai to sirf PIN screen dikhayenge
+  // ---------- PRODUCT SAVE HANDLER ----------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const mainUrl = await uploadImage(mainImage);
+      const url2 = await uploadImage(image2);
+      const url3 = await uploadImage(image3);
+      const url4 = await uploadImage(image4);
+
+      const { error } = await supabase.from("products").insert({
+        name,
+        category,
+        brand,
+        price: price ? Number(price) : null,
+        part_number: partNumber,
+        compatible_model: compatibleModel,
+        description,
+        quantity,
+        image_main: mainUrl,
+        image_2: url2,
+        image_3: url3,
+        image_4: url4,
+      });
+
+      if (error) throw error;
+
+      setMessage("✅ Product saved successfully");
+
+      setName("");
+      setCategory("");
+      setBrand("");
+      setPrice("");
+      setPartNumber("");
+      setCompatibleModel("");
+      setDescription("");
+      setQuantity(0);
+      setMainImage(null);
+      setImage2(null);
+      setImage3(null);
+      setImage4(null);
+
+      await fetchProducts();
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ---------- FETCH PRODUCTS ONLY AFTER LOGIN ----------
+  useEffect(() => {
+    if (isAdmin) {
+      fetchProducts();
+    }
+  }, [isAdmin]);
+
+  // ---------- UI: AGAR ADMIN LOGIN NAHI HUA (PIN SCREEN) ----------
   if (!isAdmin) {
     return (
       <div
@@ -96,116 +211,7 @@ function App() {
     );
   }
 
-  // ---- ADMIN PANEL PART (same as pehle, sirf login ke baad dikh raha) ----
-
-  // ---- FORM FIELDS ----
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [brand, setBrand] = useState("");
-  const [price, setPrice] = useState("");
-  const [partNumber, setPartNumber] = useState("");
-  const [compatibleModel, setCompatibleModel] = useState("");
-  const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState(0);
-
-  // ---- IMAGE FILES ----
-  const [mainImage, setMainImage] = useState(null);
-  const [image2, setImage2] = useState(null);
-  const [image3, setImage3] = useState(null);
-  const [image4, setImage4] = useState(null);
-
-  // ---- UI STATE ----
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [products, setProducts] = useState([]);
-
-  async function uploadImage(file) {
-    if (!file) return null;
-
-    const filePath = `products/${Date.now()}-${file.name}`;
-
-    const { error } = await supabase.storage
-      .from("products")
-      .upload(filePath, file);
-
-    if (error) {
-      console.error("Upload error:", error);
-      throw error;
-    }
-
-    const { data } = supabase.storage.from("products").getPublicUrl(filePath);
-    return data.publicUrl;
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
-    try {
-      const mainUrl = await uploadImage(mainImage);
-      const url2 = await uploadImage(image2);
-      const url3 = await uploadImage(image3);
-      const url4 = await uploadImage(image4);
-
-      const { error } = await supabase.from("products").insert({
-        name,
-        category,
-        brand,
-        price: price ? Number(price) : null,
-        part_number: partNumber,
-        compatible_model: compatibleModel,
-        description,
-        quantity,
-        image_main: mainUrl,
-        image_2: url2,
-        image_3: url3,
-        image_4: url4,
-      });
-
-      if (error) throw error;
-
-      setMessage("✅ Product saved successfully");
-
-      setName("");
-      setCategory("");
-      setBrand("");
-      setPrice("");
-      setPartNumber("");
-      setCompatibleModel("");
-      setDescription("");
-      setQuantity(0);
-      setMainImage(null);
-      setImage2(null);
-      setImage3(null);
-      setImage4(null);
-
-      await fetchProducts();
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Error: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  async function fetchProducts() {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("id", { ascending: false });
-
-    if (error) {
-      console.error("Fetch error:", error);
-      return;
-    }
-    setProducts(data || []);
-  }
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
+  // ---------- UI: ADMIN PANEL (LOGIN KE BAAD) ----------
   return (
     <div
       style={{
@@ -230,7 +236,10 @@ function App() {
           </p>
         </div>
         <button
-          onClick={() => setIsAdmin(false)}
+          onClick={() => {
+            setIsAdmin(false);
+            setPinInput("");
+          }}
           style={{
             padding: "4px 10px",
             borderRadius: 6,
