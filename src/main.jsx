@@ -3,15 +3,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-
-// IMPORTANT: yahi se hum CSS file load kar rahe hain
-import './Styles.css';
+import './Styles.css'; // dhyaan: file ka naam exactly Styles.css hai
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* app-root class ko CSS me style kiya hai */}
-    <div className="app-root">
-      <App />
-    </div>
+    <App />
   </React.StrictMode>
 );
