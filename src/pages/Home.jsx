@@ -1,34 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import React, { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('id', { ascending: false });
-
-      if (error) {
-        console.error('Error loading products', error);
-      } else {
-        setProducts(data || []);
-      }
-      setLoading(false);
-    };
-
     loadProducts();
   }, []);
 
+  const loadProducts = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("status", true)
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Supabase error:", error);
+    } else {
+      setProducts(data || []);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="page home-page">
+      {/* Banner */}
       <section className="banner">
         <h2>Premium Laptop Accessories</h2>
-        <p>Shop the best chargers, batteries, keyboards and more.</p>
+        <p>
+          Shop the best chargers, batteries, keyboards and more.
+        </p>
         <button className="primary-btn">Shop Now →</button>
       </section>
 
@@ -42,25 +48,32 @@ export default function Home() {
         <div className="products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
+              {/* Image */}
               {p.image ? (
-  <img
-    src={p.image}
-    alt={p.name}
-    className="product-image"
-  />
-) : (
-  <div className="product-image placeholder">No image</div>
-)}
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  className="product-image"
+                />
+              ) : (
+                <div className="product-image placeholder">
+                  No image
+                </div>
+              )}
 
+              {/* Body */}
               <div className="product-body">
                 <span className="product-brand">
-                  {p.brand || p.category || 'Brand'}
+                  Category ID: {p.category_id}
                 </span>
+
                 <h4 className="product-name">{p.name}</h4>
+
                 <div className="product-price-row">
                   <span className="product-price">
                     ₹{p.price || 0}
                   </span>
+
                   <button className="small-primary-btn">
                     Add to Cart
                   </button>
@@ -70,6 +83,14 @@ export default function Home() {
           ))}
         </div>
       )}
+
+      <a
+        href="https://wa.me/919873670361"
+        target="_blank"
+        rel="noreferrer"
+      >
+        whatsapp
+      </a>
     </div>
-  );// redeploy trigger
-              }
+  );
+}
