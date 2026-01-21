@@ -6,26 +6,26 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("status", true)
+        .order("id", { ascending: false });
+
+      if (error) {
+        console.error("Supabase error:", error);
+      } else {
+        setProducts(data || []);
+      }
+
+      setLoading(false);
+    };
+
     loadProducts();
   }, []);
-
-  const loadProducts = async () => {
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("status", true)
-      .order("id", { ascending: false });
-
-    if (error) {
-      console.error("Supabase error:", error);
-    } else {
-      setProducts(data || []);
-    }
-
-    setLoading(false);
-  };
 
   return (
     <div className="page home-page">
@@ -38,6 +38,7 @@ export default function Home() {
         <button className="primary-btn">Shop Now →</button>
       </section>
 
+      {/* Latest Products */}
       <h3 className="section-title">Latest Products</h3>
 
       {loading ? (
@@ -48,7 +49,7 @@ export default function Home() {
         <div className="products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
-              {/* Image */}
+              {/* IMAGE */}
               {p.image ? (
                 <img
                   src={p.image}
@@ -61,7 +62,7 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Body */}
+              {/* BODY */}
               <div className="product-body">
                 <span className="product-brand">
                   Category ID: {p.category_id}
@@ -83,14 +84,6 @@ export default function Home() {
           ))}
         </div>
       )}
-
-      <a
-        href="https://wa.me/919873670361"
-        target="_blank"
-        rel="noreferrer"
-      >
-        whatsapp
-      </a>
     </div>
   );
 }
