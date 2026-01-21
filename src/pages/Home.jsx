@@ -43,14 +43,14 @@ export default function Home() {
           {products.map((p) => (
             <div key={p.id} className="product-card">
               {p.image_main_url ? (
-                <img
-                  src={p.image_main_url}
-                  alt={p.name}
-                  className="product-image"
-                />
-              ) : (
-                <div className="product-image placeholder">No image</div>
-              )}
+  <img
+    src={p.image_main_url}
+    alt={p.name}
+    className="product-image"
+  />
+) : (
+  <div className="product-image placeholder">No image</div>
+)}
 
               <div className="product-body">
                 <span className="product-brand">
