@@ -42,9 +42,9 @@ export default function Home() {
         <div className="products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
-              {p.image_main_url ? (
+              {p.image ? (
   <img
-    src={p.image_main_url}
+    src={p.image}
     alt={p.name}
     className="product-image"
   />
