@@ -1,0 +1,48 @@
+.checkout-address {
+  padding: 15px;
+}
+
+.checkout-address h2 {
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.address-box {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.address-box input,
+.address-box textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.address-box textarea {
+  min-height: 80px;
+  resize: none;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row input {
+  flex: 1;
+}
+
+.address-box button {
+  width: 100%;
+  background: #0056ff;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+}
