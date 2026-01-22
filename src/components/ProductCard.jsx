@@ -1,15 +1,20 @@
 export default function ProductCard({ product }) {
   return (
     <div className="product-card">
-      <img src={product.image} alt={product.name} />
+      <div className="image-box">
+        <img src={product.image} alt={product.name} />
+      </div>
 
-      <span className="brand">{product.brand}</span>
+      <div className="product-body">
+        <span className="brand">{product.brand}</span>
 
-      <h4>{product.name}</h4>
+        <h4 className="name">{product.name}</h4>
 
-      <p className="price">₹{product.price}</p>
-
-      <button className="cart-btn">Add to Cart</button>
+        <div className="price-row">
+          <span className="price">₹{product.price}</span>
+          <button className="cart-btn">Add</button>
+        </div>
+      </div>
     </div>
   );
 }
