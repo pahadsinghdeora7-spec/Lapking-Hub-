@@ -1,39 +1,40 @@
-import React from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { supabase } from "../supabase";
+import { Outlet, Link } from "react-router-dom";
 
 export default function AdminLayout() {
-  const navigate = useNavigate();
-
-  const logout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin/login");
-  };
-
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex" }}>
       
-      {/* SIDEBAR */}
-      <aside style={{
+      {/* Sidebar */}
+      <div style={{
         width: 220,
-        background: "#0f172a",
+        background: "#0056ff",
         color: "#fff",
+        minHeight: "100vh",
         padding: 20
       }}>
-        <h3>👑 Admin</h3>
+        <h3>Admin</h3>
 
-        <p onClick={() => navigate("/admin")} style={{ cursor: "pointer" }}>Dashboard</p>
-        <p onClick={() => navigate("/admin/products")} style={{ cursor: "pointer" }}>Products</p>
-        <p onClick={() => navigate("/admin/categories")} style={{ cursor: "pointer" }}>Categories</p>
-        <p onClick={() => navigate("/admin/orders")} style={{ cursor: "pointer" }}>Orders</p>
+        <Link to="/admin" style={{ color: "#fff", display: "block", marginTop: 10 }}>
+          Dashboard
+        </Link>
 
-        <button onClick={logout}>Logout</button>
-      </aside>
+        <Link to="/admin/products" style={{ color: "#fff", display: "block", marginTop: 10 }}>
+          Products
+        </Link>
 
-      {/* PAGE */}
-      <main style={{ flex: 1, padding: 20 }}>
+        <Link to="/admin/categories" style={{ color: "#fff", display: "block", marginTop: 10 }}>
+          Categories
+        </Link>
+
+        <Link to="/admin/orders" style={{ color: "#fff", display: "block", marginTop: 10 }}>
+          Orders
+        </Link>
+      </div>
+
+      {/* Page Content */}
+      <div style={{ flex: 1, padding: 20 }}>
         <Outlet />
-      </main>
+      </div>
 
     </div>
   );
