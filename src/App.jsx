@@ -5,135 +5,64 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
-  useLocation,
 } from "react-router-dom";
 
+/* ================= USER PAGES ================= */
 import Home from "./pages/Home.jsx";
 import Categories from "./pages/Categories.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
 import Account from "./pages/Account.jsx";
 
-import "./Styles.css"; // CSS yahi naam se rakha hai (S capital)
+/* ================= ADMIN PAGES ================= */
+import AdminLogin from "./admin/AdminLogin.jsx";
+import AdminLayout from "./admin/AdminLayout.jsx";
+import AdminDashboard from "./admin/AdminDashboard.jsx";
+import AdminProducts from "./admin/AdminProducts.jsx";
+import AdminCategories from "./admin/AdminCategories.jsx";
+import AdminOrders from "./admin/AdminOrders.jsx";
 
-// ------- HEADER ---------
-
-function Header() {
-  return (
-    <header className="app-header">
-      <div className="logo-row">
-        <button className="icon-button">
-          <span className="material-icons">menu</span>
-        </button>
-
-        <div className="logo-wrap">
-          <div className="logo-icon">👑</div>
-          <span className="logo-text">
-            Lapking<span className="logo-text-bold">Hub</span>
-          </span>
-        </div>
-
-        <div className="header-actions">
-          <button className="icon-button">
-            <span className="material-icons">favorite_border</span>
-          </button>
-          <button className="icon-button">
-            <span className="material-icons">shopping_cart</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="search-wrap">
-        <span className="material-icons search-icon">search</span>
-        <input
-          className="search-input"
-          placeholder="Search products..."
-        />
-      </div>
-    </header>
-  );
-}
-
-// ------- BOTTOM NAV ---------
-
-function BottomNav() {
-  const location = useLocation();
-  const path = location.pathname;
-
-  const isActive = (p) => (path === p ? "bn-item active" : "bn-item");
-
-  return (
-    <nav className="bottom-nav">
-      <Link to="/" className={isActive("/")}>
-        <span className="material-icons">home</span>
-        <span>Home</span>
-      </Link>
-
-      <Link to="/categories" className={isActive("/categories")}>
-        <span className="material-icons">apps</span>
-        <span>Categories</span>
-      </Link>
-
-      <Link to="/cart" className={isActive("/cart")}>
-        <span className="material-icons">shopping_cart</span>
-        <span>Cart</span>
-      </Link>
-
-      <Link to="/orders" className={isActive("/orders")}>
-        <span className="material-icons">inventory_2</span>
-        <span>Orders</span>
-      </Link>
-
-      <Link to="/account" className={isActive("/account")}>
-        <span className="material-icons">person</span>
-        <span>Account</span>
-      </Link>
-    </nav>
-  );
-}
-
-// ------- WHATSAPP FLOATING BUTTON ---------
-
-function WhatsAppButton() {
-  const whatsappNumber = "9873670361"; // aapka number
-  const message = encodeURIComponent(
-    "Hi, I want to enquire about Lapking Hub products."
-  );
-  const url = `https://wa.me/91${whatsappNumber}?text=${message}`;
-
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noreferrer"
-      className="wa-fab"
-    >
-      <span className="material-icons">whatsapp</span>
-    </a>
-  );
-}
-
-// ------- MAIN APP ---------
+/* ================= COMMON ================= */
+import Header from "./components/Header.jsx";
+import BottomNav from "./components/BottomNav.jsx";
+import WhatsAppButton from "./components/WhatsAppButton.jsx";
 
 export default function App() {
   return (
     <Router>
       <div className="app-root">
+
+        {/* ===== HEADER ===== */}
         <Header />
 
+        {/* ===== MAIN ===== */}
         <main className="app-main">
           <Routes>
+
+            {/* ================= USER ROUTES ================= */}
             <Route path="/" element={<Home />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/account" element={<Account />} />
+
+            {/* ================= ADMIN ROUTES ================= */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="categories" element={<AdminCategories />} />
+              <Route path="orders" element={<AdminOrders />} />
+            </Route>
+
           </Routes>
         </main>
 
+        {/* ===== BOTTOM ===== */}
         <BottomNav />
         <WhatsAppButton />
+
       </div>
     </Router>
   );
