@@ -1,0 +1,30 @@
+.checkout-box {
+  padding: 16px;
+}
+
+.ship-card {
+  border: 1px solid #ddd;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  background: #fff;
+}
+
+.ship-card.active {
+  border: 2px solid #0056ff;
+  background: #f0f6ff;
+}
+
+.next-btn {
+  width: 100%;
+  background: #0056ff;
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
