@@ -54,7 +54,7 @@ export default function App() {
             <Route path="/checkout/address" element={<CheckoutAddress />} />
             <Route path="/order/success/:id" element={<OrderSuccess />} />
             <Route path="/replacement/:orderId/:productId" element={<ReplacementRequest />}/>
-            <Route path="/replacement/:orderId/:productId"  element={<ReplacementRequest />}/>
+            
             
             {/* ================= ADMIN ROUTES ================= */}
             <Route path="/admin/login" element={<AdminLogin />} />
