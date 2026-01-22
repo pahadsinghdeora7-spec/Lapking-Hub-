@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../../supabaseClient";
+import { supabase } from "../supabaseClient";
 import "./AdminOrders.css";
 
 export default function AdminOrders() {
@@ -10,13 +10,30 @@ export default function AdminOrders() {
     loadOrders();
   }, []);
 
+  // ✅ Load all orders
   const loadOrders = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
 
-    setOrders(data || []);
+    if (!error) {
+      setOrders(data || []);
+    }
+  };
+
+  // ✅ Update order status
+  const updateStatus = async (orderId, status) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({ order_status: status })
+      .eq("id", orderId);
+
+    if (error) {
+      alert("Status update failed");
+    } else {
+      loadOrders();
+    }
   };
 
   return (
@@ -40,7 +57,9 @@ export default function AdminOrders() {
           {orders.map((o) => (
             <tr key={o.id}>
               <td>LKH{o.id}</td>
+
               <td>{o.name}</td>
+
               <td>₹{o.total}</td>
 
               <td>
@@ -49,8 +68,20 @@ export default function AdminOrders() {
                 </span>
               </td>
 
+              {/* ✅ ORDER STATUS DROPDOWN */}
               <td>
-                <span className="status">{o.order_status}</span>
+                <select
+                  value={o.order_status}
+                  onChange={(e) =>
+                    updateStatus(o.id, e.target.value)
+                  }
+                >
+                  <option value="new">New</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
               </td>
 
               <td>
@@ -58,7 +89,10 @@ export default function AdminOrders() {
               </td>
 
               <td>
-                <Link to={`/admin/orders/${o.id}`} className="view-btn">
+                <Link
+                  to={`/admin/orders/${o.id}`}
+                  className="view-btn"
+                >
                   View
                 </Link>
               </td>
