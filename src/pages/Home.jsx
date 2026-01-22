@@ -19,9 +19,10 @@ export default function Home() {
       .order("id", { ascending: false });
 
     if (error) {
+      console.error("SUPABASE ERROR ❌", error);
       alert("Supabase error: " + error.message);
-      console.error(error);
     } else {
+      console.log("PRODUCTS ✅", data);
       setProducts(data || []);
     }
 
@@ -30,16 +31,19 @@ export default function Home() {
 
   return (
     <div className="page home-page">
-      {/* Banner */}
+
+      {/* ===== BANNER ===== */}
       <section className="banner">
         <h2>Premium Laptop Accessories</h2>
         <p>
           Shop the best chargers, batteries, keyboards and more.
         </p>
-        <button className="primary-btn">Shop Now →</button>
+        <button className="primary-btn">
+          Shop Now →
+        </button>
       </section>
 
-      {/* Latest Products */}
+      {/* ===== PRODUCTS ===== */}
       <h3 className="section-title">Latest Products</h3>
 
       {loading ? (
@@ -50,7 +54,8 @@ export default function Home() {
         <div className="products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
-              {/* Image */}
+
+              {/* IMAGE */}
               {p.image ? (
                 <img
                   src={p.image}
@@ -59,17 +64,20 @@ export default function Home() {
                 />
               ) : (
                 <div className="product-image placeholder">
-                  No image
+                  No Image
                 </div>
               )}
 
-              {/* Body */}
+              {/* BODY */}
               <div className="product-body">
+
                 <span className="product-brand">
                   Category ID: {p.category_id}
                 </span>
 
-                <h4 className="product-name">{p.name}</h4>
+                <h4 className="product-name">
+                  {p.name}
+                </h4>
 
                 <div className="product-price-row">
                   <span className="product-price">
@@ -80,11 +88,13 @@ export default function Home() {
                     Add to Cart
                   </button>
                 </div>
+
               </div>
             </div>
           ))}
         </div>
       )}
+
     </div>
   );
 }
