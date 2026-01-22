@@ -1,6 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = "https://aulrnbxtzmjczalspmuv.supabase.co";
-const supabaseKey = "sb_publishable_4YoKd1pRffAWkcmg7-pAtg_iDp4hMmC"; // aapka public key
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;https://oprsuzvbabyhpowtepoj.supabase.co
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;sb_publishable_f6Bw9BZTgsKqKcNmbkEIqw_ELi86TJw
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(
+  supabaseUrl,
+  supabaseAnonKey
+);
