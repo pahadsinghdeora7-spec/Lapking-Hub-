@@ -13,6 +13,7 @@ import Categories from "./pages/Categories.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
 import Account from "./pages/Account.jsx";
+import CategoryProducts from "./pages/CategoryProducts.jsx";
 
 /* ================= ADMIN PAGES ================= */
 import AdminLogin from "./admin/AdminLogin.jsx";
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/category/:slug" element={<CategoryProducts />} />
 
             {/* ================= ADMIN ROUTES ================= */}
             <Route path="/admin/login" element={<AdminLogin />} />
