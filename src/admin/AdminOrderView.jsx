@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { supabase } from "../../supabaseClient";
+import { useParams, Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import "./AdminOrders.css";
 
 export default function AdminOrderView() {
@@ -15,22 +15,25 @@ export default function AdminOrderView() {
   }, []);
 
   const loadOrder = async () => {
+    // 🔹 Order
     const { data: orderData } = await supabase
       .from("orders")
       .select("*")
       .eq("id", id)
       .single();
 
-    const { data: itemData } = await supabase
+    // 🔹 Order items
+    const { data: itemsData } = await supabase
       .from("order_items")
       .select("*")
       .eq("order_id", id);
 
     setOrder(orderData);
-    setItems(itemData || []);
-    setStatus(orderData?.order_status);
+    setItems(itemsData || []);
+    setStatus(orderData?.order_status || "");
   };
 
+  // ✅ Update order status
   const updateStatus = async () => {
     await supabase
       .from("orders")
@@ -38,8 +41,10 @@ export default function AdminOrderView() {
       .eq("id", id);
 
     alert("Order status updated");
+    loadOrder();
   };
 
+  // ✅ Update payment status
   const updatePayment = async (value) => {
     await supabase
       .from("orders")
@@ -53,7 +58,6 @@ export default function AdminOrderView() {
 
   return (
     <div className="admin-orders">
-
       <h2>Order #{order.id}</h2>
 
       {/* CUSTOMER */}
@@ -62,14 +66,26 @@ export default function AdminOrderView() {
         <p><b>Name:</b> {order.name}</p>
         <p><b>Phone:</b> {order.phone}</p>
         <p><b>Address:</b> {order.address}</p>
-        <p><b>Model / Part:</b> {order.model_part || "—"}</p>
+        <p><b>Model / Part:</b> {order.model_part || "-"}</p>
+      </div>
+
+      {/* SHIPPING */}
+      <div className="card">
+        <h4>Shipping</h4>
+        <p><b>Courier:</b> {order.shipping_name}</p>
+        <p><b>Charge:</b> ₹{order.shipping_price}</p>
       </div>
 
       {/* PAYMENT */}
       <div className="card">
         <h4>Payment</h4>
-        <p>Method: {order.payment_method}</p>
-        <p>Status: <b>{order.payment_status}</b></p>
+        <p><b>Method:</b> {order.payment_method}</p>
+        <p>
+          <b>Status:</b>{" "}
+          <span className={`badge ${order.payment_status}`}>
+            {order.payment_status}
+          </span>
+        </p>
 
         {order.payment_status === "pending" && (
           <div className="btn-row">
@@ -90,21 +106,7 @@ export default function AdminOrderView() {
         )}
       </div>
 
-      {/* ITEMS */}
-      <div className="card">
-        <h4>Order Items</h4>
-
-        {items.map((item) => (
-          <div key={item.id} className="order-item">
-            <div>{item.name}</div>
-            <div>₹{item.price} × {item.qty}</div>
-          </div>
-        ))}
-
-        <h3>Total: ₹{order.total}</h3>
-      </div>
-
-      {/* STATUS */}
+      {/* ORDER STATUS */}
       <div className="card">
         <h4>Order Status</h4>
 
@@ -114,7 +116,6 @@ export default function AdminOrderView() {
         >
           <option value="new">New</option>
           <option value="confirmed">Confirmed</option>
-          <option value="packed">Packed</option>
           <option value="shipped">Shipped</option>
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
@@ -125,6 +126,27 @@ export default function AdminOrderView() {
         </button>
       </div>
 
+      {/* ITEMS */}
+      <div className="card">
+        <h4>Order Items</h4>
+
+        {items.map((item) => (
+          <div key={item.id} className="order-item">
+            <div>
+              <b>{item.name}</b>
+              <div>Qty: {item.qty}</div>
+            </div>
+            <div>₹{item.price}</div>
+          </div>
+        ))}
+
+        <hr />
+        <h3>Total: ₹{order.total}</h3>
+      </div>
+
+      <Link to="/admin/orders" className="view-btn">
+        ← Back to Orders
+      </Link>
     </div>
   );
 }
