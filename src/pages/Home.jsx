@@ -6,30 +6,31 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("status", true)
-        .order("id", { ascending: false });
-
-      if (error) {
-        console.error("Supabase error:", error);
-      } else {
-        setProducts(data || []);
-      }
-
-      setLoading(false);
-    };
-
     loadProducts();
   }, []);
 
+  const loadProducts = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("SUPABASE ERROR ❌", error);
+    } else {
+      console.log("PRODUCTS ✅", data);
+      setProducts(data || []);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="page home-page">
-      {/* Banner */}
+
+      {/* ================= BANNER ================= */}
       <section className="banner">
         <h2>Premium Laptop Accessories</h2>
         <p>
@@ -38,17 +39,18 @@ export default function Home() {
         <button className="primary-btn">Shop Now →</button>
       </section>
 
-      {/* Latest Products */}
+      {/* ================= PRODUCTS ================= */}
       <h3 className="section-title">Latest Products</h3>
 
       {loading ? (
         <p>Loading products...</p>
       ) : products.length === 0 ? (
-        <p>No products yet. rajveer Please add from Admin Panel.</p>
+        <p>No products yet. Please add from Admin Panel.</p>
       ) : (
         <div className="products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
+
               {/* IMAGE */}
               {p.image ? (
                 <img
@@ -80,10 +82,12 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+
             </div>
           ))}
         </div>
       )}
+
     </div>
   );
 }
