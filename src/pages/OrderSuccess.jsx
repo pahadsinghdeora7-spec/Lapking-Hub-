@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import "./OrderSuccess.css";
 import { supabase } from "../supabaseClient";
+import "./OrderSuccess.css";
 
 export default function OrderSuccess() {
   const { id } = useParams();
+
   const [order, setOrder] = useState(null);
   const [items, setItems] = useState([]);
 
@@ -19,34 +20,31 @@ export default function OrderSuccess() {
       .eq("id", id)
       .single();
 
-    const { data: itemsData } = await supabase
+    const { data: itemData } = await supabase
       .from("order_items")
       .select("*")
       .eq("order_id", id);
 
     setOrder(orderData);
-    setItems(itemsData || []);
+    setItems(itemData || []);
   };
 
-  if (!order) return null;
+  if (!order) return <p>Loading...</p>;
 
   return (
-    <div className="order-success">
+    <div className="order-success-page">
 
-      {/* SUCCESS BOX */}
+      {/* HEADER */}
       <div className="success-box">
-        <div className="success-icon">✔</div>
-
-        <h2>Order Created - Payment Pending</h2>
-
-        <p className="warning">
-          ⚠ Payment is NOT confirmed automatically
+        <h2>✅ Order Created - Payment Pending</h2>
+        <p className="warn">
+          Payment is NOT confirmed automatically.  
+          Please send payment screenshot on WhatsApp.
         </p>
 
-        <p className="note">
-          Please complete payment in your UPI app and send payment screenshot
-          on WhatsApp for confirmation.
-        </p>
+        <div className="order-id">
+          Order ID: <strong>LKH{order.id}</strong>
+        </div>
 
         <a
           href={`https://wa.me/919873670361?text=Order%20ID%20LKH${order.id}%20Payment%20Screenshot`}
@@ -56,10 +54,6 @@ export default function OrderSuccess() {
         >
           Send Payment Screenshot on WhatsApp
         </a>
-
-        <div className="order-id">
-          Order ID: <strong>LKH{order.id}</strong>
-        </div>
       </div>
 
       {/* INFO */}
@@ -92,12 +86,24 @@ export default function OrderSuccess() {
           <div className="item-row" key={item.id}>
             <div>
               <p>{item.name}</p>
-              <small>₹{item.price} × {item.qty}</small>
+              <small>
+                ₹{item.price} × {item.qty}
+              </small>
+
+              {/* 🔁 REPLACEMENT BUTTON */}
+              <Link
+                to={`/replacement/${order.id}/${item.product_id}`}
+                className="btn blue"
+              >
+                Request Replacement
+              </Link>
             </div>
+
             <strong>₹{item.price * item.qty}</strong>
           </div>
         ))}
 
+        {/* TOTAL */}
         <div className="total-box">
           <div>
             <span>Subtotal</span>
@@ -127,4 +133,4 @@ export default function OrderSuccess() {
 
     </div>
   );
-            }
+}
