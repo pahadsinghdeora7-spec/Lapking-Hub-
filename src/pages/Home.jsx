@@ -1,3 +1,4 @@
+import "./Home.css";
 import products from "../data/dummyProducts";
 import ProductCard from "../components/ProductCard";
 
