@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "./supabaseClient";
+import { supabase } from "../supabaseClient"; // ✅ IMPORTANT FIX
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -31,7 +31,8 @@ export default function Home() {
 
   return (
     <div className="page home-page">
-      {/* Banner */}
+
+      {/* ===== BANNER ===== */}
       <section className="banner">
         <h2>Premium Laptop Accessories</h2>
         <p>
@@ -40,7 +41,7 @@ export default function Home() {
         <button className="primary-btn">Shop Now →</button>
       </section>
 
-      {/* Latest Products */}
+      {/* ===== PRODUCTS ===== */}
       <h3 className="section-title">Latest Products</h3>
 
       {loading ? (
@@ -51,7 +52,8 @@ export default function Home() {
         <div className="products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
-              {/* Image */}
+
+              {/* IMAGE */}
               {p.image ? (
                 <img
                   src={p.image}
@@ -64,7 +66,7 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Body */}
+              {/* BODY */}
               <div className="product-body">
                 <span className="product-brand">
                   Category ID: {p.category_id}
@@ -82,6 +84,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+
             </div>
           ))}
         </div>
