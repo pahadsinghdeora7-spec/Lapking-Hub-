@@ -1,0 +1,42 @@
+.replacement-box {
+  max-width: 500px;
+  margin: 20px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.replacement-box h2 {
+  margin-bottom: 15px;
+}
+
+.replacement-box label {
+  font-weight: 600;
+  display: block;
+  margin-top: 10px;
+}
+
+.replacement-box select,
+.replacement-box textarea,
+.replacement-box input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.replacement-box textarea {
+  min-height: 80px;
+}
+
+.replacement-box button {
+  width: 100%;
+  margin-top: 15px;
+  background: #0d6efd;
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+}
