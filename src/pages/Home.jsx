@@ -44,7 +44,7 @@ export default function Home() {
       {loading ? (
         <p>Loading products...</p>
       ) : products.length === 0 ? (
-        <p>No products yet. Please add from Admin Panel.</p>
+        <p>No products yet. rajveer Please add from Admin Panel.</p>
       ) : (
         <div className="products-grid">
           {products.map((p) => (
