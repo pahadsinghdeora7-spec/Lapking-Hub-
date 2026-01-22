@@ -15,6 +15,7 @@ import Orders from "./pages/Orders.jsx";
 import Account from "./pages/Account.jsx";
 import CategoryProducts from "./pages/CategoryProducts.jsx";
 import CheckoutShipping from "./pages/CheckoutShipping";
+import CheckoutAddress from "./pages/CheckoutAddress";
 
 /* ================= ADMIN PAGES ================= */
 import AdminLogin from "./admin/AdminLogin.jsx";
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/account" element={<Account />} />
             <Route path="/category/:slug" element={<CategoryProducts />} />
             <Route path="/checkout/shipping" element={<CheckoutShipping />} />
+            <Route path="/checkout/address" element={<CheckoutAddress />} />
 
             
             {/* ================= ADMIN ROUTES ================= */}
