@@ -1,0 +1,83 @@
+.payment-page {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.payment-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.upi {
+  font-weight: 600;
+  color: #555;
+}
+
+.upi-id {
+  background: #f1f5ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.scan-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.qr-img {
+  width: 220px;
+  margin: 15px auto;
+  display: block;
+}
+
+.total-box {
+  background: #f6f7ff;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.pay-btn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 14px;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.pay-btn:hover {
+  background: #16a34a;
+}
+
+.order-summary {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  margin-top: 10px;
+}
