@@ -1,28 +1,49 @@
-import React from 'react';
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import "./Categories.css";
+
+const categories = [
+  { name: "DC Jack", slug: "dc-jack", icon: "🔌" },
+  { name: "Laptop Body", slug: "body", icon: "💻" },
+  { name: "Speakers", slug: "speakers", icon: "🔊" },
+  { name: "Fans", slug: "fans", icon: "🌀" },
+  { name: "Batteries", slug: "batteries", icon: "🔋" },
+  { name: "Keyboards", slug: "keyboards", icon: "⌨️" },
+];
 
 export default function Categories() {
-  // Abhi static cards, baad me Supabase se categories nikaal sakte hain
-  const cats = [
-    { name: 'Chargers' },
-    { name: 'Keyboards' },
-    { name: 'Mouse' },
-    { name: 'HDMI Cables' },
-    { name: 'Batteries' },
-    { name: 'Adapters' },
-  ];
-
   return (
-    <div className="page">
-      <h3 className="section-title">All Categories</h3>
-      <div className="categories-grid">
-        {cats.map((c) => (
-          <div key={c.name} className="category-card">
-            <div className="category-icon">🔌</div>
-            <div className="category-name">{c.name}</div>
-            <div className="category-link">Shop Now →</div>
-          </div>
+    <div className="cat-page">
+      <Helmet>
+        <title>All Categories | Lapking Hub</title>
+        <meta
+          name="description"
+          content="Browse all laptop spare parts categories including keyboards, batteries, DC jacks, fans and speakers."
+        />
+      </Helmet>
+
+      <h1 className="cat-title">All Categories</h1>
+      <p className="cat-sub">
+        Browse our complete collection of laptop accessories
+      </p>
+
+      <div className="cat-grid">
+        {categories.map((cat) => (
+          <Link
+            key={cat.slug}
+            to={`/category/${cat.slug}`}
+            className="cat-card"
+          >
+            <div className="cat-icon">{cat.icon}</div>
+            <h3>{cat.name}</h3>
+            <span>Shop Now →</span>
+          </Link>
         ))}
+      </div>
+
+      <div className="cat-seo-text">
+        Lapking Hub provides wholesale laptop spare parts for all major brands.
       </div>
     </div>
   );
-}
+            }
