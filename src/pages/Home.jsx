@@ -8,7 +8,7 @@ export default function Home() {
 
       {/* HEADER */}
       <header className="header">
-        <h2>👑 LapkingHub</h2>
+        👑 LapkingHub
       </header>
 
       {/* SEARCH */}
@@ -34,7 +34,7 @@ export default function Home() {
       <h3 className="title">Latest Products</h3>
 
       <div className="product-grid">
-        {products.map(p => (
+        {products.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </div>
