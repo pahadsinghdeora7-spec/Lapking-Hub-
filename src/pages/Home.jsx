@@ -1,94 +1,43 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient"; // ✅ IMPORTANT FIX
+import products from "../data/dummyProducts";
+import ProductCard from "../components/ProductCard";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  async function loadProducts() {
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("status", true)
-      .order("id", { ascending: false });
-
-    if (error) {
-      console.error("SUPABASE ERROR ❌", error);
-      alert("Database error: " + error.message);
-    } else {
-      console.log("PRODUCTS ✅", data);
-      setProducts(data || []);
-    }
-
-    setLoading(false);
-  }
-
   return (
-    <div className="page home-page">
+    <div className="home">
 
-      {/* ===== BANNER ===== */}
+      {/* HEADER */}
+      <header className="header">
+        <h2>👑 LapkingHub</h2>
+      </header>
+
+      {/* SEARCH */}
+      <div className="search-box">
+        <input placeholder="Search products..." />
+      </div>
+
+      {/* BANNER */}
       <section className="banner">
-        <h2>Premium Laptop Accessories</h2>
+        <h1>Premium Laptop Accessories</h1>
         <p>
-          Shop the best chargers, batteries, keyboards and more.
+          Shop the best chargers, batteries, keyboards and more
         </p>
-        <button className="primary-btn">Shop Now →</button>
+        <button>Shop Now →</button>
       </section>
 
-      {/* ===== PRODUCTS ===== */}
-      <h3 className="section-title">Latest Products</h3>
+      {/* INFO */}
+      <div className="info-box">
+        Wholesale Supplier of Laptop Spare Parts & Accessories
+      </div>
 
-      {loading ? (
-        <p>Loading products...</p>
-      ) : products.length === 0 ? (
-        <p>No products yet. Please add from Admin Panel.</p>
-      ) : (
-        <div className="products-grid">
-          {products.map((p) => (
-            <div key={p.id} className="product-card">
+      {/* PRODUCTS */}
+      <h3 className="title">Latest Products</h3>
 
-              {/* IMAGE */}
-              {p.image ? (
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  className="product-image"
-                />
-              ) : (
-                <div className="product-image placeholder">
-                  No image
-                </div>
-              )}
+      <div className="product-grid">
+        {products.map(p => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
 
-              {/* BODY */}
-              <div className="product-body">
-                <span className="product-brand">
-                  Category ID: {p.category_id}
-                </span>
-
-                <h4 className="product-name">{p.name}</h4>
-
-                <div className="product-price-row">
-                  <span className="product-price">
-                    ₹{p.price || 0}
-                  </span>
-
-                  <button className="small-primary-btn">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
