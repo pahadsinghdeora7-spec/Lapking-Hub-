@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import { useEffect, useState } from "react";
+import { supabase } from "./supabaseClient";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -9,39 +9,37 @@ export default function Home() {
     loadProducts();
   }, []);
 
-  const loadProducts = async () => {
+  async function loadProducts() {
     setLoading(true);
 
     const { data, error } = await supabase
       .from("products")
       .select("*")
+      .eq("status", true)
       .order("id", { ascending: false });
 
     if (error) {
-      console.error("SUPABASE ERROR ❌", error);
+      alert("Supabase error: " + error.message);
+      console.error(error);
     } else {
-      console.log("PRODUCTS ✅", data);
       setProducts(data || []);
     }
 
     setLoading(false);
-  };
+  }
 
   return (
     <div className="page home-page">
-
-      {/* ================= BANNER ================= */}
+      {/* Banner */}
       <section className="banner">
         <h2>Premium Laptop Accessories</h2>
-        console.log("SUPABASE URL =", supabaseUrl);
-console.log("SUPABASE KEY =", supabaseAnonKey);
         <p>
           Shop the best chargers, batteries, keyboards and more.
         </p>
         <button className="primary-btn">Shop Now →</button>
       </section>
 
-      {/* ================= PRODUCTS ================= */}
+      {/* Latest Products */}
       <h3 className="section-title">Latest Products</h3>
 
       {loading ? (
@@ -52,8 +50,7 @@ console.log("SUPABASE KEY =", supabaseAnonKey);
         <div className="products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
-
-              {/* IMAGE */}
+              {/* Image */}
               {p.image ? (
                 <img
                   src={p.image}
@@ -66,7 +63,7 @@ console.log("SUPABASE KEY =", supabaseAnonKey);
                 </div>
               )}
 
-              {/* BODY */}
+              {/* Body */}
               <div className="product-body">
                 <span className="product-brand">
                   Category ID: {p.category_id}
@@ -84,12 +81,10 @@ console.log("SUPABASE KEY =", supabaseAnonKey);
                   </button>
                 </div>
               </div>
-
             </div>
           ))}
         </div>
       )}
-
     </div>
   );
 }
