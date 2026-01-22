@@ -33,6 +33,8 @@ export default function Home() {
       {/* ================= BANNER ================= */}
       <section className="banner">
         <h2>Premium Laptop Accessories</h2>
+        console.log("SUPABASE URL =", supabaseUrl);
+console.log("SUPABASE KEY =", supabaseAnonKey);
         <p>
           Shop the best chargers, batteries, keyboards and more.
         </p>
