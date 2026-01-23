@@ -1,101 +1,147 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { Link } from "react-router-dom";
+import {
+  FaBox,
+  FaEye,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaTruck,
+  FaMoneyBillWave,
+} from "react-icons/fa";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrders = async () => {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .order("id", { ascending: false });
-
-    if (!error) {
-      setOrders(data || []);
-    }
-
-    setLoading(false);
-  };
-
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>Orders</h2>
+  const fetchOrders = async () => {
+    const { data } = await supabase
+      .from("orders")
+      .select("*")
+      .order("id", { ascending: false });
 
-      {loading ? (
-        <p>Loading orders...</p>
-      ) : orders.length === 0 ? (
-        <p>No orders found</p>
-      ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginTop: 20,
-              background: "#fff",
-            }}
-          >
+    setOrders(data || []);
+    setLoading(false);
+  };
+
+  const updateStatus = async (id, status) => {
+    await supabase
+      .from("orders")
+      .update({ order_status: status })
+      .eq("id", id);
+
+    fetchOrders();
+  };
+
+  return (
+    <div className="admin-page">
+
+      <h2 className="page-title">
+        <FaBox /> Orders
+      </h2>
+
+      <div className="card">
+
+        {loading ? (
+          <p>Loading orders...</p>
+        ) : (
+          <table className="admin-table">
             <thead>
-              <tr style={{ background: "#f5f7fb" }}>
-                <th style={th}>Order ID</th>
-                <th style={th}>Name</th>
-                <th style={th}>Phone</th>
-                <th style={th}>Total</th>
-                <th style={th}>Payment</th>
-                <th style={th}>Status</th>
-                <th style={th}>Action</th>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Total</th>
+                <th>Courier</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
-              {orders.map((o) => (
+              {orders.map((o, i) => (
                 <tr key={o.id}>
-                  <td style={td}>#{o.id}</td>
-                  <td style={td}>{o.name}</td>
-                  <td style={td}>{o.phone}</td>
-                  <td style={td}>₹{o.total}</td>
-                  <td style={td}>{o.payment_status}</td>
-                  <td style={td}>{o.order_status}</td>
-                  <td style={td}>
-                    <Link
-                      to={`/admin/orders/${o.id}`}
-                      style={{
-                        padding: "6px 12px",
-                        background: "#2563eb",
-                        color: "#fff",
-                        borderRadius: 6,
-                        textDecoration: "none",
-                        fontSize: 13,
-                      }}
+                  <td>{i + 1}</td>
+                  <td>{o.name}</td>
+                  <td>{o.phone}</td>
+                  <td>₹{o.total}</td>
+
+                  <td>
+                    {o.shipping_name ? (
+                      <>
+                        <FaTruck /> {o.shipping_name}
+                      </>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  <td>
+                    {o.payment_status === "paid" ? (
+                      <span className="badge green">
+                        <FaMoneyBillWave /> Paid
+                      </span>
+                    ) : (
+                      <span className="badge red">
+                        <FaMoneyBillWave /> Pending
+                      </span>
+                    )}
+                  </td>
+
+                  <td>
+                    {o.order_status === "completed" ? (
+                      <span className="badge green">
+                        <FaCheckCircle /> Completed
+                      </span>
+                    ) : o.order_status === "cancelled" ? (
+                      <span className="badge red">
+                        <FaTimesCircle /> Cancelled
+                      </span>
+                    ) : (
+                      <span className="badge blue">
+                        Processing
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="actions">
+                    <button
+                      className="btn small"
+                      onClick={() =>
+                        updateStatus(o.id, "completed")
+                      }
                     >
-                      View
-                    </Link>
+                      <FaEye />
+                    </button>
+
+                    <button
+                      className="btn small red"
+                      onClick={() =>
+                        updateStatus(o.id, "cancelled")
+                      }
+                    >
+                      <FaTimesCircle />
+                    </button>
                   </td>
                 </tr>
               ))}
+
+              {orders.length === 0 && (
+                <tr>
+                  <td colSpan="8" align="center">
+                    No orders found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
+      </div>
+
     </div>
   );
 }
-
-const th = {
-  padding: 12,
-  textAlign: "left",
-  fontWeight: 600,
-  fontSize: 14,
-};
-
-const td = {
-  padding: 12,
-  borderBottom: "1px solid #eee",
-  fontSize: 14,
-};
