@@ -20,12 +20,11 @@ export default function AdminProducts() {
     status: true,
   });
 
+  // ---------------- FETCH ----------------
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
-
-  // ---------------- FETCH ----------------
 
   const fetchProducts = async () => {
     const { data } = await supabase
@@ -46,7 +45,6 @@ export default function AdminProducts() {
   };
 
   // ---------------- ADD PRODUCT ----------------
-
   const addProduct = async () => {
     if (!form.name || !form.category_id || !form.price) {
       alert("Category, Name aur Price required hai");
@@ -77,6 +75,7 @@ export default function AdminProducts() {
       alert(error.message);
     } else {
       alert("Product added successfully");
+
       setForm({
         category_id: "",
         name: "",
@@ -90,14 +89,14 @@ export default function AdminProducts() {
         description: "",
         status: true,
       });
+
       fetchProducts();
     }
   };
 
   // ---------------- DELETE ----------------
-
   const deleteProduct = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
+    if (!window.confirm("Delete product?")) return;
 
     await supabase.from("products").delete().eq("id", id);
     fetchProducts();
@@ -106,16 +105,17 @@ export default function AdminProducts() {
   return (
     <div className="space-y-6">
 
-      {/* PAGE TITLE */}
       <h2 className="text-xl font-bold">Products</h2>
 
       {/* ADD PRODUCT */}
-      <div className="bg-white p-4 rounded-xl shadow grid md:grid-cols-3 gap-4">
+      <div className="bg-white p-4 rounded-xl shadow grid grid-cols-1 md:grid-cols-2 gap-3">
 
         <select
           className="border p-2 rounded"
           value={form.category_id}
-          onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, category_id: e.target.value })
+          }
         >
           <option value="">Select Category</option>
           {categories.map((c) => (
@@ -164,72 +164,67 @@ export default function AdminProducts() {
 
         <input
           className="border p-2 rounded"
-          placeholder="Image 1"
+          placeholder="Image 1 URL"
           value={form.image1}
           onChange={(e) => setForm({ ...form, image1: e.target.value })}
         />
 
         <input
           className="border p-2 rounded"
-          placeholder="Image 2"
+          placeholder="Image 2 URL"
           value={form.image2}
           onChange={(e) => setForm({ ...form, image2: e.target.value })}
         />
 
+        <input
+          className="border p-2 rounded"
+          placeholder="Compatible models"
+          value={form.compatible_m}
+          onChange={(e) =>
+            setForm({ ...form, compatible_m: e.target.value })
+          }
+        />
+
         <textarea
-          className="border p-2 rounded md:col-span-3"
+          className="border p-2 rounded col-span-full"
           placeholder="Description"
           value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, description: e.target.value })
+          }
         />
 
         <button
           onClick={addProduct}
           disabled={loading}
-          className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 md:col-span-3"
+          className="bg-blue-600 text-white py-2 rounded col-span-full hover:bg-blue-700"
         >
           {loading ? "Saving..." : "Add Product"}
         </button>
       </div>
 
-      {/* PRODUCTS TABLE */}
+      {/* PRODUCT LIST */}
       <div className="bg-white rounded-xl shadow overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
             <tr>
-              <th className="p-2">Image</th>
+              <th>ID</th>
               <th>Name</th>
               <th>Category</th>
               <th>Price</th>
               <th>Stock</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th></th>
             </tr>
           </thead>
 
           <tbody>
             {products.map((p) => (
               <tr key={p.id} className="border-b">
-                <td className="p-2">
-                  {p.image && (
-                    <img
-                      src={p.image}
-                      alt=""
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  )}
-                </td>
+                <td className="p-2">{p.id}</td>
                 <td>{p.name}</td>
                 <td>{p.categories?.name}</td>
                 <td>₹{p.price}</td>
                 <td>{p.stock}</td>
-                <td>
-                  {p.status ? (
-                    <span className="text-green-600">Active</span>
-                  ) : (
-                    <span className="text-red-600">Inactive</span>
-                  )}
-                </td>
                 <td>
                   <button
                     onClick={() => deleteProduct(p.id)}
