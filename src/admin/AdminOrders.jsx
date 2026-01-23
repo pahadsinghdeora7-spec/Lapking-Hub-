@@ -9,24 +9,24 @@ export default function AdminOrders() {
     fetchOrders();
   }, []);
 
-  // ---------------- FETCH ORDERS ----------------
+  // ================= FETCH ORDERS =================
   const fetchOrders = async () => {
     setLoading(true);
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
 
-    setOrders(data || []);
+    if (!error) setOrders(data || []);
     setLoading(false);
   };
 
-  // ---------------- STATUS UPDATE ----------------
+  // ================= UPDATE STATUS =================
   const updateStatus = async (id, status) => {
     await supabase
       .from("orders")
-      .update({ status })
+      .update({ order_status: status })
       .eq("id", id);
 
     fetchOrders();
@@ -46,6 +46,7 @@ export default function AdminOrders() {
               <th className="p-2">Order ID</th>
               <th>Date</th>
               <th>Customer</th>
+              <th>Phone</th>
               <th>Total</th>
               <th>Status</th>
             </tr>
@@ -55,20 +56,26 @@ export default function AdminOrders() {
             {orders.map((o) => (
               <tr key={o.id} className="border-b">
                 <td className="p-2">#{o.id}</td>
+
                 <td>
                   {new Date(o.created_at).toLocaleDateString()}
                 </td>
-                <td>{o.customer_name || "Customer"}</td>
-                <td>₹{o.total || 0}</td>
+
+                <td>{o.name}</td>
+
+                <td>{o.phone}</td>
+
+                <td>₹{o.total}</td>
+
                 <td>
                   <select
-                    value={o.status}
+                    value={o.order_status}
                     onChange={(e) =>
                       updateStatus(o.id, e.target.value)
                     }
                     className="border rounded p-1"
                   >
-                    <option value="pending">Pending</option>
+                    <option value="new">New</option>
                     <option value="confirmed">Confirmed</option>
                     <option value="shipped">Shipped</option>
                     <option value="delivered">Delivered</option>
@@ -78,9 +85,9 @@ export default function AdminOrders() {
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
+
     </div>
   );
-}
+      }
