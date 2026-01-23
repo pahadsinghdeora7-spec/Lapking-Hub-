@@ -5,6 +5,7 @@ export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   const [form, setForm] = useState({
     category_id: "",
@@ -20,23 +21,20 @@ export default function AdminProducts() {
     status: true,
   });
 
-  // ---------------- FETCH CATEGORIES ----------------
+  // ================= FETCH =================
   const fetchCategories = async () => {
     const { data } = await supabase
       .from("categories")
       .select("*")
       .order("name");
-
     setCategories(data || []);
   };
 
-  // ---------------- FETCH PRODUCTS ----------------
   const fetchProducts = async () => {
     const { data } = await supabase
       .from("products")
       .select("*")
       .order("id", { ascending: false });
-
     setProducts(data || []);
   };
 
@@ -45,61 +43,115 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
-  // ---------------- ADD PRODUCT ----------------
-  const addProduct = async () => {
-    if (!form.name || !form.category_id || !form.price) {
+  // ================= ADD / UPDATE =================
+  const saveProduct = async () => {
+    if (!form.category_id || !form.name || !form.price) {
       alert("Category, Name aur Price required hai");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.from("products").insert([
-      {
-        category_id: Number(form.category_id),
-        name: form.name,
-        price: Number(form.price),
-        stock: Number(form.stock || 0),
-        part_number: form.part_number,
-        image: form.image,
-        image1: form.image1,
-        image2: form.image2,
-        compatible_m: form.compatible_m,
-        description: form.description,
-        status: form.status,
-      },
-    ]);
+    if (editId) {
+      // UPDATE
+      const { error } = await supabase
+        .from("products")
+        .update({
+          category_id: Number(form.category_id),
+          name: form.name,
+          price: Number(form.price),
+          stock: Number(form.stock || 0),
+          part_number: form.part_number,
+          image: form.image,
+          image1: form.image1,
+          image2: form.image2,
+          compatible_m: form.compatible_m,
+          description: form.description,
+          status: form.status,
+        })
+        .eq("id", editId);
+
+      if (error) alert(error.message);
+      else alert("✅ Product updated");
+
+    } else {
+      // INSERT
+      const { error } = await supabase.from("products").insert([
+        {
+          category_id: Number(form.category_id),
+          name: form.name,
+          price: Number(form.price),
+          stock: Number(form.stock || 0),
+          part_number: form.part_number,
+          image: form.image,
+          image1: form.image1,
+          image2: form.image2,
+          compatible_m: form.compatible_m,
+          description: form.description,
+          status: form.status,
+        },
+      ]);
+
+      if (error) alert(error.message);
+      else alert("✅ Product added");
+    }
 
     setLoading(false);
-
-    if (error) {
-      alert(error.message);
-    } else {
-      alert("Product added successfully");
-      setForm({
-        category_id: "",
-        name: "",
-        price: "",
-        stock: "",
-        part_number: "",
-        image: "",
-        image1: "",
-        image2: "",
-        compatible_m: "",
-        description: "",
-        status: true,
-      });
-      fetchProducts();
-    }
+    resetForm();
+    fetchProducts();
   };
 
-  // ---------------- UI ----------------
+  const resetForm = () => {
+    setEditId(null);
+    setForm({
+      category_id: "",
+      name: "",
+      price: "",
+      stock: "",
+      part_number: "",
+      image: "",
+      image1: "",
+      image2: "",
+      compatible_m: "",
+      description: "",
+      status: true,
+    });
+  };
+
+  // ================= EDIT =================
+  const editProduct = (p) => {
+    setEditId(p.id);
+    setForm({
+      category_id: p.category_id,
+      name: p.name,
+      price: p.price,
+      stock: p.stock,
+      part_number: p.part_number,
+      image: p.image,
+      image1: p.image1,
+      image2: p.image2,
+      compatible_m: p.compatible_m,
+      description: p.description,
+      status: p.status,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ================= DELETE =================
+  const deleteProduct = async (id) => {
+    if (!window.confirm("Delete product?")) return;
+    await supabase.from("products").delete().eq("id", id);
+    fetchProducts();
+  };
+
   return (
     <div style={{ padding: 20 }}>
-      <h2>Products Management</h2>
+      <h2>🛒 Admin Products</h2>
 
-      {/* ADD PRODUCT */}
-      <div style={{ maxWidth: 500 }}>
+      {/* FORM */}
+      <div style={{ background: "#fff", padding: 15, borderRadius: 8 }}>
+        <h3>{editId ? "Update Product" : "Add Product"}</h3>
+
         <select
           value={form.category_id}
           onChange={(e) =>
@@ -107,79 +159,68 @@ export default function AdminProducts() {
           }
         >
           <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
 
-        <input
-          placeholder="Product name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
+        <input placeholder="Name" value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })} />
 
-        <input
-          placeholder="Price"
-          type="number"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value })}
-        />
+        <input placeholder="Price" type="number" value={form.price}
+          onChange={(e) => setForm({ ...form, price: e.target.value })} />
 
-        <input
-          placeholder="Stock"
-          type="number"
-          value={form.stock}
-          onChange={(e) => setForm({ ...form, stock: e.target.value })}
-        />
+        <input placeholder="Stock" type="number" value={form.stock}
+          onChange={(e) => setForm({ ...form, stock: e.target.value })} />
 
-        <input
-          placeholder="Part number"
-          value={form.part_number}
-          onChange={(e) =>
-            setForm({ ...form, part_number: e.target.value })
-          }
-        />
+        <input placeholder="Part number" value={form.part_number}
+          onChange={(e) => setForm({ ...form, part_number: e.target.value })} />
 
-        <input
-          placeholder="Main image URL"
-          value={form.image}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
-        />
+        <input placeholder="Main image URL" value={form.image}
+          onChange={(e) => setForm({ ...form, image: e.target.value })} />
 
-        <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
-        />
+        <textarea placeholder="Description" value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })} />
 
-        <button onClick={addProduct} disabled={loading}>
-          {loading ? "Saving..." : "Add Product"}
+        <button onClick={saveProduct} disabled={loading}>
+          {loading ? "Saving..." : editId ? "Update Product" : "Add Product"}
         </button>
+
+        {editId && (
+          <button onClick={resetForm} style={{ marginLeft: 10 }}>
+            Cancel
+          </button>
+        )}
       </div>
 
-      <hr />
-
-      {/* PRODUCT LIST */}
-      <h3>Total Products: {products.length}</h3>
-
-      {products.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            border: "1px solid #ddd",
-            padding: 10,
-            marginBottom: 8,
-          }}
-        >
-          <b>{p.name}</b>
-          <div>₹{p.price}</div>
-          <div>Stock: {p.stock}</div>
-        </div>
-      ))}
+      {/* LIST */}
+      <table width="100%" border="1" cellPadding="8" style={{ marginTop: 25 }}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>₹</th>
+            <th>Stock</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr key={p.id}>
+              <td>{p.id}</td>
+              <td>{p.name}</td>
+              <td>₹{p.price}</td>
+              <td>{p.stock}</td>
+              <td>
+                <button onClick={() => editProduct(p)}>Edit</button>
+                <button onClick={() => deleteProduct(p.id)} style={{ marginLeft: 8 }}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
