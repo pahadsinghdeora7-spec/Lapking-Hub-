@@ -103,3 +103,83 @@ body {
   background: rgba(0,0,0,.45);
   z-index: 1500;
   }
+.dashboard {
+  padding: 10px;
+}
+
+.dash-head h2 {
+  margin: 0;
+}
+
+.dash-head p {
+  color: #777;
+  margin-bottom: 15px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,.05);
+}
+
+.stat-card h4 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.stat-card p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.green { border-left: 4px solid #28c76f; }
+.blue { border-left: 4px solid #0b5cff; }
+.purple { border-left: 4px solid #7367f0; }
+.orange { border-left: 4px solid #ff9f43; }
+.yellow { border-left: 4px solid #f6c343; }
+.red { border-left: 4px solid #ea5455; }
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.chart-placeholder {
+  height: 180px;
+  background: #f4f6fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.badge {
+  background: #e7f1ff;
+  color: #0b5cff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  }
