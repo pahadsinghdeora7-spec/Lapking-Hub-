@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabaseClient.js";
 import "./CheckoutShipping.css";
 
 export default function CheckoutShipping() {
