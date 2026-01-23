@@ -1,28 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./AdminOrders.css";
 
 export default function AdminOrderView() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [order, setOrder] = useState(null);
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadOrder();
-  }, []);
-
+  // 🔄 Load order
   const loadOrder = async () => {
-    // 🔹 Order
+    setLoading(true);
+
     const { data: orderData } = await supabase
       .from("orders")
       .select("*")
       .eq("id", id)
       .single();
 
-    // 🔹 Order items
     const { data: itemsData } = await supabase
       .from("order_items")
       .select("*")
@@ -31,7 +30,12 @@ export default function AdminOrderView() {
     setOrder(orderData);
     setItems(itemsData || []);
     setStatus(orderData?.order_status || "");
+    setLoading(false);
   };
+
+  useEffect(() => {
+    loadOrder();
+  }, []);
 
   // ✅ Update order status
   const updateStatus = async () => {
@@ -54,10 +58,17 @@ export default function AdminOrderView() {
     loadOrder();
   };
 
-  if (!order) return <p>Loading...</p>;
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+
+  if (!order) return <p>Order not found</p>;
 
   return (
     <div className="admin-orders">
+
+      <button className="back-btn" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
+
       <h2>Order #{order.id}</h2>
 
       {/* CUSTOMER */}
@@ -65,6 +76,7 @@ export default function AdminOrderView() {
         <h4>Customer Details</h4>
         <p><b>Name:</b> {order.name}</p>
         <p><b>Phone:</b> {order.phone}</p>
+        <p><b>Email:</b> {order.email || "-"}</p>
         <p><b>Address:</b> {order.address}</p>
         <p><b>Model / Part:</b> {order.model_part || "-"}</p>
       </div>
@@ -72,14 +84,17 @@ export default function AdminOrderView() {
       {/* SHIPPING */}
       <div className="card">
         <h4>Shipping</h4>
-        <p><b>Courier:</b> {order.shipping_name}</p>
-        <p><b>Charge:</b> ₹{order.shipping_price}</p>
+        <p><b>Courier:</b> {order.shipping_name || "-"}</p>
+        <p><b>Charge:</b> ₹{order.shipping_price || 0}</p>
       </div>
 
       {/* PAYMENT */}
       <div className="card">
         <h4>Payment</h4>
-        <p><b>Method:</b> {order.payment_method}</p>
+        <p>
+          <b>Method:</b> {order.payment_method}
+        </p>
+
         <p>
           <b>Status:</b>{" "}
           <span className={`badge ${order.payment_status}`}>
@@ -88,25 +103,31 @@ export default function AdminOrderView() {
         </p>
 
         {order.payment_status === "pending" && (
-          <div className="btn-row">
-            <button
-              className="btn green"
-              onClick={() => updatePayment("paid")}
-            >
-              Approve Payment
-            </button>
-
-            <button
-              className="btn red"
-              onClick={() => updatePayment("rejected")}
-            >
-              Reject Payment
-            </button>
-          </div>
+          <button
+            className="btn green"
+            onClick={() => updatePayment("paid")}
+          >
+            Approve Payment
+          </button>
         )}
       </div>
 
-      {/* ORDER STATUS */}
+      {/* ITEMS */}
+      <div className="card">
+        <h4>Items</h4>
+
+        {items.length === 0 && <p>No items</p>}
+
+        {items.map((item) => (
+          <div key={item.id} className="order-item">
+            <p><b>{item.product_name}</b></p>
+            <p>Qty: {item.qty}</p>
+            <p>Price: ₹{item.price}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* STATUS */}
       <div className="card">
         <h4>Order Status</h4>
 
@@ -116,6 +137,7 @@ export default function AdminOrderView() {
         >
           <option value="new">New</option>
           <option value="confirmed">Confirmed</option>
+          <option value="packed">Packed</option>
           <option value="shipped">Shipped</option>
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
@@ -126,27 +148,6 @@ export default function AdminOrderView() {
         </button>
       </div>
 
-      {/* ITEMS */}
-      <div className="card">
-        <h4>Order Items</h4>
-
-        {items.map((item) => (
-          <div key={item.id} className="order-item">
-            <div>
-              <b>{item.name}</b>
-              <div>Qty: {item.qty}</div>
-            </div>
-            <div>₹{item.price}</div>
-          </div>
-        ))}
-
-        <hr />
-        <h3>Total: ₹{order.total}</h3>
-      </div>
-
-      <Link to="/admin/orders" className="view-btn">
-        ← Back to Orders
-      </Link>
     </div>
   );
-}
+      }
