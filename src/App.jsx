@@ -78,6 +78,7 @@ export default function App() {
               <Route path="orders" element={<AdminOrders />} />
               <Route path="orders/:id" element={<AdminOrderView />} />
               <Route path="replacements" element={<AdminReplacements />} />
+              <Route path="/admin/couriers" element={<AdminCouriers />} />
             </Route>
 
           </Routes>
