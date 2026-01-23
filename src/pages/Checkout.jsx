@@ -1,111 +1,132 @@
-import React, { useState } from "react";
-import "./Checkout.css";
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
 export default function Checkout() {
+  const [couriers, setCouriers] = useState([]);
+  const [selectedCourier, setSelectedCourier] = useState(null);
+
   const [form, setForm] = useState({
     name: "",
-    mobile: "",
+    phone: "",
     address: "",
-    city: "",
-    pincode: "",
-    modelPart: "", // optional
+    model_part: "",
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const cartTotal = 0; // tumhara cart total yaha already hoga
+
+  // 🔹 fetch couriers
+  useEffect(() => {
+    fetchCouriers();
+  }, []);
+
+  const fetchCouriers = async () => {
+    const { data } = await supabase
+      .from("couriers")
+      .select("*")
+      .eq("status", true)
+      .order("price");
+
+    setCouriers(data || []);
   };
 
-  const placeOrder = () => {
-    if (!form.name || !form.mobile || !form.address) {
-      alert("Please fill required fields");
+  // 🔹 place order
+  const placeOrder = async () => {
+    if (!selectedCourier) {
+      alert("Please select courier");
       return;
     }
 
-    const message = `
-🧾 *New Order – Lapking Hub*
+    const totalAmount =
+      Number(cartTotal) + Number(selectedCourier.price);
 
-👤 Name: ${form.name}
-📞 Mobile: ${form.mobile}
-🏠 Address: ${form.address}
-🏙 City: ${form.city}
-📮 Pincode: ${form.pincode}
+    const { error } = await supabase.from("orders").insert([
+      {
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        model_part: form.model_part,
 
-💻 Model / Part No:
-${form.modelPart || "Not provided"}
+        shipping_name: selectedCourier.name,
+        shipping_price: selectedCourier.price,
 
-Please confirm order.
-`;
+        total: totalAmount,
+        payment_method: "COD",
+        payment_status: "pending",
+        order_status: "new",
+      },
+    ]);
 
-    window.open(
-      `https://wa.me/919873670361?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Order placed successfully ✅");
+    }
   };
 
   return (
-    <div className="checkout-page">
-      <h2>Checkout</h2>
+    <div className="checkout">
 
-      <div className="checkout-box">
-        <input
-          type="text"
-          placeholder="Full Name *"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-        />
+      <h2>Delivery Details</h2>
 
-        <input
-          type="tel"
-          placeholder="Mobile Number *"
-          name="mobile"
-          value={form.mobile}
-          onChange={handleChange}
-        />
+      <input
+        placeholder="Name"
+        value={form.name}
+        onChange={(e) =>
+          setForm({ ...form, name: e.target.value })
+        }
+      />
 
-        <textarea
-          placeholder="Full Address *"
-          name="address"
-          value={form.address}
-          onChange={handleChange}
-        />
+      <input
+        placeholder="Phone"
+        value={form.phone}
+        onChange={(e) =>
+          setForm({ ...form, phone: e.target.value })
+        }
+      />
 
-        <div className="row">
+      <textarea
+        placeholder="Address"
+        value={form.address}
+        onChange={(e) =>
+          setForm({ ...form, address: e.target.value })
+        }
+      />
+
+      <input
+        placeholder="Model / Part"
+        value={form.model_part}
+        onChange={(e) =>
+          setForm({ ...form, model_part: e.target.value })
+        }
+      />
+
+      <hr />
+
+      <h3>Select Courier</h3>
+
+      {couriers.map((c) => (
+        <label key={c.id} style={{ display: "block", marginBottom: 10 }}>
           <input
-            type="text"
-            placeholder="City"
-            name="city"
-            value={form.city}
-            onChange={handleChange}
+            type="radio"
+            name="courier"
+            onChange={() => setSelectedCourier(c)}
           />
+          {c.name} — ₹{c.price}
+        </label>
+      ))}
 
-          <input
-            type="text"
-            placeholder="Pincode"
-            name="pincode"
-            value={form.pincode}
-            onChange={handleChange}
-          />
-        </div>
+      <hr />
 
-        {/* OPTIONAL FIELD */}
-        <input
-          type="text"
-          placeholder="Model / Part Number (optional)"
-          name="modelPart"
-          value={form.modelPart}
-          onChange={handleChange}
-        />
+      <h3>
+        Total: ₹
+        {selectedCourier
+          ? cartTotal + selectedCourier.price
+          : cartTotal}
+      </h3>
 
-        <p className="note">
-          * If you are not sure, you can leave this blank. Our team will confirm
-          on WhatsApp.
-        </p>
-
-        <button className="place-order" onClick={placeOrder}>
-          Place Order on WhatsApp →
-        </button>
-      </div>
+      <button onClick={placeOrder}>
+        Place Order
+      </button>
     </div>
   );
-        }
+      }
