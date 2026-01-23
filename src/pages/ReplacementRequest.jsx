@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
-
+import { supabase } from "../supabaseClient.js";
 export default function ReplacementRequest() {
   const { orderId, productId } = useParams();
   const navigate = useNavigate();
