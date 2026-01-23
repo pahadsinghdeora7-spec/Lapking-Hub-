@@ -30,8 +30,10 @@ import AdminCategories from "./admin/AdminCategories.jsx";
 import AdminOrders from "./admin/AdminOrders.jsx";
 import AdminOrderView from "./admin/AdminOrderView.jsx";
 import AdminReplacements from "./admin/AdminReplacements.jsx";
+import AdminCouriers from "./admin/AdminCouriers.jsx";
+import AdminSettings from "./admin/AdminSettings.jsx";
 
-/* ================= COMMON COMPONENTS ================= */
+/* ================= COMPONENTS ================= */
 
 import Header from "./components/Header.jsx";
 import BottomNav from "./components/BottomNav.jsx";
@@ -49,28 +51,29 @@ export default function App() {
         <main className="app-main">
           <Routes>
 
-            {/* ================= USER ROUTES ================= */}
-
+            {/* ---------- USER ROUTES ---------- */}
             <Route path="/" element={<Home />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/category/:slug" element={<CategoryProducts />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/account" element={<Account />} />
-            <Route path="/category/:slug" element={<CategoryProducts />} />
+
+            {/* Checkout */}
             <Route path="/checkout/shipping" element={<CheckoutShipping />} />
             <Route path="/checkout/address" element={<CheckoutAddress />} />
-            <Route path="/order/success/:id" element={<OrderSuccess />} />
+            <Route path="/order/success" element={<OrderSuccess />} />
 
-            {/* 🔁 REPLACEMENT REQUEST (Customer) */}
+            {/* Replacement */}
             <Route
-              path="/replacement/:orderId/:productId"
+              path="/replacement/order/:id/product/:productId"
               element={<ReplacementRequest />}
             />
 
-            {/* ================= ADMIN ROUTES ================= */}
-
+            {/* ---------- ADMIN LOGIN ---------- */}
             <Route path="/admin/login" element={<AdminLogin />} />
 
+            {/* ---------- ADMIN PANEL ---------- */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
@@ -78,7 +81,8 @@ export default function App() {
               <Route path="orders" element={<AdminOrders />} />
               <Route path="orders/:id" element={<AdminOrderView />} />
               <Route path="replacements" element={<AdminReplacements />} />
-              <Route path="/admin/couriers" element={<AdminCouriers />} />
+              <Route path="couriers" element={<AdminCouriers />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
 
           </Routes>
