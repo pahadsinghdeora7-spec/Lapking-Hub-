@@ -1,0 +1,105 @@
+body {
+  background: #f6f8fb;
+}
+
+.admin-top {
+  height: 60px;
+  background: #0b5cff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+}
+
+.menu-btn {
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: white;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.logo .small {
+  display: block;
+  font-size: 11px;
+  opacity: .8;
+}
+
+.view-store {
+  background: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100vh;
+  background: #fff;
+  transition: .3s;
+  z-index: 2000;
+  box-shadow: 2px 0 20px rgba(0,0,0,.2);
+}
+
+.sidebar.show {
+  left: 0;
+}
+
+.side-head {
+  padding: 15px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.sidebar nav a {
+  padding: 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.sidebar nav a.active {
+  background: #0b5cff;
+  color: white;
+}
+
+.logout {
+  margin: 10px;
+  padding: 12px;
+  border: none;
+  background: #ff3b3b;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.admin-main {
+  padding-top: 70px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 1500;
+  }
