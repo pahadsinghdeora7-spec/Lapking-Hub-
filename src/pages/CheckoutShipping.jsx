@@ -7,6 +7,7 @@ import "./CheckoutShipping.css";
 
 export default function CheckoutShipping() {
   const navigate = useNavigate();
+
   const [methods, setMethods] = useState([]);
   const [selected, setSelected] = useState(null);
 
@@ -15,12 +16,14 @@ export default function CheckoutShipping() {
   }, []);
 
   async function fetchShipping() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("shipping_methods")
       .select("*")
       .eq("active", true);
 
-    setMethods(data || []);
+    if (!error) {
+      setMethods(data || []);
+    }
   }
 
   function continueNext() {
@@ -39,10 +42,9 @@ export default function CheckoutShipping() {
 
   return (
     <div className="checkout-box">
-
       <h2>Choose Shipping Method</h2>
 
-      {methods.map((item) => (
+      {methods.map(item => (
         <div
           key={item.id}
           className={`ship-card ${
@@ -62,7 +64,6 @@ export default function CheckoutShipping() {
       <button className="next-btn" onClick={continueNext}>
         Continue to Review
       </button>
-
     </div>
   );
 }
