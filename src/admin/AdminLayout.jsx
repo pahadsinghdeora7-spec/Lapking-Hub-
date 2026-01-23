@@ -1,84 +1,58 @@
 import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import "./admin.css";
 
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
-
-  const menu = [
-    { name: "Dashboard", path: "/admin" },
-    { name: "Products", path: "/admin/products" },
-    { name: "Categories", path: "/admin/categories" },
-    { name: "Orders", path: "/admin/orders" },
-  ];
+  const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <>
+      {/* TOP BAR */}
+      <div className="admin-top">
+        <button className="menu-btn" onClick={() => setOpen(true)}>☰</button>
 
-      {/* Mobile overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed md:static z-50
-          w-64 bg-blue-600 text-white
-          transition-transform
-          ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-        `}
-      >
-        <div className="p-4 text-lg font-bold flex items-center gap-2">
-          👑 LapkingHub
+        <div className="logo">
+          👑 <b>LapkingHub</b>
+          <span className="small">Admin Panel</span>
         </div>
 
-        <nav className="mt-4">
-          {menu.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setOpen(false)}
-              className={`block px-4 py-3 text-sm hover:bg-blue-700
-                ${pathname === item.path ? "bg-blue-800" : ""}`}
-            >
-              {item.name}
-            </Link>
-          ))}
+        <button className="view-store" onClick={() => navigate("/")}>
+          View Store →
+        </button>
+      </div>
+
+      {open && <div className="overlay" onClick={() => setOpen(false)} />}
+
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${open ? "show" : ""}`}>
+        <div className="side-head">
+          <span>👑 LapkingHub</span>
+          <button onClick={() => setOpen(false)}>✕</button>
+        </div>
+
+        <nav>
+          <NavLink to="/admin" end>Dashboard</NavLink>
+          <NavLink to="/admin/products">Products</NavLink>
+          <NavLink to="/admin/categories">Categories</NavLink>
+          <NavLink to="/admin/subcategories">Subcategories</NavLink>
+          <NavLink to="/admin/orders">Orders</NavLink>
+          <NavLink to="/admin/customers">Customers</NavLink>
+          <NavLink to="/admin/reviews">Reviews</NavLink>
+          <NavLink to="/admin/rewards">Rewards</NavLink>
+          <NavLink to="/admin/support">Support Chats</NavLink>
+          <NavLink to="/admin/couriers">Couriers</NavLink>
+          <NavLink to="/admin/policies">Policies</NavLink>
+          <NavLink to="/admin/settings">Settings</NavLink>
         </nav>
 
-        <div className="absolute bottom-4 left-4 text-sm text-red-200">
-          Logout
-        </div>
+        <button className="logout">Logout</button>
       </aside>
 
-      {/* Main area */}
-      <div className="flex-1 flex flex-col">
-
-        {/* Top bar */}
-        <div className="h-14 bg-white border-b flex items-center justify-between px-4">
-          <button
-            className="md:hidden text-2xl"
-            onClick={() => setOpen(true)}
-          >
-            ☰
-          </button>
-
-          <h1 className="font-semibold">Admin Panel</h1>
-
-          <a href="/" className="text-blue-600 text-sm">
-            View Store →
-          </a>
-        </div>
-
-        {/* Page */}
-        <div className="p-4">
-          <Outlet />
-        </div>
-      </div>
-    </div>
+      {/* MAIN CONTENT */}
+      <main className="admin-main">
+        <Outlet />
+      </main>
+    </>
   );
 }
