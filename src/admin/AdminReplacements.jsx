@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AdminOrders.css";
+import {
+  FaCheckCircle,
+  FaTimesCircle,
+  FaImage,
+} from "react-icons/fa";
 
 export default function AdminReplacements() {
   const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadRequests();
@@ -11,16 +16,17 @@ export default function AdminReplacements() {
 
   const loadRequests = async () => {
     const { data } = await supabase
-      .from("replacements")
+      .from("replacement_requests")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("id", { ascending: false });
 
     setList(data || []);
+    setLoading(false);
   };
 
   const updateStatus = async (id, status) => {
     await supabase
-      .from("replacements")
+      .from("replacement_requests")
       .update({ status })
       .eq("id", id);
 
@@ -28,55 +34,91 @@ export default function AdminReplacements() {
   };
 
   return (
-    <div className="admin-orders">
+    <div className="admin-page">
       <h2>Replacement Requests</h2>
 
-      {list.length === 0 && <p>No replacement requests</p>}
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="card">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Order</th>
+                <th>Product</th>
+                <th>Email</th>
+                <th>Reason</th>
+                <th>Photo</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
 
-      {list.map((r) => (
-        <div key={r.id} className="card">
+            <tbody>
+              {list.map((r, i) => (
+                <tr key={r.id}>
+                  <td>{i + 1}</td>
+                  <td>#{r.order_id}</td>
+                  <td>{r.product_id}</td>
+                  <td>{r.user_email}</td>
+                  <td>{r.reason_type}</td>
 
-          <p><b>Order ID:</b> {r.order_id}</p>
-          <p><b>Product ID:</b> {r.product_id}</p>
-          <p><b>Reason:</b> {r.reason}</p>
-          <p><b>Message:</b> {r.message}</p>
-          <p>
-            <b>Status:</b>{" "}
-            <span className={`badge ${r.status}`}>
-              {r.status}
-            </span>
-          </p>
+                  <td>
+                    {r.image && (
+                      <a
+                        href={r.image}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FaImage /> View
+                      </a>
+                    )}
+                  </td>
 
-          {r.image_url && (
-            <img
-              src={r.image_url}
-              alt="replacement"
-              style={{
-                width: "100px",
-                marginTop: "10px",
-                borderRadius: "6px",
-              }}
-            />
-          )}
+                  <td>
+                    <span className={`badge ${r.status}`}>
+                      {r.status}
+                    </span>
+                  </td>
 
-          <div style={{ marginTop: "10px" }}>
-            <button
-              className="btn green"
-              onClick={() => updateStatus(r.id, "approved")}
-            >
-              Approve
-            </button>
+                  <td className="actions">
+                    {r.status === "pending" && (
+                      <>
+                        <button
+                          className="btn green"
+                          onClick={() =>
+                            updateStatus(r.id, "approved")
+                          }
+                        >
+                          <FaCheckCircle /> Approve
+                        </button>
 
-            <button
-              className="btn red"
-              onClick={() => updateStatus(r.id, "rejected")}
-              style={{ marginLeft: 10 }}
-            >
-              Reject
-            </button>
-          </div>
+                        <button
+                          className="btn red"
+                          onClick={() =>
+                            updateStatus(r.id, "rejected")
+                          }
+                        >
+                          <FaTimesCircle /> Reject
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+
+              {list.length === 0 && (
+                <tr>
+                  <td colSpan="8" align="center">
+                    No replacement requests
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      ))}
+      )}
     </div>
   );
-}
+                }
