@@ -1,105 +1,86 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AdminOrders.css";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadOrders();
+    fetchOrders();
   }, []);
 
-  // ✅ Load all orders
-  const loadOrders = async () => {
-    const { data, error } = await supabase
+  // ---------------- FETCH ORDERS ----------------
+  const fetchOrders = async () => {
+    setLoading(true);
+
+    const { data } = await supabase
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!error) {
-      setOrders(data || []);
-    }
+    setOrders(data || []);
+    setLoading(false);
   };
 
-  // ✅ Update order status
-  const updateStatus = async (orderId, status) => {
-    const { error } = await supabase
+  // ---------------- STATUS UPDATE ----------------
+  const updateStatus = async (id, status) => {
+    await supabase
       .from("orders")
-      .update({ order_status: status })
-      .eq("id", orderId);
+      .update({ status })
+      .eq("id", id);
 
-    if (error) {
-      alert("Status update failed");
-    } else {
-      loadOrders();
-    }
+    fetchOrders();
   };
 
   return (
-    <div className="admin-orders">
-      <h2>All Orders</h2>
+    <div className="space-y-6">
 
-      <table>
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Name</th>
-            <th>Total</th>
-            <th>Payment</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th></th>
-          </tr>
-        </thead>
+      <h2 className="text-xl font-bold">Orders</h2>
 
-        <tbody>
-          {orders.map((o) => (
-            <tr key={o.id}>
-              <td>LKH{o.id}</td>
+      {loading && <p>Loading orders...</p>}
 
-              <td>{o.name}</td>
-
-              <td>₹{o.total}</td>
-
-              <td>
-                <span className={`badge ${o.payment_status}`}>
-                  {o.payment_status}
-                </span>
-              </td>
-
-              {/* ✅ ORDER STATUS DROPDOWN */}
-              <td>
-                <select
-                  value={o.order_status}
-                  onChange={(e) =>
-                    updateStatus(o.id, e.target.value)
-                  }
-                >
-                  <option value="new">New</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </td>
-
-              <td>
-                {new Date(o.created_at).toLocaleDateString()}
-              </td>
-
-              <td>
-                <Link
-                  to={`/admin/orders/${o.id}`}
-                  className="view-btn"
-                >
-                  View
-                </Link>
-              </td>
+      <div className="bg-white rounded-xl shadow overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2">Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {orders.map((o) => (
+              <tr key={o.id} className="border-b">
+                <td className="p-2">#{o.id}</td>
+                <td>
+                  {new Date(o.created_at).toLocaleDateString()}
+                </td>
+                <td>{o.customer_name || "Customer"}</td>
+                <td>₹{o.total || 0}</td>
+                <td>
+                  <select
+                    value={o.status}
+                    onChange={(e) =>
+                      updateStatus(o.id, e.target.value)
+                    }
+                    className="border rounded p-1"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+      </div>
     </div>
   );
 }
