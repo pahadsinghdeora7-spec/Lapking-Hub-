@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import {"./bottomnav.css";
+import {
   MdHome,
   MdCategory,
   MdShoppingCart,
