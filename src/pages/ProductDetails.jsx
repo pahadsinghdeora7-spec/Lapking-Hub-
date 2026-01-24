@@ -6,87 +6,130 @@ export default function ProductDetails() {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const limit = 8;
 
+  // ======================
+  // MAIN PRODUCT
+  // ======================
   useEffect(() => {
-    fetchProduct();
+    if (!id) return;
+
+    const loadProduct = async () => {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .eq("status", true)
+        .single();
+
+      if (!error && data) {
+        setProduct(data);
+        setPage(0);
+        setRelated([]);
+      }
+
+      setLoading(false);
+    };
+
+    loadProduct();
   }, [id]);
 
-  async function fetchProduct() {
-    setLoading(true);
+  // ======================
+  // RELATED PRODUCTS
+  // ======================
+  const loadRelated = async () => {
+    if (!product) return;
 
-    const productId = Number(id);
+    setLoadingMore(true);
 
-    const { data, error } = await supabase
+    const from = page * limit;
+    const to = from + limit - 1;
+
+    const { data } = await supabase
       .from("products")
       .select("*")
-      .eq("id", productId)
-      .single();
+      .eq("category_id", product.category_id)
+      .neq("id", product.id)
+      .eq("status", true)
+      .range(from, to);
 
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
+    if (data && data.length > 0) {
+      setRelated((prev) => [...prev, ...data]);
+      setPage((p) => p + 1);
     }
 
-    setProduct(data);
-    setLoading(false);
-  }
+    setLoadingMore(false);
+  };
 
-  if (loading) {
-    return <p style={{ padding: 20 }}>Loading...</p>;
-  }
+  // first related load
+  useEffect(() => {
+    if (product) {
+      loadRelated();
+    }
+  }, [product]);
 
-  if (!product) {
-    return <p style={{ padding: 20 }}>Product not found</p>;
-  }
+  // ======================
+  // SCROLL LISTENER
+  // ======================
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 200
+      ) {
+        if (!loadingMore) {
+          loadRelated();
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loadingMore, product]);
+
+  // ======================
+  // UI STATES
+  // ======================
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+  if (!product) return <p style={{ padding: 20 }}>Product not found</p>;
 
   return (
-    <div style={{ padding: 16 }}>
-      <img
-        src={product.image}
-        alt={product.name}
-        style={{ width: "100%", borderRadius: 10 }}
-      />
+    <>
+      {/* ================= PRODUCT DETAILS ================= */}
+
+      {/* ⚠️ yaha tumhara existing Base44 design rahega */}
+      {/* sirf data binding example diya hai */}
 
       <h2>{product.name}</h2>
-
-      <h3>₹{product.price}</h3>
-
+      <p>₹{product.price}</p>
       <p><b>Brand:</b> {product.brand}</p>
-
       <p><b>Part Number:</b> {product.part_number}</p>
-
-      <p><b>Compatible Models:</b></p>
-      <p>{product.compatible_m}</p>
-
-      <p><b>Description:</b></p>
+      <p><b>Compatible:</b> {product.compatible_models}</p>
       <p>{product.description}</p>
 
-      {/* Buttons */}
-      <button style={btn("#ff9800")}>Buy Now</button>
-      <button style={btn("#1976d2")}>Add to Cart</button>
+      {/* ================= RELATED PRODUCTS ================= */}
 
-      <a
-        href={`https://wa.me/919873670361?text=I want ${product.name}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        <button style={btn("green")}>Order on WhatsApp</button>
-      </a>
-    </div>
+      <h3 style={{ marginTop: 40 }}>Related Products</h3>
+
+      {related.map((item) => (
+        <div key={item.id} style={{ marginBottom: 20 }}>
+          <img src={item.image} width="120" />
+          <p>{item.name}</p>
+          <p>₹{item.price}</p>
+        </div>
+      ))}
+
+      {loadingMore && (
+        <p style={{ textAlign: "center", padding: 20 }}>
+          Loading more...
+        </p>
+      )}
+    </>
   );
-}
-
-function btn(color) {
-  return {
-    width: "100%",
-    padding: 12,
-    background: color,
-    color: "#fff",
-    border: "none",
-    marginTop: 10,
-    borderRadius: 6,
-    fontSize: 16,
-  };
-}
+        }
