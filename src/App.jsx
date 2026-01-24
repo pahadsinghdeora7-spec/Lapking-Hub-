@@ -54,6 +54,7 @@ export default function App() {
             {/* ---------- USER ROUTES ---------- */}
             <Route path="/" element={<Home />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/category/:slug" element={<CategoryProducts />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
