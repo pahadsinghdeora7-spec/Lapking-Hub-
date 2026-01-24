@@ -1,75 +1,48 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient.js";
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 import "./home.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
-    setLoading(true);
-
     const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("status", true)
       .order("id", { ascending: false })
-      .limit(8);
+      .limit(6);
 
-    if (!error && data) {
-      setProducts(data);
+    if (!error) {
+      setProducts(data || []);
     }
-
-    setLoading(false);
   };
-
-  if (loading) {
-    return <div className="page-loading">Loading...</div>;
-  }
 
   return (
     <div className="home">
-
-      {/* BANNER */}
-      <div className="banner">
-        <h2>Premium Laptop Accessories</h2>
-        <p>
-          Shop the best chargers, batteries, keyboards and more for all laptop brands
-        </p>
-        <button>Shop Now</button>
-      </div>
-
-      {/* PRODUCTS */}
-      <h3 className="section-title">Latest Products</h3>
+      <h2>Latest Products</h2>
 
       <div className="product-grid">
-        {products.map((p) => (
+        {products.map(p => (
           <div
             key={p.id}
             className="product-card"
             onClick={() => navigate(`/product/${p.id}`)}
           >
-            <img
-              src={p.image || p.image1}
-              alt={p.name}
-            />
-
+            <img src={p.image} alt={p.name} />
             <h4>{p.name}</h4>
 
             {p.compatible_model && (
-              <p className="compatible">
-                Compatible: {p.compatible_model}
-              </p>
+              <p>Compatible: {p.compatible_model}</p>
             )}
 
-            <p className="price">₹{p.price}</p>
-
+            <strong>₹{p.price}</strong>
             <button>Add to Cart</button>
           </div>
         ))}
