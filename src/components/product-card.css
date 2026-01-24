@@ -32,3 +32,20 @@
   border-radius: 10px;
   font-weight: 600;
 }
+.brand-part-row {
+  display: flex;
+  width: 100%;
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+.brand-text {
+  font-weight: 600;
+  color: #0b5ed7;
+}
+
+.part-text {
+  margin-left: auto;      /* 🔥 right side push */
+  font-weight: 600;
+  color: #333;
+}
