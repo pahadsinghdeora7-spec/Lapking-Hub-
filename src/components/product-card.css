@@ -1,5 +1,5 @@
 /* ===============================
-   PRODUCT CARD MAIN
+   PRODUCT CARD
 ================================ */
 
 .product-card {
@@ -9,12 +9,9 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-/* ===============================
-   PRODUCT IMAGE
-================================ */
+/* IMAGE */
 
 .product-image {
   width: 100%;
@@ -24,58 +21,58 @@
   margin-bottom: 10px;
 }
 
-/* ===============================
-   PRODUCT NAME
-================================ */
+/* NAME */
 
 .product-name {
   font-size: 15px;
   font-weight: 600;
-  color: #222;
   margin-bottom: 6px;
+  color: #222;
 }
 
 /* ===============================
-   BRAND + PART NUMBER ROW
+   BRAND + PART NUMBER
 ================================ */
 
 .brand-part-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 6px;
 }
 
-/* LEFT SIDE — BRAND */
+/* BRAND LEFT */
 
 .brand-text {
   font-size: 13px;
   color: #555;
 }
 
-/* RIGHT SIDE — PART NUMBER */
+/* RIGHT SIDE BLOCK */
+
+.part-stock-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 12px;
+}
+
+/* PART NUMBER */
 
 .part-text {
   font-size: 13px;
   font-weight: 600;
   color: #333;
-  text-align: right;
-
-  /* 🔥 IMPORTANT */
-  margin-right: 12px;
 }
 
-/* ===============================
-   STOCK STATUS (UNDER PART NO)
-================================ */
+/* STOCK UNDER PART NUMBER */
 
 .stock-text {
   font-size: 12px;
   font-weight: 600;
-  margin-top: 4px;     /* ✅ gap between part no & stock */
-  margin-right: 12px;  /* ✅ right margin same */
-  text-align: right;
+  margin-top: 8px;   /* ✅ GAP */
 }
+
+/* COLORS */
 
 .stock-in {
   color: #1e9d43;
@@ -85,20 +82,16 @@
   color: #e53935;
 }
 
-/* ===============================
-   PRICE
-================================ */
+/* PRICE */
 
 .product-price {
   font-size: 16px;
   font-weight: 700;
   color: #0a58ca;
-  margin: 8px 0;
+  margin: 6px 0;
 }
 
-/* ===============================
-   ADD TO CART BUTTON
-================================ */
+/* BUTTON */
 
 .add-to-cart-btn {
   width: 100%;
@@ -107,20 +100,14 @@
   border: none;
   font-size: 15px;
   font-weight: 600;
-  cursor: pointer;
 }
-
-/* ENABLED */
 
 .add-to-cart-btn.active {
-  background-color: #0d6efd;
-  color: #ffffff;
+  background: #0d6efd;
+  color: #fff;
 }
 
-/* DISABLED */
-
 .add-to-cart-btn.disabled {
-  background-color: #cccccc;
-  color: #ffffff;
-  cursor: not-allowed;
+  background: #ccc;
+  color: #fff;
 }
