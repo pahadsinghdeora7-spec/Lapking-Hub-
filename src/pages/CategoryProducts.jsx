@@ -5,43 +5,26 @@ import ProductCard from "../components/ProductCard";
 import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
-  const { slug } = useParams();
+  const { id } = useParams();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadCategoryProducts();
-  }, [slug]);
+  }, [id]);
 
   const loadCategoryProducts = async () => {
     setLoading(true);
 
-    // 🔹 convert slug → normal name
-    const categoryName = slug.replace("-", " ");
-
-    // 1️⃣ get category
-    const { data: category, error: catError } = await supabase
-      .from("categories")
-      .select("*")
-      .ilike("name", categoryName)
-      .single();
-
-    if (catError || !category) {
-      setProducts([]);
-      setLoading(false);
-      return;
-    }
-
-    // 2️⃣ get products using category_id
-    const { data: productData, error: prodError } = await supabase
+    const { data, error } = await supabase
       .from("products")
       .select("*")
-      .eq("category_id", category.id)
+      .eq("category_id", Number(id))
       .eq("status", true);
 
-    if (!prodError) {
-      setProducts(productData || []);
+    if (!error) {
+      setProducts(data || []);
     }
 
     setLoading(false);
@@ -49,15 +32,13 @@ export default function CategoryProducts() {
 
   return (
     <div className="category-page">
-      <h2 className="category-title">
-        {slug.replace("-", " ").toUpperCase()}
-      </h2>
+      <h2 className="category-title">Category Products</h2>
 
       {loading && <p>Loading products...</p>}
 
       {!loading && products.length === 0 && (
         <p style={{ textAlign: "center", marginTop: "30px" }}>
-          No products found in this category
+          No products found
         </p>
       )}
 
