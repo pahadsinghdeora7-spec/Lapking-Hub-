@@ -20,17 +20,15 @@ export default function ProductCard({ product }) {
           {product.name}
         </h3>
 
-        {product.brand && (
-          <p className="product-brand">
-            Brand: {product.brand}
-          </p>
-        )}
+        <div className="brand-part-row">
+  <span className="brand-text">
+    Brand: {product.brand}
+  </span>
 
-        {product.part_number && (
-          <p className="product-part">
-            Part No: {product.part_number}
-          </p>
-        )}
+  <span className="part-text">
+    Part No: {product.part_number}
+  </span>
+</div>
 
         <div className="product-price">
           ₹{product.price}
