@@ -1,44 +1,47 @@
+import { Link } from "react-router-dom";
+import "./drawer.css";
+
 export default function DrawerMenu({ open, onClose }) {
+  if (!open) return null;
+
   return (
-    <div
-      style={{
-        display: open ? "block" : "none",
+    <>
+      {/* BACKDROP */}
+      <div className="drawer-backdrop" onClick={onClose}></div>
 
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "260px",
-        height: "100vh",
-        background: "#ffffff",
-        zIndex: 9999,
-        padding: "20px",
-        boxShadow: "2px 0 12px rgba(0,0,0,0.15)"
-      }}
-    >
-      {/* CLOSE BUTTON */}
-      <button
-        onClick={onClose}
-        style={{
-          fontSize: "18px",
-          border: "none",
-          background: "none",
-          marginBottom: "20px",
-          cursor: "pointer"
-        }}
-      >
-        ✖
-      </button>
+      {/* DRAWER */}
+      <div className="drawer">
 
-      <p>Home</p>
-      <p>Categories</p>
-      <p>Orders</p>
-      <p>Account</p>
+        {/* HEADER */}
+        <div className="drawer-header">
+          <span>👑 LapkingHub</span>
+          <button onClick={onClose}>✕</button>
+        </div>
 
-      <hr />
+        {/* MAIN MENU */}
+        <div className="drawer-section">
+          <Link to="/" onClick={onClose}>🏠 Home</Link>
+          <Link to="/categories" onClick={onClose}>📂 Categories</Link>
+          <Link to="/rewards" onClick={onClose}>🔥 Rewards</Link>
+          <Link to="/orders" onClick={onClose}>📦 Orders</Link>
+          <Link to="/account" onClick={onClose}>👤 Account</Link>
+        </div>
 
-      <p style={{ color: "red", marginTop: "20px" }}>
-        Logout
-      </p>
-    </div>
+        <hr />
+
+        {/* EXTRA */}
+        <div className="drawer-section">
+          <Link to="/policies" onClick={onClose}>📄 Policies</Link>
+          <Link to="/about" onClick={onClose}>ℹ️ About Us</Link>
+          <Link to="/contact" onClick={onClose}>📞 Contact Us</Link>
+        </div>
+
+        {/* LOGOUT */}
+        <button className="drawer-logout">
+          Logout
+        </button>
+
+      </div>
+    </>
   );
 }
