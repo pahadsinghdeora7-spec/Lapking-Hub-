@@ -1,0 +1,5 @@
+name = "lapking-hub"
+compatibility_date = "2026-01-24"
+
+[site]
+bucket = "./dist"
