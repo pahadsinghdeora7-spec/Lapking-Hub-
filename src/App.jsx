@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home.jsx";
+import Account from "./pages/Account";
 import Categories from "./pages/Categories.jsx";
 import CategoryProducts from "./pages/CategoryProducts.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
@@ -39,6 +40,7 @@ export default function App() {
 
             {/* USER ROUTES */}
             <Route path="/" element={<Home />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/category/:slug" element={<CategoryProducts />} />
             <Route path="/product/:id" element={<ProductDetails />} />
