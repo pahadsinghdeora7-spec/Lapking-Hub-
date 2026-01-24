@@ -6,6 +6,7 @@ import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,13 +17,31 @@ export default function CategoryProducts() {
   const loadCategoryProducts = async () => {
     setLoading(true);
 
-    const { data, error } = await supabase
+    // 🔹 convert slug → normal name
+    const categoryName = slug.replace("-", " ");
+
+    // 1️⃣ get category
+    const { data: category, error: catError } = await supabase
+      .from("categories")
+      .select("*")
+      .ilike("name", categoryName)
+      .single();
+
+    if (catError || !category) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
+
+    // 2️⃣ get products using category_id
+    const { data: productData, error: prodError } = await supabase
       .from("products")
       .select("*")
-      .eq("category", slug);
+      .eq("category_id", category.id)
+      .eq("status", true);
 
-    if (!error) {
-      setProducts(data || []);
+    if (!prodError) {
+      setProducts(productData || []);
     }
 
     setLoading(false);
