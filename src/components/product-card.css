@@ -1,107 +1,126 @@
-/* =====================================
-   Product Card – Lapking Hub Final UI
-===================================== */
+/* ===============================
+   PRODUCT CARD MAIN
+================================ */
 
 .product-card {
   background: #ffffff;
   border-radius: 12px;
   padding: 14px;
-  margin: 12px;                 /* LEFT + RIGHT spacing */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
-/* ---------------- IMAGE ---------------- */
+/* ===============================
+   PRODUCT IMAGE
+================================ */
+
 .product-image {
   width: 100%;
   height: 160px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 10px;
 }
 
-/* ---------------- NAME ---------------- */
+/* ===============================
+   PRODUCT NAME
+================================ */
+
 .product-name {
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 6px;
   color: #222;
+  margin-bottom: 6px;
 }
 
-/* ---------------- BRAND + PART ---------------- */
-.brand-row {
+/* ===============================
+   BRAND + PART NUMBER ROW
+================================ */
+
+.brand-part-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 6px;
-  font-size: 13px;
 }
 
-/* left */
+/* LEFT SIDE — BRAND */
+
 .brand-text {
-  color: #444;
-}
-
-/* right */
-.part-box {
-  text-align: right;
-   margin-right: 10px;
-}
-
-/* PART NUMBER */
-.part-no {
-  display: block;
-  font-size: 12px;
+  font-size: 13px;
   color: #555;
-  margin-bottom: 6px;   /* ✅ PART NO aur STOCK ke beech gap */
 }
 
-/* ---------------- STOCK ---------------- */
-./* STOCK STATUS */
-.stock-in,
-.stock-out {
-  display: block;       /* ✅ new line force */
+/* RIGHT SIDE — PART NUMBER */
+
+.part-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  text-align: right;
+
+  /* 🔥 IMPORTANT */
+  margin-right: 12px;
+}
+
+/* ===============================
+   STOCK STATUS (UNDER PART NO)
+================================ */
+
+.stock-text {
   font-size: 12px;
   font-weight: 600;
-  margin-top: 2px;      /* ✅ extra spacing */
+  margin-top: 4px;     /* ✅ gap between part no & stock */
+  margin-right: 12px;  /* ✅ right margin same */
+  text-align: right;
+}
+
+.stock-in {
+  color: #1e9d43;
 }
 
 .stock-out {
-  font-size: 12px;
-  color: red;
-  font-weight: 600;
-  margin-top: 5px;
-  margin-right: 10px;
-  display: block;
+  color: #e53935;
 }
 
-/* ---------------- PRICE ---------------- */
-.price {
+/* ===============================
+   PRICE
+================================ */
+
+.product-price {
   font-size: 16px;
   font-weight: 700;
-  color: #0b5ed7;
-  margin: 6px 0 10px;
+  color: #0a58ca;
+  margin: 8px 0;
 }
 
-/* ---------------- BUTTON ---------------- */
-.add-cart-btn {
-  background: #0b5ed7;          /* BLUE */
-  color: #fff;
-  border: none;
+/* ===============================
+   ADD TO CART BUTTON
+================================ */
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 11px;
   border-radius: 8px;
-  padding: 10px;
-  font-size: 14px;
+  border: none;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.add-cart-btn:hover {
-  background: #084298;
+/* ENABLED */
+
+.add-to-cart-btn.active {
+  background-color: #0d6efd;
+  color: #ffffff;
 }
 
-.add-cart-btn:disabled {
-  background: #cccccc;
+/* DISABLED */
+
+.add-to-cart-btn.disabled {
+  background-color: #cccccc;
+  color: #ffffff;
   cursor: not-allowed;
 }
