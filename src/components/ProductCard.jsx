@@ -35,20 +35,24 @@ export default function ProductCard({ product }) {
           Brand: <span>{product.brand || "N/A"}</span>
         </div>
 
-        {/* RIGHT — PART + STOCK */}
-        <div className="part-box">
+        {/* PART NUMBER + STOCK */}
+<div className="part-stock-box">
 
-          <div className="part-text">
-            Part No: {product.part_number || "-"}
-          </div>
+  {/* PART NUMBER */}
+  <div className="part-no">
+    Part No: {product.part_number}
+  </div>
 
-          <div
-            className={
-              inStock ? "stock in-stock" : "stock out-stock"
-            }
-          >
-            {inStock ? "In Stock" : "Out of Stock"}
-          </div>
+  {/* STOCK STATUS */}
+  <div
+    className={
+      product.stock > 0 ? "stock-in" : "stock-out"
+    }
+  >
+    {product.stock > 0 ? "In Stock" : "Out of Stock"}
+  </div>
+
+</div>
 
         </div>
       </div>
