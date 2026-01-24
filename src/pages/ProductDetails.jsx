@@ -6,82 +6,57 @@ export default function ProductDetails() {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
-  const [related, setRelated] = useState([]);
-  const [page, setPage] = useState(0);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const LIMIT = 8;
-
-  // ======================
-  // LOAD MAIN PRODUCT
-  // ======================
   useEffect(() => {
-    loadProduct();
+    fetchProduct();
   }, [id]);
 
-  const loadProduct = async () => {
-    const { data } = await supabase
+  async function fetchProduct() {
+    setLoading(true);
+
+    const productId = Number(id); // 🔥 MOST IMPORTANT FIX
+
+    const { data, error } = await supabase
       .from("products")
-      .select("*, categories(name)")
-      .eq("id", id)
+      .select(
+        `
+        id,
+        name,
+        price,
+        image,
+        description,
+        part_number,
+        compatible_m,
+        brand,
+        categories (
+          name
+        )
+        `
+      )
+      .eq("id", productId)
       .single();
 
+    if (error) {
+      console.error("Product fetch error:", error);
+      setLoading(false);
+      return;
+    }
+
     setProduct(data);
-    setRelated([]);
-    setPage(0);
-  };
+    setLoading(false);
+  }
 
-  // ======================
-  // LOAD RELATED PRODUCTS
-  // ======================
-  const loadRelated = async () => {
-    if (!product) return;
+  if (loading) {
+    return <p style={{ padding: 20 }}>Loading...</p>;
+  }
 
-    setLoadingMore(true);
-
-    const from = page * LIMIT;
-    const to = from + LIMIT - 1;
-
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .eq("category_id", product.category_id)
-      .neq("id", product.id)
-      .range(from, to);
-
-    setRelated(prev => [...prev, ...(data || [])]);
-    setPage(prev => prev + 1);
-    setLoadingMore(false);
-  };
-
-  // auto load first related
-  useEffect(() => {
-    if (product) loadRelated();
-  }, [product]);
-
-  // ======================
-  // SCROLL LOAD
-  // ======================
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 150
-      ) {
-        if (!loadingMore) loadRelated();
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [loadingMore, product]);
-
-  if (!product) return <p style={{ padding: 20 }}>Loading...</p>;
+  if (!product) {
+    return <p style={{ padding: 20 }}>Product not found</p>;
+  }
 
   return (
-    <div style={{ padding: 15 }}>
-
-      {/* PRODUCT INFO */}
+    <div style={{ padding: 16 }}>
       <img
         src={product.image}
         alt={product.name}
@@ -89,53 +64,68 @@ export default function ProductDetails() {
       />
 
       <h2>{product.name}</h2>
+
       <h3>₹{product.price}</h3>
 
       <p><b>Brand:</b> {product.brand}</p>
-      <p><b>Category:</b> {product.categories?.name}</p>
+
+      <p>
+        <b>Category:</b>{" "}
+        {product.categories?.name || "N/A"}
+      </p>
+
       <p><b>Part Number:</b> {product.part_number}</p>
 
-      <p><b>Compatible Models:</b><br />{product.compatible_model}</p>
+      <p><b>Compatible Models:</b></p>
+      <p>{product.compatible_m}</p>
 
+      <p><b>Description:</b></p>
       <p>{product.description}</p>
 
-      {/* BUTTONS */}
-      <button className="buy-btn">Buy Now</button>
-      <button className="cart-btn">Add to Cart</button>
-      <button className="wa-btn">Order on WhatsApp</button>
+      <button
+        style={{
+          width: "100%",
+          padding: 12,
+          background: "#ff9800",
+          color: "#fff",
+          border: "none",
+          marginTop: 10,
+        }}
+      >
+        Buy Now
+      </button>
 
-      {/* RELATED PRODUCTS */}
-      <h3 style={{ marginTop: 30 }}>Related Products</h3>
+      <button
+        style={{
+          width: "100%",
+          padding: 12,
+          background: "#1976d2",
+          color: "#fff",
+          border: "none",
+          marginTop: 10,
+        }}
+      >
+        Add to Cart
+      </button>
 
-      {related.map(item => (
-        <div
-          key={item.id}
+      <a
+        href={`https://wa.me/919873670361?text=I want to buy ${product.name}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        <button
           style={{
-            display: "flex",
-            gap: 10,
-            marginBottom: 15,
-            borderBottom: "1px solid #eee",
-            paddingBottom: 10
+            width: "100%",
+            padding: 12,
+            background: "green",
+            color: "#fff",
+            border: "none",
+            marginTop: 10,
           }}
         >
-          <img
-            src={item.image}
-            style={{ width: 90, borderRadius: 6 }}
-          />
-
-          <div>
-            <h4>{item.name}</h4>
-            <p>₹{item.price}</p>
-          </div>
-        </div>
-      ))}
-
-      {loadingMore && (
-        <p style={{ textAlign: "center", padding: 20 }}>
-          Loading more products...
-        </p>
-      )}
-
+          Order on WhatsApp
+        </button>
+      </a>
     </div>
   );
-  }
+}
