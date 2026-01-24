@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient.jsx";
+import { supabase } from "../supabaseClient.js";
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
