@@ -56,7 +56,8 @@ export default function App() {
             <Route path="/categories" element={<Categories />} />
             <Route
   path="/product/:id"
-  element={<div>Product Details Working</div>}
+  element={<ProductDetails />}
+/>
 />
             <Route path="/category/:slug" element={<CategoryProducts />} />
             <Route path="/cart" element={<Cart />} />
