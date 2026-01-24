@@ -1,21 +1,33 @@
 export default function DrawerMenu({ open, onClose }) {
-  if (!open) return null;
-
   return (
     <div
       style={{
+        display: open ? "block" : "none",
+
         position: "fixed",
         top: 0,
         left: 0,
         width: "260px",
         height: "100vh",
-        background: "#fff",
-        zIndex: 999,
+        background: "#ffffff",
+        zIndex: 9999,
         padding: "20px",
-        boxShadow: "2px 0 10px rgba(0,0,0,.15)"
+        boxShadow: "2px 0 12px rgba(0,0,0,0.15)"
       }}
     >
-      <button onClick={onClose}>✖</button>
+      {/* CLOSE BUTTON */}
+      <button
+        onClick={onClose}
+        style={{
+          fontSize: "18px",
+          border: "none",
+          background: "none",
+          marginBottom: "20px",
+          cursor: "pointer"
+        }}
+      >
+        ✖
+      </button>
 
       <p>Home</p>
       <p>Categories</p>
@@ -24,7 +36,9 @@ export default function DrawerMenu({ open, onClose }) {
 
       <hr />
 
-      <p style={{ color: "red" }}>Logout</p>
+      <p style={{ color: "red", marginTop: "20px" }}>
+        Logout
+      </p>
     </div>
   );
 }
