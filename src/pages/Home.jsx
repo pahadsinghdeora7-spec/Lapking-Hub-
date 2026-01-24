@@ -1,52 +1,88 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./home.css";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import "./Home.css";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
-  const navigate = useNavigate();
+  const [recent, setRecent] = useState([]);
 
   useEffect(() => {
-    fetchProducts();
+    loadProducts();
+    loadRecent();
   }, []);
 
-  const fetchProducts = async () => {
-    const { data, error } = await supabase
+  const loadProducts = async () => {
+    const { data } = await supabase
       .from("products")
       .select("*")
-      .eq("status", true)
-      .order("id", { ascending: false })
-      .limit(6);
+      .order("created_at", { ascending: false });
 
-    if (!error) {
-      setProducts(data || []);
-    }
+    setProducts(data || []);
   };
+
+  const loadRecent = () => {
+    const r = JSON.parse(localStorage.getItem("recentProducts") || "[]");
+    setRecent(r);
+  };
+
+  const newArrivals = products.slice(0, 6);
+  const trending = products.slice(6, 12);
+  const suggested = products.slice(12, 20);
 
   return (
     <div className="home">
-      <h2>Latest Products</h2>
 
-      <div className="product-grid">
-        {products.map(p => (
-          <div
-            key={p.id}
-            className="product-card"
-            onClick={() => navigate(`/product/${p.id}`)}
-          >
-            <img src={p.image} alt={p.name} />
-            <h4>{p.name}</h4>
+      {/* NEW ARRIVALS */}
+      <Section title="New Arrivals">
+        <ProductRow items={newArrivals} />
+      </Section>
 
-            {p.compatible_model && (
-              <p>Compatible: {p.compatible_model}</p>
-            )}
+      {/* RECENTLY VIEWED */}
+      {recent.length > 0 && (
+        <Section title="Recently Viewed">
+          <ProductRow items={recent} />
+        </Section>
+      )}
 
-            <strong>₹{p.price}</strong>
-            <button>Add to Cart</button>
-          </div>
-        ))}
-      </div>
+      {/* RELATED */}
+      <Section title="Related For You">
+        <ProductRow items={trending} />
+      </Section>
+
+      {/* TRENDING */}
+      <Section title="Trending Products">
+        <ProductRow items={trending} />
+      </Section>
+
+      {/* SUGGESTIONS */}
+      <Section title="Suggestions For You">
+        <ProductRow items={suggested} />
+      </Section>
+
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div className="section">
+      <h2>{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+function ProductRow({ items }) {
+  return (
+    <div className="row-scroll">
+      {items.map(p => (
+        <Link to={`/product/${p.id}`} className="card" key={p.id}>
+          <img src={p.image} />
+          <div className="name">{p.name}</div>
+          <div className="price">₹{p.price}</div>
+        </Link>
+      ))}
     </div>
   );
 }
