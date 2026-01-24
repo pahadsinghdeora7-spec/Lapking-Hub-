@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient.js";
-import "./Home.css";
+import "./home.css";
 
 export default function Home() {
   const navigate = useNavigate();
