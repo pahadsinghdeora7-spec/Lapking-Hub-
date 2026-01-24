@@ -46,9 +46,13 @@ export default function Home() {
       )}
 
       {/* RELATED */}
-      <Section title="Related For You">
-        <ProductRow items={trending} />
-      </Section>
+      {relatedProducts?.length > 0 && (
+  <>
+    <h2>Related Products</h2>
+    <ProductGrid products={relatedProducts} />
+   </Section>
+)}
+      
 
       {/* TRENDING */}
       <Section title="Trending Products">
