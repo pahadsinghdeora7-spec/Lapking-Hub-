@@ -63,9 +63,12 @@ export default function Home() {
 )}
 
       {/* SUGGESTIONS */}
-      <Section title="Suggestions For You">
-        <ProductRow items={suggested} />
-      </Section>
+      {suggestedProducts?.length > 0 && (
+  <>
+    <h2>Suggestions For You</h2>
+    <ProductGrid products={suggestedProducts} />
+  </>
+)}
 
     </div>
   );
