@@ -1,137 +1,95 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
-import products from "../data/dummyProducts";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient.js";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  const product = products.find(
-    (item) => item.id === Number(id)
-  );
+  const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
 
-  const stock = product?.stock || 50;
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
 
-  const [qty, setQty] = useState(1);
+  const fetchProduct = async () => {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  if (!product) {
-    return <div className="pd-not-found">Product not found</div>;
-  }
-
-  const handleQtyChange = (value) => {
-    if (value === "") {
-      setQty("");
-      return;
+    if (data) {
+      setProduct(data);
+      fetchRelated(data.category_id, data.id);
     }
-
-    let num = Number(value);
-
-    if (isNaN(num)) return;
-    if (num < 1) num = 1;
-    if (num > stock) num = stock;
-
-    setQty(num);
   };
 
+  const fetchRelated = async (categoryId, currentId) => {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_id", categoryId)
+      .neq("id", currentId)
+      .eq("status", true)
+      .limit(6);
+
+    setRelated(data || []);
+  };
+
+  if (!product) return <p>Loading...</p>;
+
   return (
-    <div className="pd-page">
+    <div className="product-details">
 
-      {/* IMAGE */}
-      <div className="pd-image-box">
-        <img src={product.image} alt={product.name} />
-      </div>
+      {/* PRODUCT MAIN */}
+      <img
+        src={product.image || product.image1}
+        alt={product.name}
+      />
 
-      {/* INFO */}
-      <h1 className="pd-title">{product.name}</h1>
+      <h2>{product.name}</h2>
+      <h3>₹{product.price}</h3>
 
-      <div className="pd-price">₹{product.price}</div>
-
-      <div className="pd-stock">
-        ✔ In Stock ({stock} available)
-      </div>
-
-      {/* QUANTITY */}
-      <div className="pd-qty-row">
-        <button
-          onClick={() => qty > 1 && setQty(qty - 1)}
-        >
-          −
-        </button>
-
-        <input
-          type="number"
-          value={qty}
-          onChange={(e) =>
-            handleQtyChange(e.target.value)
-          }
-        />
-
-        <button
-          onClick={() =>
-            qty < stock && setQty(qty + 1)
-          }
-        >
-          +
-        </button>
-      </div>
-
-      {/* ACTION BUTTONS */}
-      <button className="pd-buy-btn">
-        Buy Now
-      </button>
-
-      <button className="pd-cart-btn">
-        Add to Cart
-      </button>
-
-      <a
-        className="pd-wa-btn"
-        href={`https://wa.me/919873670361?text=Product:%20${product.name}%0AQty:%20${qty}%0APrice:%20₹${product.price}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Order on WhatsApp
-      </a>
-
-      {/* DESCRIPTION */}
-      <div className="pd-desc-box">
-        <h3>Description</h3>
-        <p>
-          High quality laptop spare part. Tested
-          and compatible with supported models.
-          Suitable for wholesale and retail use.
+      {product.compatible_model && (
+        <p className="compatible">
+          <strong>Compatible Models:</strong>{" "}
+          {product.compatible_model}
         </p>
-      </div>
+      )}
 
-      {/* RELATED PRODUCTS */}
-      <h3 className="pd-related-title">
-        Related Products
-      </h3>
+      {product.description && (
+        <p className="description">{product.description}</p>
+      )}
 
-      <div className="pd-related-list">
-        {products
-          .filter(
-            (p) =>
-              p.category === product.category &&
-              p.id !== product.id
-          )
-          .slice(0, 6)
-          .map((item) => (
-            <div
-              key={item.id}
-              className="pd-related-card"
-            >
-              <img
-                src={item.image}
-                alt={item.name}
-              />
-              <div className="pd-related-info">
-                <p>{item.name}</p>
-                <span>₹{item.price}</span>
+      <button className="add-btn">Add to Cart</button>
+
+      {/* ================= RELATED PRODUCTS ================= */}
+
+      {related.length > 0 && (
+        <>
+          <h3 className="related-title">Related Products</h3>
+
+          <div className="related-grid">
+            {related.map((item) => (
+              <div
+                key={item.id}
+                className="related-card"
+                onClick={() => navigate(`/product/${item.id}`)}
+              >
+                <img
+                  src={item.image || item.image1}
+                  alt={item.name}
+                />
+                <h4>{item.name}</h4>
+                <p>₹{item.price}</p>
               </div>
-            </div>
-          ))}
-      </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
-          }
+}
