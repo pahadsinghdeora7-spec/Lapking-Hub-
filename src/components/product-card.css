@@ -44,8 +44,30 @@
   color: #0b5ed7;
 }
 
+..part-box {
+  margin-left: 15px;
+  margin-right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
 .part-text {
-  margin-left: 20px;      /* 🔥 right side push */
   font-weight: 600;
+  font-size: 13px;
   color: #333;
+}
+
+.stock {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.in-stock {
+  color: #198754; /* green */
+}
+
+.out-stock {
+  color: #dc3545; /* red */
 }
