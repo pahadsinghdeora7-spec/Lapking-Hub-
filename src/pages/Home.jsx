@@ -50,14 +50,17 @@ export default function Home() {
   <>
     <h2>Related Products</h2>
     <ProductGrid products={relatedProducts} />
-   </Section>
+  </>
 )}
       
 
       {/* TRENDING */}
-      <Section title="Trending Products">
-        <ProductRow items={trending} />
-      </Section>
+      {trendingProducts?.length > 0 && (
+  <>
+    <h2>Trending Products</h2>
+    <ProductGrid products={trendingProducts} />
+  </>
+)}
 
       {/* SUGGESTIONS */}
       <Section title="Suggestions For You">
