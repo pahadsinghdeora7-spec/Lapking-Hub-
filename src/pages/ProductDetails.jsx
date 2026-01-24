@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
 export default function ProductDetails() {
@@ -10,107 +10,97 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchProduct();
-  }, [id]);
+    if (!id) return;
 
-  async function fetchProduct() {
-    setLoading(true);
+    const loadProduct = async () => {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("products")
-      .select(`
-        *,
-        categories(name)
-      `)
-      .eq("id", id)
-      .single();
-
-    if (!error && data) {
-      setProduct({
-        ...data,
-        category_name: data.categories?.name || ""
-      });
-
-      const { data: relatedData } = await supabase
+      const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("category_id", data.category_id)
-        .neq("id", data.id)
-        .limit(10);
+        .eq("id", Number(id))
+        .single();
 
-      setRelated(relatedData || []);
-    }
+      if (!error && data) {
+        setProduct(data);
 
-    setLoading(false);
-  }
+        const { data: relatedData } = await supabase
+          .from("products")
+          .select("*")
+          .eq("category_id", data.category_id)
+          .neq("id", data.id)
+          .limit(8);
 
-  if (loading) {
-    return <p style={{ padding: 20 }}>Loading...</p>;
-  }
+        setRelated(relatedData || []);
+      }
 
-  if (!product) {
-    return <p style={{ padding: 20 }}>Product not found</p>;
-  }
+      setLoading(false);
+    };
+
+    loadProduct();
+  }, [id]);
+
+  if (loading) return <div className="pd-loading">Loading...</div>;
+  if (!product) return <div className="pd-error">Product not found</div>;
 
   return (
-    <div className="product-page">
+    <div className="pd-wrapper">
 
-      {/* IMAGE */}
-      <div className="product-image-box">
+      {/* IMAGE SECTION */}
+      <div className="pd-image">
         <img src={product.image} alt={product.name} />
       </div>
 
-      {/* INFO */}
-      <div className="product-info">
+      {/* DETAILS */}
+      <div className="pd-info">
         <h1>{product.name}</h1>
 
-        <div className="price">₹{product.price}</div>
+        <div className="pd-price">₹{product.price}</div>
 
-        <div className="meta">
+        <div className="pd-meta">
           <p><b>Brand:</b> {product.brand || "-"}</p>
-          <p><b>Category:</b> {product.category_name || "-"}</p>
-          <p><b>Part Number:</b> {product.part_number || "-"}</p>
+          <p><b>Part Number:</b> {product.part_number}</p>
+          <p><b>Compatible Models:</b> {product.compatible_m}</p>
         </div>
 
-        <div className="box">
-          <h3>Description</h3>
-          <p>{product.description || "No description available"}</p>
+        <div className="pd-buttons">
+          <button className="buy-now">Buy Now</button>
+          <button className="add-cart">Add to Cart</button>
+          <a
+            href={`https://wa.me/919873670361?text=I want to buy ${product.name}`}
+            className="whatsapp"
+          >
+            Order on WhatsApp
+          </a>
         </div>
+      </div>
 
-        <div className="box">
-          <h3>Compatible Models</h3>
-          <p>{product.compatible_model || "-"}</p>
-        </div>
-
-        {/* BUTTONS */}
-        <button className="btn buy">Buy Now</button>
-        <button className="btn cart">Add to Cart</button>
-
-        <a
-          href={`https://wa.me/919873670361?text=I want to order ${product.name}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button className="btn whatsapp">Order on WhatsApp</button>
-        </a>
+      {/* DESCRIPTION */}
+      <div className="pd-description">
+        <h3>Description</h3>
+        <p>{product.description}</p>
       </div>
 
       {/* RELATED PRODUCTS */}
       {related.length > 0 && (
-        <div className="related-section">
+        <div className="pd-related">
           <h3>Related Products</h3>
 
-          {related.map((item) => (
-            <div key={item.id} className="related-item">
-              <img src={item.image} alt={item.name} />
-              <div>
-                <p className="r-name">{item.name}</p>
-                <p className="r-price">₹{item.price}</p>
-              </div>
-            </div>
-          ))}
+          <div className="pd-related-grid">
+            {related.map(item => (
+              <Link
+                key={item.id}
+                to={`/product/${item.id}`}
+                className="pd-card"
+              >
+                <img src={item.image} />
+                <div className="pd-card-name">{item.name}</div>
+                <div className="pd-card-price">₹{item.price}</div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
-}
+      }
