@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import DrawerMenu from "./DrawerMenu";
 
 export default function Header() {
@@ -11,7 +12,7 @@ export default function Header() {
           height: "55px",
           display: "flex",
           alignItems: "center",
-          gap: "12px",
+          justifyContent: "space-between",
           padding: "0 12px",
           borderBottom: "1px solid #eee",
           background: "#fff",
@@ -20,18 +21,27 @@ export default function Header() {
           zIndex: 10
         }}
       >
-        <button
-          onClick={() => setOpen(true)}
-          style={{
-            fontSize: "22px",
-            background: "none",
-            border: "none"
-          }}
-        >
-          ☰
-        </button>
+        {/* LEFT */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            onClick={() => setOpen(true)}
+            style={{
+              fontSize: "22px",
+              background: "none",
+              border: "none"
+            }}
+          >
+            ☰
+          </button>
 
-        <h3 style={{ margin: 0 }}>👑 LapkingHub</h3>
+          <span style={{ fontWeight: "600" }}>👑 LapkingHub</span>
+        </div>
+
+        {/* RIGHT ICONS */}
+        <div style={{ display: "flex", gap: "14px", fontSize: "20px" }}>
+          <Link to="/wishlist">❤️</Link>
+          <Link to="/cart">🛒</Link>
+        </div>
       </header>
 
       <DrawerMenu open={open} onClose={() => setOpen(false)} />
