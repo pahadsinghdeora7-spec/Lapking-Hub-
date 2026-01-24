@@ -1,106 +1,203 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
-
-    const loadProduct = async () => {
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", Number(id))
-        .single();
-
-      if (!error && data) {
-        setProduct(data);
-
-        const { data: relatedData } = await supabase
-          .from("products")
-          .select("*")
-          .eq("category_id", data.category_id)
-          .neq("id", data.id)
-          .limit(8);
-
-        setRelated(relatedData || []);
-      }
-
-      setLoading(false);
-    };
-
-    loadProduct();
+    if (id) {
+      fetchProduct();
+    }
   }, [id]);
 
-  if (loading) return <div className="pd-loading">Loading...</div>;
-  if (!product) return <div className="pd-error">Product not found</div>;
+  const fetchProduct = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", Number(id))   // 🔒 int8 lock
+      .single();
+
+    if (error || !data) {
+      setLoading(false);
+      setProduct(null);
+      return;
+    }
+
+    setProduct(data);
+
+    // ✅ Recently Viewed save
+    let recent =
+      JSON.parse(localStorage.getItem("recentProducts")) || [];
+
+    recent = recent.filter(p => p.id !== data.id);
+
+    recent.unshift({
+      id: data.id,
+      name: data.name,
+      price: data.price,
+      image: data.image,
+    });
+
+    localStorage.setItem(
+      "recentProducts",
+      JSON.stringify(recent.slice(0, 10))
+    );
+
+    fetchRelated(data.category_id, data.id);
+    setLoading(false);
+  };
+
+  const fetchRelated = async (categoryId, currentId) => {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_id", categoryId)
+      .neq("id", currentId)
+      .eq("status", true)
+      .order("id", { ascending: false })
+      .limit(6);
+
+    setRelated(data || []);
+  };
+
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+
+  if (!product)
+    return <p style={{ padding: 20 }}>Product not found</p>;
 
   return (
-    <div className="pd-wrapper">
+    <div style={{ padding: 15 }}>
 
-      {/* IMAGE SECTION */}
-      <div className="pd-image">
-        <img src={product.image} alt={product.name} />
-      </div>
+      {/* IMAGE */}
+      <img
+        src={product.image}
+        alt={product.name}
+        style={{
+          width: "100%",
+          borderRadius: 12,
+          marginBottom: 15,
+        }}
+      />
 
       {/* DETAILS */}
-      <div className="pd-info">
-        <h1>{product.name}</h1>
+      <h2>{product.name}</h2>
 
-        <div className="pd-price">₹{product.price}</div>
+      <h3 style={{ color: "#1a73e8" }}>
+        ₹{product.price}
+      </h3>
 
-        <div className="pd-meta">
-          <p><b>Brand:</b> {product.brand || "-"}</p>
-          <p><b>Part Number:</b> {product.part_number}</p>
-          <p><b>Compatible Models:</b> {product.compatible_m}</p>
-        </div>
+      <p><b>Brand:</b> {product.brand || "-"}</p>
+      <p><b>Category:</b> {product.category_name || "Laptop Accessories"}</p>
+      <p><b>Part Number:</b> {product.part_number}</p>
+      <p><b>Compatible Models:</b> {product.compatible_model}</p>
 
-        <div className="pd-buttons">
-          <button className="buy-now">Buy Now</button>
-          <button className="add-cart">Add to Cart</button>
-          <a
-            href={`https://wa.me/919873670361?text=I want to buy ${product.name}`}
-            className="whatsapp"
-          >
-            Order on WhatsApp
-          </a>
-        </div>
-      </div>
+      {product.description && (
+        <>
+          <h4>Description</h4>
+          <p>{product.description}</p>
+        </>
+      )}
 
-      {/* DESCRIPTION */}
-      <div className="pd-description">
-        <h3>Description</h3>
-        <p>{product.description}</p>
-      </div>
+      {/* BUTTONS */}
+      <button
+        style={{
+          width: "100%",
+          padding: 12,
+          background: "#ff9800",
+          border: "none",
+          borderRadius: 6,
+          color: "#fff",
+          marginTop: 10,
+          fontSize: 16,
+        }}
+      >
+        Buy Now
+      </button>
+
+      <button
+        style={{
+          width: "100%",
+          padding: 12,
+          background: "#1976d2",
+          border: "none",
+          borderRadius: 6,
+          color: "#fff",
+          marginTop: 10,
+          fontSize: 16,
+        }}
+      >
+        Add to Cart
+      </button>
+
+      <a
+        href={`https://wa.me/9873670361?text=${encodeURIComponent(
+          `Product: ${product.name}\nPrice: ₹${product.price}`
+        )}`}
+        target="_blank"
+        rel="noreferrer"
+        style={{
+          display: "block",
+          textAlign: "center",
+          marginTop: 10,
+          padding: 12,
+          background: "#25d366",
+          color: "#fff",
+          borderRadius: 6,
+          textDecoration: "none",
+          fontSize: 16,
+        }}
+      >
+        Order on WhatsApp
+      </a>
 
       {/* RELATED PRODUCTS */}
       {related.length > 0 && (
-        <div className="pd-related">
-          <h3>Related Products</h3>
+        <>
+          <h3 style={{ marginTop: 25 }}>Related Products</h3>
 
-          <div className="pd-related-grid">
-            {related.map(item => (
-              <Link
-                key={item.id}
-                to={`/product/${item.id}`}
-                className="pd-card"
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 12,
+            }}
+          >
+            {related.map(p => (
+              <div
+                key={p.id}
+                onClick={() => navigate(`/product/${p.id}`)}
+                style={{
+                  border: "1px solid #eee",
+                  borderRadius: 10,
+                  padding: 10,
+                  cursor: "pointer",
+                }}
               >
-                <img src={item.image} />
-                <div className="pd-card-name">{item.name}</div>
-                <div className="pd-card-price">₹{item.price}</div>
-              </Link>
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  style={{
+                    width: "100%",
+                    height: 120,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                  }}
+                />
+                <h4 style={{ fontSize: 14 }}>{p.name}</h4>
+                <b>₹{p.price}</b>
+              </div>
             ))}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
-      }
+                }
