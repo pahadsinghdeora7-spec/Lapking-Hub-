@@ -1,121 +1,141 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
+import { useParams } from "react-router-dom";
+import supabase from "../supabaseClient";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [related, setRelated] = useState([]);
+  const [page, setPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  const LIMIT = 8;
+
+  // ======================
+  // LOAD MAIN PRODUCT
+  // ======================
   useEffect(() => {
-    fetchProduct();
+    loadProduct();
   }, [id]);
 
-  const fetchProduct = async () => {
+  const loadProduct = async () => {
     const { data } = await supabase
       .from("products")
-      .select("*")
-      .eq("id", Number(id))
+      .select("*, categories(name)")
+      .eq("id", id)
       .single();
 
     setProduct(data);
-    setLoading(false);
+    setRelated([]);
+    setPage(0);
   };
 
-  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
-  if (!product) return <p style={{ padding: 20 }}>Product not found</p>;
+  // ======================
+  // LOAD RELATED PRODUCTS
+  // ======================
+  const loadRelated = async () => {
+    if (!product) return;
+
+    setLoadingMore(true);
+
+    const from = page * LIMIT;
+    const to = from + LIMIT - 1;
+
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_id", product.category_id)
+      .neq("id", product.id)
+      .range(from, to);
+
+    setRelated(prev => [...prev, ...(data || [])]);
+    setPage(prev => prev + 1);
+    setLoadingMore(false);
+  };
+
+  // auto load first related
+  useEffect(() => {
+    if (product) loadRelated();
+  }, [product]);
+
+  // ======================
+  // SCROLL LOAD
+  // ======================
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 150
+      ) {
+        if (!loadingMore) loadRelated();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loadingMore, product]);
+
+  if (!product) return <p style={{ padding: 20 }}>Loading...</p>;
 
   return (
     <div style={{ padding: 15 }}>
 
-      {/* IMAGE */}
+      {/* PRODUCT INFO */}
       <img
         src={product.image}
         alt={product.name}
-        style={{
-          width: "100%",
-          maxHeight: 320,
-          objectFit: "cover",
-          borderRadius: 10
-        }}
+        style={{ width: "100%", borderRadius: 10 }}
       />
 
-      {/* NAME */}
       <h2>{product.name}</h2>
+      <h3>₹{product.price}</h3>
 
-      {/* PRICE */}
-      <h3 style={{ color: "#111" }}>₹{product.price}</h3>
-
-      {/* DETAILS */}
       <p><b>Brand:</b> {product.brand}</p>
-      <p><b>Category:</b> {product.category_name || "Laptop Accessories"}</p>
+      <p><b>Category:</b> {product.categories?.name}</p>
       <p><b>Part Number:</b> {product.part_number}</p>
-      <p><b>Compatible Models:</b> {product.compatible_models}</p>
 
-      <p style={{ marginTop: 10 }}>{product.description}</p>
+      <p><b>Compatible Models:</b><br />{product.compatible_model}</p>
 
-      {/* BUY BUTTONS */}
-      <div style={{ marginTop: 20 }}>
+      <p>{product.description}</p>
 
-        {/* BUY NOW */}
-        <button
-          onClick={() => navigate("/checkout/shipping")}
+      {/* BUTTONS */}
+      <button className="buy-btn">Buy Now</button>
+      <button className="cart-btn">Add to Cart</button>
+      <button className="wa-btn">Order on WhatsApp</button>
+
+      {/* RELATED PRODUCTS */}
+      <h3 style={{ marginTop: 30 }}>Related Products</h3>
+
+      {related.map(item => (
+        <div
+          key={item.id}
           style={{
-            width: "100%",
-            padding: 14,
-            background: "#ff9f00",
-            color: "#000",
-            border: "none",
-            borderRadius: 6,
-            fontSize: 16,
-            marginBottom: 10
+            display: "flex",
+            gap: 10,
+            marginBottom: 15,
+            borderBottom: "1px solid #eee",
+            paddingBottom: 10
           }}
         >
-          Buy Now
-        </button>
+          <img
+            src={item.image}
+            style={{ width: 90, borderRadius: 6 }}
+          />
 
-        {/* ADD TO CART */}
-        <button
-          onClick={() => navigate("/cart")}
-          style={{
-            width: "100%",
-            padding: 14,
-            background: "#2874f0",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            fontSize: 16,
-            marginBottom: 10
-          }}
-        >
-          Add to Cart
-        </button>
+          <div>
+            <h4>{item.name}</h4>
+            <p>₹{item.price}</p>
+          </div>
+        </div>
+      ))}
 
-        {/* WHATSAPP */}
-        <a
-          href={`https://wa.me/919873670361?text=I want to order ${product.name}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button
-            style={{
-              width: "100%",
-              padding: 14,
-              background: "green",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              fontSize: 16
-            }}
-          >
-            Order on WhatsApp
-          </button>
-        </a>
-
-      </div>
+      {loadingMore && (
+        <p style={{ textAlign: "center", padding: 20 }}>
+          Loading more products...
+        </p>
+      )}
 
     </div>
   );
-}
+  }
