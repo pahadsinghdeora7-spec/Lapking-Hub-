@@ -44,9 +44,4 @@ export default function Account() {
 
     </div>
   );
-}        Logout
-      </button>
-
-    </div>
-  );
-      }
+}
