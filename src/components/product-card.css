@@ -49,22 +49,22 @@
    margin-right: 10px;
 }
 
+/* PART NUMBER */
 .part-no {
   display: block;
   font-size: 12px;
-   margin-right: 10px;
   color: #555;
-  margin-bottom: 4px;   /* ← PART NO aur STOCK ke beech gap */
+  margin-bottom: 6px;   /* ✅ PART NO aur STOCK ke beech gap */
 }
 
 /* ---------------- STOCK ---------------- */
-.stock-in {
+./* STOCK STATUS */
+.stock-in,
+.stock-out {
+  display: block;       /* ✅ new line force */
   font-size: 12px;
-  color: green;
   font-weight: 600;
-  margin-top: 12px;
-  margin-right: 10px;
-  display: block;
+  margin-top: 2px;      /* ✅ extra spacing */
 }
 
 .stock-out {
