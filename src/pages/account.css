@@ -1,88 +1,57 @@
 .account-page {
-  padding: 15px;
-  max-width: 480px;
-  margin: auto;
+  padding: 16px;
 }
 
-.account-header {
-  background: linear-gradient(135deg, #0a58ff, #0047cc);
-  color: #fff;
+.account-profile {
+  background: #e6f2ff;
+  padding: 20px;
   border-radius: 12px;
-  padding: 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .avatar {
-  font-size: 32px;
-  background: rgba(255,255,255,0.2);
-  padding: 10px;
-  border-radius: 50%;
+  font-size: 48px;
+  margin-bottom: 8px;
 }
 
-.account-tabs {
+.account-profile h3 {
+  margin: 5px 0;
+  color: #0b5ed7;
+}
+
+.account-profile p {
+  font-size: 13px;
+  color: #555;
+}
+
+.account-menu {
   display: flex;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.account-tabs button {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #f1f3f6;
-  font-weight: 600;
-}
-
-.account-tabs .active {
-  background: #0a58ff;
-  color: #fff;
-}
-
-.account-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-.card-title {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  flex-direction: column;
   gap: 12px;
 }
 
-.info-grid label {
-  font-size: 12px;
-  color: gray;
-}
-
-.account-list div {
-  background: #fff;
+.account-item {
+  background: #ffffff;
   padding: 14px;
   border-radius: 10px;
-  margin-bottom: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+  font-size: 15px;
+  text-decoration: none;
+  color: #222;
+}
+
+.account-item:hover {
+  background: #f5f9ff;
 }
 
 .logout-btn {
+  margin-top: 25px;
   width: 100%;
-  padding: 12px;
-  background: #ffecec;
-  border: 1px solid #ffbcbc;
-  color: #d10000;
-  font-weight: bold;
+  padding: 14px;
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  font-size: 16px;
   border-radius: 10px;
-  margin-top: 10px;
 }
