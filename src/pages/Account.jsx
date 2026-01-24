@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "../styles/account.css";
+import "../account.css";
 
 export default function Account() {
   return (
