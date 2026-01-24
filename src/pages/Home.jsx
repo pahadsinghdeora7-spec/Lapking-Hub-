@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import ProductRow from "../components/ProductRow";
-import ProductGrid from "../components/ProductGrid";
-import "./home.css";
+import ProductCard from "../components/ProductCard";
+import "../home.css";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -13,55 +12,88 @@ export default function Home() {
     loadRecent();
   }, []);
 
+  // ========================
+  // LOAD PRODUCTS
+  // ========================
   const loadProducts = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("products")
       .select("*")
       .order("created_at", { ascending: false });
 
-    setProducts(data || []);
+    if (!error) {
+      setProducts(data || []);
+    }
   };
 
+  // ========================
+  // LOAD RECENT VIEWED
+  // ========================
   const loadRecent = () => {
-    const r = JSON.parse(localStorage.getItem("recentProducts") || "[]");
-    setRecent(r);
+    try {
+      const r = JSON.parse(
+        localStorage.getItem("recentProducts") || "[]"
+      );
+      setRecent(r);
+    } catch {
+      setRecent([]);
+    }
   };
 
+  // ========================
+  // DATA SPLIT (LOCKED)
+  // ========================
   const newArrivals = products.slice(0, 6);
-  const trendingProducts = products.slice(6, 12);
-  const suggestedProducts = products.slice(12, 20);
+  const trending = products.slice(6, 12);
+  const suggested = products.slice(12, 20);
 
   return (
     <div className="home">
 
-      {newArrivals.length > 0 && (
-        <section>
-          <h2>New Arrivals</h2>
-          <ProductRow items={newArrivals} />
-        </section>
+      {/* ================= NEW ARRIVALS ================= */}
+      <h2 className="section-title">New Arrivals</h2>
+      <div className="product-grid">
+        {newArrivals.map((item) => (
+          <ProductCard key={item.id} product={item} />
+        ))}
+      </div>
+
+      {/* ================= TRENDING ================= */}
+      {trending.length > 0 && (
+        <>
+          <h2 className="section-title">Trending Products</h2>
+          <div className="product-grid">
+            {trending.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </>
       )}
 
+      {/* ================= RECENTLY VIEWED ================= */}
       {recent.length > 0 && (
-        <section>
-          <h2>Recently Viewed</h2>
-          <ProductRow items={recent} />
-        </section>
+        <>
+          <h2 className="section-title">Recently Viewed</h2>
+          <div className="product-grid">
+            {recent.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </>
       )}
 
-      {trendingProducts.length > 0 && (
-        <section>
-          <h2>Trending Products</h2>
-          <ProductGrid products={trendingProducts} />
-        </section>
-      )}
-
-      {suggestedProducts.length > 0 && (
-        <section>
-          <h2>Suggestions For You</h2>
-          <ProductGrid products={suggestedProducts} />
-        </section>
+      {/* ================= SUGGESTED ================= */}
+      {suggested.length > 0 && (
+        <>
+          <h2 className="section-title">Suggestions For You</h2>
+          <div className="product-grid">
+            {suggested.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </>
       )}
 
     </div>
   );
-}
+      }
