@@ -1,4 +1,4 @@
-import "./ProductCard.css";
+import "./product-card.css";
 
 export default function ProductCard({ product }) {
   return (
