@@ -9,13 +9,13 @@ export default function Header() {
     <>
       <header
         style={{
-          height: "70px",                 // 🔼 height increase
-          background: "#e6f2ff",          // 🩵 light blue
+          height: "72px",
+          background: "#e6f2ff",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0 16px",
-          borderBottom: "1px solid #d6e9ff",
+          borderBottom: "1px solid #cce0ff",
           position: "sticky",
           top: 0,
           zIndex: 100
@@ -26,7 +26,7 @@ export default function Header() {
           <button
             onClick={() => setOpen(true)}
             style={{
-              fontSize: "24px",
+              fontSize: "26px",
               background: "none",
               border: "none",
               cursor: "pointer"
@@ -51,12 +51,12 @@ export default function Header() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "22px",          // 🔥 icon spacing
+            gap: "24px",
             fontSize: "22px"
           }}
         >
-          <Link to="/wishlist">🔖</Link>
           <Link to="/cart">🛒</Link>
+          <Link to="/account">👤</Link>
         </div>
       </header>
 
