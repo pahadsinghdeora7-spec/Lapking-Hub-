@@ -33,7 +33,6 @@ import WhatsAppButton from "./components/WhatsAppButton.jsx";
 
 export default function App() {
   return (
-    // ✅ HashRouter = Cloudflare SAFE
     <Router>
       <div className="app-root">
 
@@ -83,10 +82,10 @@ export default function App() {
         {/* BOTTOM NAV */}
         <BottomNav />
 
-        {/* WHATSAPP FLOAT */}
+        {/* WHATSAPP */}
         <WhatsAppButton />
 
       </div>
     </Router>
   );
-}
+            }
