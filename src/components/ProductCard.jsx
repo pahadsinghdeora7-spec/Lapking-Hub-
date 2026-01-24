@@ -6,7 +6,7 @@ export default function ProductCard({ product }) {
 
       {/* PRODUCT IMAGE */}
       <img
-        src={product.image || "https://via.placeholder.com/300"}
+        src={product.image || "https://picsum.photos/300/200"}
         alt={product.name}
         className="product-image"
       />
@@ -14,34 +14,33 @@ export default function ProductCard({ product }) {
       {/* PRODUCT NAME */}
       <h3 className="product-name">{product.name}</h3>
 
-      {/* BRAND + PART NUMBER + STOCK */}
-      <div className="brand-part-row">
+      {/* BRAND - CATEGORY - PART NUMBER */}
+      <div className="info-row">
 
-        {/* LEFT — BRAND */}
-        <span className="brand-text">
+        {/* LEFT : BRAND */}
+        <div className="brand-text">
           Brand: {product.brand || "-"}
-        </span>
-
-        {/* RIGHT — PART NUMBER + STOCK */}
-        <div className="part-stock-wrapper">
-
-          {/* PART NUMBER */}
-          <span className="part-text">
-            Part No: {product.part_number || "-"}
-          </span>
-
-          {/* STOCK */}
-          <span
-            className={
-              product.stock > 0
-                ? "stock-text stock-in"
-                : "stock-text stock-out"
-            }
-          >
-            {product.stock > 0 ? "In Stock" : "Out of Stock"}
-          </span>
-
         </div>
+
+        {/* CENTER : CATEGORY VALUE ONLY */}
+        <div className="category-text">
+          {product.category_name}
+        </div>
+
+        {/* RIGHT : PART NUMBER */}
+        <div className="part-text">
+          Part No: {product.part_number || "-"}
+        </div>
+
+      </div>
+
+      {/* STOCK STATUS */}
+      <div
+        className={
+          product.stock > 0 ? "stock-in" : "stock-out"
+        }
+      >
+        {product.stock > 0 ? "In Stock" : "Out of Stock"}
       </div>
 
       {/* PRICE */}
@@ -59,4 +58,4 @@ export default function ProductCard({ product }) {
 
     </div>
   );
-      }
+}
