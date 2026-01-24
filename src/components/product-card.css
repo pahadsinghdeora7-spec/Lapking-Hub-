@@ -45,7 +45,7 @@
 }
 
 .part-text {
-  margin-left: auto;      /* 🔥 right side push */
+  margin-left: 20px;      /* 🔥 right side push */
   font-weight: 600;
   color: #333;
 }
