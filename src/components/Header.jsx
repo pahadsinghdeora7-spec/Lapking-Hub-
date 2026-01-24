@@ -39,7 +39,7 @@ export default function Header() {
 
         {/* RIGHT ICONS */}
         <div style={{ display: "flex", gap: "14px", fontSize: "20px" }}>
-          <Link to="/wishlist">❤️</Link>
+          <Link to="/wishlist" style={{ fontSize: "20px" }}>⭐</Link>
           <Link to="/cart">🛒</Link>
         </div>
       </header>
