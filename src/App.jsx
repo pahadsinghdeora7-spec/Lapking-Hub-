@@ -9,7 +9,7 @@ import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
 import Account from "./pages/Account.jsx";
 
-import CheckoutShipping from "./pages/CheckoutShipping.jsx";
+
 import CheckoutAddress from "./pages/CheckoutAddress.jsx";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
 import ReplacementRequest from "./pages/ReplacementRequest.jsx";
@@ -49,7 +49,7 @@ export default function App() {
             <Route path="/account" element={<Account />} />
 
             {/* CHECKOUT */}
-            <Route path="/checkout/shipping" element={<CheckoutShipping />} />
+            
             <Route path="/checkout/address" element={<CheckoutAddress />} />
             <Route path="/order/success" element={<OrderSuccess />} />
 
