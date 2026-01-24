@@ -15,12 +15,13 @@ export default function AdminProducts() {
     image: "",
     image1: "",
     image2: "",
-    compatible_m: "",
+    compatible_model: "",
     description: "",
     status: true,
   });
 
-  // ---------------- FETCH ----------------
+  // ================= FETCH =================
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
@@ -44,9 +45,10 @@ export default function AdminProducts() {
     setCategories(data || []);
   };
 
-  // ---------------- ADD PRODUCT ----------------
+  // ================= ADD PRODUCT =================
+
   const addProduct = async () => {
-    if (!form.name || !form.category_id || !form.price) {
+    if (!form.name || !form.price || !form.category_id) {
       alert("Category, Name aur Price required hai");
       return;
     }
@@ -63,7 +65,7 @@ export default function AdminProducts() {
         image: form.image,
         image1: form.image1,
         image2: form.image2,
-        compatible_m: form.compatible_m,
+        compatible_model: form.compatible_model,
         description: form.description,
         status: form.status,
       },
@@ -74,8 +76,6 @@ export default function AdminProducts() {
     if (error) {
       alert(error.message);
     } else {
-      alert("Product added successfully");
-
       setForm({
         category_id: "",
         name: "",
@@ -85,7 +85,7 @@ export default function AdminProducts() {
         image: "",
         image1: "",
         image2: "",
-        compatible_m: "",
+        compatible_model: "",
         description: "",
         status: true,
       });
@@ -94,7 +94,6 @@ export default function AdminProducts() {
     }
   };
 
-  // ---------------- DELETE ----------------
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete product?")) return;
 
@@ -102,16 +101,14 @@ export default function AdminProducts() {
     fetchProducts();
   };
 
+  // ================= UI =================
+
   return (
-    <div className="space-y-6">
+    <div>
+      <h2>Admin Products</h2>
 
-      <h2 className="text-xl font-bold">Products</h2>
-
-      {/* ADD PRODUCT */}
-      <div className="bg-white p-4 rounded-xl shadow grid grid-cols-1 md:grid-cols-2 gap-3">
-
+      <div style={{ display: "grid", gap: 10, maxWidth: 500 }}>
         <select
-          className="border p-2 rounded"
           value={form.category_id}
           onChange={(e) =>
             setForm({ ...form, category_id: e.target.value })
@@ -126,67 +123,58 @@ export default function AdminProducts() {
         </select>
 
         <input
-          className="border p-2 rounded"
-          placeholder="Product name"
+          placeholder="Product Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
 
         <input
-          className="border p-2 rounded"
           placeholder="Price"
-          type="number"
           value={form.price}
           onChange={(e) => setForm({ ...form, price: e.target.value })}
         />
 
         <input
-          className="border p-2 rounded"
           placeholder="Stock"
-          type="number"
           value={form.stock}
           onChange={(e) => setForm({ ...form, stock: e.target.value })}
         />
 
         <input
-          className="border p-2 rounded"
-          placeholder="Part number"
+          placeholder="Part Number"
           value={form.part_number}
-          onChange={(e) => setForm({ ...form, part_number: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, part_number: e.target.value })
+          }
         />
 
         <input
-          className="border p-2 rounded"
-          placeholder="Main image URL"
+          placeholder="Main Image URL"
           value={form.image}
           onChange={(e) => setForm({ ...form, image: e.target.value })}
         />
 
         <input
-          className="border p-2 rounded"
           placeholder="Image 1 URL"
           value={form.image1}
           onChange={(e) => setForm({ ...form, image1: e.target.value })}
         />
 
         <input
-          className="border p-2 rounded"
           placeholder="Image 2 URL"
           value={form.image2}
           onChange={(e) => setForm({ ...form, image2: e.target.value })}
         />
 
         <input
-          className="border p-2 rounded"
-          placeholder="Compatible models"
-          value={form.compatible_m}
+          placeholder="Compatible Models"
+          value={form.compatible_model}
           onChange={(e) =>
-            setForm({ ...form, compatible_m: e.target.value })
+            setForm({ ...form, compatible_model: e.target.value })
           }
         />
 
         <textarea
-          className="border p-2 rounded col-span-full"
           placeholder="Description"
           value={form.description}
           onChange={(e) =>
@@ -194,51 +182,25 @@ export default function AdminProducts() {
           }
         />
 
-        <button
-          onClick={addProduct}
-          disabled={loading}
-          className="bg-blue-600 text-white py-2 rounded col-span-full hover:bg-blue-700"
-        >
+        <button onClick={addProduct} disabled={loading}>
           {loading ? "Saving..." : "Add Product"}
         </button>
       </div>
 
-      {/* PRODUCT LIST */}
-      <div className="bg-white rounded-xl shadow overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th></th>
-            </tr>
-          </thead>
+      <hr />
 
-          <tbody>
-            {products.map((p) => (
-              <tr key={p.id} className="border-b">
-                <td className="p-2">{p.id}</td>
-                <td>{p.name}</td>
-                <td>{p.categories?.name}</td>
-                <td>₹{p.price}</td>
-                <td>{p.stock}</td>
-                <td>
-                  <button
-                    onClick={() => deleteProduct(p.id)}
-                    className="text-red-600 text-sm"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-      </div>
+      {products.map((p) => (
+        <div key={p.id} style={{ marginBottom: 10 }}>
+          <b>{p.name}</b> — ₹{p.price}  
+          <br />
+          Model: {p.compatible_model}
+          <br />
+          Category: {p.categories?.name}
+          <br />
+          <button onClick={() => deleteProduct(p.id)}>Delete</button>
+          <hr />
+        </div>
+      ))}
     </div>
   );
 }
