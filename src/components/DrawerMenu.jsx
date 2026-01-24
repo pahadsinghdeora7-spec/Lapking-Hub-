@@ -5,16 +5,13 @@ export default function DrawerMenu({ open, onClose }) {
 
   return (
     <>
-      {/* DARK OVERLAY */}
+      {/* BACKDROP */}
       <div
         onClick={onClose}
         style={{
           position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          background: "rgba(0,0,0,0.4)",
+          inset: 0,
+          background: "rgba(0,0,0,0.45)",
           zIndex: 999
         }}
       />
@@ -25,64 +22,102 @@ export default function DrawerMenu({ open, onClose }) {
           position: "fixed",
           top: 0,
           left: 0,
-          width: "260px",
+          width: "280px",
           height: "100vh",
           background: "#fff",
           zIndex: 1000,
-          padding: "20px",
-          boxShadow: "2px 0 10px rgba(0,0,0,0.2)",
+          padding: "18px",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "2px 0 15px rgba(0,0,0,0.25)",
           animation: "slideIn 0.25s ease"
         }}
       >
-        <button
-          onClick={onClose}
-          style={{
-            border: "none",
-            background: "none",
-            fontSize: "22px",
-            marginBottom: "20px",
-            cursor: "pointer"
-          }}
-        >
-          ✕
-        </button>
-
-        <nav style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <Link to="/" onClick={onClose}>Home</Link>
-          <Link to="/categories" onClick={onClose}>Categories</Link>
-          <Link to="/orders" onClick={onClose}>Orders</Link>
-          <Link to="/account" onClick={onClose}>Account</Link>
-
-          <hr />
-
+        {/* HEADER */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <button
+            onClick={onClose}
             style={{
-              background: "#ff4d4f",
-              color: "#fff",
               border: "none",
-              padding: "10px",
-              borderRadius: "6px",
+              background: "none",
+              fontSize: "22px",
               cursor: "pointer"
             }}
           >
-            Logout
+            ✕
           </button>
-        </nav>
+
+          <strong style={{ fontSize: "18px", color: "#1976ff" }}>
+            👑 LapkingHub
+          </strong>
+        </div>
+
+        <hr style={{ margin: "15px 0" }} />
+
+        {/* MENU */}
+        <div style={{ flex: 1 }}>
+          <MenuItem to="/" text="Home" onClose={onClose} />
+          <MenuItem to="/categories" text="Categories" onClose={onClose} />
+          <MenuItem to="/orders" text="My Orders" onClose={onClose} />
+          <MenuItem to="/wishlist" text="Wishlist" onClose={onClose} />
+          <MenuItem to="/rewards" text="Rewards" onClose={onClose} />
+          <MenuItem to="/account" text="My Account" onClose={onClose} />
+
+          <hr style={{ margin: "15px 0" }} />
+
+          <MenuItem to="/policies" text="Policies" onClose={onClose} />
+          <MenuItem to="/contact" text="Contact Us" onClose={onClose} />
+          <MenuItem to="/about" text="About Us" onClose={onClose} />
+        </div>
+
+        {/* LOGOUT */}
+        <button
+          style={{
+            marginTop: "10px",
+            width: "100%",
+            padding: "12px",
+            background: "#ff3b3b",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "15px",
+            fontWeight: "600",
+            cursor: "pointer"
+          }}
+        >
+          Logout
+        </button>
       </div>
 
-      {/* ANIMATION */}
       <style>
         {`
           @keyframes slideIn {
-            from {
-              transform: translateX(-100%);
-            }
-            to {
-              transform: translateX(0);
-            }
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
           }
         `}
       </style>
     </>
+  );
+}
+
+/* MENU ITEM */
+function MenuItem({ to, text, onClose }) {
+  return (
+    <Link
+      to={to}
+      onClick={onClose}
+      style={{
+        display: "block",
+        padding: "12px 8px",
+        textDecoration: "none",
+        color: "#222",
+        fontSize: "15px",
+        fontWeight: "500",
+        borderRadius: "6px"
+      }}
+    >
+      {text}
+    </Link>
   );
 }
