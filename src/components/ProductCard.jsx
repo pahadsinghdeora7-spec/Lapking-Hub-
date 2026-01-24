@@ -1,50 +1,71 @@
-import { Link } from "react-router-dom";
-import "./product-card.css";
+// React import
+import React from "react";
 
+// CSS import
+import "./ProductCard.css";
+
+// ProductCard component
 export default function ProductCard({ product }) {
+
+  // stock check
+  const inStock = product.stock > 0;
+
   return (
+    // MAIN CARD
     <div className="product-card">
 
       {/* IMAGE */}
       <div className="product-image">
         <img
-          src={product.image || "https://picsum.photos/300"}
+          src={product.image || "https://picsum.photos/300/300"}
           alt={product.name}
         />
       </div>
 
-      {/* DETAILS */}
-      <div className="product-details">
+      {/* PRODUCT NAME */}
+      <h3 className="product-title">
+        {product.name}
+      </h3>
 
-        <h3 className="product-name">
-          {product.name}
-        </h3>
+      {/* BRAND + PART NUMBER ROW */}
+      <div className="brand-row">
 
+        {/* LEFT — BRAND */}
+        <div className="brand-text">
+          Brand: <span>{product.brand || "N/A"}</span>
+        </div>
+
+        {/* RIGHT — PART + STOCK */}
         <div className="part-box">
-  <div className="part-text">
-    Part No: {product.part_number}
-  </div>
 
-  <div
-    className={
-      product.stock > 0 ? "stock in-stock" : "stock out-stock"
-    }
-  >
-    {product.stock > 0 ? "In Stock" : "Out of Stock"}
-  </div>
-</div>
-  </span>
+          <div className="part-text">
+            Part No: {product.part_number || "-"}
+          </div>
 
-  <span className="part-text">
-    Part No: {product.part_number}
-  </span>
-</div>
+          <div
+            className={
+              inStock ? "stock in-stock" : "stock out-stock"
+            }
+          >
+            {inStock ? "In Stock" : "Out of Stock"}
+          </div>
 
-        <button className="add-cart-btn">
-          Add to Cart
-        </button>
-
+        </div>
       </div>
+
+      {/* PRICE */}
+      <div className="price">
+        ₹{product.price || 0}
+      </div>
+
+      {/* ADD TO CART BUTTON */}
+      <button
+        className="add-cart-btn"
+        disabled={!inStock}
+      >
+        Add to Cart
+      </button>
+
     </div>
   );
 }
