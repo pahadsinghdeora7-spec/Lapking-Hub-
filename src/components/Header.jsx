@@ -9,37 +9,53 @@ export default function Header() {
     <>
       <header
         style={{
-          height: "55px",
+          height: "70px",                 // 🔼 height increase
+          background: "#e6f2ff",          // 🩵 light blue
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 12px",
-          borderBottom: "1px solid #eee",
-          background: "#fff",
+          padding: "0 16px",
+          borderBottom: "1px solid #d6e9ff",
           position: "sticky",
           top: 0,
-          zIndex: 10
+          zIndex: 100
         }}
       >
         {/* LEFT */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <button
             onClick={() => setOpen(true)}
             style={{
-              fontSize: "22px",
+              fontSize: "24px",
               background: "none",
-              border: "none"
+              border: "none",
+              cursor: "pointer"
             }}
           >
             ☰
           </button>
 
-          <span style={{ fontWeight: "600" }}>👑 LapkingHub</span>
+          <span
+            style={{
+              fontSize: "18px",
+              fontWeight: "700",
+              color: "#0b5ed7"
+            }}
+          >
+            👑 LapkingHub
+          </span>
         </div>
 
         {/* RIGHT ICONS */}
-        <div style={{ display: "flex", gap: "14px", fontSize: "20px" }}>
-          <Link to="/wishlist" style={{ fontSize: "20px" }}>⭐</Link>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "22px",          // 🔥 icon spacing
+            fontSize: "22px"
+          }}
+        >
+          <Link to="/wishlist">🔖</Link>
           <Link to="/cart">🛒</Link>
         </div>
       </header>
