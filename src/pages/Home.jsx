@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import ProductRow from "../components/ProductRow";
+import ProductGrid from "../components/ProductGrid";
 import "./home.css";
 
 export default function Home() {
@@ -25,7 +27,6 @@ export default function Home() {
     setRecent(r);
   };
 
-  // SAFE slices
   const newArrivals = products.slice(0, 6);
   const trendingProducts = products.slice(6, 12);
   const suggestedProducts = products.slice(12, 20);
@@ -33,7 +34,6 @@ export default function Home() {
   return (
     <div className="home">
 
-      {/* NEW ARRIVALS */}
       {newArrivals.length > 0 && (
         <section>
           <h2>New Arrivals</h2>
@@ -41,7 +41,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* RECENTLY VIEWED */}
       {recent.length > 0 && (
         <section>
           <h2>Recently Viewed</h2>
@@ -49,7 +48,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* TRENDING */}
       {trendingProducts.length > 0 && (
         <section>
           <h2>Trending Products</h2>
@@ -57,7 +55,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* SUGGESTIONS */}
       {suggestedProducts.length > 0 && (
         <section>
           <h2>Suggestions For You</h2>
