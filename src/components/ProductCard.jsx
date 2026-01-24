@@ -1,60 +1,34 @@
-// React import
-import React from "react";
+import "./ProductCard.css";
 
-// CSS import
-import "./product-card.css";
-
-// ProductCard component
 export default function ProductCard({ product }) {
-
-  // stock check
-  const inStock = product.stock > 0;
-
   return (
-    // MAIN CARD
     <div className="product-card">
 
-      {/* IMAGE */}
-      <div className="product-image">
-        <img
-          src={product.image || "https://picsum.photos/300/300"}
-          alt={product.name}
-        />
-      </div>
+      {/* PRODUCT IMAGE */}
+      <img
+        src={product.image || "https://picsum.photos/300"}
+        alt={product.name}
+        className="product-image"
+      />
 
       {/* PRODUCT NAME */}
-      <h3 className="product-title">
+      <h3 className="product-name">
         {product.name}
       </h3>
 
       {/* BRAND + PART NUMBER ROW */}
-      <div className="brand-row">
+      <div className="brand-part-row">
 
-        {/* LEFT — BRAND */}
-        <div className="brand-text">
-          Brand: <span>{product.brand || "N/A"}</span>
-        </div>
+        {/* BRAND */}
+        <span className="brand-text">
+          Brand: {product.brand || "-"}
+        </span>
 
-        {/* PART NUMBER + STOCK */}
-<div className="part-stock-box">
+        {/* PART NUMBER */}
+        <span className="part-text">
+          Part No: {product.part_number || "-"}
+        </span>
 
-  {/* PART NUMBER */}
-  <div className="part-no">
-    Part No: {product.part_number}
-  </div>
-
-  {/* STOCK STATUS */}
-  <div
-    className={
-      product.stock > 0 ? "stock-in" : "stock-out"
-    }
-  >
-    {product.stock > 0 ? "In Stock" : "Out of Stock"}
-  </div>
-
-</div>
-
-        </div>
       </div>
 
       {/* PRICE */}
@@ -62,10 +36,19 @@ export default function ProductCard({ product }) {
         ₹{product.price || 0}
       </div>
 
+      {/* STOCK STATUS */}
+      <div
+        className={
+          product.stock > 0 ? "stock-in" : "stock-out"
+        }
+      >
+        {product.stock > 0 ? "In Stock" : "Out of Stock"}
+      </div>
+
       {/* ADD TO CART BUTTON */}
       <button
-        className="add-cart-btn"
-        disabled={!inStock}
+        className="add-to-cart-btn"
+        disabled={product.stock <= 0}
       >
         Add to Cart
       </button>
