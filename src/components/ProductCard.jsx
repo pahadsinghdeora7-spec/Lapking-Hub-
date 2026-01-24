@@ -20,25 +20,25 @@ export default function ProductCard({ product }) {
           {product.name}
         </h3>
 
-        <div className="brand-part-row">
-  <span className="brand-text">
-    Brand: {product.brand}
+        <div className="part-box">
+  <div className="part-text">
+    Part No: {product.part_number}
+  </div>
+
+  <div
+    className={
+      product.stock > 0 ? "stock in-stock" : "stock out-stock"
+    }
+  >
+    {product.stock > 0 ? "In Stock" : "Out of Stock"}
+  </div>
+</div>
   </span>
 
   <span className="part-text">
     Part No: {product.part_number}
   </span>
 </div>
-
-        <div className="product-price">
-          ₹{product.price}
-        </div>
-
-        {product.stock > 0 ? (
-          <span className="stock in">In Stock</span>
-        ) : (
-          <span className="stock out">Out of Stock</span>
-        )}
 
         <button className="add-cart-btn">
           Add to Cart
