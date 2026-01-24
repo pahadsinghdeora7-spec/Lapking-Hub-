@@ -1,43 +1,46 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient.js";
-import "./home.css";
+import "./Home.css";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("status", true)
-      .order("id", { ascending: false });
+      .order("id", { ascending: false })
+      .limit(8);
 
-    if (!error) {
-      setProducts(data || []);
+    if (!error && data) {
+      setProducts(data);
     }
+
+    setLoading(false);
   };
+
+  if (loading) {
+    return <div className="page-loading">Loading...</div>;
+  }
 
   return (
     <div className="home">
-      {/* SEARCH */}
-      <input
-        className="search-box"
-        placeholder="Search products..."
-        disabled
-      />
 
       {/* BANNER */}
       <div className="banner">
         <h2>Premium Laptop Accessories</h2>
         <p>
-          Shop the best chargers, batteries, keyboards and more for all laptop
-          brands
+          Shop the best chargers, batteries, keyboards and more for all laptop brands
         </p>
         <button>Shop Now</button>
       </div>
@@ -46,27 +49,26 @@ export default function Home() {
       <h3 className="section-title">Latest Products</h3>
 
       <div className="product-grid">
-        {products.map((product) => (
+        {products.map((p) => (
           <div
-            key={product.id}
+            key={p.id}
             className="product-card"
-            onClick={() => navigate(`/product/${product.id}`)}
+            onClick={() => navigate(`/product/${p.id}`)}
           >
             <img
-              src={product.image || product.image1}
-              alt={product.name}
+              src={p.image || p.image1}
+              alt={p.name}
             />
 
-            <h4>{product.name}</h4>
+            <h4>{p.name}</h4>
 
-            {/* ✅ FIXED FIELD NAME */}
-            {product.compatible_model && (
+            {p.compatible_model && (
               <p className="compatible">
-                Compatible: {product.compatible_model}
+                Compatible: {p.compatible_model}
               </p>
             )}
 
-            <strong>₹{product.price}</strong>
+            <p className="price">₹{p.price}</p>
 
             <button>Add to Cart</button>
           </div>
