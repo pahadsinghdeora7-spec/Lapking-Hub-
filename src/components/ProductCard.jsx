@@ -2,7 +2,7 @@
 import React from "react";
 
 // CSS import
-import "./productcard.css";
+import "./product-card.css";
 
 // ProductCard component
 export default function ProductCard({ product }) {
