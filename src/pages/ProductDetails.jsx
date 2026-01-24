@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient.js";
 import "./ProductDetails.css";
 
@@ -11,80 +11,80 @@ export default function ProductDetails() {
   const [related, setRelated] = useState([]);
 
   useEffect(() => {
-    fetchProduct();
+    if (id) {
+      fetchProduct();
+    }
   }, [id]);
 
   const fetchProduct = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("id", id)
       .single();
 
-    if (data) {
-      setProduct(data);
-      fetchRelated(data.category_id, data.id);
+    if (error) {
+      console.error(error);
+      return;
     }
-  };
 
-  const fetchRelated = async (categoryId, currentId) => {
-    const { data } = await supabase
+    setProduct(data);
+
+    // related products
+    const { data: rel } = await supabase
       .from("products")
       .select("*")
-      .eq("category_id", categoryId)
-      .neq("id", currentId)
-      .eq("status", true)
+      .eq("category_id", data.category_id)
+      .neq("id", data.id)
       .limit(6);
 
-    setRelated(data || []);
+    setRelated(rel || []);
   };
 
-  if (!product) return <p>Loading...</p>;
+  if (!product) {
+    return <div style={{ padding: 20 }}>Loading product...</div>;
+  }
 
   return (
     <div className="product-details">
 
-      {/* PRODUCT MAIN */}
       <img
-        src={product.image || product.image1}
+        src={product.image}
         alt={product.name}
+        className="product-image"
       />
 
       <h2>{product.name}</h2>
-      <h3>₹{product.price}</h3>
 
-      {product.compatible_model && (
-        <p className="compatible">
-          <strong>Compatible Models:</strong>{" "}
-          {product.compatible_model}
+      {product.compatible_m && (
+        <p>
+          <b>Compatible:</b> {product.compatible_m}
         </p>
       )}
 
-      {product.description && (
-        <p className="description">{product.description}</p>
-      )}
+      <h3>₹{product.price}</h3>
 
-      <button className="add-btn">Add to Cart</button>
-
-      {/* ================= RELATED PRODUCTS ================= */}
+      <button
+        className="add-btn"
+        onClick={() => navigate("/cart")}
+      >
+        Add to Cart
+      </button>
 
       {related.length > 0 && (
         <>
-          <h3 className="related-title">Related Products</h3>
+          <h3 style={{ marginTop: 30 }}>Related Products</h3>
 
           <div className="related-grid">
-            {related.map((item) => (
+            {related.map((p) => (
               <div
-                key={item.id}
+                key={p.id}
                 className="related-card"
-                onClick={() => navigate(`/product/${item.id}`)}
+                onClick={() => navigate(`/product/${p.id}`)}
               >
-                <img
-                  src={item.image || item.image1}
-                  alt={item.name}
-                />
-                <h4>{item.name}</h4>
-                <p>₹{item.price}</p>
+                <img src={p.image} alt={p.name} />
+                <p>{p.name}</p>
+                <b>₹{p.price}</b>
               </div>
             ))}
           </div>
