@@ -1,23 +1,38 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import {
+  MdHome,
+  MdCategory,
+  MdShoppingCart,
+  MdPerson
+} from "react-icons/md";
+import "./bottomNav.css";
 
 export default function BottomNav() {
+  const navigate = useNavigate();
+
   return (
-    <div style={{
-      position: "fixed",
-      bottom: 0,
-      width: "100%",
-      background: "#fff",
-      borderTop: "1px solid #eee",
-      display: "flex",
-      justifyContent: "space-around",
-      padding: "10px 0",
-      zIndex: 1000
-    }}>
-      <Link to="/">Home</Link>
-      <Link to="/categories">Categories</Link>
-      <Link to="/cart">Cart</Link>
-      <Link to="/account">Account</Link>
+    <div className="bottom-nav">
+
+      <div onClick={() => navigate("/")}>
+        <MdHome size={22} />
+        <span>Home</span>
+      </div>
+
+      <div onClick={() => navigate("/categories")}>
+        <MdCategory size={22} />
+        <span>Categories</span>
+      </div>
+
+      <div onClick={() => navigate("/cart")}>
+        <MdShoppingCart size={22} />
+        <span>Cart</span>
+      </div>
+
+      <div onClick={() => navigate("/account")}>
+        <MdPerson size={22} />
+        <span>Account</span>
+      </div>
+
     </div>
   );
 }
