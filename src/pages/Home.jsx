@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient.js";
 import ProductCard from "../components/ProductCard";
-import "./Home.css";
+import "./home.css";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
