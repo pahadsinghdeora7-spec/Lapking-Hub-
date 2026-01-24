@@ -15,30 +15,16 @@ export default function ProductDetails() {
   async function fetchProduct() {
     setLoading(true);
 
-    const productId = Number(id); // 🔥 MOST IMPORTANT FIX
+    const productId = Number(id);
 
     const { data, error } = await supabase
       .from("products")
-      .select(
-        `
-        id,
-        name,
-        price,
-        image,
-        description,
-        part_number,
-        compatible_m,
-        brand,
-        categories (
-          name
-        )
-        `
-      )
+      .select("*")
       .eq("id", productId)
       .single();
 
     if (error) {
-      console.error("Product fetch error:", error);
+      console.error(error);
       setLoading(false);
       return;
     }
@@ -69,11 +55,6 @@ export default function ProductDetails() {
 
       <p><b>Brand:</b> {product.brand}</p>
 
-      <p>
-        <b>Category:</b>{" "}
-        {product.categories?.name || "N/A"}
-      </p>
-
       <p><b>Part Number:</b> {product.part_number}</p>
 
       <p><b>Compatible Models:</b></p>
@@ -82,50 +63,30 @@ export default function ProductDetails() {
       <p><b>Description:</b></p>
       <p>{product.description}</p>
 
-      <button
-        style={{
-          width: "100%",
-          padding: 12,
-          background: "#ff9800",
-          color: "#fff",
-          border: "none",
-          marginTop: 10,
-        }}
-      >
-        Buy Now
-      </button>
-
-      <button
-        style={{
-          width: "100%",
-          padding: 12,
-          background: "#1976d2",
-          color: "#fff",
-          border: "none",
-          marginTop: 10,
-        }}
-      >
-        Add to Cart
-      </button>
+      {/* Buttons */}
+      <button style={btn("#ff9800")}>Buy Now</button>
+      <button style={btn("#1976d2")}>Add to Cart</button>
 
       <a
-        href={`https://wa.me/919873670361?text=I want to buy ${product.name}`}
+        href={`https://wa.me/919873670361?text=I want ${product.name}`}
         target="_blank"
         rel="noreferrer"
       >
-        <button
-          style={{
-            width: "100%",
-            padding: 12,
-            background: "green",
-            color: "#fff",
-            border: "none",
-            marginTop: 10,
-          }}
-        >
-          Order on WhatsApp
-        </button>
+        <button style={btn("green")}>Order on WhatsApp</button>
       </a>
     </div>
   );
+}
+
+function btn(color) {
+  return {
+    width: "100%",
+    padding: 12,
+    background: color,
+    color: "#fff",
+    border: "none",
+    marginTop: 10,
+    borderRadius: 6,
+    fontSize: 16,
+  };
 }
