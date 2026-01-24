@@ -1,54 +1,50 @@
-// src/pages/CategoryProducts.jsx
-
-import React, { useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import products from "../data/dummyProducts";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
+import ProductCard from "../components/ProductCard";
 import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ SEO TITLE
   useEffect(() => {
-    if (slug) {
-      document.title =
-        slug.replace("-", " ").toUpperCase() +
-        " Laptop Accessories | Lapking Hub";
-    }
+    loadCategoryProducts();
   }, [slug]);
 
-  // ✅ FILTER PRODUCTS BY CATEGORY
-  const filtered = products.filter(
-    (p) => p.category?.toLowerCase() === slug?.toLowerCase()
-  );
+  const loadCategoryProducts = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category", slug);
+
+    if (!error) {
+      setProducts(data || []);
+    }
+
+    setLoading(false);
+  };
 
   return (
     <div className="category-page">
-      <h1 className="category-title">
-        {slug?.replace("-", " ").toUpperCase()}
-      </h1>
+      <h2 className="category-title">
+        {slug.replace("-", " ").toUpperCase()}
+      </h2>
+
+      {loading && <p>Loading products...</p>}
+
+      {!loading && products.length === 0 && (
+        <p style={{ textAlign: "center", marginTop: "30px" }}>
+          No products found in this category
+        </p>
+      )}
 
       <div className="product-grid">
-        {filtered.length === 0 && (
-          <p style={{ textAlign: "center", width: "100%" }}>
-            No products found
-          </p>
-        )}
-
-        {filtered.map((item) => (
-          <Link
-            key={item.id}
-            to={`/product/${item.slug}`}
-            className="product-card"
-          >
-            <img src={item.image} alt={item.name} />
-
-            <h3>{item.name}</h3>
-
-            <p className="price">₹{item.price}</p>
-
-            <button>Add to Cart</button>
-          </Link>
+        {products.map((item) => (
+          <ProductCard key={item.id} product={item} />
         ))}
       </div>
     </div>
