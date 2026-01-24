@@ -18,7 +18,7 @@ export default function ProductDetails() {
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .eq("id", Number(id))   // ✅ MOST IMPORTANT FIX
+      .eq("id", Number(id))
       .single();
 
     if (!error) {
@@ -61,5 +61,4 @@ export default function ProductDetails() {
       <p style={{ marginTop: 10 }}>{product.description}</p>
     </div>
   );
-}  );
 }
