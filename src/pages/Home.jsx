@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
+import HomeSlider from "../components/HomeSlider";
 import "../styles/theme.css";
 
 export default function Home() {
@@ -49,6 +50,7 @@ export default function Home() {
 
   return (
     <div className="home">
+      <HomeSlider />
 
       {/* ================= NEW ARRIVALS ================= */}
       <h2 className="section-title">New Arrivals</h2>
