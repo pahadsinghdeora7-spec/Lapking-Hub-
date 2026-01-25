@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CheckoutAddress.css";
+
 
 export default function CheckoutAddress() {
   const navigate = useNavigate();
