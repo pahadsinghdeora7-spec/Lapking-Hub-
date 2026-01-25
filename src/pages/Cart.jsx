@@ -1,109 +1,149 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Cart.css";
 
 export default function Cart() {
   const navigate = useNavigate();
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Lenovo Legion 5 15ARH05H, With Backlight Blue",
-      brand: "Lenovo",
-      price: 1250,
-      qty: 1,
-      image:
-        "https://images.unsplash.com/photo-1587202372775-98973f2d3c7b",
-    },
-    {
-      id: 2,
-      name: "Dell Latitude E3490 TouchPad Palmrest Bottom Base",
-      brand: "Dell",
-      price: 1850,
-      qty: 1,
-      image:
-        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-    },
-  ]);
+  const [cartItems, setCartItems] = useState([]);
 
+  // ✅ LOAD CART FROM LOCALSTORAGE
+  useEffect(() => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCartItems(cart);
+  }, []);
+
+  // ✅ SAVE CART
+  const updateCart = (items) => {
+    setCartItems(items);
+    localStorage.setItem("cart", JSON.stringify(items));
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+
+  // ✅ INCREASE
   const increaseQty = (id) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, qty: item.qty + 1 } : item
-      )
+    const updated = cartItems.map((item) =>
+      item.id === id ? { ...item, qty: item.qty + 1 } : item
     );
+    updateCart(updated);
   };
 
+  // ✅ DECREASE
   const decreaseQty = (id) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id && item.qty > 1
-          ? { ...item, qty: item.qty - 1 }
-          : item
-      )
+    const updated = cartItems.map((item) =>
+      item.id === id && item.qty > 1
+        ? { ...item, qty: item.qty - 1 }
+        : item
     );
+    updateCart(updated);
   };
 
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  // ✅ MANUAL INPUT
+  const changeQty = (id, value) => {
+    const qty = Number(value);
+    if (qty < 1 || isNaN(qty)) return;
+
+    const updated = cartItems.map((item) =>
+      item.id === id ? { ...item, qty } : item
+    );
+    updateCart(updated);
   };
+
+  // ✅ REMOVE ITEM
+  const removeItem = (id) => {
+    const updated = cartItems.filter((item) => item.id !== id);
+    updateCart(updated);
+  };
+
+  // ✅ TOTAL COUNT (IMPORTANT)
+  const totalItems = cartItems.reduce(
+    (sum, item) => sum + item.qty,
+    0
+  );
 
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.qty,
+    (sum, item) => sum + item.price * item.qty,
     0
   );
 
   return (
     <div className="cart-page">
-      <h2>Shopping Cart ({cartItems.length} items)</h2>
+      <h2>Shopping Cart ({totalItems} items)</h2>
+
+      {cartItems.length === 0 && (
+        <p style={{ textAlign: "center", marginTop: 40 }}>
+          Cart is empty
+        </p>
+      )}
 
       {cartItems.map((item) => (
         <div className="cart-item" key={item.id}>
-          <img src={item.image} alt={item.name} />
+          {/* IMAGE */}
+          <img
+            src={item.image || "/no-image.png"}
+            alt={item.name}
+          />
 
           <div className="cart-info">
             <h4>{item.name}</h4>
             <p>{item.brand}</p>
             <strong>₹{item.price}</strong>
 
+            {/* ✅ SAME QUANTITY SYSTEM AS PRODUCT PAGE */}
             <div className="qty-box">
-              <button onClick={() => decreaseQty(item.id)}>-</button>
-              <span>{item.qty}</span>
+              <button onClick={() => decreaseQty(item.id)}>−</button>
+
+              <input
+                type="number"
+                min="1"
+                value={item.qty}
+                onChange={(e) =>
+                  changeQty(item.id, e.target.value)
+                }
+              />
+
               <button onClick={() => increaseQty(item.id)}>+</button>
             </div>
           </div>
 
-          <button className="delete-btn" onClick={() => removeItem(item.id)}>
+          {/* DELETE */}
+          <button
+            className="delete-btn"
+            onClick={() => removeItem(item.id)}
+          >
             🗑
           </button>
         </div>
       ))}
 
-      <div className="order-summary">
-        <h3>Order Summary</h3>
+      {/* ORDER SUMMARY */}
+      {cartItems.length > 0 && (
+        <div className="order-summary">
+          <h3>Order Summary</h3>
 
-        <div className="summary-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
+          <div className="summary-row">
+            <span>Subtotal</span>
+            <span>₹{subtotal}</span>
+          </div>
+
+          <div className="summary-row">
+            <span>Shipping</span>
+            <span>FREE</span>
+          </div>
+
+          <div className="summary-total">
+            <span>Total</span>
+            <span>₹{subtotal}</span>
+          </div>
+
+          <button
+            className="checkout-btn"
+            onClick={() => navigate("/checkout/address")}
+          >
+            Proceed to Checkout →
+          </button>
         </div>
-
-        <div className="summary-row">
-          <span>Shipping</span>
-          <span>FREE</span>
-        </div>
-
-        <div className="summary-total">
-          <span>Total</span>
-          <span>₹{subtotal}</span>
-        </div>
-
-        <button
-          className="checkout-btn"
-          onClick={() => navigate("/checkout/address")}
-        >
-          Proceed to Checkout →
-        </button>
-      </div>
+      )}
     </div>
   );
 }
