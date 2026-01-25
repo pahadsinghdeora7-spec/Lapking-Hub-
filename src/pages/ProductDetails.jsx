@@ -21,6 +21,9 @@ const ProductDetails = () => {
   // fullscreen preview
   const [showPreview, setShowPreview] = useState(false);
 
+  // cart popup
+  const [cartToast, setCartToast] = useState(false);
+
   // swipe
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
@@ -43,7 +46,6 @@ const ProductDetails = () => {
     if (data?.image) imgs.push(data.image);
     if (data?.image1) imgs.push(data.image1);
     if (data?.image2) imgs.push(data.image2);
-
     setImages(imgs);
 
     if (data?.category_slug) {
@@ -103,7 +105,6 @@ const ProductDetails = () => {
               }}
             />
 
-            {/* DOTS */}
             {images.length > 1 && (
               <div className="image-dots">
                 {images.map((_, i) => (
@@ -116,7 +117,6 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* THUMBNAILS */}
             {images.length > 1 && (
               <div className="thumb-row">
                 {images.map((img, i) => (
@@ -158,21 +158,14 @@ const ProductDetails = () => {
         {/* QUANTITY */}
         <div className="qty-box">
           <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
-
           <input
             type="number"
             min="1"
             value={quantity}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "") {
-                setQuantity("");
-              } else {
-                setQuantity(Number(val));
-              }
-            }}
+            onChange={(e) =>
+              setQuantity(Number(e.target.value) || 1)
+            }
           />
-
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
         </div>
 
@@ -199,14 +192,16 @@ const ProductDetails = () => {
               const exist = cart.find(i => i.id === product.id);
 
               if (exist) {
-                exist.qty += Number(quantity || 1);
+                exist.qty += quantity;
               } else {
-                cart.push({ ...product, qty: Number(quantity || 1) });
+                cart.push({ ...product, qty: quantity });
               }
 
               localStorage.setItem("cart", JSON.stringify(cart));
               window.dispatchEvent(new Event("cartUpdated"));
-              alert("Added to cart");
+
+              setCartToast(true);
+              setTimeout(() => setCartToast(false), 2000);
             }}
           >
             Add to Cart
@@ -254,13 +249,20 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* FULL SCREEN IMAGE */}
+      {/* FULL IMAGE PREVIEW */}
       {showPreview && (
         <div
           className="image-preview"
           onClick={() => setShowPreview(false)}
         >
           <img src={images[activeImage]} alt="preview" />
+        </div>
+      )}
+
+      {/* CART POPUP */}
+      {cartToast && (
+        <div className="cart-toast">
+          ✅ Added to cart
         </div>
       )}
 
