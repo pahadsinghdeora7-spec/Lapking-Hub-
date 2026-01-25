@@ -12,7 +12,7 @@ export default function Account() {
   const ADMIN_EMAIL = "pahadsinghdeora7@gmail.com";
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    const isAdmin = true; then(({ data }) => {
       setUser(data?.user);
     });
   }, []);
