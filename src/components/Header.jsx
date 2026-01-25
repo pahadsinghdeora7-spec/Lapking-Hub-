@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DrawerMenu from "./DrawerMenu";
+import SearchBar from "./SearchBar";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
