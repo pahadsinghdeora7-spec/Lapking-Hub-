@@ -72,7 +72,6 @@ const ProductDetails = () => {
               alt={product.name}
               className="pd-image"
               onClick={() => setShowPreview(true)}
-
               onTouchStart={(e) =>
                 setTouchStart(e.targetTouches[0].clientX)
               }
@@ -99,7 +98,6 @@ const ProductDetails = () => {
                 setTouchStart(null);
                 setTouchEnd(null);
               }}
-
               onError={(e) => {
                 e.target.src = "/no-image.png";
               }}
@@ -165,25 +163,17 @@ const ProductDetails = () => {
             type="number"
             min="1"
             value={quantity}
-            onChange={(e) =>
-              setQuantity(Number(e.target.value) || 1)
-            }
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "") {
+                setQuantity("");
+              } else {
+                setQuantity(Number(val));
+              }
+            }}
           />
 
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
-        </div>
-
-        {/* QUICK QTY */}
-        <div className="quick-qty">
-          {[5, 10, 20].map((q) => (
-            <button
-              key={q}
-              className={quantity === q ? "active" : ""}
-              onClick={() => setQuantity(q)}
-            >
-              {q}
-            </button>
-          ))}
         </div>
 
         {/* BUTTONS */}
@@ -209,9 +199,9 @@ const ProductDetails = () => {
               const exist = cart.find(i => i.id === product.id);
 
               if (exist) {
-                exist.qty += quantity;
+                exist.qty += Number(quantity || 1);
               } else {
-                cart.push({ ...product, qty: quantity });
+                cart.push({ ...product, qty: Number(quantity || 1) });
               }
 
               localStorage.setItem("cart", JSON.stringify(cart));
@@ -266,7 +256,10 @@ const ProductDetails = () => {
 
       {/* FULL SCREEN IMAGE */}
       {showPreview && (
-        <div className="image-preview" onClick={() => setShowPreview(false)}>
+        <div
+          className="image-preview"
+          onClick={() => setShowPreview(false)}
+        >
           <img src={images[activeImage]} alt="preview" />
         </div>
       )}
