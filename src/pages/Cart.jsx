@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Cart.css";
 
 export default function Cart() {
   const navigate = useNavigate();
 
+  // 🔥 CART FROM LOCAL STORAGE
   const [cartItems, setCartItems] = useState([]);
 
-  // ✅ LOAD CART FROM LOCALSTORAGE
   useEffect(() => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartItems(cart);
   }, []);
 
-  // ✅ SAVE CART
+  // 🔁 UPDATE CART STORAGE + HEADER COUNT
   const updateCart = (items) => {
     setCartItems(items);
     localStorage.setItem("cart", JSON.stringify(items));
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // ✅ INCREASE
+  // ➕
   const increaseQty = (id) => {
     const updated = cartItems.map((item) =>
       item.id === id ? { ...item, qty: item.qty + 1 } : item
@@ -28,7 +28,7 @@ export default function Cart() {
     updateCart(updated);
   };
 
-  // ✅ DECREASE
+  // ➖
   const decreaseQty = (id) => {
     const updated = cartItems.map((item) =>
       item.id === id && item.qty > 1
@@ -38,40 +38,24 @@ export default function Cart() {
     updateCart(updated);
   };
 
-  // ✅ MANUAL INPUT
-  const changeQty = (id, value) => {
-    const qty = Number(value);
-    if (qty < 1 || isNaN(qty)) return;
-
-    const updated = cartItems.map((item) =>
-      item.id === id ? { ...item, qty } : item
-    );
-    updateCart(updated);
-  };
-
-  // ✅ REMOVE ITEM
+  // ❌ REMOVE
   const removeItem = (id) => {
     const updated = cartItems.filter((item) => item.id !== id);
     updateCart(updated);
   };
 
-  // ✅ TOTAL COUNT (IMPORTANT)
-  const totalItems = cartItems.reduce(
-    (sum, item) => sum + item.qty,
-    0
-  );
-
+  // 💰 TOTAL
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.qty,
+    (total, item) => total + item.price * item.qty,
     0
   );
 
   return (
     <div className="cart-page">
-      <h2>Shopping Cart ({totalItems} items)</h2>
+      <h2>Shopping Cart ({cartItems.length} items)</h2>
 
       {cartItems.length === 0 && (
-        <p style={{ textAlign: "center", marginTop: 40 }}>
+        <p style={{ textAlign: "center", marginTop: 30 }}>
           Cart is empty
         </p>
       )}
@@ -79,17 +63,15 @@ export default function Cart() {
       {cartItems.map((item) => (
         <div className="cart-item" key={item.id}>
           {/* IMAGE */}
-          <img
-            src={item.image || "/no-image.png"}
-            alt={item.name}
-          />
+          <img src={item.image} alt={item.name} />
 
+          {/* INFO */}
           <div className="cart-info">
             <h4>{item.name}</h4>
             <p>{item.brand}</p>
             <strong>₹{item.price}</strong>
 
-            {/* ✅ SAME QUANTITY SYSTEM AS PRODUCT PAGE */}
+            {/* QUANTITY */}
             <div className="qty-box">
               <button onClick={() => decreaseQty(item.id)}>−</button>
 
@@ -97,9 +79,13 @@ export default function Cart() {
                 type="number"
                 min="1"
                 value={item.qty}
-                onChange={(e) =>
-                  changeQty(item.id, e.target.value)
-                }
+                onChange={(e) => {
+                  const val = Number(e.target.value) || 1;
+                  const updated = cartItems.map((p) =>
+                    p.id === item.id ? { ...p, qty: val } : p
+                  );
+                  updateCart(updated);
+                }}
               />
 
               <button onClick={() => increaseQty(item.id)}>+</button>
@@ -127,8 +113,10 @@ export default function Cart() {
           </div>
 
           <div className="summary-row">
-            <span>Shipping</span>
-            <span>FREE</span>
+            <span>Courier Charges</span>
+            <span style={{ fontSize: 13, color: "#666" }}>
+              Not included (as per company rates)
+            </span>
           </div>
 
           <div className="summary-total">
@@ -146,4 +134,4 @@ export default function Cart() {
       )}
     </div>
   );
-}
+          }
