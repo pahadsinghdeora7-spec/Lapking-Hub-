@@ -7,7 +7,7 @@ const ProductDetails = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
-  const [qty, setQty] = useState(1);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     fetchProduct();
@@ -32,93 +32,99 @@ const ProductDetails = () => {
 
   return (
     <div className="product-details-page">
-  <div className="product-details-container">
 
-    {/* IMAGE */}
-    <img
-      src={product.image}
-      alt={product.name}
-      className="product-main-image"
-    />
+      <div className="product-details-container">
 
-    {/* NAME */}
-    <h2 className="product-title">{product.name}</h2>
+        {/* IMAGE */}
+        <img
+          src={product.image}
+          alt={product.name}
+          className="product-main-image"
+        />
 
-    {/* BRAND / CATEGORY / PART */}
-    <div className="triple-row">
-      <span>Brand: {product.brand}</span>
+        {/* PRODUCT NAME */}
+        <h2 className="product-title">{product.name}</h2>
 
-      {product.category_slug && (
-        <span className="center">
-          {product.category_slug.replace("-", " ").toUpperCase()}
-        </span>
-      )}
+        {/* BRAND | CATEGORY | PART NUMBER */}
+        <div className="triple-row">
+          <span>Brand: {product.brand}</span>
 
-      <span>Part No: {product.part_number}</span>
-    </div>
+          {product.category_slug && (
+            <span className="center">
+              {product.category_slug.replace("-", " ").toUpperCase()}
+            </span>
+          )}
 
-    {/* COMPATIBLE + STOCK */}
-    <div className="double-row">
-      <div className="left">
-        {product.compatible_model && (
-  <div className="product-compatible">
-    <strong>Compatible Models:</strong>
-    <div>{product.compatible_model}</div>
-  </div>
-)}
+          <span>Part No: {product.part_number}</span>
+        </div>
+
+        {/* COMPATIBLE MODEL + STOCK */}
+        <div className="double-row">
+          <div>
+            {product.compatible_model && (
+              <div className="product-compatible">
+                <strong>Compatible Models:</strong>
+                <div>{product.compatible_model}</div>
+              </div>
+            )}
+          </div>
+
+          <div
+            className={
+              product.stock > 0 ? "stock-in" : "stock-out"
+            }
+          >
+            {product.stock > 0 ? "In Stock" : "Out of Stock"}
+          </div>
+        </div>
+
+        {/* PRICE */}
+        <div className="product-price">₹{product.price}</div>
+
+        {/* BUTTON ROW */}
+        <div className="button-row">
+          <button className="whatsapp-btn">
+            Order on WhatsApp
+          </button>
+
+          <button className="cart-btn">
+            Add to Cart
+          </button>
+        </div>
+
+        {/* BUY NOW */}
+        <button className="buy-btn">
+          Buy Now
+        </button>
+
+        {/* DESCRIPTION */}
+        <div className="description-box">
+          <h3>Description</h3>
+
+          <p className={showMore ? "show" : "hide"}>
+            {product.description || "No description available."}
+          </p>
+
+          {product.description && product.description.length > 120 && (
+            <span
+              className="show-more"
+              onClick={() => setShowMore(!showMore)}
+            >
+              {showMore ? "Show Less" : "Show More"}
+            </span>
+          )}
+        </div>
+
       </div>
 
-      <div
-        className={
-          product.stock > 0 ? "stock-in" : "stock-out"
-        }
-      >
-        {product.stock > 0 ? "In Stock" : "Out of Stock"}
+      {/* RELATED PRODUCTS (VERTICAL SCROLL READY) */}
+      <div className="related-products">
+        <h3>More Products</h3>
+        {/* yaha baad me related products map honge */}
       </div>
+
     </div>
+  );
+};
 
-    {/* PRICE */}
-    <div className="product-price">
-      ₹{product.price}
-    </div>
-
-    {/* BUTTON ROW */}
-    <div className="button-row">
-      <button className="btn-whatsapp">
-        Order on WhatsApp
-      </button>
-
-      <button className="btn-cart">
-        Add to Cart
-      </button>
-    </div>
-
-    {/* BUY NOW */}
-    <button className="btn-buy">
-      Buy Now
-    </button>
-
-    {/* DESCRIPTION */}
-    <div className="product-description">
-      <h4>Description</h4>
-
-      <p className="desc-text">
-        {product.description || "No description available."}
-      </p>
-
-      <span className="show-more">
-        Show More
-      </span>
-    </div>
-
-  </div>
-
-  {/* RELATED PRODUCTS */}
-  <div className="related-section">
-    <h3>Related Products</h3>
-
-    <div className="related-vertical">
-      {/* yaha tum map laga rahe ho — wahi rehne do */}
-    </div>
-  </div>
-</div>
+export default ProductDetails;
