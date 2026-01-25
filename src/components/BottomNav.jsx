@@ -1,74 +1,70 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   MdHome,
   MdCategory,
   MdShoppingCart,
   MdPerson
 } from "react-icons/md";
+import { useEffect, useState } from "react";
 import "./bottomNav.css";
 
 export default function BottomNav() {
   const navigate = useNavigate();
-
-  // ✅ CART COUNT STATE
+  const location = useLocation();
   const [cartCount, setCartCount] = useState(0);
 
-  // ✅ CART COUNT AUTO UPDATE
+  const updateCart = () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const total = cart.reduce((s, i) => s + (i.qty || 1), 0);
+    setCartCount(total);
+  };
+
   useEffect(() => {
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const totalQty = cart.reduce(
-        (sum, item) => sum + (item.qty || 1),
-        0
-      );
-      setCartCount(totalQty);
-    };
-
-    updateCartCount();
-
-    window.addEventListener("cartUpdated", updateCartCount);
-
-    return () => {
-      window.removeEventListener("cartUpdated", updateCartCount);
-    };
+    updateCart();
+    window.addEventListener("cartUpdated", updateCart);
+    return () =>
+      window.removeEventListener("cartUpdated", updateCart);
   }, []);
 
   return (
     <div className="bottom-nav">
 
-      {/* HOME */}
-      <div onClick={() => navigate("/")}>
-        <MdHome size={22} />
+      <div
+        className={location.pathname === "/" ? "active" : ""}
+        onClick={() => navigate("/")}
+      >
+        <MdHome />
         <span>Home</span>
       </div>
 
-      {/* CATEGORIES */}
-      <div onClick={() => navigate("/categories")}>
-        <MdCategory size={22} />
+      <div
+        className={location.pathname === "/categories" ? "active" : ""}
+        onClick={() => navigate("/categories")}
+      >
+        <MdCategory />
         <span>Categories</span>
       </div>
 
-      {/* CART WITH COUNT */}
       <div
+        style={{ position: "relative" }}
+        className={location.pathname === "/cart" ? "active" : ""}
         onClick={() => navigate("/cart")}
-        className="cart-icon"
       >
-        <MdShoppingCart size={22} />
-
+        <MdShoppingCart />
         {cartCount > 0 && (
           <span className="cart-badge">{cartCount}</span>
         )}
-
         <span>Cart</span>
       </div>
 
-      {/* ACCOUNT */}
-      <div onClick={() => navigate("/account")}>
-        <MdPerson size={22} />
+      <div
+        className={location.pathname === "/account" ? "active" : ""}
+        onClick={() => navigate("/account")}
+      >
+        <MdPerson />
         <span>Account</span>
       </div>
 
     </div>
   );
-        }
+}
