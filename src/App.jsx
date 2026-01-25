@@ -12,6 +12,7 @@ import Login from "./pages/Login.jsx"; // ✅ ADD THIS
 
 /* CHECKOUT */
 import CheckoutAddress from "./pages/CheckoutAddress.jsx";
+import CheckoutShipping from "./pages/CheckoutShipping.jsx";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
 import ReplacementRequest from "./pages/ReplacementRequest.jsx";
 
