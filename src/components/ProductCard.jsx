@@ -2,7 +2,17 @@ import "./product-card.css";
 
 export default function ProductCard({ product }) {
   return (
-    <div className="product-card">
+    import { useNavigate } from "react-router-dom";
+
+const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className="product-card"
+      onClick={() => navigate(`/product/${product.id}`)}
+      style={{ cursor: "pointer" }}
+    >
 
       {/* IMAGE */}
       <img
