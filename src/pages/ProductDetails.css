@@ -332,3 +332,73 @@
     transparent
   );
 }
+/* =====================================
+   FINAL IMAGE + PREVIEW + LINE FIX
+===================================== */
+
+.product-box {
+  overflow: visible !important;
+}
+
+.product-details-page {
+  overflow: visible !important;
+}
+
+.pd-image-box {
+  overflow: visible !important;
+  height: auto !important;
+  margin-bottom: 10px;
+}
+
+.pd-image {
+  max-width: 100%;
+  max-height: 350px;
+  object-fit: contain;
+}
+
+/* thumbnail row */
+
+.thumb-row {
+  position: relative;
+  z-index: 10;
+  margin-top: 8px;
+  padding-bottom: 6px;
+}
+
+/* nice separator line under image */
+
+.pd-image-box::after {
+  content: "";
+  display: block;
+  width: 80%;
+  height: 1px;
+  margin: 14px auto 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #d1d5db,
+    transparent
+  );
+}
+
+/* ===============================
+   FULL IMAGE PREVIEW OVERLAY
+================================ */
+
+.image-preview {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-preview img {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  border-radius: 6px;
+}
