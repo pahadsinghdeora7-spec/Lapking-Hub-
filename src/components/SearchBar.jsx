@@ -23,7 +23,9 @@ export default function SearchBar() {
         onChange={(e) => setQuery(e.target.value)}
       />
 
-      <button type="submit">🔍</button>
+      <button type="submit" aria-label="Search">
+        🔍
+      </button>
     </form>
   );
 }
