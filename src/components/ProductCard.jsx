@@ -1,53 +1,53 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import "./product-card.css";
 
 const ProductCard = ({ product }) => {
-  const navigate = useNavigate();
-
   return (
-    <div
-      className="product-card"
-      style={{ cursor: "pointer" }}
-      onClick={() => navigate(`/product/${product.id}`)}
-    >
-      {/* PRODUCT IMAGE */}
+    <div className="product-card">
+
       <img
         src={product.image}
         alt={product.name}
         className="product-image"
       />
 
-      {/* PRODUCT NAME */}
-      <h4 className="product-title">{product.name}</h4>
+      <h3 className="product-name">{product.name}</h3>
 
-      {/* BRAND + CATEGORY + PART */}
-      <div className="product-info-row">
-        <span>Brand: {product.brand || "-"}</span>
-        <span className="category-text">{product.category_name}</span>
-        <span>Part No: {product.part_number || "-"}</span>
+      {/* BRAND - CATEGORY - PART */}
+      <div className="info-row">
+        <span className="brand-text">
+          Brand: {product.brand || "-"}
+        </span>
+
+        <span className="category-text">
+          {product.category || ""}
+        </span>
+
+        <div className="part-stock">
+          <span className="part-text">
+            Part No: {product.part_number || "-"}
+          </span>
+
+          <span
+            className={
+              product.stock > 0 ? "stock-in" : "stock-out"
+            }
+          >
+            {product.stock > 0 ? "In Stock" : "Out of Stock"}
+          </span>
+        </div>
       </div>
 
-      {/* STOCK */}
-      <div
-        className={
-          product.stock > 0 ? "stock-in" : "stock-out"
-        }
-      >
-        {product.stock > 0 ? "In Stock" : "Out of Stock"}
+      <div className="price">
+        ₹{product.price || 0}
       </div>
 
-      {/* PRICE */}
-      <div className="price">₹{product.price || 0}</div>
-
-      {/* BUTTON */}
       <button
         className="add-to-cart-btn"
-        onClick={(e) => {
-          e.stopPropagation(); // VERY IMPORTANT
-        }}
+        disabled={product.stock <= 0}
       >
         Add to Cart
       </button>
+
     </div>
   );
 };
