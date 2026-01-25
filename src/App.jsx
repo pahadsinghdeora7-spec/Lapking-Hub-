@@ -58,6 +58,7 @@ export default function App() {
               path="/checkout/address"
               element={<CheckoutAddress />}
             />
+            <Route path="/checkout/shipping" element={<CheckoutShipping />} />
 
             <Route path="/order/success" element={<OrderSuccess />} />
 
