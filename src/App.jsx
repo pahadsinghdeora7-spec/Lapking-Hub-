@@ -8,6 +8,7 @@ import CategoryProducts from "./pages/CategoryProducts.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
+import Login from "./pages/Login.jsx"; // ✅ ADD THIS
 
 /* CHECKOUT */
 import CheckoutAddress from "./pages/CheckoutAddress.jsx";
@@ -44,6 +45,7 @@ export default function App() {
 
             {/* USER ROUTES */}
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} /> {/* ✅ FIX 1 */}
             <Route path="/account" element={<Account />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/category/:slug" element={<CategoryProducts />} />
@@ -51,11 +53,12 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
 
-            {/* CHECKOUT */}
-            {/* CHECKOUT */}
-<Route path="/checkout">
-  <Route path="address" element={<CheckoutAddress />} />
-</Route>
+            {/* ✅ FIX 2 — DIRECT CHECKOUT ROUTE */}
+            <Route
+              path="/checkout/address"
+              element={<CheckoutAddress />}
+            />
+
             <Route path="/order/success" element={<OrderSuccess />} />
 
             {/* REPLACEMENT */}
@@ -91,4 +94,4 @@ export default function App() {
       </div>
     </Router>
   );
-            }
+}
