@@ -28,3 +28,8 @@
   color: white;
   font-size: 18px;
 }
+
+.search-wrapper {
+  padding: 10px 12px;
+  background: #f9fbff;   /* 🔥 light white */
+}
