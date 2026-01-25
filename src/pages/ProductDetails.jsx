@@ -1,63 +1,57 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "../pages/ProductDetails.css";
+import products from "../data/dummyProducts";
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
-  const [related, setRelated] = useState([]);
 
-  // 🔹 load product
   useEffect(() => {
-    loadProduct();
+    const found = products.find(p => String(p.id) === String(id));
+    setProduct(found);
+    window.scrollTo(0, 0);
   }, [id]);
 
-  const loadProduct = async () => {
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    setProduct(data);
-
-    // related products (same category)
-    if (data?.category_id) {
-      const { data: relatedData } = await supabase
-        .from("products")
-        .select("*")
-        .eq("category_id", data.category_id)
-        .neq("id", id)
-        .limit(6);
-
-      setRelated(relatedData || []);
-    }
-  };
-
-  if (!product) return null;
+  if (!product) {
+    return <div style={{ padding: 20 }}>Product not found</div>;
+  }
 
   return (
     <div className="product-details-page">
 
-      {/* IMAGE */}
-      <div className="pd-image">
-        <img src={product.image} alt={product.name} />
-      </div>
+      <div className="product-details-container">
 
-      {/* INFO */}
-      <div className="pd-info">
+        {/* IMAGE */}
+        <img
+          src={product.image}
+          alt={product.name}
+          className="product-main-image"
+        />
 
-        <h2>{product.name}</h2>
+        {/* NAME */}
+        <h2 className="product-title">{product.name}</h2>
 
-        <div className="pd-row">
+        {/* BRAND */}
+        <div className="product-row">
           <span>Brand: {product.brand}</span>
-          <span>Part No: {product.part_number}</span>
         </div>
 
-        <div className="pd-price">₹{product.price}</div>
+        {/* CATEGORY */}
+        {product.category_slug && (
+          <div className="product-category">
+            {product.category_slug.replace("-", " ").toUpperCase()}
+          </div>
+        )}
 
+        {/* PART NUMBER */}
+        <div className="product-row">
+          Part No: {product.part_number}
+        </div>
+
+        {/* STOCK */}
         <div
           className={
             product.stock > 0 ? "stock-in" : "stock-out"
@@ -66,46 +60,45 @@ const ProductDetails = () => {
           {product.stock > 0 ? "In Stock" : "Out of Stock"}
         </div>
 
-        <button className="buy-btn">Buy Now</button>
+        {/* PRICE */}
+        <div className="product-price">₹{product.price}</div>
 
-        <button className="cart-btn">Add to Cart</button>
-
-        <a
-          className="whatsapp-btn"
-          href={`https://wa.me/919873670361?text=I want ${product.name}`}
-          target="_blank"
-        >
-          Order on WhatsApp
-        </a>
-      </div>
-
-      {/* DESCRIPTION */}
-      <div className="pd-description">
-        <h3>Description</h3>
-        <p>{product.description}</p>
-      </div>
-
-      {/* RELATED */}
-      <div className="related-section">
-        <h3>More Products</h3>
-
-        <div className="related-grid">
-          {related.map((item) => (
-            <div
-              key={item.id}
-              className="related-card"
-              onClick={() =>
-                window.location.href = `/product/${item.id}`
-              }
-            >
-              <img src={item.image} />
-              <h4>{item.name}</h4>
-              <p>₹{item.price}</p>
-            </div>
-          ))}
+        {/* ACTION BUTTONS */}
+        <div className="product-actions">
+          <button className="buy-now-btn">Buy Now</button>
+          <button className="add-cart-btn">Add to Cart</button>
+          <button className="whatsapp-btn">Order on WhatsApp</button>
         </div>
-      </div>
 
+        {/* DESCRIPTION */}
+        <div className="product-description">
+          <h3>Description</h3>
+          <p>{product.description || "No description available."}</p>
+        </div>
+
+        {/* MORE PRODUCTS */}
+        <div className="more-products">
+          <h3>More Products</h3>
+
+          <div className="related-grid">
+            {products
+              .filter(p => p.id !== product.id)
+              .slice(0, 6)
+              .map(item => (
+                <div
+                  key={item.id}
+                  className="related-card"
+                  onClick={() => navigate(`/product/${item.id}`)}
+                >
+                  <img src={item.image} alt={item.name} />
+                  <div className="related-name">{item.name}</div>
+                  <div className="related-price">₹{item.price}</div>
+                </div>
+              ))}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
