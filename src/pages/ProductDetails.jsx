@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import "../pages/ProductDetails.css";
+import "./ProductDetails.css";
 import { supabase } from "../supabaseClient";
 
 const ProductDetails = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
-  const [related, setRelated] = useState([]);
+  const [qty, setQty] = useState(1);
 
   useEffect(() => {
     fetchProduct();
@@ -15,7 +15,6 @@ const ProductDetails = () => {
   }, [id]);
 
   const fetchProduct = async () => {
-    // MAIN PRODUCT
     const { data, error } = await supabase
       .from("products")
       .select("*")
@@ -24,16 +23,6 @@ const ProductDetails = () => {
 
     if (!error) {
       setProduct(data);
-
-      // RELATED PRODUCTS (same category)
-      const { data: relatedData } = await supabase
-        .from("products")
-        .select("*")
-        .eq("category_slug", data.category_slug)
-        .neq("id", data.id)
-        .limit(6);
-
-      setRelated(relatedData || []);
     }
   };
 
@@ -56,11 +45,9 @@ const ProductDetails = () => {
         <h2 className="product-title">{product.name}</h2>
 
         {/* BRAND */}
-        {product.brand && (
-          <div className="product-row">
-            Brand: {product.brand}
-          </div>
-        )}
+        <div className="product-row">
+          Brand: {product.brand}
+        </div>
 
         {/* CATEGORY */}
         {product.category_slug && (
@@ -70,93 +57,64 @@ const ProductDetails = () => {
         )}
 
         {/* PART NUMBER */}
-        {product.part_number && (
-          <div className="product-row">
-            Part No: {product.part_number}
-          </div>
-        )}
+        <div className="product-row">
+          Part No: {product.part_number}
+        </div>
 
         {/* COMPATIBLE MODEL */}
         {product.compatible_model && (
           <div className="product-compatible">
-            <strong>Compatible Model:</strong>
-            <br />
+            <strong>Compatible Models:</strong><br />
             {product.compatible_model}
           </div>
         )}
 
-        {/* PRICE */}
-        <div className="product-price">
-          ₹{product.price}
-        </div>
-
         {/* STOCK */}
-        <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
+        <div
+          className={
+            product.stock > 0 ? "stock-in" : "stock-out"
+          }
+        >
           {product.stock > 0 ? "In Stock" : "Out of Stock"}
         </div>
 
         {/* QUANTITY */}
-<div className="quantity-box">
-  <button
-    onClick={() => qty > 1 && setQty(qty - 1)}
-  >
-    −
-  </button>
+        {product.stock > 0 && (
+          <div className="quantity-box">
+            <button onClick={() => qty > 1 && setQty(qty - 1)}>−</button>
+            <span>{qty}</span>
+            <button
+              onClick={() =>
+                qty < product.stock && setQty(qty + 1)
+              }
+            >
+              +
+            </button>
+          </div>
+        )}
 
-  <span>{qty}</span>
-
-  <button
-    onClick={() =>
-      qty < product.stock && setQty(qty + 1)
-    }
-  >
-    +
-  </button>
-</div>
+        {/* PRICE */}
+        <div className="product-price">₹{product.price}</div>
 
         {/* BUTTONS */}
-        <div className="product-buttons">
-          <button className="buy-now">Buy Now</button>
-          <button className="add-cart">Add to Cart</button>
+        <button className="buy-btn">Buy Now</button>
 
-          <a
-            href={`https://wa.me/919873670361?text=I want to order ${product.name} (Part No: ${product.part_number})`}
-            target="_blank"
-            rel="noreferrer"
-            className="whatsapp-btn"
-          >
-            Order on WhatsApp
-          </a>
-        </div>
+        <button className="cart-btn">Add to Cart</button>
+
+        <a
+          className="whatsapp-btn"
+          target="_blank"
+          rel="noreferrer"
+          href={`https://wa.me/919873670361?text=Order:%0A${product.name}%0APart No: ${product.part_number}%0AQty: ${qty}%0APrice: ₹${product.price}`}
+        >
+          Order on WhatsApp
+        </a>
 
         {/* DESCRIPTION */}
         <div className="product-description">
           <h3>Description</h3>
           <p>{product.description || "No description available."}</p>
         </div>
-
-        {/* RELATED PRODUCTS */}
-        {related.length > 0 && (
-          <div className="related-section">
-            <h3>More Products</h3>
-
-            <div className="related-grid">
-              {related.map((item) => (
-                <div
-                  key={item.id}
-                  className="related-card"
-                  onClick={() =>
-                    window.location.href = `/product/${item.id}`
-                  }
-                >
-                  <img src={item.image} alt={item.name} />
-                  <p>{item.name}</p>
-                  <span>₹{item.price}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
       </div>
     </div>
