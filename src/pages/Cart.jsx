@@ -112,12 +112,12 @@ export default function Cart() {
             <span>₹{subtotal}</span>
           </div>
 
-          <div className="summary-row">
-            <span>Courier Charges</span>
-            <span style={{ fontSize: 13, color: "#666" }}>
-              Not included (as per company rates)
-            </span>
-          </div>
+          <div className="summary-row courier-row">
+  <span>Courier Charges</span>
+  <span className="courier-note">
+    Not included (as per company rates)
+  </span>
+</div>
 
           <div className="summary-total">
             <span>Total</span>
