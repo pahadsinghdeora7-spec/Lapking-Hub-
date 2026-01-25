@@ -11,7 +11,10 @@ export default function Header() {
   // 🔥 cart count live update
   const updateCartCount = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const totalQty = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+    const totalQty = cart.reduce(
+      (sum, item) => sum + (item.qty || 1),
+      0
+    );
     setCartCount(totalQty);
   };
 
@@ -29,6 +32,7 @@ export default function Header() {
 
   return (
     <>
+      {/* ================= HEADER ================= */}
       <header
         style={{
           height: "72px",
@@ -57,7 +61,7 @@ export default function Header() {
             ☰
           </button>
 
-          {/* 🔥 LOGO CLICK → HOME */}
+          {/* LOGO → HOME */}
           <span
             onClick={() => navigate("/")}
             style={{
@@ -81,7 +85,7 @@ export default function Header() {
             position: "relative"
           }}
         >
-          {/* 🛒 CART WITH COUNT */}
+          {/* CART ICON WITH COUNT */}
           <Link to="/cart" style={{ position: "relative" }}>
             🛒
             {cartCount > 0 && (
@@ -107,7 +111,11 @@ export default function Header() {
         </div>
       </header>
 
+      {/* 🔍 SEARCH BAR — HEADER KE NICHE */}
+      <SearchBar />
+
+      {/* DRAWER */}
       <DrawerMenu open={open} onClose={() => setOpen(false)} />
     </>
   );
-          }
+}          
