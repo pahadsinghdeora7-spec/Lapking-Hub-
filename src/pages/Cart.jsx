@@ -21,7 +21,7 @@ export default function Cart() {
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // ➕
+  // ➕ increase qty
   const increaseQty = (id) => {
     const updated = cartItems.map((item) =>
       item.id === id ? { ...item, qty: item.qty + 1 } : item
@@ -29,7 +29,7 @@ export default function Cart() {
     updateCart(updated);
   };
 
-  // ➖
+  // ➖ decrease qty
   const decreaseQty = (id) => {
     const updated = cartItems.map((item) =>
       item.id === id && item.qty > 1
@@ -39,30 +39,30 @@ export default function Cart() {
     updateCart(updated);
   };
 
-  // ❌ REMOVE
+  // ❌ remove item
   const removeItem = (id) => {
     const updated = cartItems.filter((item) => item.id !== id);
     updateCart(updated);
   };
 
-  // 💰 TOTAL
+  // 💰 subtotal
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.qty,
     0
   );
 
-  // 🔐 CHECK LOGIN BEFORE CHECKOUT
+  // 🔐 LOGIN CHECK BEFORE CHECKOUT (SAFE)
   const handleCheckout = async () => {
     const user = await getCurrentUser();
 
     if (!user) {
-      // ❌ not logged in → go login
+      // ❌ not logged in → login page
       navigate("/login", {
         state: { from: "/checkout/address" }
       });
     } else {
-      // ✅ logged in → go checkout
-      navigate("/#/checkout/address");
+      // ✅ logged in → checkout
+      navigate("/checkout/address");
     }
   };
 
@@ -87,7 +87,7 @@ export default function Cart() {
             <p>{item.brand}</p>
             <strong>₹{item.price}</strong>
 
-            {/* QUANTITY */}
+            {/* QTY */}
             <div className="qty-box">
               <button onClick={() => decreaseQty(item.id)}>−</button>
 
@@ -118,7 +118,7 @@ export default function Cart() {
         </div>
       ))}
 
-      {/* ORDER SUMMARY */}
+      {/* SUMMARY */}
       {cartItems.length > 0 && (
         <div className="order-summary">
           <h3>Order Summary</h3>
@@ -140,7 +140,6 @@ export default function Cart() {
             <span>₹{subtotal}</span>
           </div>
 
-          {/* 🔥 ONLY CHANGE HERE */}
           <button
             className="checkout-btn"
             onClick={handleCheckout}
@@ -151,4 +150,4 @@ export default function Cart() {
       )}
     </div>
   );
-          }
+}
