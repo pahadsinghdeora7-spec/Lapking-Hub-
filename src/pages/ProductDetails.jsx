@@ -50,7 +50,14 @@ const ProductDetails = () => {
         <div className="product-row">
           Part No: {product.part_number}
         </div>
-
+        
+         {/* COMPATIBLE MODELS */}
+{product.compatible_models && (
+  <div className="product-compatible">
+    <strong>Compatible Models:</strong><br />
+    {product.compatible_models}
+  </div>
+)}
         {/* STOCK */}
         <div
           className={
