@@ -139,3 +139,21 @@
   color: #1677ff;
   font-weight: bold;
 }
+.image-dots {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  background: #cbd5e1;
+  border-radius: 50%;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.dot.active {
+  background: #2563eb;
+}
