@@ -30,13 +30,9 @@ const ProductDetails = () => {
     setProduct(data);
 
     // ✅ NEW — multiple image support (no old code touched)
-    if (data) {
-      const imgs = [];
-      if (data.image_1) imgs.push(data.image_1);
-      if (data.image_2) imgs.push(data.image_2);
-      if (data.image_3) imgs.push(data.image_3);
-      setImages(imgs);
-    }
+    if (data?.image) {
+  setImages([data.image]);
+}
 
     if (data?.category_slug) {
       const { data: rel } = await supabase
