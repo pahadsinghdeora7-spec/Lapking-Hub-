@@ -42,3 +42,9 @@
   font-weight: bold;
   margin-top: 4px;
 }
+.product-card img,
+.product-image {
+  width: 85%;
+  height: 160px;        /* 👈 yaha se image badi lagegi */
+  object-fit: contain; /* image cut nahi hogi */
+}
