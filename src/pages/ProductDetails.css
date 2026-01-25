@@ -461,3 +461,17 @@
   height: 100%;
   object-fit: contain;    /* image cut nahi hogi */
 }
+/* ============================
+   ADD TO CART WHATSAPP STYLE
+============================ */
+
+.cart {
+  background: #25D366 !important;   /* WhatsApp green */
+  color: #fff !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.cart:hover {
+  background: #1ebe5d;
+}
