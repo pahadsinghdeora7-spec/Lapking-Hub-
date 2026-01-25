@@ -7,7 +7,7 @@ const ProductDetails = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
-  const [showMore, setShowMore] = useState(false);
+  const [activeTab, setActiveTab] = useState("description");
 
   useEffect(() => {
     fetchProduct();
@@ -26,16 +26,25 @@ const ProductDetails = () => {
     }
   };
 
-  if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
+  if (!product) {
+    return <div style={{ padding: 20 }}>Loading...</div>;
+  }
 
   return (
     <div className="product-details-page">
-      <div className="product-card">
+      <div className="product-details-container">
+
+        {/* IMAGE */}
+        <img
+          src={product.image}
+          alt={product.name}
+          className="product-main-image"
+        />
 
         {/* NAME */}
-        <h2 className="product-name">{product.name}</h2>
+        <h2 className="product-title">{product.name}</h2>
 
-        {/* BRAND | CATEGORY | PART */}
+        {/* BRAND / CATEGORY / PART */}
         <div className="triple-row">
           <span>Brand: {product.brand}</span>
 
@@ -52,48 +61,57 @@ const ProductDetails = () => {
         <div className="double-row">
           <div>
             <strong>Compatible Models:</strong>
-            <div>{product.compatible_model}</div>
+            <div>{product.compatible_model || "—"}</div>
           </div>
 
-          <div className="stock">
+          <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
             {product.stock > 0 ? "In Stock" : "Out of Stock"}
           </div>
         </div>
 
         {/* PRICE */}
-        <div className="price">₹{product.price}</div>
+        <div className="product-price">₹{product.price}</div>
 
-        {/* ACTION BUTTONS */}
+        {/* BUTTONS */}
         <div className="action-row">
-          <button className="whatsapp-btn">Order on WhatsApp</button>
-          <button className="cart-btn">Add to Cart</button>
+          <button className="btn-whatsapp">Order on WhatsApp</button>
+          <button className="btn-cart">Add to Cart</button>
         </div>
 
-        <button className="buy-btn">Buy Now</button>
+        <button className="btn-buy">Buy Now</button>
 
-        {/* DESCRIPTION */}
-        <div className="description-box">
-          <h4>Description</h4>
-          <p className={showMore ? "" : "short"}>
-            {product.description || "No description available."}
-          </p>
+        {/* ================== TABS ================== */}
+        <div className="tabs-box">
 
-          {product.description?.length > 120 && (
-            <span
-              className="show-more"
-              onClick={() => setShowMore(!showMore)}
+          <div className="tabs-header">
+            <button
+              className={activeTab === "description" ? "tab active" : "tab"}
+              onClick={() => setActiveTab("description")}
             >
-              {showMore ? "Show Less" : "Show More"}
-            </span>
-          )}
+              Description
+            </button>
+
+            <button
+              className={activeTab === "compatible" ? "tab active" : "tab"}
+              onClick={() => setActiveTab("compatible")}
+            >
+              Compatible Models
+            </button>
+          </div>
+
+          <div className="tabs-content">
+            {activeTab === "description" && (
+              <p>{product.description || "No description available."}</p>
+            )}
+
+            {activeTab === "compatible" && (
+              <p>{product.compatible_model || "No compatible models available."}</p>
+            )}
+          </div>
+
         </div>
+        {/* ================== TABS END ================== */}
 
-      </div>
-
-      {/* RELATED PRODUCTS */}
-      <h3 className="more-title">More Products</h3>
-      <div className="related-scroll">
-        {/* yaha tum future me related products map karoge */}
       </div>
     </div>
   );
