@@ -42,7 +42,19 @@ const ProductDetails = () => {
   return (
     <div className="product-details-page">
       <div className="product-box">
-
+{/* PRODUCT IMAGE */}
+{product?.image && (
+  <div className="pd-image-box">
+    <img
+      src={product.image}
+      alt={product.name}
+      className="pd-image"
+      onError={(e) => {
+        e.target.src = "/no-image.png";
+      }}
+    />
+  </div>
+)}
         {/* TITLE */}
         <h2 className="pd-title">{product.name}</h2>
 
