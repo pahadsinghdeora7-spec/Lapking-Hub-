@@ -441,3 +441,23 @@
 .qty-box input:focus {
   border-color: #1677ff;
 }
+/* ============================
+   PRODUCT IMAGE FINAL SIZE
+============================ */
+
+.pd-image-box {
+  width: 100%;
+  height: 420px;          /* 🔥 image bada dikhe */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  overflow: hidden;
+}
+
+.pd-image {
+  width: 100%;            /* 🔥 full width */
+  height: 100%;
+  object-fit: contain;    /* image cut nahi hogi */
+}
