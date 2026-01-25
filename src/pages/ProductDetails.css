@@ -81,29 +81,29 @@
 }
 
 /* BUTTONS */
-.button-row {
+..product-actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 8px;
+  margin-top: 10px;
 }
 
+/* WhatsApp button already green */
 .whatsapp-btn {
   flex: 1;
-  background: #25d366;
-  color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: 600;
+  height: 44px;
+  font-size: 14px;
+  border-radius: 8px;
 }
 
-.cart-btn {
+/* 🔥 Add to Cart same size */
+.add-cart-btn {
   flex: 1;
-  background: #f1f1f1;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: 600;
+  height: 44px;
+  font-size: 14px;
+  border-radius: 8px;
+  background: #f3f3f3;
+  border: 1px solid #dcdcdc;
+  font-weight: 500;
 }
 
 /* BUY NOW */
