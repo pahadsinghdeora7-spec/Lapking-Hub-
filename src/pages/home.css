@@ -44,7 +44,7 @@
 }
 .product-card img,
 .product-image {
-  width: 85%;
+  width: 100%;
   height: 160px;        /* 👈 yaha se image badi lagegi */
   object-fit: contain; /* image cut nahi hogi */
 }
