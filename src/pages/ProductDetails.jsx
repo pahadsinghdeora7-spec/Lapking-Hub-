@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../pages/ProductDetails.css";
-import products from "../data/dummyProducts";
-
+import { supabase } from "../supabaseClient";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
