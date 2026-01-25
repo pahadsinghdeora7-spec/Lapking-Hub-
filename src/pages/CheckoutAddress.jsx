@@ -32,7 +32,7 @@ export default function CheckoutAddress() {
     }
 
     localStorage.setItem("checkout_address", JSON.stringify(form));
-    navigate("/checkout/shipping");
+    navigate("/order/success");
   };
 
   return (
