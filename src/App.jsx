@@ -52,7 +52,10 @@ export default function App() {
             <Route path="/orders" element={<Orders />} />
 
             {/* CHECKOUT */}
-            <Route path="/checkout/address" element={<CheckoutAddress />} />
+            {/* CHECKOUT */}
+<Route path="/checkout">
+  <Route path="address" element={<CheckoutAddress />} />
+</Route>
             <Route path="/order/success" element={<OrderSuccess />} />
 
             {/* REPLACEMENT */}
