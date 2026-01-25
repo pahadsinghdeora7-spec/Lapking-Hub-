@@ -402,3 +402,42 @@
   object-fit: contain;
   border-radius: 6px;
 }
+/* ============================
+   QUANTITY FINAL UI FIX
+============================ */
+
+.qty-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.qty-box button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;          /* 🔥 fully round */
+  border: 1px solid #d1d5db;
+  background: #f8f9fa;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+}
+
+.qty-box input {
+  width: 48px;                 /* 🔥 width kam */
+  height: 36px;                /* 🔥 height thodi jada */
+  text-align: center;          /* 🔥 number centre */
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;         /* 🔥 smooth round */
+  border: 1.5px solid #1677ff;
+  outline: none;
+}
+
+/* keyboard focus fix */
+.qty-box input:focus {
+  border-color: #1677ff;
+}
