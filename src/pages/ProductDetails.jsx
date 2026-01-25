@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./ProductDetails.css";
 import { supabase } from "../supabaseClient";
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
   const [activeTab, setActiveTab] = useState("description");
 
   useEffect(() => {
@@ -15,53 +17,47 @@ const ProductDetails = () => {
   }, [id]);
 
   const fetchProduct = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("products")
       .select("*")
       .eq("id", id)
       .single();
 
-    if (!error) {
-      setProduct(data);
+    setProduct(data);
+
+    if (data?.category_slug) {
+      const { data: rel } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category_slug", data.category_slug)
+        .neq("id", id)
+        .limit(10);
+
+      setRelated(rel || []);
     }
   };
 
-  if (!product) {
-    return <div style={{ padding: 20 }}>Loading...</div>;
-  }
+  if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
 
   return (
     <div className="product-details-page">
-      <div className="product-details-container">
+      <div className="product-box">
 
-        {/* IMAGE */}
-        <img
-          src={product.image}
-          alt={product.name}
-          className="product-main-image"
-        />
+        {/* TITLE */}
+        <h2 className="pd-title">{product.name}</h2>
 
-        {/* NAME */}
-        <h2 className="product-title">{product.name}</h2>
-
-        {/* BRAND / CATEGORY / PART */}
-        <div className="triple-row">
+        {/* ROW 1 */}
+        <div className="pd-row triple">
           <span>Brand: {product.brand}</span>
-
-          {product.category_slug && (
-            <span className="center">
-              {product.category_slug.replace("-", " ").toUpperCase()}
-            </span>
-          )}
-
+          <span className="center">{product.category_slug?.replace("-", " ").toUpperCase()}</span>
           <span>Part No: {product.part_number}</span>
         </div>
 
-        {/* COMPATIBLE + STOCK */}
-        <div className="double-row">
+        {/* ROW 2 */}
+        <div className="pd-row double">
           <div>
-            <strong>Compatible Models:</strong>
-            <div>{product.compatible_model || "—"}</div>
+            <strong>Compatible Models:</strong><br />
+            {product.compatible_model || "—"}
           </div>
 
           <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
@@ -70,48 +66,62 @@ const ProductDetails = () => {
         </div>
 
         {/* PRICE */}
-        <div className="product-price">₹{product.price}</div>
+        <div className="pd-price">₹{product.price}</div>
 
         {/* BUTTONS */}
-        <div className="action-row">
-          <button className="btn-whatsapp">Order on WhatsApp</button>
-          <button className="btn-cart">Add to Cart</button>
+        <div className="pd-buttons">
+          <button className="whatsapp">Order on WhatsApp</button>
+          <button className="cart">Add to Cart</button>
         </div>
 
-        <button className="btn-buy">Buy Now</button>
+        <button className="buy-now">Buy Now</button>
 
-        {/* ================== TABS ================== */}
-        <div className="tabs-box">
+        {/* TABS */}
+        <div className="tabs">
+          <button
+            className={activeTab === "description" ? "active" : ""}
+            onClick={() => setActiveTab("description")}
+          >
+            Description
+          </button>
 
-          <div className="tabs-header">
-            <button
-              className={activeTab === "description" ? "tab active" : "tab"}
-              onClick={() => setActiveTab("description")}
-            >
-              Description
-            </button>
-
-            <button
-              className={activeTab === "compatible" ? "tab active" : "tab"}
-              onClick={() => setActiveTab("compatible")}
-            >
-              Compatible Models
-            </button>
-          </div>
-
-          <div className="tabs-content">
-            {activeTab === "description" && (
-              <p>{product.description || "No description available."}</p>
-            )}
-
-            {activeTab === "compatible" && (
-              <p>{product.compatible_model || "No compatible models available."}</p>
-            )}
-          </div>
-
+          <button
+            className={activeTab === "models" ? "active" : ""}
+            onClick={() => setActiveTab("models")}
+          >
+            Compatible Models
+          </button>
         </div>
-        {/* ================== TABS END ================== */}
 
+        {/* TAB CONTENT */}
+        <div className="tab-content">
+          {activeTab === "description" && (
+            <p>{product.description || "No description available."}</p>
+          )}
+
+          {activeTab === "models" && (
+            <p>{product.compatible_model || "No models available."}</p>
+          )}
+        </div>
+      </div>
+
+      {/* RELATED PRODUCTS */}
+      <div className="related-section">
+        <h3>More Products</h3>
+
+        <div className="related-list">
+          {related.map((item) => (
+            <div
+              key={item.id}
+              className="related-card"
+              onClick={() => navigate(`/product/${item.id}`)}
+            >
+              <img src={item.image} alt={item.name} />
+              <div className="rp-name">{item.name}</div>
+              <div className="rp-price">₹{item.price}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
