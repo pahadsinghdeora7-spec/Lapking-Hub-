@@ -44,11 +44,13 @@
 .part-box {
   text-align: right;
   margin-right: 12px;
+  margin-right: 8px;
 }
 
 .part-text {
   font-size: 12px;
   color: #444;
+  margin-right: 8px;
   margin-bottom: 4px; /* ✅ GAP */
 }
 
@@ -56,11 +58,15 @@
 .stock-in {
   font-size: 12px;
   color: green;
+  margin-top: 8px;
+  margin-right:8px;
 }
 
 .stock-out {
   font-size: 12px;
   color: red;
+  margin-top: 8px; 
+  margin-right: 8px;
 }
 
 /* PRICE */
