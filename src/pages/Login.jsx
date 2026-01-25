@@ -1,7 +1,5 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import "./Login.css";
 
 export default function Login() {
@@ -10,54 +8,34 @@ export default function Login() {
 
   const redirectTo = location.state?.from || "/";
 
-  const [step, setStep] = useState("phone"); // phone | otp
+  const [step, setStep] = useState("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // 📩 SEND OTP
-  const sendOtp = async () => {
-    if (phone.length < 10) {
+  const sendOtp = () => {
+    if (phone.length !== 10) {
       alert("Enter valid mobile number");
       return;
     }
-
-    setLoading(true);
-
-    const { error } = await supabase.auth.signInWithOtp({
-      phone: `+91${phone}`,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      alert(error.message);
-    } else {
-      setStep("otp");
-    }
+    setStep("otp");
   };
 
-  // ✅ VERIFY OTP
-  const verifyOtp = async () => {
-    setLoading(true);
-
-    const { error } = await supabase.auth.verifyOtp({
-      phone: `+91${phone}`,
-      token: otp,
-      type: "sms",
-    });
-
-    setLoading(false);
-
-    if (error) {
+  const verifyOtp = () => {
+    if (otp !== "123456") {
       alert("Invalid OTP");
-    } else {
-      navigate(redirectTo);
+      return;
     }
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ phone })
+    );
+
+    navigate(redirectTo);
   };
 
   return (
-    <div className="login-page">
+    <div className="login-container">
       <h2>Login</h2>
 
       {step === "phone" && (
@@ -68,9 +46,8 @@ export default function Login() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
-
-          <button onClick={sendOtp} disabled={loading}>
-            {loading ? "Sending OTP..." : "Send OTP"}
+          <button onClick={sendOtp}>
+            Send OTP
           </button>
         </>
       )}
@@ -79,16 +56,15 @@ export default function Login() {
         <>
           <input
             type="number"
-            placeholder="Enter OTP"
+            placeholder="Enter OTP (123456)"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
           />
-
-          <button onClick={verifyOtp} disabled={loading}>
-            {loading ? "Verifying..." : "Verify OTP"}
+          <button onClick={verifyOtp}>
+            Verify OTP
           </button>
         </>
       )}
     </div>
   );
-      }
+}
