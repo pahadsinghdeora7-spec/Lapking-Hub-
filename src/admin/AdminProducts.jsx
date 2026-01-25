@@ -6,6 +6,11 @@ export default function AdminProducts() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // IMAGE FILE STATES (NEW)
+  const [imageFile, setImageFile] = useState(null);
+  const [imageFile1, setImageFile1] = useState(null);
+  const [imageFile2, setImageFile2] = useState(null);
+
   const [form, setForm] = useState({
     category_id: "",
     name: "",
@@ -45,6 +50,29 @@ export default function AdminProducts() {
     setCategories(data || []);
   };
 
+  // ================= IMAGE UPLOAD =================
+
+  const uploadImage = async (file) => {
+    if (!file) return "";
+
+    const fileName = `${Date.now()}-${file.name}`;
+
+    const { error } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
+
+    if (error) {
+      alert("Image upload failed");
+      return "";
+    }
+
+    const { data } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  };
+
   // ================= ADD PRODUCT =================
 
   const addProduct = async () => {
@@ -55,6 +83,11 @@ export default function AdminProducts() {
 
     setLoading(true);
 
+    // NEW IMAGE UPLOAD
+    const mainImage = await uploadImage(imageFile);
+    const img1 = await uploadImage(imageFile1);
+    const img2 = await uploadImage(imageFile2);
+
     const { error } = await supabase.from("products").insert([
       {
         category_id: Number(form.category_id),
@@ -62,9 +95,9 @@ export default function AdminProducts() {
         price: Number(form.price),
         stock: Number(form.stock || 0),
         part_number: form.part_number,
-        image: form.image,
-        image1: form.image1,
-        image2: form.image2,
+        image: mainImage,
+        image1: img1,
+        image2: img2,
         compatible_model: form.compatible_model,
         description: form.description,
         status: form.status,
@@ -90,13 +123,17 @@ export default function AdminProducts() {
         status: true,
       });
 
+      setImageFile(null);
+      setImageFile1(null);
+      setImageFile2(null);
+
       fetchProducts();
+      alert("Product added successfully");
     }
   };
 
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete product?")) return;
-
     await supabase.from("products").delete().eq("id", id);
     fetchProducts();
   };
@@ -148,22 +185,23 @@ export default function AdminProducts() {
           }
         />
 
+        {/* IMAGE UPLOAD (CAMERA / GALLERY) */}
         <input
-          placeholder="Main Image URL"
-          value={form.image}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
         />
 
         <input
-          placeholder="Image 1 URL"
-          value={form.image1}
-          onChange={(e) => setForm({ ...form, image1: e.target.value })}
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile1(e.target.files[0])}
         />
 
         <input
-          placeholder="Image 2 URL"
-          value={form.image2}
-          onChange={(e) => setForm({ ...form, image2: e.target.value })}
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile2(e.target.files[0])}
         />
 
         <input
@@ -191,7 +229,7 @@ export default function AdminProducts() {
 
       {products.map((p) => (
         <div key={p.id} style={{ marginBottom: 10 }}>
-          <b>{p.name}</b> — ₹{p.price}  
+          <b>{p.name}</b> — ₹{p.price}
           <br />
           Model: {p.compatible_model}
           <br />
