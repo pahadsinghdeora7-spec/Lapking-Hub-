@@ -1,48 +1,98 @@
-.checkout-address {
-  padding: 15px;
+.checkout-page {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: #f6f8fb;
+  min-height: 100vh;
 }
 
-.checkout-address h2 {
-  margin-bottom: 15px;
-  font-size: 18px;
-}
-
-.address-box {
-  background: #fff;
-  padding: 15px;
-  border-radius: 12px;
-}
-
-.address-box input,
-.address-box textarea {
+.checkout-card {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.checkout-card h2 {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
 }
 
-.address-box textarea {
-  min-height: 80px;
+.form-group textarea {
   resize: none;
 }
 
-.row {
+.two-col {
   display: flex;
   gap: 10px;
 }
 
-.row input {
-  flex: 1;
+.mobile-row {
+  display: flex;
 }
 
-.address-box button {
+.mobile-row span {
+  padding: 10px;
+  background: #f1f1f1;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 14px;
+}
+
+.mobile-row input {
+  border-radius: 0 8px 8px 0;
+  border-left: none;
+}
+
+.continue-btn {
   width: 100%;
-  background: #0056ff;
+  background: #2563eb;
   color: white;
-  padding: 14px;
   border: none;
+  padding: 13px;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 15px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.continue-btn:hover {
+  background: #1e4fd8;
+}
+
+.secure-text {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
 }
