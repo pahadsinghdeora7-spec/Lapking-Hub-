@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../utils/auth"; // ✅ LOGIN CHECK
+import { getCurrentUser } from "../utils/auth";
 import "./Cart.css";
 
 export default function Cart() {
-  const navigate = useNavigate();
-
-  // 🔥 CART FROM LOCAL STORAGE
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
@@ -14,55 +10,49 @@ export default function Cart() {
     setCartItems(cart);
   }, []);
 
-  // 🔁 UPDATE CART STORAGE + HEADER COUNT
   const updateCart = (items) => {
     setCartItems(items);
     localStorage.setItem("cart", JSON.stringify(items));
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // ➕ increase qty
   const increaseQty = (id) => {
-    const updated = cartItems.map((item) =>
-      item.id === id ? { ...item, qty: item.qty + 1 } : item
+    updateCart(
+      cartItems.map((item) =>
+        item.id === id ? { ...item, qty: item.qty + 1 } : item
+      )
     );
-    updateCart(updated);
   };
 
-  // ➖ decrease qty
   const decreaseQty = (id) => {
-    const updated = cartItems.map((item) =>
-      item.id === id && item.qty > 1
-        ? { ...item, qty: item.qty - 1 }
-        : item
+    updateCart(
+      cartItems.map((item) =>
+        item.id === id && item.qty > 1
+          ? { ...item, qty: item.qty - 1 }
+          : item
+      )
     );
-    updateCart(updated);
   };
 
-  // ❌ remove item
   const removeItem = (id) => {
-    const updated = cartItems.filter((item) => item.id !== id);
-    updateCart(updated);
+    updateCart(cartItems.filter((item) => item.id !== id));
   };
 
-  // 💰 subtotal
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.qty,
     0
   );
 
-  // 🔐 LOGIN CHECK BEFORE CHECKOUT (SAFE)
+  // 🔐 FINAL SAFE CHECKOUT
   const handleCheckout = async () => {
     const user = await getCurrentUser();
 
     if (!user) {
-      // ❌ not logged in → login page
-      navigate("/login", {
-        state: { from: "/checkout/address" }
-      });
+      // login page
+      window.location.hash = "#/login";
     } else {
-      // ✅ logged in → checkout
-      navigate("/checkout/address");
+      // checkout address
+      window.location.hash = "#/checkout/address";
     }
   };
 
@@ -78,16 +68,13 @@ export default function Cart() {
 
       {cartItems.map((item) => (
         <div className="cart-item" key={item.id}>
-          {/* IMAGE */}
           <img src={item.image} alt={item.name} />
 
-          {/* INFO */}
           <div className="cart-info">
             <h4>{item.name}</h4>
             <p>{item.brand}</p>
             <strong>₹{item.price}</strong>
 
-            {/* QTY */}
             <div className="qty-box">
               <button onClick={() => decreaseQty(item.id)}>−</button>
 
@@ -97,10 +84,11 @@ export default function Cart() {
                 value={item.qty}
                 onChange={(e) => {
                   const val = Number(e.target.value) || 1;
-                  const updated = cartItems.map((p) =>
-                    p.id === item.id ? { ...p, qty: val } : p
+                  updateCart(
+                    cartItems.map((p) =>
+                      p.id === item.id ? { ...p, qty: val } : p
+                    )
                   );
-                  updateCart(updated);
                 }}
               />
 
@@ -108,7 +96,6 @@ export default function Cart() {
             </div>
           </div>
 
-          {/* DELETE */}
           <button
             className="delete-btn"
             onClick={() => removeItem(item.id)}
@@ -118,7 +105,6 @@ export default function Cart() {
         </div>
       ))}
 
-      {/* SUMMARY */}
       {cartItems.length > 0 && (
         <div className="order-summary">
           <h3>Order Summary</h3>
@@ -140,10 +126,7 @@ export default function Cart() {
             <span>₹{subtotal}</span>
           </div>
 
-          <button
-            className="checkout-btn"
-            onClick={handleCheckout}
-          >
+          <button className="checkout-btn" onClick={handleCheckout}>
             Proceed to Checkout →
           </button>
         </div>
