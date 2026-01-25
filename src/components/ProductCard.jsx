@@ -5,21 +5,21 @@ import "./product-card.css";
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
 
-  // 🔹 CARD CLICK → PRODUCT DETAILS
-  const handleCardClick = () => {
+  // 🔥 card open logic
+  const openDetails = () => {
     navigate(`/product/${product.id}`);
   };
 
-  // ✅ ADD TO CART LOGIC (NEW — SAFE)
-  const handleAddToCart = (e) => {
-    e.stopPropagation(); // card open na ho
+  // 🔥 add to cart logic
+  const addToCart = (e) => {
+    e.stopPropagation(); // ❌ card click stop
 
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    const existing = cart.find((item) => item.id === product.id);
+    const index = cart.findIndex((i) => i.id === product.id);
 
-    if (existing) {
-      existing.qty += 1;
+    if (index !== -1) {
+      cart[index].qty += 1;
     } else {
       cart.push({
         ...product,
@@ -29,15 +29,14 @@ const ProductCard = ({ product }) => {
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
-    // 🔥 header + bottom nav update
+    // 🔥 header + nav update
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
   return (
     <div
       className="product-card"
-      onClick={handleCardClick}
-      style={{ cursor: "pointer" }}
+      onClick={openDetails}
     >
       {/* IMAGE */}
       <img
@@ -49,7 +48,7 @@ const ProductCard = ({ product }) => {
       {/* NAME */}
       <h3 className="product-name">{product.name}</h3>
 
-      {/* BRAND / CATEGORY / PART */}
+      {/* BRAND ROW */}
       <div className="brand-row">
         <div className="brand-left">
           Brand: {product.brand || "-"}
@@ -72,15 +71,13 @@ const ProductCard = ({ product }) => {
       </div>
 
       {/* PRICE */}
-      <div className="price">
-        ₹{product.price || 0}
-      </div>
+      <div className="price">₹{product.price || 0}</div>
 
-      {/* ✅ ADD TO CART BUTTON */}
+      {/* BUTTON */}
       <button
         className="add-to-cart-btn"
         disabled={product.stock <= 0}
-        onClick={handleAddToCart}
+        onClick={addToCart}
       >
         Add to Cart
       </button>
