@@ -1,8 +1,5 @@
-import "./product-card.css";
-
-export default function ProductCard({ product }) {
-  return (
-    import { useNavigate } from "react-router-dom";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -10,51 +7,33 @@ const ProductCard = ({ product }) => {
   return (
     <div
       className="product-card"
-      onClick={() => navigate(`/product/${product.id}`)}
       style={{ cursor: "pointer" }}
+      onClick={() => navigate(`/product/${product.id}`)}
     >
-
-      {/* IMAGE */}
+      {/* PRODUCT IMAGE */}
       <img
-        src={product.image || "https://picsum.photos/300/200"}
+        src={product.image}
         alt={product.name}
         className="product-image"
       />
 
       {/* PRODUCT NAME */}
-      <h3 className="product-name">{product.name}</h3>
+      <h4 className="product-title">{product.name}</h4>
 
-      {/* BRAND | CATEGORY | PART + STOCK */}
-      <div className="info-row">
+      {/* BRAND + CATEGORY + PART */}
+      <div className="product-info-row">
+        <span>Brand: {product.brand || "-"}</span>
+        <span className="category-text">{product.category_name}</span>
+        <span>Part No: {product.part_number || "-"}</span>
+      </div>
 
-        {/* LEFT — BRAND */}
-        <div className="brand-text">
-          Brand: {product.brand || "-"}
-        </div>
-
-        {/* CENTER CATEGORY */}
-{product.category_slug && (
-  <div className="product-category">
-    {product.category_slug.replace("-", " ").toUpperCase()}
-  </div>
-)}
-
-        {/* RIGHT — PART + STOCK */}
-        <div className="part-box">
-
-          <div className="part-text">
-            Part No: {product.part_number || "-"}
-          </div>
-
-          <div
-            className={
-              product.stock > 0 ? "stock-in" : "stock-out"
-            }
-          >
-            {product.stock > 0 ? "In Stock" : "Out of Stock"}
-          </div>
-
-        </div>
+      {/* STOCK */}
+      <div
+        className={
+          product.stock > 0 ? "stock-in" : "stock-out"
+        }
+      >
+        {product.stock > 0 ? "In Stock" : "Out of Stock"}
       </div>
 
       {/* PRICE */}
@@ -63,11 +42,14 @@ const ProductCard = ({ product }) => {
       {/* BUTTON */}
       <button
         className="add-to-cart-btn"
-        disabled={product.stock <= 0}
+        onClick={(e) => {
+          e.stopPropagation(); // VERY IMPORTANT
+        }}
       >
         Add to Cart
       </button>
-
     </div>
   );
-}
+};
+
+export default ProductCard;
