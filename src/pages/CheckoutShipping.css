@@ -1,30 +1,129 @@
-.checkout-box {
+.checkout-container {
+  max-width: 900px;
+  margin: auto;
   padding: 16px;
+  background: #f7f9fc;
 }
 
-.ship-card {
-  border: 1px solid #ddd;
-  padding: 14px;
+/* COMMON CARD */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.card h3 {
   margin-bottom: 12px;
-  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ORDER SUMMARY */
+.summary-row {
   display: flex;
   justify-content: space-between;
-  cursor: pointer;
-  background: #fff;
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
-.ship-card.active {
-  border: 2px solid #0056ff;
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 16px;
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+/* MODEL PART */
+.card label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.card input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 14px;
+}
+
+.card small {
+  display: block;
+  margin-top: 6px;
+  color: #777;
+  font-size: 12px;
+}
+
+/* COURIER BOX */
+.courier-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.courier-box input {
+  margin-right: 10px;
+}
+
+.courier-box div {
+  flex: 1;
+}
+
+.courier-box p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.courier-box span {
+  font-weight: 600;
+  color: #111;
+}
+
+/* ACTIVE */
+.courier-box.active {
+  border-color: #1a73e8;
   background: #f0f6ff;
 }
 
-.next-btn {
+/* BUTTON */
+.primary-btn {
   width: 100%;
-  background: #0056ff;
-  color: white;
+  background: #1a73e8;
+  color: #fff;
   border: none;
   padding: 14px;
-  font-size: 16px;
   border-radius: 10px;
-  margin-top: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
 }
+
+.primary-btn:hover {
+  background: #155cc4;
+}
+
+/* MOBILE PERFECT */
+@media (max-width: 600px) {
+  .checkout-container {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+  }
