@@ -62,7 +62,7 @@ export default function Cart() {
       });
     } else {
       // ✅ logged in → go checkout
-      navigate("/checkout/address");
+      navigate("/#/checkout/address");
     }
   };
 
