@@ -1,120 +1,141 @@
 .product-details-page {
-  padding: 12px;
+  padding: 15px;
 }
 
-.product-card {
+.product-box {
   background: #fff;
   border-radius: 10px;
-  padding: 14px;
-  width: 100%;
+  padding: 15px;
 }
 
-.product-name {
-  font-size: 18px;
+.pd-title {
+  font-size: 20px;
   font-weight: 600;
-  margin-bottom: 8px;
 }
 
-/* BRAND CATEGORY PART */
-.triple-row {
+.pd-row {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 6px;
+  margin-top: 10px;
+  font-size: 14px;
 }
 
-.triple-row .center {
-  color: #1976d2;
-  font-weight: 500;
+.triple span {
+  width: 33%;
 }
 
-/* COMPATIBLE + STOCK */
-.double-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 10px;
+.center {
+  text-align: center;
+  font-weight: 600;
 }
 
-.stock {
+.double {
+  align-items: center;
+}
+
+.stock-in {
+  color: green;
+  font-weight: 600;
+}
+
+.stock-out {
   color: red;
   font-weight: 600;
 }
 
-/* PRICE */
-.price {
+.pd-price {
   font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 12px;
+  margin: 12px 0;
+  font-weight: bold;
 }
 
-/* ACTIONS */
-.action-row {
+.pd-buttons {
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
 }
 
-.action-row button {
+.whatsapp {
   flex: 1;
-  height: 44px;
+  background: #25d366;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.cart {
+  flex: 1;
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.buy-now {
+  width: 100%;
+  margin-top: 10px;
+  background: #1677ff;
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 6px;
+}
+
+.tabs {
+  display: flex;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.tabs button {
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
+  border-radius: 20px;
+}
+
+.tabs .active {
+  background: #1677ff;
+  color: white;
+}
+
+.tab-content {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.related-section {
+  margin-top: 25px;
+}
+
+.related-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.related-card {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #eee;
   border-radius: 8px;
+  cursor: pointer;
+}
+
+.related-card img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.rp-name {
   font-size: 14px;
   font-weight: 500;
 }
 
-/* WhatsApp */
-.whatsapp-btn {
-  background: #25d366;
-  color: white;
-  border: none;
-}
-
-/* Add to cart */
-.cart-btn {
-  background: #f2f2f2;
-  border: 1px solid #ccc;
-}
-
-/* BUY NOW */
-.buy-btn {
-  width: 100%;
-  height: 46px;
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  margin-bottom: 14px;
-}
-
-/* DESCRIPTION */
-.description-box {
-  font-size: 14px;
-}
-
-.description-box h4 {
-  margin-bottom: 6px;
-}
-
-.description-box p.short {
-  max-height: 50px;
-  overflow: hidden;
-}
-
-.show-more {
-  color: #1976d2;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-/* RELATED PRODUCTS */
-.more-title {
-  margin-top: 20px;
-  margin-bottom: 8px;
-}
-
-.related-scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.rp-price {
+  color: #1677ff;
+  font-weight: bold;
 }
