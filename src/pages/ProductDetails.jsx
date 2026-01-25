@@ -95,6 +95,25 @@ const ProductDetails = () => {
           {product.stock > 0 ? "In Stock" : "Out of Stock"}
         </div>
 
+        {/* QUANTITY */}
+<div className="quantity-box">
+  <button
+    onClick={() => qty > 1 && setQty(qty - 1)}
+  >
+    −
+  </button>
+
+  <span>{qty}</span>
+
+  <button
+    onClick={() =>
+      qty < product.stock && setQty(qty + 1)
+    }
+  >
+    +
+  </button>
+</div>
+
         {/* BUTTONS */}
         <div className="product-buttons">
           <button className="buy-now">Buy Now</button>
