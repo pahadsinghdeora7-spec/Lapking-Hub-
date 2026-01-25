@@ -21,9 +21,12 @@ const ProductCard = ({ product }) => {
   </span>
 
   {/* CENTER CATEGORY */}
-  <span className="category-text">
-    {product.category || ""}
-  </span>
+  {/* CATEGORY */}
+{product.category_slug && (
+  <div className="product-category">
+    {product.category_slug.replace(/-/g, " ").toUpperCase()}
+  </div>
+)}
 
   {/* RIGHT */}
   <div className="part-stock">
