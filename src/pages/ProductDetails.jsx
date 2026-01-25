@@ -56,8 +56,7 @@ const ProductDetails = () => {
         {/* ROW 2 */}
         <div className="pd-row double">
           <div>
-            <strong>Compatible Models:</strong><br />
-            {product.compatible_model || "—"}
+            
           </div>
 
           <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
