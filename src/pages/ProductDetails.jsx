@@ -79,7 +79,7 @@ const ProductDetails = () => {
               src={images[activeImage]}
               alt={product.name}
               className="pd-image"
-              onClick={() => setShowPreview(true)}   // ✅ CLICK TO OPEN
+              onClick={() => setShowPreview(true)}   // ✅ FULL SCREEN
               onError={(e) => {
                 e.target.src = "/no-image.png";
               }}
@@ -140,14 +140,24 @@ const ProductDetails = () => {
         {/* PRICE */}
         <div className="pd-price">₹{product.price}</div>
 
-        {/* QUANTITY */}
+        {/* ✅ QUANTITY (UPDATED — manual allowed) */}
         <div className="qty-box">
           <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
-          <span>{quantity}</span>
+
+          {/* ✅ NEW INPUT (ADDED) */}
+          <input
+            type="number"
+            min="1"
+            value={quantity}
+            onChange={(e) =>
+              setQuantity(Number(e.target.value) || 1)
+            }
+          />
+
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
         </div>
 
-        {/* ✅ QUICK QTY (NEW) */}
+        {/* QUICK QTY (EXISTING) */}
         <div className="quick-qty">
           {[5, 10, 20].map((q) => (
             <button
@@ -228,19 +238,17 @@ const ProductDetails = () => {
           </button>
         </div>
 
-        {/* TAB CONTENT */}
         <div className="tab-content">
           {activeTab === "description" && (
             <p>{product.description || "No description available."}</p>
           )}
-
           {activeTab === "models" && (
             <p>{product.compatible_model || "No models available."}</p>
           )}
         </div>
       </div>
 
-      {/* FULL IMAGE PREVIEW */}
+      {/* ✅ FULL SCREEN IMAGE PREVIEW */}
       {showPreview && (
         <div
           className="image-preview"
@@ -253,7 +261,6 @@ const ProductDetails = () => {
       {/* RELATED */}
       <div className="related-section">
         <h3>More Products</h3>
-
         <div className="related-list">
           {related.map((item) => (
             <div
