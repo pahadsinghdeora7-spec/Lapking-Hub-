@@ -1,18 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import "../pages/ProductDetails.css";
+import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import "./ProductDetails.css";
+
 const ProductDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const found = products.find(p => String(p.id) === String(id));
-    setProduct(found);
+    fetchProduct();
     window.scrollTo(0, 0);
   }, [id]);
+
+  const fetchProduct = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (!error) {
+      setProduct(data);
+    }
+
+    setLoading(false);
+  };
+
+  if (loading) {
+    return <div style={{ padding: 20 }}>Loading...</div>;
+  }
 
   if (!product) {
     return <div style={{ padding: 20 }}>Product not found</div>;
@@ -20,7 +40,6 @@ const ProductDetails = () => {
 
   return (
     <div className="product-details-page">
-
       <div className="product-details-container">
 
         {/* IMAGE */}
@@ -34,74 +53,39 @@ const ProductDetails = () => {
         <h2 className="product-title">{product.name}</h2>
 
         {/* BRAND */}
-        <div className="product-row">
-          <span>Brand: {product.brand}</span>
-        </div>
+        {product.brand && (
+          <div className="product-row">
+            Brand: {product.brand}
+          </div>
+        )}
 
         {/* CATEGORY */}
-        {product.category_slug && (
+        {product.category && (
           <div className="product-category">
-            {product.category_slug.replace("-", " ").toUpperCase()}
+            {product.category}
           </div>
         )}
 
         {/* PART NUMBER */}
-        <div className="product-row">
-          Part No: {product.part_number}
-        </div>
-        
-         {/* COMPATIBLE MODEL */}
-{product.model && (
-  <div className="product-compatible">
-    <strong>Compatible Model:</strong><br />
-    {product.model}
-  </div>
-)}
-        {/* STOCK */}
-        <div
-          className={
-            product.stock > 0 ? "stock-in" : "stock-out"
-          }
-        >
-          {product.stock > 0 ? "In Stock" : "Out of Stock"}
-        </div>
+        {product.part_number && (
+          <div className="product-row">
+            Part No: {product.part_number}
+          </div>
+        )}
+
+        {/* MODEL */}
+        {product.model && (
+          <div className="product-compatible">
+            Compatible Model: {product.model}
+          </div>
+        )}
 
         {/* PRICE */}
         <div className="product-price">₹{product.price}</div>
 
-        {/* ACTION BUTTONS */}
-        <div className="product-actions">
-          <button className="buy-now-btn">Buy Now</button>
-          <button className="add-cart-btn">Add to Cart</button>
-          <button className="whatsapp-btn">Order on WhatsApp</button>
-        </div>
-
-        {/* DESCRIPTION */}
-        <div className="product-description">
-          <h3>Description</h3>
-          <p>{product.description || "No description available."}</p>
-        </div>
-
-        {/* MORE PRODUCTS */}
-        <div className="more-products">
-          <h3>More Products</h3>
-
-          <div className="related-grid">
-            {products
-              .filter(p => p.id !== product.id)
-              .slice(0, 6)
-              .map(item => (
-                <div
-                  key={item.id}
-                  className="related-card"
-                  onClick={() => navigate(`/product/${item.id}`)}
-                >
-                  <img src={item.image} alt={item.name} />
-                  <div className="related-name">{item.name}</div>
-                  <div className="related-price">₹{item.price}</div>
-                </div>
-              ))}
-          </div>
+        {/* STOCK */}
+        <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
+          {product.stock > 0 ? "In Stock" : "Out of Stock"}
         </div>
 
       </div>
