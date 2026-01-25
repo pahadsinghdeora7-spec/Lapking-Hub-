@@ -1,21 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
-import "./account.css";   // ✅ CORRECT PATH
+import "./account.css";
 
 export default function Account() {
 
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // ✅ ADMIN EMAIL
-  const ADMIN_EMAIL = "pahadsinghdeora7@gmail.com";
-
-  useEffect(() => {
-    const isAdmin = true; then(({ data }) => {
-      setUser(data?.user);
-    });
-  }, []);
+  // ✅ TEMP ADMIN ACCESS (jab tak login nahi hai)
+  const isAdmin = true;
 
   return (
     <div className="account-page">
@@ -50,12 +41,16 @@ export default function Account() {
           📞 Contact Us
         </Link>
 
-        {/* ✅ ADMIN PANEL OPTION */}
-        {user?.email === ADMIN_EMAIL && (
+        {/* ✅ ADMIN PANEL */}
+        {isAdmin && (
           <div
             className="account-item"
             onClick={() => navigate("/admin")}
-            style={{ cursor: "pointer" }}
+            style={{
+              cursor: "pointer",
+              fontWeight: "600",
+              color: "#0d6efd"
+            }}
           >
             🛠 Admin Panel
           </div>
