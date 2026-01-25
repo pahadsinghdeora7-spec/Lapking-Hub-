@@ -136,13 +136,4 @@
     font-size: 13px;
   }
 
-   /* 🔥 Remove mobile blue tap highlight */
-.product-card {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* button par bhi blue na aaye */
-.add-to-cart-btn {
-  -webkit-tap-highlight-color: transparent;
-}
-
+   
