@@ -6,8 +6,8 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ REDIRECT AFTER LOGIN (CART → CHECKOUT)
-  const redirectTo = location.state?.from || "/";
+  // 🔥 YAHI SABSE IMPORTANT LINE HAI
+  const redirectTo = location.state?.from || "/checkout/address";
 
   const [step, setStep] = useState("phone");
   const [mobile, setMobile] = useState("");
@@ -40,14 +40,14 @@ export default function Login() {
       return;
     }
 
-    // 🔐 SAVE USER SESSION
+    // 🔐 SAVE LOGIN
     localStorage.setItem(
       "user",
       JSON.stringify({ mobile })
     );
 
-    // ✅ HASH ROUTER FIX (MOST IMPORTANT)
-    navigate("/#" + redirectTo);
+    // ✅ DIRECT CHECKOUT (NO HOME)
+    navigate(redirectTo, { replace: true });
   };
 
   return (
@@ -56,7 +56,7 @@ export default function Login() {
       {/* LOGO */}
       <img
         src="/logo.png"
-        alt="Lapking Hub"
+        alt="logo"
         className="login-logo"
       />
 
@@ -73,12 +73,10 @@ export default function Login() {
       {/* LOGIN CARD */}
       <div className="login-card">
 
-        {/* MOBILE STEP */}
         {step === "phone" && (
           <>
             <div className="mobile-box">
               <div className="country">+91</div>
-
               <input
                 type="tel"
                 maxLength="10"
@@ -100,7 +98,6 @@ export default function Login() {
           </>
         )}
 
-        {/* OTP STEP */}
         {step === "otp" && (
           <>
             <p className="otp-info">
@@ -131,7 +128,6 @@ export default function Login() {
           </>
         )}
 
-        {/* TERMS */}
         <div className="terms">
           By continuing, you agree to our<br />
           Terms & Privacy Policy
@@ -140,4 +136,4 @@ export default function Login() {
       </div>
     </div>
   );
-      }
+                }
