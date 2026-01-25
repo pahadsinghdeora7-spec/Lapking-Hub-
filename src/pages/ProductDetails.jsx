@@ -15,15 +15,18 @@ const ProductDetails = () => {
   const [images, setImages] = useState([]);
   const [activeImage, setActiveImage] = useState(0);
 
-  // ✅ ADDED ONLY
+  // ✅ EXISTING
   const [quantity, setQuantity] = useState(1);
+
+  // ✅ NEW (FULL IMAGE PREVIEW)
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     fetchProduct();
     window.scrollTo(0, 0);
   }, [id]);
 
-  // ✅ AUTO IMAGE SLIDE (ADDED)
+  // ✅ AUTO SLIDER
   useEffect(() => {
     if (images.length <= 1) return;
 
@@ -45,7 +48,6 @@ const ProductDetails = () => {
 
     setProduct(data);
 
-    // ✅ EXISTING IMAGE LOGIC
     const imgs = [];
     if (data.image) imgs.push(data.image);
     if (data.image1) imgs.push(data.image1);
@@ -77,12 +79,13 @@ const ProductDetails = () => {
               src={images[activeImage]}
               alt={product.name}
               className="pd-image"
+              onClick={() => setShowPreview(true)}   // ✅ CLICK TO OPEN
               onError={(e) => {
                 e.target.src = "/no-image.png";
               }}
             />
 
-            {/* DOTS (OLD SAFE) */}
+            {/* DOTS */}
             {images.length > 1 && (
               <div className="image-dots">
                 {images.map((_, i) => (
@@ -95,7 +98,7 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* ✅ THUMBNAILS (ADDED) */}
+            {/* THUMBNAILS */}
             {images.length > 1 && (
               <div className="thumb-row">
                 {images.map((img, i) => (
@@ -137,11 +140,24 @@ const ProductDetails = () => {
         {/* PRICE */}
         <div className="pd-price">₹{product.price}</div>
 
-        {/* ✅ QUANTITY (ADDED) */}
+        {/* QUANTITY */}
         <div className="qty-box">
           <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
           <span>{quantity}</span>
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
+        </div>
+
+        {/* ✅ QUICK QTY (NEW) */}
+        <div className="quick-qty">
+          {[5, 10, 20].map((q) => (
+            <button
+              key={q}
+              className={quantity === q ? "active" : ""}
+              onClick={() => setQuantity(q)}
+            >
+              {q}
+            </button>
+          ))}
         </div>
 
         {/* BUTTONS */}
@@ -160,7 +176,6 @@ const ProductDetails = () => {
             Order on WhatsApp
           </button>
 
-          {/* ✅ ADD TO CART WORKING */}
           <button
             className="cart"
             onClick={() => {
@@ -225,7 +240,17 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* RELATED PRODUCTS */}
+      {/* FULL IMAGE PREVIEW */}
+      {showPreview && (
+        <div
+          className="image-preview"
+          onClick={() => setShowPreview(false)}
+        >
+          <img src={images[activeImage]} alt="preview" />
+        </div>
+      )}
+
+      {/* RELATED */}
       <div className="related-section">
         <h3>More Products</h3>
 
