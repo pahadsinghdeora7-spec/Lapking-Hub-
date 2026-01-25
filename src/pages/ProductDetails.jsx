@@ -51,11 +51,11 @@ const ProductDetails = () => {
           Part No: {product.part_number}
         </div>
         
-         {/* COMPATIBLE MODELS */}
-{product.compatible_models && (
+         {/* COMPATIBLE MODEL */}
+{product.model && (
   <div className="product-compatible">
-    <strong>Compatible Models:</strong><br />
-    {product.compatible_models}
+    <strong>Compatible Model:</strong><br />
+    {product.model}
   </div>
 )}
         {/* STOCK */}
