@@ -11,33 +11,24 @@ const ProductDetails = () => {
   const [related, setRelated] = useState([]);
   const [activeTab, setActiveTab] = useState("description");
 
-  // ✅ EXISTING
+  // images
   const [images, setImages] = useState([]);
   const [activeImage, setActiveImage] = useState(0);
 
-  // ✅ EXISTING
+  // quantity
   const [quantity, setQuantity] = useState(1);
 
-  // ✅ NEW (FULL IMAGE PREVIEW)
+  // fullscreen preview
   const [showPreview, setShowPreview] = useState(false);
+
+  // swipe
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
   useEffect(() => {
     fetchProduct();
     window.scrollTo(0, 0);
   }, [id]);
-
-  // ✅ AUTO SLIDER
-  useEffect(() => {
-    if (images.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setActiveImage((prev) =>
-        prev === images.length - 1 ? 0 : prev + 1
-      );
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [images]);
 
   const fetchProduct = async () => {
     const { data } = await supabase
@@ -49,9 +40,10 @@ const ProductDetails = () => {
     setProduct(data);
 
     const imgs = [];
-    if (data.image) imgs.push(data.image);
-    if (data.image1) imgs.push(data.image1);
-    if (data.image2) imgs.push(data.image2);
+    if (data?.image) imgs.push(data.image);
+    if (data?.image1) imgs.push(data.image1);
+    if (data?.image2) imgs.push(data.image2);
+
     setImages(imgs);
 
     if (data?.category_slug) {
@@ -72,14 +64,42 @@ const ProductDetails = () => {
     <div className="product-details-page">
       <div className="product-box">
 
-        {/* PRODUCT IMAGE */}
+        {/* IMAGE */}
         {images.length > 0 && (
           <div className="pd-image-box">
             <img
               src={images[activeImage]}
               alt={product.name}
               className="pd-image"
-              onClick={() => setShowPreview(true)}   // ✅ FULL SCREEN
+              onClick={() => setShowPreview(true)}
+
+              onTouchStart={(e) =>
+                setTouchStart(e.targetTouches[0].clientX)
+              }
+              onTouchMove={(e) =>
+                setTouchEnd(e.targetTouches[0].clientX)
+              }
+              onTouchEnd={() => {
+                if (!touchStart || !touchEnd) return;
+
+                const distance = touchStart - touchEnd;
+
+                if (distance > 50) {
+                  setActiveImage((prev) =>
+                    prev === images.length - 1 ? 0 : prev + 1
+                  );
+                }
+
+                if (distance < -50) {
+                  setActiveImage((prev) =>
+                    prev === 0 ? images.length - 1 : prev - 1
+                  );
+                }
+
+                setTouchStart(null);
+                setTouchEnd(null);
+              }}
+
               onError={(e) => {
                 e.target.src = "/no-image.png";
               }}
@@ -105,9 +125,7 @@ const ProductDetails = () => {
                   <img
                     key={i}
                     src={img}
-                    className={
-                      activeImage === i ? "thumb active" : "thumb"
-                    }
+                    className={activeImage === i ? "thumb active" : "thumb"}
                     onClick={() => setActiveImage(i)}
                     alt=""
                   />
@@ -120,7 +138,7 @@ const ProductDetails = () => {
         {/* TITLE */}
         <h2 className="pd-title">{product.name}</h2>
 
-        {/* ROW 1 */}
+        {/* INFO */}
         <div className="pd-row triple">
           <span>Brand: {product.brand}</span>
           <span className="center">
@@ -129,9 +147,8 @@ const ProductDetails = () => {
           <span>Part No: {product.part_number}</span>
         </div>
 
-        {/* ROW 2 */}
         <div className="pd-row double">
-          <div></div>
+          <div />
           <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
             {product.stock > 0 ? "In Stock" : "Out of Stock"}
           </div>
@@ -140,11 +157,10 @@ const ProductDetails = () => {
         {/* PRICE */}
         <div className="pd-price">₹{product.price}</div>
 
-        {/* ✅ QUANTITY (UPDATED — manual allowed) */}
+        {/* QUANTITY */}
         <div className="qty-box">
           <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
 
-          {/* ✅ NEW INPUT (ADDED) */}
           <input
             type="number"
             min="1"
@@ -157,7 +173,7 @@ const ProductDetails = () => {
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
         </div>
 
-        {/* QUICK QTY (EXISTING) */}
+        {/* QUICK QTY */}
         <div className="quick-qty">
           {[5, 10, 20].map((q) => (
             <button
@@ -177,7 +193,7 @@ const ProductDetails = () => {
             onClick={() =>
               window.open(
                 `https://wa.me/919873670361?text=${encodeURIComponent(
-                  `Hello, I want to order ${product.name} (₹${product.price}) Qty: ${quantity}`
+                  `Order: ${product.name} | Qty: ${quantity} | Price: ₹${product.price}`
                 )}`,
                 "_blank"
               )
@@ -212,7 +228,7 @@ const ProductDetails = () => {
           onClick={() =>
             window.open(
               `https://wa.me/919873670361?text=${encodeURIComponent(
-                `Buy Now: ${product.name} Qty: ${quantity}`
+                `Buy Now: ${product.name} | Qty: ${quantity}`
               )}`,
               "_blank"
             )
@@ -248,12 +264,9 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* ✅ FULL SCREEN IMAGE PREVIEW */}
+      {/* FULL SCREEN IMAGE */}
       {showPreview && (
-        <div
-          className="image-preview"
-          onClick={() => setShowPreview(false)}
-        >
+        <div className="image-preview" onClick={() => setShowPreview(false)}>
           <img src={images[activeImage]} alt="preview" />
         </div>
       )}
