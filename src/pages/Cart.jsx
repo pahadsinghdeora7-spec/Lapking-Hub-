@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../utils/auth"; // ✅ LOGIN CHECK
 import "./Cart.css";
 
 export default function Cart() {
@@ -49,6 +50,21 @@ export default function Cart() {
     (total, item) => total + item.price * item.qty,
     0
   );
+
+  // 🔐 CHECK LOGIN BEFORE CHECKOUT
+  const handleCheckout = async () => {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      // ❌ not logged in → go login
+      navigate("/login", {
+        state: { from: "/checkout/address" }
+      });
+    } else {
+      // ✅ logged in → go checkout
+      navigate("/checkout/address");
+    }
+  };
 
   return (
     <div className="cart-page">
@@ -113,20 +129,21 @@ export default function Cart() {
           </div>
 
           <div className="summary-row courier-row">
-  <span>Courier Charges</span>
-  <span className="courier-note">
-    Not included (as per company rates)
-  </span>
-</div>
+            <span>Courier Charges</span>
+            <span className="courier-note">
+              Not included (as per company rates)
+            </span>
+          </div>
 
           <div className="summary-total">
             <span>Total</span>
             <span>₹{subtotal}</span>
           </div>
 
+          {/* 🔥 ONLY CHANGE HERE */}
           <button
             className="checkout-btn"
-            onClick={() => navigate("/checkout/address")}
+            onClick={handleCheckout}
           >
             Proceed to Checkout →
           </button>
