@@ -14,7 +14,7 @@ export default function Home() {
   }, []);
 
   // ========================
-  // LOAD PRODUCTS
+  // LOAD PRODUCTS (SAFE)
   // ========================
   const loadProducts = async () => {
     const { data, error } = await supabase
@@ -28,7 +28,7 @@ export default function Home() {
   };
 
   // ========================
-  // LOAD RECENT VIEWED
+  // LOAD RECENT VIEWED (SAFE)
   // ========================
   const loadRecent = () => {
     try {
@@ -42,7 +42,7 @@ export default function Home() {
   };
 
   // ========================
-  // DATA SPLIT (LOCKED)
+  // DATA SPLIT (LOCKED — DO NOT TOUCH)
   // ========================
   const newArrivals = products.slice(0, 6);
   const trending = products.slice(6, 12);
@@ -50,13 +50,18 @@ export default function Home() {
 
   return (
     <div className="home">
+
+      {/* ================= SLIDER ================= */}
       <HomeSlider />
 
       {/* ================= NEW ARRIVALS ================= */}
       <h2 className="section-title">New Arrivals</h2>
       <div className="product-grid">
         {newArrivals.map((item) => (
-          <ProductCard key={item.id} product={item} />
+          <ProductCard
+            key={item.id}
+            product={item}     // 🔥 Add to Cart handled inside ProductCard
+          />
         ))}
       </div>
 
@@ -66,7 +71,10 @@ export default function Home() {
           <h2 className="section-title">Trending Products</h2>
           <div className="product-grid">
             {trending.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <ProductCard
+                key={item.id}
+                product={item}
+              />
             ))}
           </div>
         </>
@@ -78,7 +86,10 @@ export default function Home() {
           <h2 className="section-title">Recently Viewed</h2>
           <div className="product-grid">
             {recent.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <ProductCard
+                key={item.id}
+                product={item}
+              />
             ))}
           </div>
         </>
@@ -90,7 +101,10 @@ export default function Home() {
           <h2 className="section-title">Suggestions For You</h2>
           <div className="product-grid">
             {suggested.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <ProductCard
+                key={item.id}
+                product={item}
+              />
             ))}
           </div>
         </>
@@ -98,4 +112,4 @@ export default function Home() {
 
     </div>
   );
-      }
+}
