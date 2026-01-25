@@ -5,7 +5,7 @@
 
 /* MAIN CARD */
 .product-details-container {
-  background: #fff;
+  background: #ffffff;
   border-radius: 12px;
   padding: 14px;
   max-width: 520px;
@@ -33,7 +33,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  color: #444;
+  color: #444444;
   margin-bottom: 6px;
 }
 
@@ -68,7 +68,7 @@
   margin: 10px 0;
 }
 
-/* BUTTONS */
+/* BUTTON ROW */
 .button-row {
   display: flex;
   gap: 10px;
@@ -77,7 +77,7 @@
 .btn-whatsapp {
   flex: 1;
   background: #25d366;
-  color: #fff;
+  color: #ffffff;
   border: none;
   padding: 12px;
   border-radius: 8px;
@@ -87,7 +87,7 @@
 .btn-cart {
   flex: 1;
   background: #0d6efd;
-  color: #fff;
+  color: #ffffff;
   border: none;
   padding: 12px;
   border-radius: 8px;
@@ -98,7 +98,7 @@
   width: 100%;
   margin-top: 10px;
   background: #28c76f;
-  color: #fff;
+  color: #ffffff;
   padding: 13px;
   border-radius: 8px;
   border: none;
