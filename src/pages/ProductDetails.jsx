@@ -11,14 +11,30 @@ const ProductDetails = () => {
   const [related, setRelated] = useState([]);
   const [activeTab, setActiveTab] = useState("description");
 
-  // ✅ NEW (added only)
+  // ✅ EXISTING
   const [images, setImages] = useState([]);
   const [activeImage, setActiveImage] = useState(0);
+
+  // ✅ ADDED ONLY
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     fetchProduct();
     window.scrollTo(0, 0);
   }, [id]);
+
+  // ✅ AUTO IMAGE SLIDE (ADDED)
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setActiveImage((prev) =>
+        prev === images.length - 1 ? 0 : prev + 1
+      );
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [images]);
 
   const fetchProduct = async () => {
     const { data } = await supabase
@@ -29,14 +45,12 @@ const ProductDetails = () => {
 
     setProduct(data);
 
-    // ✅ NEW — multiple image support (no old code touched)
+    // ✅ EXISTING IMAGE LOGIC
     const imgs = [];
-
-if (data.image) imgs.push(data.image);
-if (data.image1) imgs.push(data.image1);
-if (data.image2) imgs.push(data.image2);
-
-setImages(imgs);
+    if (data.image) imgs.push(data.image);
+    if (data.image1) imgs.push(data.image1);
+    if (data.image2) imgs.push(data.image2);
+    setImages(imgs);
 
     if (data?.category_slug) {
       const { data: rel } = await supabase
@@ -56,7 +70,7 @@ setImages(imgs);
     <div className="product-details-page">
       <div className="product-box">
 
-        {/* PRODUCT IMAGE (UPDATED BUT SAFE) */}
+        {/* PRODUCT IMAGE */}
         {images.length > 0 && (
           <div className="pd-image-box">
             <img
@@ -68,7 +82,7 @@ setImages(imgs);
               }}
             />
 
-            {/* DOT SLIDER */}
+            {/* DOTS (OLD SAFE) */}
             {images.length > 1 && (
               <div className="image-dots">
                 {images.map((_, i) => (
@@ -76,6 +90,23 @@ setImages(imgs);
                     key={i}
                     className={activeImage === i ? "dot active" : "dot"}
                     onClick={() => setActiveImage(i)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* ✅ THUMBNAILS (ADDED) */}
+            {images.length > 1 && (
+              <div className="thumb-row">
+                {images.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    className={
+                      activeImage === i ? "thumb active" : "thumb"
+                    }
+                    onClick={() => setActiveImage(i)}
+                    alt=""
                   />
                 ))}
               </div>
@@ -98,7 +129,6 @@ setImages(imgs);
         {/* ROW 2 */}
         <div className="pd-row double">
           <div></div>
-
           <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
             {product.stock > 0 ? "In Stock" : "Out of Stock"}
           </div>
@@ -107,6 +137,13 @@ setImages(imgs);
         {/* PRICE */}
         <div className="pd-price">₹{product.price}</div>
 
+        {/* ✅ QUANTITY (ADDED) */}
+        <div className="qty-box">
+          <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
+          <span>{quantity}</span>
+          <button onClick={() => setQuantity(q => q + 1)}>+</button>
+        </div>
+
         {/* BUTTONS */}
         <div className="pd-buttons">
           <button
@@ -114,7 +151,7 @@ setImages(imgs);
             onClick={() =>
               window.open(
                 `https://wa.me/919873670361?text=${encodeURIComponent(
-                  `Hello, I want to order ${product.name} (₹${product.price})`
+                  `Hello, I want to order ${product.name} (₹${product.price}) Qty: ${quantity}`
                 )}`,
                 "_blank"
               )
@@ -123,7 +160,26 @@ setImages(imgs);
             Order on WhatsApp
           </button>
 
-          <button className="cart">Add to Cart</button>
+          {/* ✅ ADD TO CART WORKING */}
+          <button
+            className="cart"
+            onClick={() => {
+              const cart = JSON.parse(localStorage.getItem("cart")) || [];
+              const exist = cart.find(i => i.id === product.id);
+
+              if (exist) {
+                exist.qty += quantity;
+              } else {
+                cart.push({ ...product, qty: quantity });
+              }
+
+              localStorage.setItem("cart", JSON.stringify(cart));
+              window.dispatchEvent(new Event("cartUpdated"));
+              alert("Added to cart");
+            }}
+          >
+            Add to Cart
+          </button>
         </div>
 
         <button
@@ -131,7 +187,7 @@ setImages(imgs);
           onClick={() =>
             window.open(
               `https://wa.me/919873670361?text=${encodeURIComponent(
-                `Buy Now: ${product.name}`
+                `Buy Now: ${product.name} Qty: ${quantity}`
               )}`,
               "_blank"
             )
