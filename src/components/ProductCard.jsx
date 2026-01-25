@@ -22,10 +22,12 @@ export default function ProductCard({ product }) {
           Brand: {product.brand || "-"}
         </div>
 
-        {/* CENTER — CATEGORY */}
-        <div className="category-text">
-          {product.category_name}
-        </div>
+        {/* CENTER CATEGORY */}
+{product.category_slug && (
+  <div className="product-category">
+    {product.category_slug.replace("-", " ").toUpperCase()}
+  </div>
+)}
 
         {/* RIGHT — PART + STOCK */}
         <div className="part-box">
