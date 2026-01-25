@@ -26,26 +26,16 @@ const ProductDetails = () => {
     }
   };
 
-  if (!product) {
-    return <div style={{ padding: 20 }}>Loading...</div>;
-  }
+  if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
 
   return (
     <div className="product-details-page">
+      <div className="product-card">
 
-      <div className="product-details-container">
+        {/* NAME */}
+        <h2 className="product-name">{product.name}</h2>
 
-        {/* IMAGE */}
-        <img
-          src={product.image}
-          alt={product.name}
-          className="product-main-image"
-        />
-
-        {/* PRODUCT NAME */}
-        <h2 className="product-title">{product.name}</h2>
-
-        {/* BRAND | CATEGORY | PART NUMBER */}
+        {/* BRAND | CATEGORY | PART */}
         <div className="triple-row">
           <span>Brand: {product.brand}</span>
 
@@ -58,54 +48,37 @@ const ProductDetails = () => {
           <span>Part No: {product.part_number}</span>
         </div>
 
-        {/* COMPATIBLE MODEL + STOCK */}
+        {/* COMPATIBLE + STOCK */}
         <div className="double-row">
           <div>
-            {product.compatible_model && (
-              <div className="product-compatible">
-                <strong>Compatible Models:</strong>
-                <div>{product.compatible_model}</div>
-              </div>
-            )}
+            <strong>Compatible Models:</strong>
+            <div>{product.compatible_model}</div>
           </div>
 
-          <div
-            className={
-              product.stock > 0 ? "stock-in" : "stock-out"
-            }
-          >
+          <div className="stock">
             {product.stock > 0 ? "In Stock" : "Out of Stock"}
           </div>
         </div>
 
         {/* PRICE */}
-        <div className="product-price">₹{product.price}</div>
+        <div className="price">₹{product.price}</div>
 
-        {/* BUTTON ROW */}
-        <div className="button-row">
-          <button className="whatsapp-btn">
-            Order on WhatsApp
-          </button>
-
-          <button className="cart-btn">
-            Add to Cart
-          </button>
+        {/* ACTION BUTTONS */}
+        <div className="action-row">
+          <button className="whatsapp-btn">Order on WhatsApp</button>
+          <button className="cart-btn">Add to Cart</button>
         </div>
 
-        {/* BUY NOW */}
-        <button className="buy-btn">
-          Buy Now
-        </button>
+        <button className="buy-btn">Buy Now</button>
 
         {/* DESCRIPTION */}
         <div className="description-box">
-          <h3>Description</h3>
-
-          <p className={showMore ? "show" : "hide"}>
+          <h4>Description</h4>
+          <p className={showMore ? "" : "short"}>
             {product.description || "No description available."}
           </p>
 
-          {product.description && product.description.length > 120 && (
+          {product.description?.length > 120 && (
             <span
               className="show-more"
               onClick={() => setShowMore(!showMore)}
@@ -117,12 +90,11 @@ const ProductDetails = () => {
 
       </div>
 
-      {/* RELATED PRODUCTS (VERTICAL SCROLL READY) */}
-      <div className="related-products">
-        <h3>More Products</h3>
-        {/* yaha baad me related products map honge */}
+      {/* RELATED PRODUCTS */}
+      <h3 className="more-title">More Products</h3>
+      <div className="related-scroll">
+        {/* yaha tum future me related products map karoge */}
       </div>
-
     </div>
   );
 };
