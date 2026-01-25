@@ -32,93 +32,93 @@ const ProductDetails = () => {
 
   return (
     <div className="product-details-page">
-      <div className="product-details-container">
+  <div className="product-details-container">
 
-        {/* IMAGE */}
-        <img
-          src={product.image}
-          alt={product.name}
-          className="product-main-image"
-        />
+    {/* IMAGE */}
+    <img
+      src={product.image}
+      alt={product.name}
+      className="product-main-image"
+    />
 
-        {/* NAME */}
-        <h2 className="product-title">{product.name}</h2>
+    {/* NAME */}
+    <h2 className="product-title">{product.name}</h2>
 
-        {/* BRAND */}
-        <div className="product-row">
-          Brand: {product.brand}
-        </div>
+    {/* BRAND / CATEGORY / PART */}
+    <div className="triple-row">
+      <span>Brand: {product.brand}</span>
 
-        {/* CATEGORY */}
-        {product.category_slug && (
-          <div className="product-category">
-            {product.category_slug.replace("-", " ").toUpperCase()}
-          </div>
-        )}
+      {product.category_slug && (
+        <span className="center">
+          {product.category_slug.replace("-", " ").toUpperCase()}
+        </span>
+      )}
 
-        {/* PART NUMBER */}
-        <div className="product-row">
-          Part No: {product.part_number}
-        </div>
+      <span>Part No: {product.part_number}</span>
+    </div>
 
-        {/* COMPATIBLE MODEL */}
+    {/* COMPATIBLE + STOCK */}
+    <div className="double-row">
+      <div className="left">
         {product.compatible_model && (
-          <div className="product-compatible">
-            <strong>Compatible Models:</strong><br />
-            {product.compatible_model}
-          </div>
+          <>
+            <strong>Compatible Models:</strong>
+            <div>{product.compatible_model}</div>
+          </>
         )}
+      </div>
 
-        {/* STOCK */}
-        <div
-          className={
-            product.stock > 0 ? "stock-in" : "stock-out"
-          }
-        >
-          {product.stock > 0 ? "In Stock" : "Out of Stock"}
-        </div>
-
-        {/* QUANTITY */}
-        {product.stock > 0 && (
-          <div className="quantity-box">
-            <button onClick={() => qty > 1 && setQty(qty - 1)}>−</button>
-            <span>{qty}</span>
-            <button
-              onClick={() =>
-                qty < product.stock && setQty(qty + 1)
-              }
-            >
-              +
-            </button>
-          </div>
-        )}
-
-        {/* PRICE */}
-        <div className="product-price">₹{product.price}</div>
-
-        {/* BUTTONS */}
-        <button className="buy-btn">Buy Now</button>
-
-        <button className="cart-btn">Add to Cart</button>
-
-        <a
-          className="whatsapp-btn"
-          target="_blank"
-          rel="noreferrer"
-          href={`https://wa.me/919873670361?text=Order:%0A${product.name}%0APart No: ${product.part_number}%0AQty: ${qty}%0APrice: ₹${product.price}`}
-        >
-          Order on WhatsApp
-        </a>
-
-        {/* DESCRIPTION */}
-        <div className="product-description">
-          <h3>Description</h3>
-          <p>{product.description || "No description available."}</p>
-        </div>
-
+      <div
+        className={
+          product.stock > 0 ? "stock-in" : "stock-out"
+        }
+      >
+        {product.stock > 0 ? "In Stock" : "Out of Stock"}
       </div>
     </div>
-  );
-};
 
-export default ProductDetails;
+    {/* PRICE */}
+    <div className="product-price">
+      ₹{product.price}
+    </div>
+
+    {/* BUTTON ROW */}
+    <div className="button-row">
+      <button className="btn-whatsapp">
+        Order on WhatsApp
+      </button>
+
+      <button className="btn-cart">
+        Add to Cart
+      </button>
+    </div>
+
+    {/* BUY NOW */}
+    <button className="btn-buy">
+      Buy Now
+    </button>
+
+    {/* DESCRIPTION */}
+    <div className="product-description">
+      <h4>Description</h4>
+
+      <p className="desc-text">
+        {product.description || "No description available."}
+      </p>
+
+      <span className="show-more">
+        Show More
+      </span>
+    </div>
+
+  </div>
+
+  {/* RELATED PRODUCTS */}
+  <div className="related-section">
+    <h3>Related Products</h3>
+
+    <div className="related-vertical">
+      {/* yaha tum map laga rahe ho — wahi rehne do */}
+    </div>
+  </div>
+</div>
