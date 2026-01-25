@@ -26,33 +26,36 @@ const ProductCard = ({ product }) => {
       {/* NAME */}
       <h3 className="product-name">{product.name}</h3>
 
-      {/* BRAND | CATEGORY | PART (LOCKED) */}
-      <div className="brand-part-row">
-        <span className="brand-text">
-          Brand: {product.brand || "-"}
-        </span>
+      {/* BRAND + CATEGORY + PART */}
+<div className="brand-row">
 
-        {/* 🔒 CATEGORY — DO NOT CHANGE */}
-        {product.category_slug && (
-          <div className="product-category">
-            {product.category_slug.replace(/-/g, " ").toUpperCase()}
-          </div>
-        )}
+  {/* LEFT */}
+  <div className="brand-left">
+    Brand: {product.brand || "-"}
+  </div>
 
-        <span className="part-text">
-          Part No: {product.part_number || "-"}
-        </span>
-      </div>
+  {/* CENTER */}
+  {product.category_slug && (
+    <div className="brand-center">
+      {product.category_slug.replace("-", " ").toUpperCase()}
+    </div>
+  )}
 
-      {/* STOCK — PART NUMBER KE NICHE */}
-      <div
-        className={
-          product.stock > 0 ? "stock-in" : "stock-out"
-        }
-      >
-        {product.stock > 0 ? "In Stock" : "Out of Stock"}
-      </div>
+  {/* RIGHT */}
+  <div className="brand-right">
+    Part No: {product.part_number || "-"}
+  </div>
 
+</div>
+
+{/* STOCK — PART NUMBER KE NICHE */}
+<div
+  className={
+    product.stock > 0 ? "stock-in" : "stock-out"
+  }
+>
+  {product.stock > 0 ? "In Stock" : "Out of Stock"}
+</div>
       {/* PRICE */}
       <div className="price">
         ₹{product.price || 0}
