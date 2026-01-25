@@ -6,6 +6,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // ✅ REDIRECT AFTER LOGIN (CART → CHECKOUT)
   const redirectTo = location.state?.from || "/";
 
   const [step, setStep] = useState("phone");
@@ -27,23 +28,26 @@ export default function Login() {
       alert("Enter valid 10 digit mobile number");
       return;
     }
+
     setStep("otp");
     setTimer(30);
   };
 
-  // ✅ VERIFY OTP (TEST = 123456)
+  // ✅ VERIFY OTP (TEST OTP = 123456)
   const verifyOtp = () => {
     if (otp !== "123456") {
       alert("Invalid OTP");
       return;
     }
 
+    // 🔐 SAVE USER SESSION
     localStorage.setItem(
       "user",
       JSON.stringify({ mobile })
     );
 
-    navigate(redirectTo);
+    // ✅ HASH ROUTER FIX (MOST IMPORTANT)
+    navigate("/#" + redirectTo);
   };
 
   return (
@@ -52,7 +56,7 @@ export default function Login() {
       {/* LOGO */}
       <img
         src="/logo.png"
-        alt="logo"
+        alt="Lapking Hub"
         className="login-logo"
       />
 
@@ -66,13 +70,15 @@ export default function Login() {
         <span>Your Trusted Partner</span>
       </div>
 
-      {/* FORM */}
+      {/* LOGIN CARD */}
       <div className="login-card">
 
+        {/* MOBILE STEP */}
         {step === "phone" && (
           <>
             <div className="mobile-box">
               <div className="country">+91</div>
+
               <input
                 type="tel"
                 maxLength="10"
@@ -94,6 +100,7 @@ export default function Login() {
           </>
         )}
 
+        {/* OTP STEP */}
         {step === "otp" && (
           <>
             <p className="otp-info">
@@ -124,6 +131,7 @@ export default function Login() {
           </>
         )}
 
+        {/* TERMS */}
         <div className="terms">
           By continuing, you agree to our<br />
           Terms & Privacy Policy
@@ -132,4 +140,4 @@ export default function Login() {
       </div>
     </div>
   );
-            }
+      }
