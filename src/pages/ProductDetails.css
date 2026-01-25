@@ -157,3 +157,73 @@
 .dot.active {
   background: #2563eb;
 }
+/* ==============================
+   PRODUCT IMAGE FIX
+============================== */
+
+.pd-image-box {
+  width: 100%;
+  height: 320px;          /* 🔥 frame fix */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;       /* 🔥 extra image hide */
+  background: #fff;
+}
+
+.pd-image {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* thumbnails */
+
+.thumb-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.thumb {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.thumb.active {
+  border-color: #1677ff;
+  opacity: 1;
+}
+
+/* quantity */
+
+.qty-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.qty-box button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #1677ff;
+  color: white;
+  font-size: 18px;
+}
+
+.qty-box span {
+  font-size: 16px;
+  font-weight: 600;
+}
