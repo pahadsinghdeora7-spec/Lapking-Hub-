@@ -61,11 +61,11 @@ const ProductDetails = () => {
     <div className="double-row">
       <div className="left">
         {product.compatible_model && (
-          <>
-            <strong>Compatible Models:</strong>
-            <div>{product.compatible_model}</div>
-          </>
-        )}
+  <div className="product-compatible">
+    <strong>Compatible Models:</strong>
+    <div>{product.compatible_model}</div>
+  </div>
+)}
       </div>
 
       <div
