@@ -281,3 +281,41 @@
   text-align: center;
   font-weight: 600;
   }
+/* =====================================
+   FINAL THUMBNAIL CUT FIX
+===================================== */
+
+.product-box {
+  overflow: visible !important;
+}
+
+.product-details-page {
+  overflow: visible !important;
+}
+
+/* image + thumbnail container */
+
+.pd-image-box {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* image frame */
+
+.pd-image-frame {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* thumbnail row */
+
+.thumb-row {
+  position: relative;
+  z-index: 5;
+  margin-top: 8px;
+  padding-bottom: 5px;
+}
