@@ -1,67 +1,94 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🔁 jahan se login aaya tha
   const redirectTo = location.state?.from || "/";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [step, setStep] = useState("phone"); // phone | otp
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      alert("Email & password required");
+  // 📩 SEND OTP
+  const sendOtp = async () => {
+    if (phone.length < 10) {
+      alert("Enter valid mobile number");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    const { error } = await supabase.auth.signInWithOtp({
+      phone: `+91${phone}`,
     });
-
-    if (error) {
-      alert(error.message);
-      setLoading(false);
-      return;
-    }
 
     setLoading(false);
 
-    // ✅ LOGIN SUCCESS → REDIRECT BACK
-    navigate(redirectTo, { replace: true });
+    if (error) {
+      alert(error.message);
+    } else {
+      setStep("otp");
+    }
+  };
+
+  // ✅ VERIFY OTP
+  const verifyOtp = async () => {
+    setLoading(true);
+
+    const { error } = await supabase.auth.verifyOtp({
+      phone: `+91${phone}`,
+      token: otp,
+      type: "sms",
+    });
+
+    setLoading(false);
+
+    if (error) {
+      alert("Invalid OTP");
+    } else {
+      navigate(redirectTo);
+    }
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="login-page">
       <h2>Login</h2>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      {step === "phone" && (
+        <>
+          <input
+            type="tel"
+            placeholder="Enter mobile number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
 
-      <br /><br />
+          <button onClick={sendOtp} disabled={loading}>
+            {loading ? "Sending OTP..." : "Send OTP"}
+          </button>
+        </>
+      )}
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      {step === "otp" && (
+        <>
+          <input
+            type="number"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+          />
 
-      <br /><br />
-
-      <button onClick={handleLogin} disabled={loading}>
-        {loading ? "Logging in..." : "Login"}
-      </button>
+          <button onClick={verifyOtp} disabled={loading}>
+            {loading ? "Verifying..." : "Verify OTP"}
+          </button>
+        </>
+      )}
     </div>
   );
-}
+      }
