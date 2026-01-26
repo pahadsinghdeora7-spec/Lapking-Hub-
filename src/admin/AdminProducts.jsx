@@ -9,8 +9,9 @@ export default function AdminProducts() {
   const [showAdd, setShowAdd] = useState(false);
   const [showBulk, setShowBulk] = useState(false);
 
-  const [csvFile, setCsvFile] = useState(null);
-  const [bulkCategory, setBulkCategory] = useState("");
+  const [image, setImage] = useState(null);
+  const [image1, setImage1] = useState(null);
+  const [image2, setImage2] = useState(null);
 
   const [form, setForm] = useState({
     category_id: "",
@@ -27,6 +28,8 @@ export default function AdminProducts() {
     fetchCategories();
   }, []);
 
+  // ================= FETCH =================
+
   const fetchProducts = async () => {
     const { data } = await supabase
       .from("products")
@@ -37,19 +40,53 @@ export default function AdminProducts() {
   };
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from("categories").select("*");
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .order("name");
+
     setCategories(data || []);
+  };
+
+  // ================= IMAGE UPLOAD =================
+
+  const uploadImage = async (file) => {
+    if (!file) return "";
+
+    const ext = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2)}.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
+
+    if (error) {
+      alert("Image upload failed");
+      return "";
+    }
+
+    const { data } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
   };
 
   // ================= ADD PRODUCT =================
 
   const addProduct = async () => {
-    if (!form.name || !form.category_id || !form.price) {
-      alert("Category, name and price required");
+    if (!form.name || !form.price || !form.category_id) {
+      alert("Category, Name & Price required");
       return;
     }
 
-    await supabase.from("products").insert([
+    const img = await uploadImage(image);
+    const img1 = await uploadImage(image1);
+    const img2 = await uploadImage(image2);
+
+    const { error } = await supabase.from("products").insert([
       {
         category_id: Number(form.category_id),
         name: form.name,
@@ -58,56 +95,32 @@ export default function AdminProducts() {
         part_number: form.part_number,
         compatible_model: form.compatible_model,
         description: form.description,
+        image: img,
+        image1: img1,
+        image2: img2,
+        status: true,
       },
     ]);
 
-    setShowAdd(false);
-    fetchProducts();
-  };
-
-  // ================= CSV BULK UPLOAD =================
-
-  const uploadCSV = () => {
-    if (!csvFile || !bulkCategory) {
-      alert("Select category and CSV file");
-      return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = async (e) => {
-      const lines = e.target.result.split("\n");
-      const headers = lines[0].split(",");
-
-      const rows = lines.slice(1).map((line) => {
-        const values = line.split(",");
-        let obj = {};
-        headers.forEach((h, i) => {
-          obj[h.trim()] = values[i]?.trim();
-        });
-        return obj;
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Product added successfully");
+      setShowAdd(false);
+      setForm({
+        category_id: "",
+        name: "",
+        price: "",
+        stock: "",
+        part_number: "",
+        compatible_model: "",
+        description: "",
       });
-
-      const formatted = rows
-        .filter((r) => r.name)
-        .map((r) => ({
-          category_id: Number(bulkCategory),
-          name: r.name,
-          price: Number(r.price || 0),
-          stock: Number(r.stock || 0),
-          part_number: r.part_number || "",
-          compatible_model: r.compatible_model || "",
-          description: r.description || "",
-        }));
-
-      await supabase.from("products").insert(formatted);
-
-      alert("Bulk upload successful");
-      setShowBulk(false);
+      setImage(null);
+      setImage1(null);
+      setImage2(null);
       fetchProducts();
-    };
-
-    reader.readAsText(csvFile);
+    }
   };
 
   const deleteProduct = async (id) => {
@@ -116,139 +129,180 @@ export default function AdminProducts() {
     fetchProducts();
   };
 
+  // ================= UI =================
+
   return (
     <div className="admin-page">
 
-      <div className="admin-header">
-        <h2>Products</h2>
+      <h2>Products</h2>
 
-        <div className="btn-group">
-          <button className="btn-outline" onClick={() => setShowBulk(true)}>
-            Bulk Upload
-          </button>
-          <button className="btn-primary" onClick={() => setShowAdd(true)}>
-            + Add Product
-          </button>
-        </div>
+      {/* TOP BUTTONS */}
+      <div className="top-actions">
+        <button onClick={() => setShowBulk(true)}>📂 Bulk Upload</button>
+        <button onClick={() => setShowAdd(true)}>➕ Add Product</button>
       </div>
 
-      <div className="card">
-        {products.map((p) => (
-          <div className="product-row" key={p.id}>
-            <div>
-              <b>{p.name}</b>
-              <div className="muted">
-                ₹{p.price} | Stock: {p.stock}
-              </div>
-              <small>{p.categories?.name}</small>
-            </div>
-
-            <button className="delete-btn" onClick={() => deleteProduct(p.id)}>
-              Delete
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* ADD PRODUCT */}
+      {/* ADD PRODUCT FORM */}
       {showAdd && (
-        <div className="modal">
-          <div className="modal-box">
-            <h3>Add Product</h3>
+        <div className="card">
+          <h3>Add Product</h3>
 
-            <select
-              value={form.category_id}
-              onChange={(e) =>
-                setForm({ ...form, category_id: e.target.value })
-              }
-            >
-              <option value="">Select Category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+          <select
+            value={form.category_id}
+            onChange={(e) =>
+              setForm({ ...form, category_id: e.target.value })
+            }
+          >
+            <option value="">Select Category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
 
-            <input
-              placeholder="Product Name"
-              onChange={(e) =>
-                setForm({ ...form, name: e.target.value })
-              }
-            />
-            <input
-              placeholder="Price"
-              onChange={(e) =>
-                setForm({ ...form, price: e.target.value })
-              }
-            />
-            <input
-              placeholder="Stock"
-              onChange={(e) =>
-                setForm({ ...form, stock: e.target.value })
-              }
-            />
-            <input
-              placeholder="Part Number"
-              onChange={(e) =>
-                setForm({ ...form, part_number: e.target.value })
-              }
-            />
-            <input
-              placeholder="Compatible Models"
-              onChange={(e) =>
-                setForm({ ...form, compatible_model: e.target.value })
-              }
-            />
+          <input
+            placeholder="Product Name"
+            value={form.name}
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+          />
 
-            <textarea
-              placeholder="Description"
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-            />
+          <input
+            placeholder="Price"
+            value={form.price}
+            onChange={(e) =>
+              setForm({ ...form, price: e.target.value })
+            }
+          />
 
-            <div className="modal-actions">
-              <button onClick={() => setShowAdd(false)}>Cancel</button>
-              <button className="btn-primary" onClick={addProduct}>
-                Save
-              </button>
-            </div>
+          <input
+            placeholder="Stock"
+            value={form.stock}
+            onChange={(e) =>
+              setForm({ ...form, stock: e.target.value })
+            }
+          />
+
+          <input
+            placeholder="Part Number"
+            value={form.part_number}
+            onChange={(e) =>
+              setForm({ ...form, part_number: e.target.value })
+            }
+          />
+
+          <input
+            placeholder="Compatible Models"
+            value={form.compatible_model}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                compatible_model: e.target.value,
+              })
+            }
+          />
+
+          <textarea
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                description: e.target.value,
+              })
+            }
+          />
+
+          <label>Main Image</label>
+          <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+
+          <label>Image 1</label>
+          <input type="file" accept="image/*" onChange={(e) => setImage1(e.target.files[0])} />
+
+          <label>Image 2</label>
+          <input type="file" accept="image/*" onChange={(e) => setImage2(e.target.files[0])} />
+
+          <div className="row">
+            <button onClick={() => setShowAdd(false)}>Cancel</button>
+            <button className="primary" onClick={addProduct}>Save</button>
           </div>
         </div>
       )}
 
-      {/* BULK CSV */}
+      {/* BULK UPLOAD */}
       {showBulk && (
-        <div className="modal">
-          <div className="modal-box">
-            <h3>Bulk Upload (CSV)</h3>
-
-            <select onChange={(e) => setBulkCategory(e.target.value)}>
-              <option value="">Select Category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="file"
-              accept=".csv"
-              onChange={(e) => setCsvFile(e.target.files[0])}
-            />
-
-            <div className="modal-actions">
-              <button onClick={() => setShowBulk(false)}>Cancel</button>
-              <button className="btn-primary" onClick={uploadCSV}>
-                Upload
-              </button>
-            </div>
-          </div>
+        <div className="card">
+          <h3>Bulk Upload (Excel)</h3>
+          <p>
+            Excel columns:
+            <br />
+            name | price | stock | part_number | compatible_model | description
+          </p>
+          <input type="file" accept=".xlsx,.xls,.csv" />
+          <button onClick={() => setShowBulk(false)}>Close</button>
         </div>
       )}
+
+      {/* PRODUCT LIST */}
+      <div className="card">
+        <h3>Product List</h3>
+
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {products.length === 0 && (
+              <tr>
+                <td colSpan="6" align="center">
+                  No products
+                </td>
+              </tr>
+            )}
+
+            {products.map((p) => (
+              <tr key={p.id}>
+                <td>
+                  {p.image && (
+                    <img
+                      src={p.image}
+                      width="45"
+                      height="45"
+                      style={{
+                        objectFit: "cover",
+                        borderRadius: 6,
+                      }}
+                    />
+                  )}
+                </td>
+                <td>{p.name}</td>
+                <td>{p.categories?.name}</td>
+                <td>₹{p.price}</td>
+                <td>{p.stock}</td>
+                <td>
+                  <button
+                    className="danger"
+                    onClick={() => deleteProduct(p.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
     </div>
   );
-              }
+        }
