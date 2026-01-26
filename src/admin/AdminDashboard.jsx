@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient.js";
 import "./admin.css";
 
 export default function AdminDashboard() {
 
-  const navigate = useNavigate();
-
   const [stats, setStats] = useState({
-    orders: 0,
-    products: 0,
-    customers: 0,
-    pending: 0,
+    totalOrders: null,
+    totalProducts: null,
+    totalCustomers: null,
+    pendingOrders: null,
+    totalRevenue: null,
+    monthlyRevenue: null,
   });
 
   const [recentOrders, setRecentOrders] = useState([]);
@@ -20,15 +19,52 @@ export default function AdminDashboard() {
     loadDashboard();
   }, []);
 
+  const safeValue = (value) => {
+    if (value === null || value === undefined) return "Not Available";
+    return value;
+  };
+
   const loadDashboard = async () => {
-    const { data: orders } = await supabase.from("orders").select("*");
-    const { data: products } = await supabase.from("products").select("*");
+
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("*");
+
+    const { data: products } = await supabase
+      .from("products")
+      .select("*");
+
+    // Orders
+    const totalOrders = orders?.length ?? null;
+
+    // Pending
+    const pendingOrders =
+      orders?.filter(o => o.order_status === "new").length ?? null;
+
+    // Revenue
+    const totalRevenue =
+      orders?.reduce((sum, o) => sum + (Number(o.total) || 0), 0) ?? null;
+
+    // Monthly revenue
+    const currentMonth = new Date().getMonth();
+    const monthlyRevenue =
+      orders?.filter(o =>
+        new Date(o.created_at).getMonth() === currentMonth
+      ).reduce((sum, o) => sum + (Number(o.total) || 0), 0) ?? null;
+
+    // Customers (unique by phone)
+    const customers =
+      orders
+        ? new Set(orders.map(o => o.phone)).size
+        : null;
 
     setStats({
-      orders: orders?.length || 0,
-      products: products?.length || 0,
-      customers: 6, // future users table
-      pending: orders?.filter(o => o.order_status === "new").length || 0,
+      totalOrders,
+      totalProducts: products?.length ?? null,
+      totalCustomers: customers,
+      pendingOrders,
+      totalRevenue,
+      monthlyRevenue,
     });
 
     setRecentOrders(orders?.slice(0, 5) || []);
@@ -37,92 +73,50 @@ export default function AdminDashboard() {
   return (
     <div className="dashboard">
 
-      {/* TITLE */}
+      {/* HEADER */}
       <div className="dash-head">
         <h2>Dashboard</h2>
         <p>Welcome back! Here's what's happening.</p>
       </div>
 
-      {/* STATS CARDS */}
+      {/* DASHBOARD CARDS */}
       <div className="stat-grid">
 
-        <div
-          className="stat-card green"
-          onClick={() => navigate("/admin/orders?type=month")}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>₹0</h4>
+        <div className="stat-card green">
+          <h4>₹{safeValue(stats.monthlyRevenue)}</h4>
           <p>Revenue (This Month)</p>
         </div>
 
-        <div
-          className="stat-card green"
-          onClick={() => navigate("/admin/orders?type=total")}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>₹0</h4>
+        <div className="stat-card green">
+          <h4>₹{safeValue(stats.totalRevenue)}</h4>
           <p>Revenue (Total)</p>
         </div>
 
-        <div
-          className="stat-card blue"
-          onClick={() => navigate("/admin/orders?type=all")}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>{stats.orders}</h4>
+        <div className="stat-card blue">
+          <h4>{safeValue(stats.totalOrders)}</h4>
           <p>Total Orders</p>
         </div>
 
-        <div
-          className="stat-card purple"
-          onClick={() => navigate("/admin/products")}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>{stats.products}</h4>
+        <div className="stat-card purple">
+          <h4>{safeValue(stats.totalProducts)}</h4>
           <p>Total Products</p>
         </div>
 
-        <div
-          className="stat-card orange"
-          onClick={() => navigate("/admin/customers")}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>{stats.customers}</h4>
+        <div className="stat-card orange">
+          <h4>{safeValue(stats.totalCustomers)}</h4>
           <p>Total Customers</p>
         </div>
 
-        <div
-          className="stat-card yellow"
-          onClick={() => navigate("/admin/orders?type=pending")}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>{stats.pending}</h4>
+        <div className="stat-card yellow">
+          <h4>{safeValue(stats.pendingOrders)}</h4>
           <p>Pending Orders</p>
         </div>
 
-        <div
-          className="stat-card red"
-          onClick={() => navigate("/admin/orders?type=return")}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>0</h4>
+        <div className="stat-card red">
+          <h4>Not Available</h4>
           <p>Return / Replacement</p>
         </div>
 
-      </div>
-
-      {/* CHART */}
-      <div className="card">
-        <h4>Orders - Last 7 Days</h4>
-        <div className="chart-placeholder">
-          Chart will appear here
-        </div>
-      </div>
-
-      {/* LOW STOCK */}
-      <div className="card">
-        <h4>Low Stock Alert</h4>
-        <p className="muted">All products in stock</p>
       </div>
 
       {/* RECENT ORDERS */}
@@ -150,14 +144,10 @@ export default function AdminDashboard() {
             )}
 
             {recentOrders.map(order => (
-              <tr
-                key={order.id}
-                style={{ cursor: "pointer" }}
-                onClick={() => navigate(`/admin/orders/${order.id}`)}
-              >
+              <tr key={order.id}>
                 <td>#{order.id}</td>
                 <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                <td>{order.name}</td>
+                <td>{order.name || "Customer"}</td>
                 <td>₹{order.total}</td>
                 <td>
                   <span className="badge">{order.order_status}</span>
@@ -166,8 +156,9 @@ export default function AdminDashboard() {
             ))}
           </tbody>
         </table>
+
       </div>
 
     </div>
   );
-            }
+      }
