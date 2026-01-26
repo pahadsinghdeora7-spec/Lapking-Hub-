@@ -3,7 +3,7 @@ import { supabase } from "../supabaseClient";
 
 export default function AdminSettings() {
 
-  // ---------------- SITE SETTINGS (OLD) ----------------
+  // ---------------- SITE SETTINGS ----------------
   const [form, setForm] = useState({
     site_name: "",
     logo: "",
@@ -16,14 +16,16 @@ export default function AdminSettings() {
     meta_description: "",
   });
 
-  // ---------------- PAYMENT SETTINGS (NEW) ----------------
+  // ---------------- PAYMENT SETTINGS ----------------
   const [payment, setPayment] = useState({
     upi_id: "",
     whatsapp: "",
     note: "",
     status: true,
+    qr_image: ""
   });
 
+  const [qrFile, setQrFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -72,8 +74,28 @@ export default function AdminSettings() {
     alert("Site settings saved ✅");
   };
 
+  // ================= PAYMENT SAVE =================
   const savePaymentSettings = async () => {
     setLoading(true);
+
+    let qrUrl = payment.qr_image;
+
+    // 🔹 QR upload
+    if (qrFile) {
+      const fileName = `qr-${Date.now()}.png`;
+
+      const { error } = await supabase.storage
+        .from("payment")
+        .upload(fileName, qrFile, {
+          upsert: true,
+        });
+
+      if (!error) {
+        qrUrl = supabase.storage
+          .from("payment")
+          .getPublicUrl(fileName).data.publicUrl;
+      }
+    }
 
     const { data } = await supabase
       .from("payment_settings")
@@ -81,13 +103,20 @@ export default function AdminSettings() {
       .limit(1)
       .single();
 
+    const finalData = {
+      ...payment,
+      qr_image: qrUrl,
+    };
+
     if (data?.id) {
       await supabase
         .from("payment_settings")
-        .update(payment)
+        .update(finalData)
         .eq("id", data.id);
     } else {
-      await supabase.from("payment_settings").insert([payment]);
+      await supabase
+        .from("payment_settings")
+        .insert([finalData]);
     }
 
     setLoading(false);
@@ -159,6 +188,27 @@ export default function AdminSettings() {
           }
         />
 
+        {/* 🔹 QR upload */}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setQrFile(e.target.files[0])}
+        />
+
+        {/* 🔹 QR preview */}
+        {payment.qr_image && (
+          <img
+            src={payment.qr_image}
+            alt="QR"
+            style={{
+              width: "180px",
+              marginTop: "12px",
+              borderRadius: "10px",
+              border: "1px solid #ddd"
+            }}
+          />
+        )}
+
         <select
           value={payment.status ? "true" : "false"}
           onChange={(e) =>
@@ -179,4 +229,4 @@ export default function AdminSettings() {
 
     </div>
   );
-              }
+      }
