@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabaseClient.js";
 import "./admin.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [showAdd, setShowAdd] = useState(false);
-  const [showBulk, setShowBulk] = useState(false);
-
-  const [image, setImage] = useState(null);
-  const [image1, setImage1] = useState(null);
-  const [image2, setImage2] = useState(null);
+  // image states
+  const [imageFile, setImageFile] = useState(null);
+  const [imageFile1, setImageFile1] = useState(null);
+  const [imageFile2, setImageFile2] = useState(null);
 
   const [form, setForm] = useState({
     category_id: "",
@@ -23,12 +22,12 @@ export default function AdminProducts() {
     description: "",
   });
 
+  // ================= FETCH =================
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
-
-  // ================= FETCH =================
 
   const fetchProducts = async () => {
     const { data } = await supabase
@@ -53,10 +52,7 @@ export default function AdminProducts() {
   const uploadImage = async (file) => {
     if (!file) return "";
 
-    const ext = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2)}.${ext}`;
+    const fileName = `${Date.now()}-${file.name}`;
 
     const { error } = await supabase.storage
       .from("products")
@@ -78,35 +74,39 @@ export default function AdminProducts() {
 
   const addProduct = async () => {
     if (!form.name || !form.price || !form.category_id) {
-      alert("Category, Name & Price required");
+      alert("Category, Name aur Price required hai");
       return;
     }
 
-    const img = await uploadImage(image);
-    const img1 = await uploadImage(image1);
-    const img2 = await uploadImage(image2);
+    setLoading(true);
 
-    const { error } = await supabase.from("products").insert([
+    const mainImage = await uploadImage(imageFile);
+    const img1 = await uploadImage(imageFile1);
+    const img2 = await uploadImage(imageFile2);
+
+    const res = await supabase.from("products").insert([
       {
         category_id: Number(form.category_id),
         name: form.name,
         price: Number(form.price),
         stock: Number(form.stock || 0),
         part_number: form.part_number,
-        compatible_model: form.compatible_model,
-        description: form.description,
-        image: img,
+        image: mainImage,
         image1: img1,
         image2: img2,
+        compatible_model: form.compatible_model,
+        description: form.description,
         status: true,
       },
     ]);
 
-    if (error) {
-      alert(error.message);
-    } else {
-      alert("Product added successfully");
-      setShowAdd(false);
+    setLoading(false);
+
+    if (res.status === 201) {
+      alert("✅ Product added successfully");
+
+      fetchProducts(); // 🔥 MOST IMPORTANT
+
       setForm({
         category_id: "",
         name: "",
@@ -116,15 +116,19 @@ export default function AdminProducts() {
         compatible_model: "",
         description: "",
       });
-      setImage(null);
-      setImage1(null);
-      setImage2(null);
-      fetchProducts();
+
+      setImageFile(null);
+      setImageFile1(null);
+      setImageFile2(null);
+    } else {
+      alert("❌ Product add nahi hua");
+      console.log(res);
     }
   };
 
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete product?")) return;
+
     await supabase.from("products").delete().eq("id", id);
     fetchProducts();
   };
@@ -136,17 +140,17 @@ export default function AdminProducts() {
 
       <h2>Products</h2>
 
-      {/* TOP BUTTONS */}
+      {/* ACTION BUTTONS */}
       <div className="top-actions">
-        <button onClick={() => setShowBulk(true)}>📂 Bulk Upload</button>
-        <button onClick={() => setShowAdd(true)}>➕ Add Product</button>
+        <button className="btn-primary">➕ Add Product</button>
+        <button className="btn-secondary">📦 Bulk Upload</button>
       </div>
 
-      {/* ADD PRODUCT FORM */}
-      {showAdd && (
-        <div className="card">
-          <h3>Add Product</h3>
+      {/* ADD PRODUCT */}
+      <div className="card">
+        <h3>Add Product</h3>
 
+        <div className="form-grid">
           <select
             value={form.category_id}
             onChange={(e) =>
@@ -164,25 +168,19 @@ export default function AdminProducts() {
           <input
             placeholder="Product Name"
             value={form.name}
-            onChange={(e) =>
-              setForm({ ...form, name: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
 
           <input
             placeholder="Price"
             value={form.price}
-            onChange={(e) =>
-              setForm({ ...form, price: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
           />
 
           <input
             placeholder="Stock"
             value={form.stock}
-            onChange={(e) =>
-              setForm({ ...form, stock: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, stock: e.target.value })}
           />
 
           <input
@@ -197,10 +195,7 @@ export default function AdminProducts() {
             placeholder="Compatible Models"
             value={form.compatible_model}
             onChange={(e) =>
-              setForm({
-                ...form,
-                compatible_model: e.target.value,
-              })
+              setForm({ ...form, compatible_model: e.target.value })
             }
           />
 
@@ -208,101 +203,52 @@ export default function AdminProducts() {
             placeholder="Description"
             value={form.description}
             onChange={(e) =>
-              setForm({
-                ...form,
-                description: e.target.value,
-              })
+              setForm({ ...form, description: e.target.value })
             }
           />
 
           <label>Main Image</label>
-          <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+          <input type="file" onChange={(e) => setImageFile(e.target.files[0])} />
 
           <label>Image 1</label>
-          <input type="file" accept="image/*" onChange={(e) => setImage1(e.target.files[0])} />
+          <input type="file" onChange={(e) => setImageFile1(e.target.files[0])} />
 
           <label>Image 2</label>
-          <input type="file" accept="image/*" onChange={(e) => setImage2(e.target.files[0])} />
+          <input type="file" onChange={(e) => setImageFile2(e.target.files[0])} />
 
-          <div className="row">
-            <button onClick={() => setShowAdd(false)}>Cancel</button>
-            <button className="primary" onClick={addProduct}>Save</button>
-          </div>
+          <button className="btn-primary" onClick={addProduct} disabled={loading}>
+            {loading ? "Saving..." : "Save Product"}
+          </button>
         </div>
-      )}
-
-      {/* BULK UPLOAD */}
-      {showBulk && (
-        <div className="card">
-          <h3>Bulk Upload (Excel)</h3>
-          <p>
-            Excel columns:
-            <br />
-            name | price | stock | part_number | compatible_model | description
-          </p>
-          <input type="file" accept=".xlsx,.xls,.csv" />
-          <button onClick={() => setShowBulk(false)}>Close</button>
-        </div>
-      )}
+      </div>
 
       {/* PRODUCT LIST */}
       <div className="card">
         <h3>Product List</h3>
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+        {products.length === 0 && (
+          <p style={{ textAlign: "center" }}>No products</p>
+        )}
 
-          <tbody>
-            {products.length === 0 && (
-              <tr>
-                <td colSpan="6" align="center">
-                  No products
-                </td>
-              </tr>
-            )}
+        {products.map((p) => (
+          <div key={p.id} className="product-row">
+            <div>
+              <b>{p.name}</b>
+              <div className="muted">
+                ₹{p.price} | Stock: {p.stock}
+              </div>
+              <div className="muted">
+                Category: {p.categories?.name}
+              </div>
+            </div>
 
-            {products.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  {p.image && (
-                    <img
-                      src={p.image}
-                      width="45"
-                      height="45"
-                      style={{
-                        objectFit: "cover",
-                        borderRadius: 6,
-                      }}
-                    />
-                  )}
-                </td>
-                <td>{p.name}</td>
-                <td>{p.categories?.name}</td>
-                <td>₹{p.price}</td>
-                <td>{p.stock}</td>
-                <td>
-                  <button
-                    className="danger"
-                    onClick={() => deleteProduct(p.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            <button className="btn-danger" onClick={() => deleteProduct(p.id)}>
+              Delete
+            </button>
+          </div>
+        ))}
       </div>
 
     </div>
   );
-        }
+}
