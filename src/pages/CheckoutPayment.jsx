@@ -1,142 +1,94 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
-import upiQR from "../assets/upi-qr.png";
 import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-  const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.qty,
-    0
-  );
-
-  const shipping = 149;
-  const total = subtotal + shipping;
-
-  const UPI_ID = "9873670361@jio";
-
-  const createOrder = async () => {
-    if (loading) return;
-    setLoading(true);
-
-    const orderCode =
-      "LKH" + Math.floor(1000000000 + Math.random() * 9000000000);
-
-    const { error } = await supabase.from("orders").insert([
-      {
-        name: "Customer",
-        phone: "NA",
-        address: "NA",
-        shipping_name: "Standard",
-        shipping_price: shipping,
-        total: total,
-        payment_method: "UPI",
-        payment_status: "pending",
-        order_status: "new",
-        order_code: orderCode,
-      },
-    ]);
-
-    if (error) {
-      alert("Order create failed");
-      setLoading(false);
-      return;
-    }
-
-    // 🔗 UPI Deep Link
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Lapking%20Hub&am=${total}&cu=INR`;
-
-    window.location.href = upiLink;
-
-    // after redirect attempt
-    setTimeout(() => {
-      navigate("/order/success", {
-        state: {
-          orderCode,
-          total,
-        },
-      });
-    }, 1500);
-  };
+  const total = 2699;
 
   return (
     <div className="payment-page">
-      <h2 className="payment-title">🔒 Secure UPI Payment</h2>
 
+      {/* STEPS */}
+      <div className="checkout-steps">
+        <div className="done">✔ Address</div>
+        <div className="done">✔ Shipping</div>
+        <div className="active">3 Payment</div>
+      </div>
+
+      {/* PAYMENT CARD */}
       <div className="payment-card">
-        <div className="merchant">
-          <div className="logo">L</div>
-          <div>
-            <strong>Lapking Hub</strong>
-            <p>Official UPI Payment</p>
-          </div>
+        <h3>Payment</h3>
+
+        {/* UPI ID */}
+        <div className="upi-box">
+          <span>UPI ID</span>
+          <strong>9873670361@jio</strong>
         </div>
 
-        <img src={upiQR} alt="UPI QR" className="qr-image" />
+        <p className="scan-text">Scan this QR to pay via UPI</p>
 
-        <p className="scan-text">
-          Scan this QR using any UPI app
+        {/* QR */}
+        <div className="qr-box">
+          <img
+            src="https://YOUR-SUPABASE-URL/storage/v1/object/public/payment/upi-qr.png"
+            alt="UPI QR"
+          />
+        </div>
+
+        {/* AMOUNT */}
+        <div className="amount-box">
+          <p>Total Amount</p>
+          <h2>₹{total}</h2>
+        </div>
+
+        <p className="note">
+          Pay using any UPI app (GPay, PhonePe, Paytm).  
+          After payment, your order will be created with
+          <b> Payment Pending</b> status.
         </p>
 
-        <div className="upi-box">
-          <strong>UPI ID</strong>
-          <p>{UPI_ID}</p>
+        {/* BUTTON */}
+        <div className="payment-buttons">
+          <button className="back-btn">Back</button>
+          <button
+            className="pay-btn"
+            onClick={() => {
+              window.location.href = "/order/success";
+            }}
+          >
+            Pay ₹{total}
+          </button>
         </div>
-
-        <div className="upi-icons">
-          <span>Google Pay</span>
-          <span>PhonePe</span>
-          <span>Paytm</span>
-        </div>
-
-        <div className="note">
-          ⚠️ Payment is verified manually by admin.  
-          After payment, order will show <b>Payment Pending</b>.
-        </div>
-
-        <button className="pay-btn" onClick={createOrder}>
-          {loading ? "Processing..." : `Pay ₹${total}`}
-        </button>
       </div>
 
       {/* ORDER SUMMARY */}
-      <div className="summary-card">
-        <h3>Order Summary</h3>
+      <div className="order-summary">
+        <h4>Order Summary</h4>
 
-        {cart.map((item, i) => (
-          <div className="summary-item" key={i}>
-            <img src={item.image} alt="" />
-            <div>
-              <p>{item.name}</p>
-              <small>Qty: {item.qty}</small>
-            </div>
-            <strong>₹{item.price}</strong>
-          </div>
-        ))}
+        <div className="item">
+          <span>
+            Acer Aspire 5 Bottom Base Cover
+            <br />
+            Qty: 1
+          </span>
+          <strong>₹2,550</strong>
+        </div>
 
-        <div className="summary-row">
+        <div className="line" />
+        <div className="row">
           <span>Subtotal</span>
-          <span>₹{subtotal}</span>
+          <span>₹2,550</span>
         </div>
 
-        <div className="summary-row">
-          <span>Shipping</span>
-          <span>₹{shipping}</span>
+        <div className="row">
+          <span>Shipping (BlueDart)</span>
+          <span>₹149</span>
         </div>
 
-        <div className="summary-total">
+        <div className="total-row">
           <span>Total</span>
-          <span>₹{total}</span>
+          <strong>₹2,699</strong>
         </div>
       </div>
+
     </div>
   );
 }
-    
-  
-
