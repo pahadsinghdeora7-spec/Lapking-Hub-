@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
-import "../styles/checkout.css";
+import "../CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
