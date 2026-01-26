@@ -26,111 +26,74 @@ export default function CheckoutPayment() {
       .from("payment_settings")
       .select("*")
       .eq("status", true)
+      .limit(1)
       .single();
 
-    setPayment(data);
+    if (data) setPayment(data);
   };
 
-  const createOrder = async () => {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-
-    const orderCode = "LKH" + Date.now();
+  const handleConfirm = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const { error } = await supabase.from("orders").insert([
       {
-        order_uuid: crypto.randomUUID(),
-        order_code: orderCode,
-
-        name: "Customer",
-        phone: "NA",
-        address: "NA",
-
-        shipping_name: "Standard",
+        name: user?.name,
+        phone: user?.phone,
+        address: user?.address,
+        shipping_name: "Standard Delivery",
         shipping_price: shipping,
         total: total,
-
-        payment_method: "UPI",
-        payment_status: "pending",
+        payment_meth: "UPI",
+        payment_stat: "pending",
         order_status: "new",
-
-        user_id: user?.id || null
-      }
+        user_id: user?.id,
+      },
     ]);
 
     if (error) {
       alert("Order create failed");
-      console.log(error);
       return;
     }
 
-    localStorage.removeItem("cart");
-
-    navigate("/order-success", {
-      state: { orderCode }
-    });
+    // ✅ ONLY FIXED LINE
+    navigate("/order/success");
   };
 
   if (!payment) return null;
 
   return (
     <div className="checkout-page">
-
       <h2>🔒 Secure Payment</h2>
 
-      <div className="payment-card">
-        <h3>King Metals</h3>
-
-        <img
-          src={payment.qr_image}
-          alt="UPI QR"
-          className="qr-img"
-        />
-
-        <p>Scan to pay using any UPI app</p>
-
-        <div className="upi-box">
-          <strong>UPI ID</strong>
-          <div>{payment.upi_id}</div>
-          <small>Google Pay • PhonePe • Paytm</small>
+      <div className="qr-box">
+        <div className="merchant">
+          <div className="logo">K</div>
+          <div className="name">King Metals</div>
         </div>
 
-        <button className="pay-btn" onClick={createOrder}>
-          Confirm & Pay ₹{total}
-        </button>
+        {payment.qr_image && (
+          <img src={payment.qr_image} alt="UPI QR" />
+        )}
+
+        <p className="scan-text">
+          Scan to pay using any UPI app
+        </p>
       </div>
 
-      <div className="summary-box">
-        <h3>Order Summary</h3>
+      <div className="upi-box">
+        <strong>UPI ID</strong>
+        <div>{payment.upi_id}</div>
+        <small>Google Pay · PhonePe · Paytm</small>
+      </div>
 
-        {cart.map((item, i) => (
-          <div key={i} className="summary-row">
-            <img src={item.image} />
-            <div>
-              <div>{item.name}</div>
-              <small>Qty: {item.qty}</small>
-            </div>
-            <b>₹{item.price}</b>
-          </div>
-        ))}
+      <div className="pay-actions">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          Back
+        </button>
 
-        <hr />
-
-        <div className="price-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
-        </div>
-
-        <div className="price-row">
-          <span>Shipping</span>
-          <span>₹{shipping}</span>
-        </div>
-
-        <div className="price-row total">
-          <span>Total</span>
-          <span>₹{total}</span>
-        </div>
+        <button className="pay-btn" onClick={handleConfirm}>
+          Confirm & Pay ₹{total}
+        </button>
       </div>
     </div>
   );
