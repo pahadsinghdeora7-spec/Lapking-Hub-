@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
 
   const [payment, setPayment] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
-
-  const shipping = 149;
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     loadPayment();
     loadCart();
   }, []);
 
+  // ================= PAYMENT SETTINGS =================
   const loadPayment = async () => {
     const { data } = await supabase
       .from("payment_settings")
@@ -22,117 +21,92 @@ export default function CheckoutPayment() {
       .limit(1)
       .single();
 
-    if (data) setPayment(data);
+    setPayment(data);
   };
 
+  // ================= CART =================
   const loadCart = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(cart);
+    const items = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(items);
   };
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.qty,
+  const subtotal = cart.reduce(
+    (sum, i) => sum + i.price * i.qty,
     0
   );
 
-  const totalAmount = subtotal + shipping;
+  const shipping = subtotal > 0 ? 149 : 0;
+  const total = subtotal + shipping;
 
   if (!payment) return null;
 
   return (
-    <div className="checkout-page">
+    <div className="checkout-payment">
 
-      {/* ================= PAYMENT ================= */}
-      <div className="card">
-        <h3>Payment</h3>
+      <h2>Payment</h2>
 
-        {/* QR IMAGE */}
-        {payment.qr_url && (
-          <div style={{ textAlign: "center", margin: "20px 0" }}>
-            <img
-              src={payment.qr_url}
-              alt="QR"
-              style={{
-                width: 220,
-                borderRadius: 12,
-                border: "1px solid #eee",
-              }}
-            />
-            <p style={{ marginTop: 10, color: "#555" }}>
-              Scan this QR to pay via UPI
-            </p>
-          </div>
-        )}
-
-        {/* UPI */}
-        <div className="upi-box">
-          <b>UPI ID</b>
-          <p>{payment.upi_id}</p>
-        </div>
+      {/* ================= UPI INFO ================= */}
+      <div className="payment-box">
+        <p className="label">UPI ID</p>
+        <p className="upi">{payment.upi_id}</p>
       </div>
 
-      {/* ================= ACTION BUTTON ================= */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          marginTop: 20,
-        }}
-      >
-        <button
-          className="btn-light"
-          onClick={() => navigate("/checkout/shipping")}
-        >
+      {/* ================= QR CODE ================= */}
+      {payment.qr_url && (
+        <div className="qr-box">
+          <img src={payment.qr_url} alt="UPI QR" />
+          <p className="qr-text">Scan QR to pay via UPI</p>
+        </div>
+      )}
+
+      {/* ================= BUTTONS ================= */}
+      <div className="pay-actions">
+        <button className="btn-back" onClick={() => navigate(-1)}>
           Back
         </button>
 
-        <button className="btn-primary">
-          Pay ₹{totalAmount}
+        <button className="btn-pay">
+          Pay ₹{total}
         </button>
       </div>
 
       {/* ================= ORDER SUMMARY ================= */}
-      <div className="card" style={{ marginTop: 25 }}>
+      <div className="order-summary">
         <h3>Order Summary</h3>
 
-        {cartItems.map((item) => (
+        {cart.map((item) => (
           <div key={item.id} className="summary-item">
+            <img src={item.image} alt={item.name} />
 
-            <img
-              src={item.image}
-              alt={item.name}
-              className="summary-img"
-            />
-
-            <div className="summary-info">
-              <p className="title">{item.name}</p>
-              <span>
-                Qty: {item.qty} × ₹{item.price}
-              </span>
+            <div className="info">
+              <p className="name">{item.name}</p>
+              <p className="qty">Qty: {item.qty}</p>
             </div>
 
-            <b>₹{item.qty * item.price}</b>
+            <div className="price">
+              ₹{item.price * item.qty}
+            </div>
           </div>
         ))}
 
-        <hr />
+        <div className="summary-total">
+          <div>
+            <span>Subtotal</span>
+            <span>₹{subtotal}</span>
+          </div>
 
-        <div className="summary-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
-        </div>
+          <div>
+            <span>Shipping</span>
+            <span>₹{shipping}</span>
+          </div>
 
-        <div className="summary-row">
-          <span>Shipping</span>
-          <span>₹{shipping}</span>
-        </div>
-
-        <div className="summary-row total">
-          <span>Total</span>
-          <span>₹{totalAmount}</span>
+          <div className="final">
+            <strong>Total</strong>
+            <strong>₹{total}</strong>
+          </div>
         </div>
       </div>
 
     </div>
   );
-            }
+}
