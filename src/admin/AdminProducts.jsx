@@ -4,100 +4,100 @@ import "./admin.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState("");
 
-  // =====================
-  // FETCH PRODUCTS
-  // =====================
   const fetchProducts = async () => {
-    setLoading(true);
-
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("products")
       .select("*")
       .order("id", { ascending: false });
 
-    if (!error) {
-      setProducts(data || []);
-    }
-
-    setLoading(false);
+    setProducts(data || []);
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // =====================
-  // UI
-  // =====================
+  const filtered = products.filter((p) =>
+    p.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="admin-page">
+    <div className="admin-wrapper">
 
-      <h2>Products</h2>
+      {/* HEADER */}
+      <div className="admin-header">
+        <h2>Products</h2>
 
-      {/* TOP BUTTONS */}
-      <div className="top-actions">
-        <button className="btn blue" onClick={() => setShowForm(false)}>
-          📦 Product List
-        </button>
+        <div className="header-actions">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <button className="btn green" onClick={() => setShowForm(true)}>
-          ➕ Add Product
-        </button>
+          <button className="btn-outline">Bulk Upload</button>
+          <button className="btn-primary">+ Add Product</button>
+        </div>
       </div>
 
-      {/* ================= PRODUCT LIST ================= */}
-      {!showForm && (
-        <div className="card">
-          <h3>Product List</h3>
+      {/* TABLE */}
+      <div className="table-card">
+        <table className="product-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Brand</th>
+              <th>Part No</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-          {loading && <p>Loading products...</p>}
+          <tbody>
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan="9" style={{ textAlign: "center" }}>
+                  No products found
+                </td>
+              </tr>
+            )}
 
-          {!loading && products.length === 0 && (
-            <p>No products found</p>
-          )}
+            {filtered.map((p) => (
+              <tr key={p.id}>
+                <td>
+                  {p.image ? (
+                    <img src={p.image} className="thumb" />
+                  ) : (
+                    <div className="no-img">IMG</div>
+                  )}
+                </td>
 
-          {!loading && products.length > 0 && (
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Product</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {products.map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.id}</td>
-                    <td>{p.name}</td>
-                    <td>₹{p.price}</td>
-                    <td>{p.stock}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
-
-      {/* ================= ADD PRODUCT PLACEHOLDER ================= */}
-      {showForm && (
-        <div className="card">
-          <h3>Add Product</h3>
-          <p>
-            (Form yahin aayega — abhi list fix karna priority tha)
-          </p>
-
-          <button className="btn gray" onClick={() => setShowForm(false)}>
-            ← Back to Product List
-          </button>
-        </div>
-      )}
+                <td>{p.name}</td>
+                <td>{p.category || "-"}</td>
+                <td>{p.brand || "-"}</td>
+                <td>{p.part_number || "-"}</td>
+                <td>₹{p.price || 0}</td>
+                <td>
+                  <span className="stock-badge">{p.stock || 0}</span>
+                </td>
+                <td>
+                  <span className="status active">Active</span>
+                </td>
+                <td>
+                  <button className="dots">⋮</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
     </div>
   );
