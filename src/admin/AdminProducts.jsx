@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import "./admin.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
+  // =====================
+  // FETCH PRODUCTS
+  // =====================
   const fetchProducts = async () => {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("products")
       .select("*")
       .order("id", { ascending: false });
-
-    console.log("ADMIN PRODUCTS:", data, error);
 
     if (!error) {
       setProducts(data || []);
@@ -24,35 +25,80 @@ export default function AdminProducts() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // =====================
+  // UI
+  // =====================
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Product List</h2>
+    <div className="admin-page">
 
-      {loading && <p>Loading...</p>}
+      <h2>Products</h2>
 
-      {!loading && products.length === 0 && (
-        <p>No products found</p>
+      {/* TOP BUTTONS */}
+      <div className="top-actions">
+        <button className="btn blue" onClick={() => setShowForm(false)}>
+          📦 Product List
+        </button>
+
+        <button className="btn green" onClick={() => setShowForm(true)}>
+          ➕ Add Product
+        </button>
+      </div>
+
+      {/* ================= PRODUCT LIST ================= */}
+      {!showForm && (
+        <div className="card">
+          <h3>Product List</h3>
+
+          {loading && <p>Loading products...</p>}
+
+          {!loading && products.length === 0 && (
+            <p>No products found</p>
+          )}
+
+          {!loading && products.length > 0 && (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {products.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.id}</td>
+                    <td>{p.name}</td>
+                    <td>₹{p.price}</td>
+                    <td>{p.stock}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
 
-      {products.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            border: "1px solid #ddd",
-            padding: 10,
-            marginBottom: 10,
-            borderRadius: 6,
-          }}
-        >
-          <b>{p.name}</b>
-          <br />
-          Price: ₹{p.price}
-          <br />
-          Stock: {p.stock}
-          <br />
-          ID: {p.id}
+      {/* ================= ADD PRODUCT PLACEHOLDER ================= */}
+      {showForm && (
+        <div className="card">
+          <h3>Add Product</h3>
+          <p>
+            (Form yahin aayega — abhi list fix karna priority tha)
+          </p>
+
+          <button className="btn gray" onClick={() => setShowForm(false)}>
+            ← Back to Product List
+          </button>
         </div>
-      ))}
+      )}
+
     </div>
   );
 }
