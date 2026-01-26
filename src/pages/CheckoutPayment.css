@@ -1,145 +1,156 @@
-.checkout-page {
-  max-width: 520px;
+.checkout-payment-page {
+  max-width: 420px;
   margin: auto;
   padding: 15px;
 }
 
-.secure-title {
+.title {
   font-size: 18px;
-  margin-bottom: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
-/* QR CARD */
-.qr-card {
+.payment-card {
   background: #fff;
   border-radius: 14px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .merchant {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
 }
 
 .logo {
-  background: #2563eb;
-  color: #fff;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  font-weight: bold;
+  background: #2563eb;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
 }
 
-.name {
-  font-weight: 600;
-}
-
-.qr-img {
-  width: 220px;
+.qr-image {
+  width: 200px;
   margin: 15px auto;
+  display: block;
 }
 
 .scan-text {
+  text-align: center;
   font-size: 13px;
-  color: #666;
+  color: #555;
 }
 
-/* UPI BOX */
 .upi-box {
-  background: #fff;
-  margin-top: 15px;
-  padding: 14px;
+  border: 1px dashed #ddd;
+  padding: 10px;
   border-radius: 10px;
+  margin-top: 12px;
   font-size: 14px;
 }
 
-/* APP BUTTONS */
-.upi-apps {
-  display: flex;
-  gap: 10px;
+.upi-select {
   margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.upi-btn {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
+.upi-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #fff;
 }
 
-.gpay { background: #4285f4; }
-.phonepe { background: #6739b7; }
-.paytm { background: #00baf2; }
+.upi-option img {
+  width: 28px;
+}
 
-/* ACTIONS */
+.upi-option.active {
+  border: 2px solid #2563eb;
+  background: #f0f6ff;
+}
+
 .pay-actions {
   display: flex;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 15px;
 }
 
 .back-btn {
   flex: 1;
-  background: #e5e7eb;
-  border: none;
-  border-radius: 8px;
   padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #e5e7eb;
 }
 
 .pay-btn {
   flex: 2;
+  padding: 12px;
+  border-radius: 10px;
   background: #2563eb;
   color: #fff;
-  border-radius: 8px;
-  padding: 12px;
   text-align: center;
-  text-decoration: none;
   font-weight: 600;
+  text-decoration: none;
 }
 
-/* SUMMARY */
-.summary-title {
-  margin: 20px 0 10px;
-}
-
-.summary-box {
+.summary-card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 15px;
+  margin-top: 20px;
 }
 
-.summary-item {
+.summary-row {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
-.summary-item img {
-  width: 50px;
-  height: 50px;
+.summary-row img {
+  width: 45px;
+  height: 45px;
   object-fit: cover;
   border-radius: 6px;
 }
 
-.summary-row,
-.summary-total {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
+.summary-row .info {
+  flex: 1;
+  font-size: 14px;
 }
 
-.summary-total {
-  font-weight: bold;
+.price {
+  font-weight: 600;
+}
+
+.total-box {
+  border-top: 1px dashed #ddd;
+  margin-top: 10px;
+  padding-top: 10px;
+  font-size: 14px;
+}
+
+.total-box div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.total-box .final {
+  font-weight: 700;
 }
