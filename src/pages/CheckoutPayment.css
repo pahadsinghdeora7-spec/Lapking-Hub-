@@ -1,130 +1,111 @@
 .payment-page {
-  max-width: 720px;
+  max-width: 420px;
   margin: auto;
   padding: 20px;
 }
 
-/* STEPS */
-.checkout-steps {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  font-size: 14px;
+.title {
+  text-align: center;
+  margin-bottom: 15px;
 }
 
-.checkout-steps div {
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: #eee;
-}
-
-.checkout-steps .done {
-  background: #d4f5e1;
-  color: #1a7f37;
-}
-
-.checkout-steps .active {
-  background: #2563eb;
-  color: #fff;
-}
-
-/* PAYMENT CARD */
-.payment-card {
+.payment-box {
   background: #fff;
+  border-radius: 12px;
   padding: 20px;
-  border-radius: 10px;
-  border: 1px solid #eee;
-  margin-bottom: 25px;
-}
-
-.upi-box {
-  background: #f6f7f9;
-  padding: 10px;
-  border-radius: 6px;
-  margin: 10px 0;
-}
-
-.scan-text {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   text-align: center;
-  margin: 10px 0;
-  font-size: 14px;
 }
 
-.qr-box {
-  text-align: center;
-  margin: 15px 0;
-}
-
-.qr-box img {
-  width: 220px;
-  border-radius: 10px;
-}
-
-.amount-box {
-  text-align: center;
-  background: #f0f6ff;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.note {
-  font-size: 13px;
-  color: #555;
-  margin-top: 10px;
-}
-
-.payment-buttons {
+.brand {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
-}
-
-.back-btn {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ddd;
-  background: #fff;
-  border-radius: 6px;
-}
-
-.pay-btn {
-  flex: 1;
-  padding: 12px;
-  background: #22c55e;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-/* ORDER SUMMARY */
-.order-summary {
-  background: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #eee;
-}
-
-.order-summary .item {
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 10px;
 }
 
-.order-summary .row,
-.total-row {
+.logo {
+  background: #2563eb;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 
-.total-row {
-  font-weight: bold;
+.qr-img {
+  width: 220px;
+  margin: 15px auto;
+}
+
+.scan-text {
+  color: #555;
+  font-size: 14px;
+}
+
+.upi-id {
+  border: 1px dashed #ccc;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.upi-icons img {
+  height: 28px;
+  margin: 5px;
+}
+
+.warning {
+  background: #fff7e6;
+  color: #8a5a00;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.pay-btn {
+  width: 100%;
+  margin-top: 15px;
+  background: #22c55e;
+  border: none;
+  padding: 12px;
   font-size: 16px;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.note {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.summary-box {
+  background: #fff;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.summary-item,
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
 .line {
-  height: 1px;
-  background: #eee;
+  border-top: 1px dashed #ddd;
   margin: 10px 0;
+}
+
+.total {
+  font-weight: bold;
 }
