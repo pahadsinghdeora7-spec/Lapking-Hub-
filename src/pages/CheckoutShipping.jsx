@@ -1,44 +1,58 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
 export default function CheckoutShipping() {
 
-  const [courier, setCourier] = useState("bluedart");
+  const [couriers, setCouriers] = useState([]);
+  const [selectedCourier, setSelectedCourier] = useState(null);
+
+  const subtotal = 2550; // later cart se aayega
+
+  // ================= LOAD COURIERS FROM ADMIN =================
+  useEffect(() => {
+    const loadCouriers = async () => {
+      const { data, error } = await supabase
+        .from("couriers")
+        .select("*")
+        .eq("status", true)
+        .order("price", { ascending: true });
+
+      if (!error && data?.length > 0) {
+        setCouriers(data);
+        setSelectedCourier(data[0]); // default select
+      }
+    };
+
+    loadCouriers();
+  }, []);
+
+  const shipping = selectedCourier?.price || 0;
+  const total = subtotal + shipping;
 
   return (
     <div className="checkout-container">
 
-      {/* ORDER SUMMARY */}
+      {/* ================= ORDER SUMMARY ================= */}
       <div className="card">
         <h3>Order Summary</h3>
 
         <div className="summary-row">
           <span>Subtotal</span>
-          <span>₹2550</span>
+          <span>₹{subtotal}</span>
         </div>
 
         <div className="summary-row">
           <span>Shipping</span>
-          <span>
-            {courier === "bluedart" && "₹149"}
-            {courier === "dtdc" && "₹79"}
-            {courier === "delhivery" && "₹99"}
-          </span>
+          <span>₹{shipping}</span>
         </div>
 
         <div className="summary-total">
           <span>Total</span>
-          <span>
-            ₹
-            {courier === "bluedart"
-              ? 2699
-              : courier === "dtdc"
-              ? 2629
-              : 2649}
-          </span>
+          <span>₹{total}</span>
         </div>
       </div>
 
-      {/* MODEL & PART */}
+      {/* ================= MODEL & PART ================= */}
       <div className="card">
         <label>Please enter your Model & Part Number</label>
 
@@ -52,50 +66,38 @@ export default function CheckoutShipping() {
         </small>
       </div>
 
-      {/* COURIER */}
+      {/* ================= COURIER ================= */}
       <div className="card">
         <h3>Select Courier</h3>
 
-        <div
-          className={`courier-box ${courier === "bluedart" ? "active" : ""}`}
-          onClick={() => setCourier("bluedart")}
-        >
-          <input type="radio" checked={courier === "bluedart"} readOnly />
-          <div>
-            <b>BlueDart</b>
-            <p>2–4 days</p>
-          </div>
-          <span>₹149</span>
-        </div>
+        {couriers.map((item) => (
+          <div
+            key={item.id}
+            className={`courier-box ${
+              selectedCourier?.id === item.id ? "active" : ""
+            }`}
+            onClick={() => setSelectedCourier(item)}
+          >
+            <input
+              type="radio"
+              checked={selectedCourier?.id === item.id}
+              readOnly
+            />
 
-        <div
-          className={`courier-box ${courier === "dtdc" ? "active" : ""}`}
-          onClick={() => setCourier("dtdc")}
-        >
-          <input type="radio" checked={courier === "dtdc"} readOnly />
-          <div>
-            <b>DTDC</b>
-            <p>4–6 days</p>
-          </div>
-          <span>₹79</span>
-        </div>
+            <div>
+              <b>{item.name}</b>
+              <p>{item.days}</p>
+            </div>
 
-        <div
-          className={`courier-box ${courier === "delhivery" ? "active" : ""}`}
-          onClick={() => setCourier("delhivery")}
-        >
-          <input type="radio" checked={courier === "delhivery"} readOnly />
-          <div>
-            <b>Delhivery</b>
-            <p>3–5 days</p>
+            <span>₹{item.price}</span>
           </div>
-          <span>₹99</span>
-        </div>
+        ))}
       </div>
 
-      {/* BUTTON */}
+      {/* ================= CONTINUE ================= */}
       <button
         className="primary-btn"
+        disabled={!selectedCourier}
         onClick={() => {
           window.location.hash = "#/checkout/payment";
         }}
@@ -105,4 +107,4 @@ export default function CheckoutShipping() {
 
     </div>
   );
-          }
+}
