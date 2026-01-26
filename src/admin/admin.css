@@ -368,3 +368,33 @@ body {
   border-radius: 6px;
   font-size: 12px;
 }
+
+/* ===============================
+   ADMIN PAGE DESIGN FIX
+   =============================== */
+
+/* frontend header hide */
+.admin-page ~ header,
+.admin-page header,
+.admin-page .main-header,
+.admin-page .site-header {
+  display: none !important;
+}
+
+/* frontend search bar hide */
+.admin-page input[type="search"],
+.admin-page .search-bar,
+.admin-page .search-box {
+  display: none !important;
+}
+
+/* admin full width */
+.admin-page {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* remove extra top space */
+.admin-page * {
+  box-sizing: border-box;
+}
