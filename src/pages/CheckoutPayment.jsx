@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+export default function Payment() {
+  const [payment, setPayment] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
-export default function CheckoutPayment() {
-  const [payment, setPayment] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadPayment = async () => {
+  React.useEffect(() => {
+    async function loadPayment() {
       const { data } = await supabase
         .from("payment_settings")
         .select("*")
@@ -16,48 +13,72 @@ export default function CheckoutPayment() {
 
       setPayment(data);
       setLoading(false);
-    };
+    }
 
     loadPayment();
   }, []);
 
-  if (loading) return <div style={{ padding: 20 }}>Loading payment...</div>;
+  if (loading) {
+    return (
+      <div style={{ padding: 20 }}>
+        Loading payment details...
+      </div>
+    );
+  }
 
-  if (!payment)
-    return <div style={{ padding: 20 }}>Payment not available</div>;
+  if (!payment) {
+    return (
+      <div style={{ padding: 20 }}>
+        Payment not available
+      </div>
+    );
+  }
+
+  const whatsappMessage = encodeURIComponent(
+    "Hello LapkingHub 👋\n\nI have placed an order.\nPlease confirm my payment."
+  );
 
   return (
     <div className="checkout-container">
 
+      {/* STEP BAR */}
+      <div className="checkout-steps">
+        ✔ Address → ✔ Shipping → 💳 Payment
+      </div>
+
+      {/* PAYMENT CARD */}
       <div className="card">
+
         <h3>💳 Payment</h3>
 
-        <p style={{ marginBottom: 10 }}>
-          Complete your order via WhatsApp
-        </p>
-
         <div className="payment-box">
-          <p><b>WhatsApp Number</b></p>
-          <p style={{ fontSize: 18, color: "#25D366" }}>
-            +91 {payment.whatsapp}
+
+          <div className="upi-box">
+            <b>UPI ID</b>
+            <p>{payment.upi_id}</p>
+          </div>
+
+          <div className="qr-box">
+            <img
+              src={payment.qr_image}
+              alt="QR Code"
+              style={{ width: 200 }}
+            />
+          </div>
+
+          <p className="payment-note">
+            {payment.note}
           </p>
 
           <a
-            href={`https://wa.me/91${payment.whatsapp}?text=Hello%20LapkingHub%2C%20I%20want%20to%20confirm%20my%20order`}
-            target="_blank"
-            rel="noreferrer"
-            className="primary-btn"
-            style={{ marginTop: 15 }}
+            href={`https://wa.me/91${payment.whatsapp}?text=${whatsappMessage}`}
+            className="whatsapp-pay-btn"
           >
-            Continue on WhatsApp →
+            📲 Continue on WhatsApp
           </a>
 
-          {payment.note && (
-            <p style={{ marginTop: 10, fontSize: 13, color: "#666" }}>
-              {payment.note}
-            </p>
-          )}
         </div>
+
       </div>
 
     </div>
