@@ -419,3 +419,47 @@ body {
 .muted {
   color: #888;
    }
+/* better spacing */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* product name full width */
+.input-wide {
+  grid-column: span 2;
+}
+
+/* description full width */
+.form-grid textarea {
+  grid-column: span 4;
+}
+
+/* file upload better look */
+.form-grid input[type="file"] {
+  padding: 8px;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+/* clean professional look */
+.admin-card {
+  max-width: 1100px;
+  margin: auto;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .input-wide {
+    grid-column: span 2;
+  }
+
+  .form-grid textarea {
+    grid-column: span 2;
+  }
+}
