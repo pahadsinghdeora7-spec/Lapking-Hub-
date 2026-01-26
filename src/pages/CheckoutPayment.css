@@ -1,4 +1,4 @@
-.checkout-payment-page {
+.checkout-page {
   max-width: 420px;
   margin: auto;
   padding: 15px;
@@ -6,82 +6,91 @@
 
 .title {
   font-size: 18px;
-  font-weight: 600;
   margin-bottom: 10px;
 }
 
 .payment-card {
   background: #fff;
   border-radius: 14px;
-  padding: 18px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  padding: 16px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.06);
+  text-align: center;
 }
 
 .merchant {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
   margin-bottom: 10px;
 }
 
-.logo {
+.merchant-logo {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background: #2563eb;
+  background: #1e88e5;
   color: #fff;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
 }
 
-.qr-image {
-  width: 200px;
-  margin: 15px auto;
+.qr-img {
+  width: 220px;
+  margin: 10px auto;
   display: block;
 }
 
 .scan-text {
-  text-align: center;
   font-size: 13px;
   color: #555;
 }
 
-.upi-box {
-  border: 1px dashed #ddd;
-  padding: 10px;
+.upi-id-box {
+  border: 1px dashed #ccc;
   border-radius: 10px;
-  margin-top: 12px;
+  padding: 10px;
+  margin: 12px 0;
   font-size: 14px;
 }
 
 .upi-select {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
+  margin-top: 10px;
 }
 
 .upi-option {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
   cursor: pointer;
-  background: #fff;
-}
-
-.upi-option img {
-  width: 28px;
 }
 
 .upi-option.active {
-  border: 2px solid #2563eb;
-  background: #f0f6ff;
+  border: 2px solid #1e88e5;
+  background: #f3f8ff;
 }
+
+.upi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gpay { background: #4285f4; }
+.phonepe { background: #5f259f; }
+.paytm { background: #00baf2; }
 
 .pay-actions {
   display: flex;
@@ -91,66 +100,52 @@
 
 .back-btn {
   flex: 1;
+  background: #eee;
+  border: none;
   padding: 12px;
   border-radius: 10px;
-  border: none;
-  background: #e5e7eb;
 }
 
 .pay-btn {
-  flex: 2;
+  flex: 1;
+  background: #1e88e5;
+  color: #fff;
+  border: none;
   padding: 12px;
   border-radius: 10px;
-  background: #2563eb;
-  color: #fff;
-  text-align: center;
-  font-weight: 600;
-  text-decoration: none;
+  font-weight: bold;
 }
 
 .summary-card {
   background: #fff;
-  border-radius: 14px;
+  margin-top: 16px;
   padding: 15px;
-  margin-top: 20px;
+  border-radius: 14px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
 }
 
-.summary-row {
+.summary-item {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.summary-row img {
+.summary-item img {
   width: 45px;
   height: 45px;
   object-fit: cover;
   border-radius: 6px;
 }
 
-.summary-row .info {
-  flex: 1;
-  font-size: 14px;
-}
-
-.price {
-  font-weight: 600;
-}
-
-.total-box {
-  border-top: 1px dashed #ddd;
-  margin-top: 10px;
-  padding-top: 10px;
-  font-size: 14px;
-}
-
-.total-box div {
+.summary-line,
+.summary-total {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 5px;
+  margin-top: 6px;
 }
 
-.total-box .final {
-  font-weight: 700;
+.summary-total {
+  font-weight: bold;
+  font-size: 16px;
 }
