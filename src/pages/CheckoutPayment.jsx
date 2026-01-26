@@ -1,109 +1,98 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
 
   const [payment, setPayment] = useState(null);
-  const [cart, setCart] = useState([]);
-
-  useEffect(() => {
-    loadPayment();
-    loadCart();
-  }, []);
-
-  // ================= PAYMENT SETTINGS =================
-  const loadPayment = async () => {
-    const { data } = await supabase
-      .from("payment_settings")
-      .select("*")
-      .limit(1)
-      .single();
-
-    setPayment(data);
-  };
-
-  // ================= CART =================
-  const loadCart = () => {
-    const items = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(items);
-  };
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   const subtotal = cart.reduce(
-    (sum, i) => sum + i.price * i.qty,
+    (sum, item) => sum + item.price * item.qty,
     0
   );
 
-  const shipping = subtotal > 0 ? 149 : 0;
+  const shipping = 149;
   const total = subtotal + shipping;
+
+  useEffect(() => {
+    loadPayment();
+  }, []);
+
+  const loadPayment = async () => {
+    const { data, error } = await supabase
+      .from("payment_settings")
+      .select("*")
+      .eq("status", true)
+      .limit(1)
+      .single();
+
+    if (!error && data) {
+      setPayment(data);
+    }
+  };
 
   if (!payment) return null;
 
   return (
-    <div className="checkout-payment">
+    <div className="checkout-page">
 
       <h2>Payment</h2>
 
-      {/* ================= UPI INFO ================= */}
-      <div className="payment-box">
-        <p className="label">UPI ID</p>
-        <p className="upi">{payment.upi_id}</p>
-      </div>
-
-      {/* ================= QR CODE ================= */}
+      {/* QR SECTION */}
       {payment.qr_url && (
         <div className="qr-box">
           <img src={payment.qr_url} alt="UPI QR" />
-          <p className="qr-text">Scan QR to pay via UPI</p>
+          <p>Scan QR to pay via UPI</p>
         </div>
       )}
 
-      {/* ================= BUTTONS ================= */}
+      {/* UPI */}
+      <div className="upi-box">
+        <strong>UPI ID</strong>
+        <div>{payment.upi_id}</div>
+      </div>
+
+      {/* BUTTONS */}
       <div className="pay-actions">
-        <button className="btn-back" onClick={() => navigate(-1)}>
+        <button className="back-btn" onClick={() => navigate(-1)}>
           Back
         </button>
 
-        <button className="btn-pay">
+        <button className="pay-btn">
           Pay ₹{total}
         </button>
       </div>
 
-      {/* ================= ORDER SUMMARY ================= */}
-      <div className="order-summary">
-        <h3>Order Summary</h3>
+      {/* ORDER SUMMARY */}
+      <h3>Order Summary</h3>
 
-        {cart.map((item) => (
-          <div key={item.id} className="summary-item">
-            <img src={item.image} alt={item.name} />
-
-            <div className="info">
-              <p className="name">{item.name}</p>
-              <p className="qty">Qty: {item.qty}</p>
+      <div className="summary-box">
+        {cart.map((item, i) => (
+          <div className="summary-item" key={i}>
+            <img src={item.image} alt="" />
+            <div>
+              <div>{item.name}</div>
+              <small>Qty: {item.qty}</small>
             </div>
-
-            <div className="price">
-              ₹{item.price * item.qty}
-            </div>
+            <strong>₹{item.price * item.qty}</strong>
           </div>
         ))}
 
-        <div className="summary-total">
-          <div>
-            <span>Subtotal</span>
-            <span>₹{subtotal}</span>
-          </div>
+        <div className="summary-row">
+          <span>Subtotal</span>
+          <span>₹{subtotal}</span>
+        </div>
 
-          <div>
-            <span>Shipping</span>
-            <span>₹{shipping}</span>
-          </div>
+        <div className="summary-row">
+          <span>Shipping</span>
+          <span>₹{shipping}</span>
+        </div>
 
-          <div className="final">
-            <strong>Total</strong>
-            <strong>₹{total}</strong>
-          </div>
+        <div className="summary-row total">
+          <span>Total</span>
+          <span>₹{total}</span>
         </div>
       </div>
 
