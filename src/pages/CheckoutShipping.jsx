@@ -1,13 +1,23 @@
 import React, { useState } from "react";
 
 export default function CheckoutShipping() {
-  const [courier, setCourier] = useState("bluedart");
-import "./CheckoutShipping.css";
-  const shippingPrice =
-    courier === "bluedart" ? 149 : courier === "dtdc" ? 79 : 99;
 
-  const subtotal = 500; // auto cart se aa raha hai
-  const total = subtotal + shippingPrice;
+  // ===== TEMP CART DATA (later cart se auto aayega) =====
+  const subtotal = 500;
+
+  // ===== COURIER STATE =====
+  const [courier, setCourier] = useState("bluedart");
+
+  // ===== SHIPPING PRICE SAFE FUNCTION =====
+  const getShippingPrice = () => {
+    if (courier === "bluedart") return 149;
+    if (courier === "dtdc") return 79;
+    if (courier === "delhivery") return 99;
+    return 0;
+  };
+
+  const shipping = getShippingPrice();
+  const total = subtotal + shipping;
 
   return (
     <div className="checkout-container">
@@ -26,8 +36,6 @@ import "./CheckoutShipping.css";
           <span>₹{subtotal}</span>
         </div>
 
-        <hr />
-
         <div className="summary-row">
           <span>Subtotal</span>
           <span>₹{subtotal}</span>
@@ -35,7 +43,7 @@ import "./CheckoutShipping.css";
 
         <div className="summary-row">
           <span>Shipping</span>
-          <span>₹{shippingPrice}</span>
+          <span>₹{shipping}</span>
         </div>
 
         <div className="summary-total">
@@ -44,7 +52,7 @@ import "./CheckoutShipping.css";
         </div>
       </div>
 
-      {/* ================= MODEL PART ================= */}
+      {/* ================= MODEL & PART ================= */}
       <div className="card">
         <label>🧩 Model & Part Number</label>
 
@@ -61,11 +69,11 @@ import "./CheckoutShipping.css";
       {/* ================= COURIER ================= */}
       <div className="card">
         <h3>🚚 Select Your Courier – Trusted Delivery Partners</h3>
-
         <p className="muted-text">
           Fast, secure & verified courier services
         </p>
 
+        {/* BlueDart */}
         <div
           className={`courier-box ${courier === "bluedart" ? "active" : ""}`}
           onClick={() => setCourier("bluedart")}
@@ -78,6 +86,7 @@ import "./CheckoutShipping.css";
           <span>₹149</span>
         </div>
 
+        {/* DTDC */}
         <div
           className={`courier-box ${courier === "dtdc" ? "active" : ""}`}
           onClick={() => setCourier("dtdc")}
@@ -90,6 +99,7 @@ import "./CheckoutShipping.css";
           <span>₹79</span>
         </div>
 
+        {/* Delhivery */}
         <div
           className={`courier-box ${courier === "delhivery" ? "active" : ""}`}
           onClick={() => setCourier("delhivery")}
@@ -102,9 +112,9 @@ import "./CheckoutShipping.css";
           <span>₹99</span>
         </div>
 
-        <p className="secure-note">
-          🔒 All parcels are safely packed before dispatch
-        </p>
+        <div className="safe-note">
+          🔒 All parcels are securely packed before dispatch
+        </div>
       </div>
 
       {/* ================= BUTTON ================= */}
