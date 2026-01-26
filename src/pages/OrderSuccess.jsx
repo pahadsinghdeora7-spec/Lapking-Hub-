@@ -1,89 +1,70 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import "./OrderSuccess.css";
 
 export default function OrderSuccess() {
-  const [searchParams] = useSearchParams();
-  const orderUUID = searchParams.get("uuid");
+  const [params] = useSearchParams();
+  const uuid = params.get("uuid");
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!orderUUID) return;
+    if (!uuid) return;
+
+    const fetchOrder = async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("order_uuid", uuid)
+        .single();
+
+      if (!error) {
+        setOrder(data);
+      }
+
+      setLoading(false);
+    };
 
     fetchOrder();
-  }, [orderUUID]);
-
-  const fetchOrder = async () => {
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("order_uuid", orderUUID)
-      .single();
-
-    if (error) {
-      console.error("Order fetch error:", error);
-    } else {
-      setOrder(data);
-    }
-
-    setLoading(false);
-  };
+  }, [uuid]);
 
   if (loading) {
-    return (
-      <div className="order-loading">
-        Loading order details...
-      </div>
-    );
+    return <p style={{ padding: 20 }}>Loading order details...</p>;
   }
 
   if (!order) {
-    return (
-      <div className="order-loading">
-        Order not found
-      </div>
-    );
+    return <p style={{ padding: 20 }}>Order not found</p>;
   }
 
   return (
-    <div className="order-success-container">
+    <div className="order-success">
 
-      {/* SUCCESS ICON */}
-      <div className="success-icon">✅</div>
+      <div className="success-card">
+        <div className="check">✅</div>
 
-      <h2>Order Created - Payment Pending</h2>
+        <h2>Order Created - Payment Pending</h2>
 
-      <p className="warning">
-        ⚠ Payment is NOT confirmed automatically.  
-        Please complete UPI payment and send screenshot on WhatsApp.
-      </p>
+        <p className="warning">
+          Payment is NOT confirmed automatically.  
+          Please complete UPI payment and send screenshot on WhatsApp.
+        </p>
 
-      {/* ORDER INFO */}
-      <div className="order-box">
-        <div><b>Order ID:</b> {order.order_code}</div>
-        <div><b>Total:</b> ₹{order.total}</div>
-        <div><b>Payment:</b> {order.payment_method}</div>
-        <div><b>Status:</b> {order.payment_status}</div>
-      </div>
+        <div className="order-box">
+          <b>Order ID:</b> {order.order_code} <br />
+          <b>Total:</b> ₹{order.total}
+        </div>
 
-      {/* WHATSAPP */}
-      <a
-        className="whatsapp-btn"
-        href={`https://wa.me/919873670361?text=Hello%20Lapking%20Hub%2C%20I%20have%20completed%20payment.%20Order%20ID%3A%20${order.order_code}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Send Payment Screenshot on WhatsApp
-      </a>
+        <a
+          className="whatsapp-btn"
+          href={`https://wa.me/919873670361?text=Order%20ID:%20${order.order_code}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Send Payment Screenshot on WhatsApp
+        </a>
 
-      {/* BUTTONS */}
-      <div className="order-actions">
-        <Link to="/" className="btn-outline">
+        <Link className="continue-btn" to="/">
           Continue Shopping
         </Link>
       </div>
