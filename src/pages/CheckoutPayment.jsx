@@ -1,61 +1,94 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
-  const total = 1349;
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const totalAmount = 1349;
+
+  const handlePay = async () => {
+    if (loading) return;
+    setLoading(true);
+
+    // 🔐 generate order code
+    const orderCode =
+      "LKH" + Date.now().toString().slice(-9);
+
+    // ✅ create order first
+    const { data, error } = await supabase
+      .from("orders")
+      .insert([
+        {
+          order_code: orderCode,
+          name: "Customer",
+          phone: "NA",
+          address: "NA",
+          shipping_name: "Standard",
+          shipping_price: 149,
+          total: totalAmount,
+          payment_method: "UPI",
+          payment_status: "pending",
+          order_status: "new",
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      alert("Order create failed");
+      setLoading(false);
+      return;
+    }
+
+    // 🔗 UPI deep link
+    const upiUrl =
+      `upi://pay?pa=kingmetals517@okhdfcbank` +
+      `&pn=King%20Metals` +
+      `&am=${totalAmount}` +
+      `&cu=INR` +
+      `&tn=Order%20${orderCode}`;
+
+    // 📱 open UPI app
+    window.location.href = upiUrl;
+
+    // ⏱ redirect to success page
+    setTimeout(() => {
+      navigate(`/order/success?id=${data.id}`);
+    }, 1200);
+  };
 
   return (
-    <div className="payment-wrapper">
+    <div className="payment-page">
+      <h2>🔒 Secure UPI Payment</h2>
 
-      <h2 className="payment-title">
-        🔒 Secure UPI Payment
-      </h2>
-
-      {/* Merchant */}
-      <div className="merchant-box">
-        <div className="merchant-logo">K</div>
-        <div className="merchant-name">King Metals</div>
-      </div>
-
-      {/* QR */}
-      <div className="qr-card">
+      <div className="payment-box">
         <img
-          src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=upi://pay?pa=kingmetals517@okhdfcbank&pn=King%20Metals&am=1349&cu=INR"
+          src="/upi-qr.png"
           alt="UPI QR"
+          className="qr-img"
         />
-        <p className="scan-text">
-          Scan to pay using any UPI app
+
+        <p className="upi-text">
+          Scan or pay using any UPI app
         </p>
-      </div>
 
-      {/* UPI ID */}
-      <div className="upi-box">
-        <div className="upi-label">UPI ID</div>
-        <div className="upi-id">kingmetals517@okhdfcbank</div>
-      </div>
-
-      {/* UPI Apps */}
-      <div className="upi-apps">
-        <div className="upi-app">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Google_Pay_Logo.svg" />
-          <span>Google Pay</span>
+        <div className="upi-icons">
+          <img src="/gpay.png" />
+          <img src="/phonepe.png" />
+          <img src="/paytm.png" />
         </div>
 
-        <div className="upi-app">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/PhonePe_Logo.svg" />
-          <span>PhonePe</span>
-        </div>
-
-        <div className="upi-app">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" />
-          <span>Paytm</span>
-        </div>
+        <button
+          className="pay-btn"
+          onClick={handlePay}
+          disabled={loading}
+        >
+          {loading ? "Opening UPI..." : `Confirm & Pay ₹${totalAmount}`}
+        </button>
       </div>
-
-      {/* Pay Button */}
-      <button className="pay-btn">
-        Pay ₹{total}
-      </button>
-
     </div>
   );
 }
