@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient.js";
-import "./admin.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // IMAGE FILE STATES
   const [imageFile, setImageFile] = useState(null);
   const [imageFile1, setImageFile1] = useState(null);
   const [imageFile2, setImageFile2] = useState(null);
@@ -17,6 +17,9 @@ export default function AdminProducts() {
     price: "",
     stock: "",
     part_number: "",
+    image: "",
+    image1: "",
+    image2: "",
     compatible_model: "",
     description: "",
     status: true,
@@ -29,11 +32,16 @@ export default function AdminProducts() {
     fetchCategories();
   }, []);
 
+  // ✅ FIXED — JOIN REMOVED
   const fetchProducts = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("products")
-      .select("*, categories(name)")
+      .select("*")
       .order("id", { ascending: false });
+
+    if (error) {
+      console.log(error);
+    }
 
     setProducts(data || []);
   };
@@ -111,6 +119,9 @@ export default function AdminProducts() {
         price: "",
         stock: "",
         part_number: "",
+        image: "",
+        image1: "",
+        image2: "",
         compatible_model: "",
         description: "",
         status: true,
@@ -134,115 +145,107 @@ export default function AdminProducts() {
   // ================= UI =================
 
   return (
-    <div className="admin-page">
+    <div>
+      <h2>Admin Products</h2>
 
-      {/* ADD PRODUCT */}
-      <div className="admin-card">
-        <h3>Add Product</h3>
+      <div style={{ display: "grid", gap: 10, maxWidth: 500 }}>
+        <select
+          value={form.category_id}
+          onChange={(e) =>
+            setForm({ ...form, category_id: e.target.value })
+          }
+        >
+          <option value="">Select Category</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
-        <div className="form-grid">
+        <input
+          placeholder="Product Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
 
-          <select
-            value={form.category_id}
-            onChange={(e) =>
-              setForm({ ...form, category_id: e.target.value })
-            }
-          >
-            <option value="">Select Category</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+        <input
+          placeholder="Price"
+          value={form.price}
+          onChange={(e) => setForm({ ...form, price: e.target.value })}
+        />
 
-          <input
-            className="input-wide"
-            placeholder="Product Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
+        <input
+          placeholder="Stock"
+          value={form.stock}
+          onChange={(e) => setForm({ ...form, stock: e.target.value })}
+        />
 
-          <input
-            placeholder="Price"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-          />
+        <input
+          placeholder="Part Number"
+          value={form.part_number}
+          onChange={(e) =>
+            setForm({ ...form, part_number: e.target.value })
+          }
+        />
 
-          <input
-            placeholder="Stock"
-            value={form.stock}
-            onChange={(e) => setForm({ ...form, stock: e.target.value })}
-          />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
+        />
 
-          <input
-            placeholder="Part Number"
-            value={form.part_number}
-            onChange={(e) =>
-              setForm({ ...form, part_number: e.target.value })
-            }
-          />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile1(e.target.files[0])}
+        />
 
-          <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
-          <input type="file" accept="image/*" onChange={(e) => setImageFile1(e.target.files[0])} />
-          <input type="file" accept="image/*" onChange={(e) => setImageFile2(e.target.files[0])} />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile2(e.target.files[0])}
+        />
 
-          <input
-            placeholder="Compatible Models"
-            value={form.compatible_model}
-            onChange={(e) =>
-              setForm({ ...form, compatible_model: e.target.value })
-            }
-          />
+        <input
+          placeholder="Compatible Models"
+          value={form.compatible_model}
+          onChange={(e) =>
+            setForm({ ...form, compatible_model: e.target.value })
+          }
+        />
 
-          <textarea
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
-          />
+        <textarea
+          placeholder="Description"
+          value={form.description}
+          onChange={(e) =>
+            setForm({ ...form, description: e.target.value })
+          }
+        />
 
-          <button
-            className="btn-primary"
-            onClick={addProduct}
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Add Product"}
-          </button>
+        <button onClick={addProduct} disabled={loading}>
+          {loading ? "Saving..." : "Add Product"}
+        </button>
+      </div>
+
+      <hr />
+
+      {products.length === 0 && (
+        <p>No products available</p>
+      )}
+
+      {products.map((p) => (
+        <div key={p.id} style={{ marginBottom: 10 }}>
+          <b>{p.name}</b> — ₹{p.price}
+          <br />
+          Model: {p.compatible_model || "NA"}
+          <br />
+          Category ID: {p.category_id}
+          <br />
+          <button onClick={() => deleteProduct(p.id)}>Delete</button>
+          <hr />
         </div>
-      </div>
-
-      {/* PRODUCT LIST */}
-      <div className="admin-card">
-        <h3>Products</h3>
-
-        {products.length === 0 && (
-          <p className="muted">No products available</p>
-        )}
-
-        {products.map((p) => (
-          <div key={p.id} className="product-row">
-            <div>
-              <b>{p.name}</b>
-              <div className="muted">
-                Category: {p.categories?.name || "NA"} | Stock: {p.stock}
-              </div>
-            </div>
-
-            <div>
-              ₹{p.price}
-              <button
-                className="btn-danger"
-                onClick={() => deleteProduct(p.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      ))}
     </div>
   );
-            }
+}
