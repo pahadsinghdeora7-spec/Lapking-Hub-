@@ -1,14 +1,10 @@
-// src/pages/OrderSuccess.jsx
-
-import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./OrderSuccess.css";
 
 export default function OrderSuccess() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-
   const orderUUID = searchParams.get("uuid");
 
   const [order, setOrder] = useState(null);
@@ -17,22 +13,26 @@ export default function OrderSuccess() {
   useEffect(() => {
     if (!orderUUID) return;
 
-    const fetchOrder = async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("order_uuid", orderUUID)
-        .single();
-
-      if (!error && data) {
-        setOrder(data);
-      }
-
-      setLoading(false);
-    };
-
     fetchOrder();
   }, [orderUUID]);
+
+  const fetchOrder = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("order_uuid", orderUUID)
+      .single();
+
+    if (error) {
+      console.error("Order fetch error:", error);
+    } else {
+      setOrder(data);
+    }
+
+    setLoading(false);
+  };
 
   if (loading) {
     return (
@@ -44,83 +44,50 @@ export default function OrderSuccess() {
 
   if (!order) {
     return (
-      <div className="order-error">
-        Order not found.
+      <div className="order-loading">
+        Order not found
       </div>
     );
   }
 
   return (
-    <div className="order-success-wrapper">
+    <div className="order-success-container">
 
-      {/* SUCCESS HEADER */}
-      <div className="order-success-card">
-        <div className="success-icon">✔</div>
+      {/* SUCCESS ICON */}
+      <div className="success-icon">✅</div>
 
-        <h2>Order Created - Payment Pending</h2>
+      <h2>Order Created - Payment Pending</h2>
 
-        <p className="warning-text">
-          ⚠ Payment is NOT confirmed automatically.<br />
-          Please complete UPI payment and send screenshot on WhatsApp.
-        </p>
+      <p className="warning">
+        ⚠ Payment is NOT confirmed automatically.  
+        Please complete UPI payment and send screenshot on WhatsApp.
+      </p>
 
-        <div className="order-id-box">
-          <span>Order ID:</span>
-          <b>{order.order_code || order.order_uuid}</b>
-        </div>
-
-        <a
-          className="whatsapp-btn"
-          href={`https://wa.me/9873670361?text=Payment%20Screenshot%20for%20Order%20${order.order_code}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Send Payment Screenshot on WhatsApp
-        </a>
+      {/* ORDER INFO */}
+      <div className="order-box">
+        <div><b>Order ID:</b> {order.order_code}</div>
+        <div><b>Total:</b> ₹{order.total}</div>
+        <div><b>Payment:</b> {order.payment_method}</div>
+        <div><b>Status:</b> {order.payment_status}</div>
       </div>
 
-      {/* ORDER DETAILS */}
-      <div className="order-details-card">
-        <div className="detail-box">
-          <h4>Delivery Address</h4>
-          <p>{order.name}</p>
-          <p>{order.address}</p>
-          <p>{order.phone}</p>
-        </div>
-
-        <div className="detail-box">
-          <h4>Payment</h4>
-          <p>UPI (Manual Verification)</p>
-          <span className="badge pending">
-            {order.payment_status}
-          </span>
-        </div>
-      </div>
-
-      {/* PRICE SUMMARY */}
-      <div className="order-summary-card">
-        <div className="row">
-          <span>Subtotal</span>
-          <span>₹{order.total - order.shipping_price}</span>
-        </div>
-
-        <div className="row">
-          <span>Shipping</span>
-          <span>₹{order.shipping_price}</span>
-        </div>
-
-        <div className="row total">
-          <span>Total</span>
-          <span>₹{order.total}</span>
-        </div>
-      </div>
-
-      <button
-        className="continue-btn"
-        onClick={() => navigate("/")}
+      {/* WHATSAPP */}
+      <a
+        className="whatsapp-btn"
+        href={`https://wa.me/919873670361?text=Hello%20Lapking%20Hub%2C%20I%20have%20completed%20payment.%20Order%20ID%3A%20${order.order_code}`}
+        target="_blank"
+        rel="noreferrer"
       >
-        Continue Shopping
-      </button>
+        Send Payment Screenshot on WhatsApp
+      </a>
+
+      {/* BUTTONS */}
+      <div className="order-actions">
+        <Link to="/" className="btn-outline">
+          Continue Shopping
+        </Link>
+      </div>
+
     </div>
   );
 }
