@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Login.css";
@@ -9,39 +9,26 @@ export default function Login() {
 
   const redirectTo = location.state?.from || "/checkout/address";
 
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  async function sendLink() {
-    if (!email.includes("@")) {
-      alert("Enter valid email address");
-      return;
-    }
-
-    setLoading(true);
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
       options: {
-        emailRedirectTo: window.location.origin + redirectTo
-      }
+        redirectTo: window.location.origin,
+      },
     });
 
-    setLoading(false);
-
     if (error) {
-      alert("Email send failed");
-    } else {
-      setSent(true);
+      alert("Google login failed");
     }
-  }
+  };
 
   return (
     <div className="login-wrapper">
 
-      <img src="/logo.png" alt="logo" className="login-logo" />
+      {/* LOGO */}
+      <img src="/logo.png" className="login-logo" />
 
+      {/* TEXT */}
       <div className="login-text">
         <h2>Welcome to Lapking Hub</h2>
         <p>
@@ -51,31 +38,20 @@ export default function Login() {
         <span>Your Trusted Partner</span>
       </div>
 
+      {/* LOGIN CARD */}
       <div className="login-card">
 
-        {!sent ? (
-          <>
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+        <button
+          className="google-login-btn"
+          onClick={handleGoogleLogin}
+        >
+          <img src="/google.svg" alt="google" />
+          Continue with Google
+        </button>
 
-            <button onClick={sendLink} disabled={loading}>
-              {loading ? "Sending..." : "Send Login Link"}
-            </button>
-
-            <div className="info-text">
-              🔒 Secure login • No password required
-            </div>
-          </>
-        ) : (
-          <div className="email-sent">
-            ✅ Login link sent to <b>{email}</b>
-            <p>Please check your inbox and click the link.</p>
-          </div>
-        )}
+        <div className="secure-text">
+          🔒 Secure login · No password required
+        </div>
 
         <div className="terms">
           By continuing, you agree to our<br />
