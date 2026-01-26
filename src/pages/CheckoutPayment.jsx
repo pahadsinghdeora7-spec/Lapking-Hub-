@@ -4,49 +4,47 @@ export default function Payment() {
 
   React.useEffect(() => {
     async function loadPayment() {
-      const { data } = await supabase
-        .from("payment_settings")
-        .select("*")
-        .eq("status", true)
-        .limit(1)
-        .single();
+      try {
+        const { data, error } = await window.supabase
+          .from("payment_settings")
+          .select("*")
+          .eq("status", true)
+          .limit(1)
+          .single();
 
-      setPayment(data);
-      setLoading(false);
+        if (!error) {
+          setPayment(data);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.log("Payment error:", err);
+        setLoading(false);
+      }
     }
 
     loadPayment();
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ padding: 20 }}>
-        Loading payment details...
-      </div>
-    );
+    return <div style={{ padding: 20 }}>Loading payment...</div>;
   }
 
   if (!payment) {
-    return (
-      <div style={{ padding: 20 }}>
-        Payment not available
-      </div>
-    );
+    return <div style={{ padding: 20 }}>Payment not available</div>;
   }
 
-  const whatsappMessage = encodeURIComponent(
-    "Hello LapkingHub 👋\n\nI have placed an order.\nPlease confirm my payment."
+  const message = encodeURIComponent(
+    "Hello LapkingHub 👋\nI have placed an order. Please confirm."
   );
 
   return (
     <div className="checkout-container">
 
-      {/* STEP BAR */}
       <div className="checkout-steps">
         ✔ Address → ✔ Shipping → 💳 Payment
       </div>
 
-      {/* PAYMENT CARD */}
       <div className="card">
 
         <h3>💳 Payment</h3>
@@ -58,20 +56,18 @@ export default function Payment() {
             <p>{payment.upi_id}</p>
           </div>
 
-          <div className="qr-box">
+          {payment.qr_image && (
             <img
               src={payment.qr_image}
-              alt="QR Code"
-              style={{ width: 200 }}
+              alt="QR"
+              style={{ width: 200, margin: "15px auto" }}
             />
-          </div>
+          )}
 
-          <p className="payment-note">
-            {payment.note}
-          </p>
+          <p className="payment-note">{payment.note}</p>
 
           <a
-            href={`https://wa.me/91${payment.whatsapp}?text=${whatsappMessage}`}
+            href={`https://wa.me/91${payment.whatsapp}?text=${message}`}
             className="whatsapp-pay-btn"
           >
             📲 Continue on WhatsApp
