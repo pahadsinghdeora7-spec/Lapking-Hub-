@@ -17,11 +17,9 @@ export default function CheckoutPayment() {
   }, []);
 
   async function loadData() {
-    // CART
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartItems(cart);
 
-    // PAYMENT SETTINGS
     const { data } = await supabase
       .from("payment_settings")
       .select("*")
@@ -43,18 +41,22 @@ export default function CheckoutPayment() {
       const orderCode =
         "LKH" + Math.floor(100000000 + Math.random() * 900000000);
 
-      const { error } = await supabase.from("orders").insert({
-        name: "Customer",
-        phone: "NA",
-        address: "NA",
-        shipping_name: "Standard",
-        shipping_price: shippingPrice,
-        total: total,
-        payment_method: "UPI",
-        payment_status: "pending",
-        order_status: "new",
-        order_code: orderCode
-      });
+      const { data, error } = await supabase
+        .from("orders")
+        .insert({
+          name: "Customer",
+          phone: "NA",
+          address: "NA",
+          shipping_name: "Standard",
+          shipping_price: shippingPrice,
+          total: total,
+          payment_method: "UPI",
+          payment_status: "pending",
+          order_status: "new",
+          order_code: orderCode
+        })
+        .select()
+        .single();
 
       if (error) {
         alert("Order create failed");
@@ -67,13 +69,9 @@ export default function CheckoutPayment() {
       window.location.href = upiLink;
 
       setTimeout(() => {
-        navigate("/order/success", {
-          state: {
-            orderCode,
-            total
-          }
-        });
+        navigate(`/order/success?uuid=${data.order_uuid}`);
       }, 1000);
+
     } catch (err) {
       alert("Something went wrong");
     }
@@ -160,4 +158,4 @@ export default function CheckoutPayment() {
       </div>
     </div>
   );
-            }
+}
