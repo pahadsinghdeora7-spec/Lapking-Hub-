@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import * as XLSX from "xlsx";
 import "./admin.css";
 
 export default function AdminProducts() {
@@ -10,7 +9,7 @@ export default function AdminProducts() {
   const [showAdd, setShowAdd] = useState(false);
   const [showBulk, setShowBulk] = useState(false);
 
-  const [excelFile, setExcelFile] = useState(null);
+  const [csvFile, setCsvFile] = useState(null);
   const [bulkCategory, setBulkCategory] = useState("");
 
   const [form, setForm] = useState({
@@ -46,7 +45,7 @@ export default function AdminProducts() {
 
   const addProduct = async () => {
     if (!form.name || !form.category_id || !form.price) {
-      alert("Required fields missing");
+      alert("Category, name and price required");
       return;
     }
 
@@ -63,55 +62,53 @@ export default function AdminProducts() {
     ]);
 
     setShowAdd(false);
-    setForm({
-      category_id: "",
-      name: "",
-      price: "",
-      stock: "",
-      part_number: "",
-      compatible_model: "",
-      description: "",
-    });
-
     fetchProducts();
   };
 
-  // ================= BULK UPLOAD =================
+  // ================= CSV BULK UPLOAD =================
 
-  const uploadExcel = async () => {
-    if (!excelFile || !bulkCategory) {
-      alert("Select category and excel file");
+  const uploadCSV = () => {
+    if (!csvFile || !bulkCategory) {
+      alert("Select category and CSV file");
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = async (evt) => {
-      const data = evt.target.result;
-      const workbook = XLSX.read(data, { type: "binary" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet);
 
-      const formatted = rows.map((row) => ({
-        category_id: Number(bulkCategory),
-        name: row.name,
-        price: Number(row.price || 0),
-        stock: Number(row.stock || 0),
-        part_number: row.part_number || "",
-        compatible_model: row.compatible_model || "",
-        description: row.description || "",
-      }));
+    reader.onload = async (e) => {
+      const lines = e.target.result.split("\n");
+      const headers = lines[0].split(",");
+
+      const rows = lines.slice(1).map((line) => {
+        const values = line.split(",");
+        let obj = {};
+        headers.forEach((h, i) => {
+          obj[h.trim()] = values[i]?.trim();
+        });
+        return obj;
+      });
+
+      const formatted = rows
+        .filter((r) => r.name)
+        .map((r) => ({
+          category_id: Number(bulkCategory),
+          name: r.name,
+          price: Number(r.price || 0),
+          stock: Number(r.stock || 0),
+          part_number: r.part_number || "",
+          compatible_model: r.compatible_model || "",
+          description: r.description || "",
+        }));
 
       await supabase.from("products").insert(formatted);
 
-      alert("Bulk upload completed");
+      alert("Bulk upload successful");
       setShowBulk(false);
       fetchProducts();
     };
 
-    reader.readAsBinaryString(excelFile);
+    reader.readAsText(csvFile);
   };
-
-  // ================= DELETE =================
 
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete product?")) return;
@@ -122,7 +119,6 @@ export default function AdminProducts() {
   return (
     <div className="admin-page">
 
-      {/* HEADER */}
       <div className="admin-header">
         <h2>Products</h2>
 
@@ -130,14 +126,12 @@ export default function AdminProducts() {
           <button className="btn-outline" onClick={() => setShowBulk(true)}>
             Bulk Upload
           </button>
-
           <button className="btn-primary" onClick={() => setShowAdd(true)}>
             + Add Product
           </button>
         </div>
       </div>
 
-      {/* PRODUCT LIST */}
       <div className="card">
         {products.map((p) => (
           <div className="product-row" key={p.id}>
@@ -149,17 +143,14 @@ export default function AdminProducts() {
               <small>{p.categories?.name}</small>
             </div>
 
-            <button
-              className="delete-btn"
-              onClick={() => deleteProduct(p.id)}
-            >
+            <button className="delete-btn" onClick={() => deleteProduct(p.id)}>
               Delete
             </button>
           </div>
         ))}
       </div>
 
-      {/* ================= ADD PRODUCT MODAL ================= */}
+      {/* ADD PRODUCT */}
       {showAdd && (
         <div className="modal">
           <div className="modal-box">
@@ -181,39 +172,30 @@ export default function AdminProducts() {
 
             <input
               placeholder="Product Name"
-              value={form.name}
               onChange={(e) =>
                 setForm({ ...form, name: e.target.value })
               }
             />
-
             <input
               placeholder="Price"
-              value={form.price}
               onChange={(e) =>
                 setForm({ ...form, price: e.target.value })
               }
             />
-
             <input
               placeholder="Stock"
-              value={form.stock}
               onChange={(e) =>
                 setForm({ ...form, stock: e.target.value })
               }
             />
-
             <input
               placeholder="Part Number"
-              value={form.part_number}
               onChange={(e) =>
                 setForm({ ...form, part_number: e.target.value })
               }
             />
-
             <input
               placeholder="Compatible Models"
-              value={form.compatible_model}
               onChange={(e) =>
                 setForm({ ...form, compatible_model: e.target.value })
               }
@@ -221,7 +203,6 @@ export default function AdminProducts() {
 
             <textarea
               placeholder="Description"
-              value={form.description}
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
@@ -230,23 +211,20 @@ export default function AdminProducts() {
             <div className="modal-actions">
               <button onClick={() => setShowAdd(false)}>Cancel</button>
               <button className="btn-primary" onClick={addProduct}>
-                Save Product
+                Save
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= BULK UPLOAD MODAL ================= */}
+      {/* BULK CSV */}
       {showBulk && (
         <div className="modal">
           <div className="modal-box">
-            <h3>Bulk Upload Products</h3>
+            <h3>Bulk Upload (CSV)</h3>
 
-            <select
-              value={bulkCategory}
-              onChange={(e) => setBulkCategory(e.target.value)}
-            >
+            <select onChange={(e) => setBulkCategory(e.target.value)}>
               <option value="">Select Category</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -257,19 +235,20 @@ export default function AdminProducts() {
 
             <input
               type="file"
-              accept=".xlsx"
-              onChange={(e) => setExcelFile(e.target.files[0])}
+              accept=".csv"
+              onChange={(e) => setCsvFile(e.target.files[0])}
             />
 
             <div className="modal-actions">
               <button onClick={() => setShowBulk(false)}>Cancel</button>
-              <button className="btn-primary" onClick={uploadExcel}>
-                Upload Excel
+              <button className="btn-primary" onClick={uploadCSV}>
+                Upload
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
-        }
+              }
