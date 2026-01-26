@@ -5,7 +5,7 @@ import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
-  const [payment, setPayment] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -17,84 +17,82 @@ export default function CheckoutPayment() {
   const shipping = 149;
   const total = subtotal + shipping;
 
-  useEffect(() => {
-    loadPayment();
-  }, []);
+  const createOrder = async () => {
+    try {
+      setLoading(true);
 
-  const loadPayment = async () => {
-    const { data } = await supabase
-      .from("payment_settings")
-      .select("*")
-      .eq("status", true)
-      .limit(1)
-      .single();
+      const user =
+        JSON.parse(localStorage.getItem("user")) || null;
 
-    if (data) setPayment(data);
-  };
+      const orderCode =
+        "LKH" + Math.floor(1000000000 + Math.random() * 9000000000);
 
-  const handleConfirm = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
+      const { error } = await supabase.from("orders").insert([
+        {
+          name: "Customer",
+          phone: "NA",
+          address: "NA",
+          shipping_name: "Standard",
+          shipping_price: shipping,
+          total: total,
 
-    const { error } = await supabase.from("orders").insert([
-      {
-        name: user?.name,
-        phone: user?.phone,
-        address: user?.address,
-        shipping_name: "Standard Delivery",
-        shipping_price: shipping,
-        total: total,
-        payment_meth: "UPI",
-        payment_stat: "pending",
-        order_status: "new",
-        user_id: user?.id,
-      },
-    ]);
+          // 🔒 TABLE MATCH (MOST IMPORTANT)
+          payment_method: "UPI",
+          payment_status: "pending",
+          order_status: "new",
 
-    if (error) {
-      alert("Order create failed");
-      return;
+          user_id: user?.id || null,
+          order_code: orderCode
+        }
+      ]);
+
+      if (error) {
+        alert("Order create failed");
+        console.error(error);
+        return;
+      }
+
+      localStorage.removeItem("cart");
+
+      navigate("/order/success", {
+        state: {
+          order_code: orderCode,
+          total: total
+        }
+      });
+    } catch (err) {
+      alert("Something went wrong");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    // ✅ ONLY FIXED LINE
-    navigate("/order/success");
   };
-
-  if (!payment) return null;
 
   return (
     <div className="checkout-page">
+
       <h2>🔒 Secure Payment</h2>
 
       <div className="qr-box">
-        <div className="merchant">
-          <div className="logo">K</div>
-          <div className="name">King Metals</div>
-        </div>
-
-        {payment.qr_image && (
-          <img src={payment.qr_image} alt="UPI QR" />
-        )}
-
-        <p className="scan-text">
-          Scan to pay using any UPI app
-        </p>
-      </div>
-
-      <div className="upi-box">
-        <strong>UPI ID</strong>
-        <div>{payment.upi_id}</div>
-        <small>Google Pay · PhonePe · Paytm</small>
+        <img
+          src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=kingmetals517@okhdfcbank&pn=King%20Metals"
+          alt="UPI QR"
+        />
+        <p>Scan to pay using any UPI app</p>
       </div>
 
       <div className="pay-actions">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          Back
-        </button>
-
-        <button className="pay-btn" onClick={handleConfirm}>
-          Confirm & Pay ₹{total}
+        <button
+          className="pay-btn"
+          disabled={loading}
+          onClick={createOrder}
+        >
+          {loading
+            ? "Creating Order..."
+            : `Confirm & Pay ₹${total}`}
         </button>
       </div>
+
     </div>
   );
 }
