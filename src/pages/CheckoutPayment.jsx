@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
-
   const [payment, setPayment] = useState(null);
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -22,16 +21,14 @@ export default function CheckoutPayment() {
   }, []);
 
   const loadPayment = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("payment_settings")
       .select("*")
       .eq("status", true)
       .limit(1)
       .single();
 
-    if (!error && data) {
-      setPayment(data);
-    }
+    setPayment(data);
   };
 
   if (!payment) return null;
@@ -39,41 +36,26 @@ export default function CheckoutPayment() {
   return (
     <div className="checkout-page">
 
-      {/* ================= PAYMENT ================= */}
-      <h2 style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        🔒 Secure Payment
-      </h2>
+      <h2>🔒 Secure Payment</h2>
 
-      {/* QR BOX */}
+      {/* QR */}
       {payment.qr_image && (
         <div className="qr-box">
-          <img
-            src={payment.qr_image}
-            alt="UPI QR"
-            style={{ width: 220, maxWidth: "100%" }}
-          />
-
-          <p style={{ marginTop: 6, fontSize: 13 }}>
-            Scan QR to pay via UPI
-          </p>
-
-          <p style={{ fontSize: 12, color: "#777" }}>
-            100% safe UPI payment • Powered by UPI
-          </p>
+          <img src={payment.qr_image} alt="UPI QR" />
+          <p>Scan QR to pay via UPI</p>
         </div>
       )}
 
-      {/* UPI INFO */}
+      {/* UPI */}
       <div className="upi-box">
         <strong>UPI ID</strong>
-        <div>{payment.upi_id}</div>
-
-        <p style={{ fontSize: 12, color: "#666", marginTop: 6 }}>
+        {payment.upi_id}
+        <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
           Pay using GPay, PhonePe, Paytm or any UPI app
-        </p>
+        </div>
       </div>
 
-      {/* ACTION BUTTONS */}
+      {/* Buttons */}
       <div className="pay-actions">
         <button className="back-btn" onClick={() => navigate(-1)}>
           Back
@@ -84,20 +66,18 @@ export default function CheckoutPayment() {
         </button>
       </div>
 
-      {/* ================= ORDER SUMMARY ================= */}
-      <h3 style={{ marginTop: 25 }}>
-        Order Summary 🧾
-      </h3>
+      {/* ORDER SUMMARY */}
+      <h3>Order Summary</h3>
 
       <div className="summary-box">
 
         {cart.map((item, i) => (
-          <div key={i} className="summary-item">
+          <div className="summary-item" key={i}>
 
             <img
               src={item.image}
-              alt={item.name}
               className="summary-img"
+              alt={item.name}
             />
 
             <div className="summary-info">
@@ -113,22 +93,21 @@ export default function CheckoutPayment() {
         ))}
 
         <div className="summary-total">
-          <div>Subtotal</div>
-          <div>₹{subtotal}</div>
+          <span>Subtotal</span>
+          <span>₹{subtotal}</span>
         </div>
 
         <div className="summary-total">
-          <div>Shipping</div>
-          <div>₹{shipping}</div>
+          <span>Shipping</span>
+          <span>₹{shipping}</span>
         </div>
 
         <div className="summary-total grand">
-          <div>Total</div>
-          <div>₹{total}</div>
+          <span>Total</span>
+          <span>₹{total}</span>
         </div>
 
       </div>
-
     </div>
   );
 }
