@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-
+import "./CheckoutShipping.css";
 export default function CheckoutShipping() {
   const [courier, setCourier] = useState("bluedart");
-
+import "./CheckoutShipping.css";
   const shippingPrice =
     courier === "bluedart" ? 149 : courier === "dtdc" ? 79 : 99;
 
