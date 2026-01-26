@@ -8,10 +8,11 @@ export default function AdminDashboard() {
 
   const [stats, setStats] = useState({
     monthRevenue: 0,
-    orders: 0,
+    totalOrders: 0,
+    pending: 0,
+    cancelled: 0,
     products: 0,
     customers: 0,
-    pending: 0,
   });
 
   const [recentOrders, setRecentOrders] = useState([]);
@@ -25,50 +26,63 @@ export default function AdminDashboard() {
     const { data: orders = [] } = await supabase.from("orders").select("*");
     const { data: products = [] } = await supabase.from("products").select("*");
 
-    // ============================
-    // MONTH WISE REVENUE
-    // ============================
+    // =====================
+    // CURRENT MONTH
+    // =====================
     const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+    const month = now.getMonth();
+    const year = now.getFullYear();
 
-    const monthOrders = orders.filter(o => {
+    // =====================
+    // DELIVERED ORDERS
+    // =====================
+    const deliveredOrders = orders.filter(o => {
       const d = new Date(o.created_at);
       return (
-        d.getMonth() === currentMonth &&
-        d.getFullYear() === currentYear
+        (o.order_status === "completed" ||
+          o.order_status === "delivered") &&
+        d.getMonth() === month &&
+        d.getFullYear() === year
       );
     });
 
-    const monthRevenue = monthOrders.reduce(
+    const monthRevenue = deliveredOrders.reduce(
       (sum, o) => sum + Number(o.total || 0),
       0
     );
 
-    // ============================
+    // =====================
     // PENDING
-    // ============================
+    // =====================
     const pendingOrders = orders.filter(
-      o => o.order_status === "new"
+      o =>
+        o.order_status === "pending" ||
+        o.order_status === "new"
     );
 
-    // ============================
-    // LOW STOCK
-    // ============================
-    const low = products.filter(
-      p => Number(p.quantity) <= 5
+    // =====================
+    // CANCELLED
+    // =====================
+    const cancelledOrders = orders.filter(
+      o => o.order_status === "cancelled"
     );
+
+    // =====================
+    // LOW STOCK
+    // =====================
+    const low = products.filter(p => Number(p.quantity) <= 5);
 
     setStats({
       monthRevenue,
-      orders: orders.length,
+      totalOrders: orders.length,
+      pending: pendingOrders.length,
+      cancelled: cancelledOrders.length,
       products: products.length,
       customers: orders.length ? 1 : 0,
-      pending: pendingOrders.length,
     });
 
-    setLowStock(low);
     setRecentOrders(orders.slice(0, 5));
+    setLowStock(low);
   };
 
   return (
@@ -85,18 +99,34 @@ export default function AdminDashboard() {
 
         <div
           className="stat-card green clickable"
-          onClick={() => navigate("/admin/orders")}
+          onClick={() => navigate("/admin/orders?status=completed")}
         >
           <h4>₹{stats.monthRevenue}</h4>
-          <p>Revenue (This Month)</p>
+          <p>Revenue (Delivered - This Month)</p>
         </div>
 
         <div
           className="stat-card blue clickable"
           onClick={() => navigate("/admin/orders")}
         >
-          <h4>{stats.orders}</h4>
-          <p>Total Orders</p>
+          <h4>{stats.totalOrders}</h4>
+          <p>All Orders</p>
+        </div>
+
+        <div
+          className="stat-card yellow clickable"
+          onClick={() => navigate("/admin/orders?status=pending")}
+        >
+          <h4>{stats.pending}</h4>
+          <p>Pending Orders</p>
+        </div>
+
+        <div
+          className="stat-card red clickable"
+          onClick={() => navigate("/admin/orders?status=cancelled")}
+        >
+          <h4>{stats.cancelled}</h4>
+          <p>Cancelled Orders</p>
         </div>
 
         <div
@@ -113,19 +143,6 @@ export default function AdminDashboard() {
         >
           <h4>{stats.customers || "Not Available"}</h4>
           <p>Total Customers</p>
-        </div>
-
-        <div
-          className="stat-card yellow clickable"
-          onClick={() => navigate("/admin/orders")}
-        >
-          <h4>{stats.pending}</h4>
-          <p>Pending Orders</p>
-        </div>
-
-        <div className="stat-card red">
-          <h4>Not Available</h4>
-          <p>Return / Replacement</p>
         </div>
 
       </div>
@@ -177,7 +194,7 @@ export default function AdminDashboard() {
             {recentOrders.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: "center" }}>
-                  No orders available
+                  No orders found
                 </td>
               </tr>
             ) : (
@@ -197,4 +214,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-      }
+                  }
