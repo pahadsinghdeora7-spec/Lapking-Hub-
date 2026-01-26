@@ -1,83 +1,68 @@
-.payment-page {
-  max-width: 900px;
+.checkout-container {
+  max-width: 720px;
   margin: auto;
-  padding: 20px;
+  padding: 15px;
 }
 
-.payment-box {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.upi {
-  font-weight: 600;
-  color: #555;
-}
-
-.upi-id {
-  background: #f1f5ff;
-  padding: 10px;
-  border-radius: 8px;
-  margin: 10px 0;
-  font-weight: bold;
-}
-
-.scan-text {
-  margin-top: 15px;
+.checkout-steps {
   font-size: 14px;
+  margin-bottom: 12px;
   color: #666;
 }
 
-.qr-img {
-  width: 220px;
-  margin: 15px auto;
-  display: block;
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-.total-box {
-  background: #f6f7ff;
+.payment-box p {
+  margin: 6px 0;
+}
+
+.upi-box {
+  background: #f5f9ff;
+  border: 1px dashed #2f80ed;
   padding: 12px;
-  margin-top: 15px;
   border-radius: 8px;
+  margin-top: 10px;
+}
+
+.total-pay {
   font-size: 18px;
-  font-weight: bold;
+  margin-top: 15px;
+  text-align: center;
 }
 
 .pay-btn {
   width: 100%;
   margin-top: 15px;
-  padding: 14px;
-  background: #22c55e;
-  color: white;
+  background: #1a73e8;
+  color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 18px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 .pay-btn:hover {
-  background: #16a34a;
+  background: #155ec0;
 }
 
-.order-summary {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.summary-item {
+.summary-row {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #eee;
-  padding: 10px 0;
+  margin: 6px 0;
 }
 
 .summary-total {
   display: flex;
   justify-content: space-between;
-  font-size: 18px;
+  font-weight: bold;
   margin-top: 10px;
+  border-top: 1px dashed #ddd;
+  padding-top: 8px;
 }
