@@ -1,50 +1,121 @@
 .payment-page {
+  max-width: 420px;
+  margin: auto;
   padding: 20px;
+}
+
+.secure-title {
   text-align: center;
+  margin-bottom: 15px;
 }
 
 .payment-box {
-  max-width: 380px;
-  margin: auto;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  text-align: center;
 }
 
-.qr-img {
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.logo-circle {
+  width: 40px;
+  height: 40px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-image {
   width: 220px;
-  margin: 15px auto;
+  margin: 10px auto;
 }
 
-.upi-text {
+.scan-text {
+  font-size: 14px;
   color: #555;
+}
+
+.upi-id {
+  border: 1px dashed #ccc;
+  padding: 10px;
+  border-radius: 8px;
   margin-top: 10px;
 }
 
 .upi-icons {
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin: 15px 0;
+  justify-content: space-around;
+  margin-top: 12px;
+  font-size: 14px;
 }
 
-.upi-icons img {
-  width: 45px;
+.important-box {
+  background: #fff7e6;
+  border-left: 4px solid #f59e0b;
+  padding: 10px;
+  font-size: 13px;
+  margin: 15px 0;
 }
 
 .pay-btn {
   width: 100%;
   background: #2563eb;
   color: white;
+  padding: 12px;
   border: none;
-  padding: 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+  margin-top: 10px;
 }
 
-.pay-btn:disabled {
-  background: #9db6ff;
+.after-text {
+  font-size: 12px;
+  color: #555;
+  margin-top: 10px;
+}
+
+.order-summary {
+  background: #fff;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.order-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.order-item img {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  color: #444;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-top: 10px;
 }
