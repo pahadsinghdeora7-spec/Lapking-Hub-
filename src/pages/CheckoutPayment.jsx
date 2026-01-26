@@ -5,9 +5,7 @@ import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
-
   const [payment, setPayment] = useState(null);
-  const [selectedApp, setSelectedApp] = useState("gpay");
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -34,26 +32,38 @@ export default function CheckoutPayment() {
     if (data) setPayment(data);
   };
 
+  // ✅ FINAL UPI DEEP LINK PAYMENT
+  const handlePay = () => {
+    const upiUrl =
+      `upi://pay?pa=${payment.upi_id}` +
+      `&pn=King%20Metals` +
+      `&am=${total}` +
+      `&cu=INR`;
+
+    window.location.href = upiUrl;
+  };
+
   if (!payment) return null;
 
   return (
     <div className="checkout-page">
 
-      <h2 className="title">🔒 Secure Payment</h2>
+      <h2 className="secure-title">🔒 Secure Payment</h2>
 
-      {/* ===== QR BOX ===== */}
+      {/* PAYMENT CARD */}
       <div className="payment-card">
 
         <div className="merchant">
-          <div className="merchant-logo">K</div>
-          <div className="merchant-name">King Metals</div>
+          <div className="logo">K</div>
+          <div className="name">King Metals</div>
         </div>
 
+        {/* QR */}
         {payment.qr_image && (
           <img
             src={payment.qr_image}
             alt="UPI QR"
-            className="qr-img"
+            className="qr-image"
           />
         )}
 
@@ -61,80 +71,56 @@ export default function CheckoutPayment() {
           Scan to pay using any UPI app
         </p>
 
-        <div className="upi-id-box">
+        <div className="upi-box">
           <strong>UPI ID</strong>
           <div>{payment.upi_id}</div>
           <small>Google Pay • PhonePe • Paytm</small>
         </div>
 
-        {/* ===== UPI SELECT ===== */}
-        <div className="upi-select">
-
-          <div
-            className={`upi-option ${selectedApp === "gpay" ? "active" : ""}`}
-            onClick={() => setSelectedApp("gpay")}
-          >
-            <span className="upi-icon gpay">G</span>
-            Google Pay
-          </div>
-
-          <div
-            className={`upi-option ${selectedApp === "phonepe" ? "active" : ""}`}
-            onClick={() => setSelectedApp("phonepe")}
-          >
-            <span className="upi-icon phonepe">₹</span>
-            PhonePe
-          </div>
-
-          <div
-            className={`upi-option ${selectedApp === "paytm" ? "active" : ""}`}
-            onClick={() => setSelectedApp("paytm")}
-          >
-            <span className="upi-icon paytm">P</span>
-            Paytm
-          </div>
-
-        </div>
-
-        {/* ===== BUTTONS ===== */}
+        {/* PAY BUTTONS */}
         <div className="pay-actions">
-          <button className="back-btn" onClick={() => navigate(-1)}>
+          <button
+            className="back-btn"
+            onClick={() => navigate(-1)}
+          >
             Back
           </button>
 
-          <button className="pay-btn">
+          <button
+            className="pay-btn"
+            onClick={handlePay}
+          >
             Confirm & Pay ₹{total}
           </button>
         </div>
-
       </div>
 
-      {/* ===== ORDER SUMMARY ===== */}
-      <div className="summary-card">
+      {/* ORDER SUMMARY */}
+      <div className="order-summary">
         <h3>Order Summary</h3>
 
         {cart.map((item, i) => (
-          <div key={i} className="summary-item">
+          <div className="summary-item" key={i}>
             <img src={item.image} alt="" />
-            <div>
+            <div className="info">
               <div>{item.name}</div>
               <small>Qty: {item.qty}</small>
             </div>
-            <strong>₹{item.price * item.qty}</strong>
+            <div className="price">₹{item.price}</div>
           </div>
         ))}
 
-        <div className="summary-line">
+        <div className="summary-row">
           <span>Subtotal</span>
           <span>₹{subtotal}</span>
         </div>
 
-        <div className="summary-line">
+        <div className="summary-row">
           <span>Shipping</span>
           <span>₹{shipping}</span>
         </div>
 
-        <div className="summary-total">
+        <div className="summary-row total">
           <span>Total</span>
           <span>₹{total}</span>
         </div>
@@ -142,4 +128,4 @@ export default function CheckoutPayment() {
 
     </div>
   );
-            }
+}
