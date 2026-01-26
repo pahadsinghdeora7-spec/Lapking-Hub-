@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🔥 YAHI SABSE IMPORTANT LINE HAI
   const redirectTo = location.state?.from || "/checkout/address";
 
   const [step, setStep] = useState("phone");
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(30);
+  const [loading, setLoading] = useState(false);
 
   // ⏱ OTP TIMER
   useEffect(() => {
@@ -22,10 +23,23 @@ export default function Login() {
     }
   }, [step, timer]);
 
-  // 📲 SEND OTP (TEST MODE)
-  const sendOtp = () => {
+  // 📲 REAL OTP SEND
+  const sendOtp = async () => {
     if (mobile.length !== 10) {
       alert("Enter valid 10 digit mobile number");
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      phone: `+91${mobile}`
+    });
+
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
       return;
     }
 
@@ -33,34 +47,45 @@ export default function Login() {
     setTimer(30);
   };
 
-  // ✅ VERIFY OTP (TEST OTP = 123456)
-  const verifyOtp = () => {
-    if (otp !== "123456") {
+  // ✅ REAL OTP VERIFY
+  const verifyOtp = async () => {
+    if (otp.length < 6) {
+      alert("Enter valid OTP");
+      return;
+    }
+
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: `+91${mobile}`,
+      token: otp,
+      type: "sms"
+    });
+
+    setLoading(false);
+
+    if (error) {
       alert("Invalid OTP");
       return;
     }
 
-    // 🔐 SAVE LOGIN
+    // 🔐 LOGIN SESSION SAVE
     localStorage.setItem(
       "user",
-      JSON.stringify({ mobile })
+      JSON.stringify({
+        mobile,
+        id: data.user.id
+      })
     );
 
-    // ✅ DIRECT CHECKOUT (NO HOME)
     navigate(redirectTo, { replace: true });
   };
 
   return (
     <div className="login-wrapper">
 
-      {/* LOGO */}
-      <img
-        src="/logo.png"
-        alt="logo"
-        className="login-logo"
-      />
+      <img src="/logo.png" alt="logo" className="login-logo" />
 
-      {/* TEXT */}
       <div className="login-text">
         <h2>Welcome to Lapking Hub</h2>
         <p>
@@ -70,7 +95,6 @@ export default function Login() {
         <span>Your Trusted Partner</span>
       </div>
 
-      {/* LOGIN CARD */}
       <div className="login-card">
 
         {step === "phone" && (
@@ -88,8 +112,8 @@ export default function Login() {
               />
             </div>
 
-            <button onClick={sendOtp}>
-              Send OTP
+            <button onClick={sendOtp} disabled={loading}>
+              {loading ? "Sending OTP..." : "Send OTP"}
             </button>
 
             <div className="info-text">
@@ -112,17 +136,15 @@ export default function Login() {
               onChange={(e) => setOtp(e.target.value)}
             />
 
-            <button onClick={verifyOtp}>
-              Verify & Continue
+            <button onClick={verifyOtp} disabled={loading}>
+              {loading ? "Verifying..." : "Verify & Continue"}
             </button>
 
             <div className="resend">
               {timer > 0 ? (
                 <>Resend OTP in {timer}s</>
               ) : (
-                <span onClick={sendOtp}>
-                  Resend OTP
-                </span>
+                <span onClick={sendOtp}>Resend OTP</span>
               )}
             </div>
           </>
@@ -136,4 +158,4 @@ export default function Login() {
       </div>
     </div>
   );
-                }
+}
