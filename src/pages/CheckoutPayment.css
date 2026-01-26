@@ -1,127 +1,134 @@
+/* ===============================
+   CHECKOUT PAYMENT – LAPKIND HUB
+================================ */
+
 .checkout-page {
   max-width: 420px;
   margin: auto;
-  padding: 15px;
+  padding: 20px;
+  background: #f6f8fb;
+  min-height: 100vh;
 }
 
-.title {
+/* TITLE */
+.secure-title {
   font-size: 18px;
-  margin-bottom: 10px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+
+/* ================= PAYMENT CARD ================= */
 
 .payment-card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.06);
-  text-align: center;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  margin-bottom: 18px;
 }
 
+/* MERCHANT */
 .merchant {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.merchant-logo {
+.logo {
   width: 36px;
   height: 36px;
   background: #1e88e5;
   color: #fff;
+  font-weight: 700;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
 }
 
-.qr-img {
-  width: 220px;
-  margin: 10px auto;
+.name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* QR */
+.qr-image {
+  width: 210px;
   display: block;
+  margin: 14px auto 8px;
 }
 
 .scan-text {
+  text-align: center;
   font-size: 13px;
-  color: #555;
+  color: #666;
+  margin-bottom: 12px;
 }
 
-.upi-id-box {
-  border: 1px dashed #ccc;
-  border-radius: 10px;
-  padding: 10px;
-  margin: 12px 0;
-  font-size: 14px;
-}
-
-.upi-select {
-  display: grid;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.upi-option {
-  border: 1px solid #ddd;
+/* UPI BOX */
+.upi-box {
+  border: 1px dashed #cfd8dc;
   border-radius: 10px;
   padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
+  text-align: center;
+  margin-bottom: 16px;
 }
 
-.upi-option.active {
-  border: 2px solid #1e88e5;
-  background: #f3f8ff;
+.upi-box strong {
+  display: block;
+  margin-bottom: 4px;
 }
 
-.upi-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.upi-box small {
+  color: #777;
+  font-size: 12px;
 }
 
-.gpay { background: #4285f4; }
-.phonepe { background: #5f259f; }
-.paytm { background: #00baf2; }
+/* ================= BUTTONS ================= */
 
 .pay-actions {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
 }
 
 .back-btn {
   flex: 1;
-  background: #eee;
+  background: #e0e0e0;
   border: none;
-  padding: 12px;
   border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .pay-btn {
-  flex: 1;
+  flex: 2;
   background: #1e88e5;
-  color: #fff;
+  color: white;
   border: none;
-  padding: 12px;
   border-radius: 10px;
-  font-weight: bold;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
 }
 
-.summary-card {
-  background: #fff;
-  margin-top: 16px;
-  padding: 15px;
+/* ================= ORDER SUMMARY ================= */
+
+.order-summary {
+  background: #ffffff;
   border-radius: 14px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.order-summary h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
 }
 
 .summary-item {
@@ -136,16 +143,36 @@
   height: 45px;
   object-fit: cover;
   border-radius: 6px;
+  border: 1px solid #eee;
 }
 
-.summary-line,
-.summary-total {
+.summary-item .info {
+  flex: 1;
+  font-size: 14px;
+}
+
+.summary-item .price {
+  font-weight: 600;
+}
+
+.summary-row {
   display: flex;
   justify-content: space-between;
   margin-top: 6px;
+  font-size: 14px;
 }
 
-.summary-total {
-  font-weight: bold;
-  font-size: 16px;
+.summary-row.total {
+  font-weight: 700;
+  color: #1e88e5;
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+/* ================= MOBILE SAFE ================= */
+
+@media (max-width: 360px) {
+  .qr-image {
+    width: 180px;
+  }
 }
