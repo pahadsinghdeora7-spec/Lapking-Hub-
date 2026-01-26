@@ -1,116 +1,126 @@
-/* =====================================
-   LAPKING HUB – PAYMENT PAGE FINAL CSS
-===================================== */
-
 .checkout-page {
-  padding: 14px;
-  background: #f5f7fb;
+  max-width: 520px;
+  margin: auto;
+  padding: 20px;
+  background: #f6f8fb;
   min-height: 100vh;
 }
 
-/* ---------- TITLE ---------- */
-
+/* TITLE */
 .checkout-page h2 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
+  font-size: 18px;
+  margin-bottom: 18px;
   display: flex;
-  align-items: center;
   gap: 6px;
 }
 
-/* ---------- QR SECTION ---------- */
-
+/* QR CARD */
 .qr-box {
   background: #ffffff;
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 22px;
   text-align: center;
-  margin-bottom: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.07);
+  margin-bottom: 20px;
 }
 
 .qr-box img {
-  width: 170px;
-  height: auto;
-  margin: 6px auto 10px;
+  width: 220px;
+  margin: 12px auto;
   display: block;
 }
 
-.qr-box p {
-  font-size: 13px;
+.merchant {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.merchant .logo {
+  width: 36px;
+  height: 36px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-text {
+  font-size: 14px;
   color: #555;
 }
 
-/* ---------- UPI INFO ---------- */
-
+/* UPI BOX */
 .upi-box {
-  background: #ffffff;
+  background: #fff;
   border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px dashed #cfd8e3;
+  margin-bottom: 20px;
   font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-.upi-box strong {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 600;
+.upi-box small {
+  color: #666;
 }
 
-/* ---------- BUTTONS ---------- */
-
+/* BUTTONS */
 .pay-actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 26px;
 }
 
 .back-btn {
   flex: 1;
-  height: 44px;
+  background: #e9eef5;
+  border: none;
+  padding: 13px;
   border-radius: 10px;
-  border: 1px solid #d6dbe4;
-  background: #ffffff;
-  font-size: 14px;
   font-weight: 600;
 }
 
 .pay-btn {
   flex: 1;
-  height: 44px;
-  border-radius: 10px;
+  background: #2563eb;
+  color: white;
   border: none;
-  background: #1a73e8;
-  color: #ffffff;
-  font-size: 14px;
+  padding: 13px;
+  border-radius: 10px;
   font-weight: 600;
 }
 
-/* ---------- ORDER SUMMARY ---------- */
+/* SUMMARY */
+.summary-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
 
 .summary-box {
-  background: #ffffff;
-  border-radius: 14px;
+  background: white;
+  border-radius: 16px;
   padding: 14px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
 
 .summary-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
 .summary-img {
-  width: 55px;
-  height: 55px;
-  object-fit: contain;
+  width: 60px;
+  height: 60px;
   border-radius: 8px;
-  border: 1px solid #e6e6e6;
-  background: #fafafa;
+  object-fit: cover;
+  border: 1px solid #eee;
 }
 
 .summary-info {
@@ -119,20 +129,17 @@
 
 .summary-info .name {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .summary-info .qty {
   font-size: 12px;
-  color: #777;
+  color: #666;
 }
 
-.summary-item .price {
-  font-size: 14px;
+.price {
   font-weight: 600;
 }
-
-/* ---------- TOTAL ---------- */
 
 .summary-total {
   display: flex;
@@ -142,9 +149,9 @@
 }
 
 .summary-total.grand {
-  font-weight: 700;
-  font-size: 15px;
   margin-top: 10px;
   padding-top: 8px;
-  border-top: 1px dashed #ddd;
+  border-top: 1px solid #eee;
+  font-weight: 700;
+  font-size: 15px;
 }
