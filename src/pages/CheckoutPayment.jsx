@@ -5,9 +5,12 @@ import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
+
   const [payment, setPayment] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const address = JSON.parse(localStorage.getItem("checkout_address")) || {};
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.qty,
@@ -32,15 +35,40 @@ export default function CheckoutPayment() {
     if (data) setPayment(data);
   };
 
-  // ✅ FINAL UPI DEEP LINK PAYMENT
-  const handlePay = () => {
-    const upiUrl =
-      `upi://pay?pa=${payment.upi_id}` +
-      `&pn=King%20Metals` +
-      `&am=${total}` +
-      `&cu=INR`;
+  // 🔥 ORDER CREATE FUNCTION
+  const createOrder = async () => {
+    setLoading(true);
 
-    window.location.href = upiUrl;
+    const user = (await supabase.auth.getUser()).data.user;
+
+    // ORDER CODE
+    const orderCode = "LKH" + Date.now();
+
+    const { data, error } = await supabase.from("orders").insert([
+      {
+        name: address.name,
+        phone: address.phone,
+        address: address.full_address,
+        shipping_name: "Standard Delivery",
+        shipping_price: shipping,
+        total: total,
+        payment_meth: "UPI",
+        payment_stat: "pending",
+        order_status: "new",
+        user_id: user?.id || null,
+        order_code: orderCode,
+      },
+    ]).select().single();
+
+    setLoading(false);
+
+    if (!error && data) {
+      localStorage.removeItem("cart");
+
+      navigate(`/order-success/${data.id}`);
+    } else {
+      alert("Order create failed");
+    }
   };
 
   if (!payment) return null;
@@ -48,65 +76,58 @@ export default function CheckoutPayment() {
   return (
     <div className="checkout-page">
 
-      <h2 className="secure-title">🔒 Secure Payment</h2>
+      <h2>🔒 Secure Payment</h2>
 
-      {/* PAYMENT CARD */}
-      <div className="payment-card">
-
+      {/* QR */}
+      <div className="qr-box">
         <div className="merchant">
           <div className="logo">K</div>
           <div className="name">King Metals</div>
         </div>
 
-        {/* QR */}
         {payment.qr_image && (
-          <img
-            src={payment.qr_image}
-            alt="UPI QR"
-            className="qr-image"
-          />
+          <img src={payment.qr_image} alt="UPI QR" />
         )}
 
         <p className="scan-text">
           Scan to pay using any UPI app
         </p>
+      </div>
 
-        <div className="upi-box">
-          <strong>UPI ID</strong>
-          <div>{payment.upi_id}</div>
-          <small>Google Pay • PhonePe • Paytm</small>
-        </div>
+      {/* UPI ID */}
+      <div className="upi-box">
+        <strong>UPI ID</strong>
+        <div>{payment.upi_id}</div>
+        <small>Google Pay • PhonePe • Paytm</small>
+      </div>
 
-        {/* PAY BUTTONS */}
-        <div className="pay-actions">
-          <button
-            className="back-btn"
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </button>
+      {/* PAY BUTTON */}
+      <div className="pay-actions">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          Back
+        </button>
 
-          <button
-            className="pay-btn"
-            onClick={handlePay}
-          >
-            Confirm & Pay ₹{total}
-          </button>
-        </div>
+        <button
+          className="pay-btn"
+          disabled={loading}
+          onClick={createOrder}
+        >
+          {loading ? "Creating Order..." : `Confirm & Pay ₹${total}`}
+        </button>
       </div>
 
       {/* ORDER SUMMARY */}
-      <div className="order-summary">
-        <h3>Order Summary</h3>
+      <h3>Order Summary</h3>
 
+      <div className="summary-box">
         {cart.map((item, i) => (
-          <div className="summary-item" key={i}>
+          <div key={i} className="summary-item">
             <img src={item.image} alt="" />
-            <div className="info">
+            <div>
               <div>{item.name}</div>
               <small>Qty: {item.qty}</small>
             </div>
-            <div className="price">₹{item.price}</div>
+            <strong>₹{item.price * item.qty}</strong>
           </div>
         ))}
 
