@@ -1,133 +1,129 @@
 /* ===============================
-   PAYMENT PAGE – FINAL FIX
+   CHECKOUT PAYMENT – PROFESSIONAL
 ================================ */
 
-.payment-page {
+.checkout-page {
   padding: 15px;
   background: #f6f8fb;
-  min-height: 100vh;
 }
 
-/* ===== TITLE ===== */
-.payment-page h2 {
-  font-size: 18px;
-  font-weight: 600;
+/* title */
+.checkout-page h2 {
+  font-size: 17px;
   margin-bottom: 12px;
 }
 
-/* ===== QR SECTION ===== */
-.payment-qr {
-  background: #fff;
-  border-radius: 14px;
-  padding: 16px;
-  text-align: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,.06);
-  margin-bottom: 15px;
-}
-
-.payment-qr img {
-  width: 180px;
-  max-width: 100%;
-  margin: 10px auto;
-  display: block;
-  border-radius: 10px;
-}
-
-.payment-qr p {
-  font-size: 13px;
-  color: #666;
-}
-
-/* ===== UPI ===== */
-.upi-box {
+/* QR section */
+.qr-box {
   background: #fff;
   border-radius: 12px;
-  padding: 12px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.qr-box img {
+  width: 180px;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+/* upi box */
+.upi-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
   margin-bottom: 14px;
   font-size: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
 }
 
-/* ===== BUTTONS ===== */
-.payment-actions {
+.upi-box strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* buttons */
+.pay-actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-.payment-actions button {
+.back-btn {
   flex: 1;
-  height: 44px;
-  border-radius: 10px;
-  font-weight: 600;
-  border: none;
-}
-
-.payment-actions .back-btn {
-  background: #e9eefb;
-  color: #0b5cff;
-}
-
-.payment-actions .pay-btn {
-  background: #0b5cff;
-  color: #fff;
-}
-
-/* ===============================
-   ORDER SUMMARY
-================================ */
-
-.order-summary {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   background: #fff;
-  border-radius: 14px;
+  font-weight: 600;
+}
+
+.pay-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* order summary */
+.summary-box {
+  background: #fff;
+  border-radius: 12px;
   padding: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.order-summary h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-/* ===== PRODUCT ROW ===== */
-.order-item {
+.summary-item {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
 }
 
-/* 🔥 THIS FIXES BIG IMAGE ISSUE */
-.order-item img {
-  width: 60px !important;
-  height: 60px !important;
+.summary-img {
+  width: 55px;
+  height: 55px;
   object-fit: contain;
-  border-radius: 8px;
-  background: #f2f2f2;
+  border-radius: 6px;
+  border: 1px solid #eee;
 }
 
-/* product info */
-.order-item div {
+.summary-info {
   flex: 1;
+}
+
+.summary-info .name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-info .qty {
+  font-size: 12px;
+  color: #666;
+}
+
+.summary-item .price {
+  font-weight: 600;
   font-size: 14px;
 }
 
-.order-item strong {
-  display: block;
-  font-size: 14px;
-}
-
-/* ===== PRICE ROWS ===== */
-.price-row {
+/* totals */
+.summary-total {
   display: flex;
   justify-content: space-between;
-  padding: 6px 0;
   font-size: 14px;
-  border-top: 1px dashed #eee;
+  margin-top: 6px;
 }
 
-.price-row.total {
+.summary-total.grand {
   font-weight: 700;
   font-size: 15px;
-  color: #000;
+  border-top: 1px dashed #ddd;
+  padding-top: 8px;
+  margin-top: 10px;
 }
