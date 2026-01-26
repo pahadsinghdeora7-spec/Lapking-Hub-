@@ -1,201 +1,68 @@
-/* ===============================
-   CHECKOUT PAYMENT — FINAL CSS
-   MOBILE FIRST (SAFE)
-================================ */
-
 .checkout-page {
   max-width: 420px;
-  margin: 0 auto;
-  padding: 16px;
-  background: #f6f8fb;
-  min-height: 100vh;
+  margin: auto;
+  padding: 20px;
 }
 
-/* ===== TITLE ===== */
-.checkout-page h2 {
-  font-size: 18px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ===== QR CARD ===== */
-.qr-box {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 18px;
-  text-align: center;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-}
-
-.merchant {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.merchant .logo {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #2563eb;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-
-.merchant .name {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-/* ===== QR IMAGE ===== */
-.qr-box img {
-  width: 220px;
-  max-width: 100%;
-  margin: 12px auto;
-  display: block;
-}
-
-/* ===== SCAN TEXT ===== */
-.scan-text {
-  font-size: 13px;
-  color: #666;
-  margin-top: 6px;
-}
-
-/* ===== UPI ID BOX ===== */
-.upi-box {
-  background: #f9fafb;
-  border: 1px dashed #d0d5dd;
-  border-radius: 10px;
-  padding: 10px;
-  margin-top: 14px;
-  font-size: 14px;
-}
-
-.upi-box small {
-  display: block;
-  margin-top: 4px;
-  color: #777;
-}
-
-/* ===== PAYMENT OPTIONS ===== */
-.upi-options {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.upi-option {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
+.payment-card {
   background: #fff;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 500;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
 }
 
-.upi-option img {
-  width: 26px;
-  height: 26px;
+.qr-img {
+  width: 220px;
+  margin: 15px auto;
 }
 
-.upi-option.active {
-  border-color: #2563eb;
-  background: #eef4ff;
-}
-
-/* ===== BUTTONS ===== */
-.pay-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.back-btn {
-  flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: #e5e7eb;
-  font-weight: 600;
-  color: #555;
+.upi-box {
+  border: 1px dashed #ccc;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
 .pay-btn {
-  flex: 2;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
+  margin-top: 15px;
+  width: 100%;
   background: #2563eb;
   color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-/* ===== ORDER SUMMARY ===== */
-.summary-box {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 14px;
-  margin-top: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-}
-
-.summary-box h3 {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
   font-size: 16px;
-  margin-bottom: 10px;
 }
 
-.summary-item {
+.summary-box {
+  background: #fff;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.summary-row {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.summary-item img {
-  width: 46px;
-  height: 46px;
+.summary-row img {
+  width: 45px;
+  height: 45px;
   object-fit: cover;
   border-radius: 6px;
-  border: 1px solid #eee;
 }
 
-.summary-item .name {
-  flex: 1;
-  font-size: 14px;
-}
-
-.summary-item .price {
-  font-weight: 600;
-}
-
-/* ===== TOTAL ===== */
-.summary-total {
-  border-top: 1px dashed #ddd;
-  margin-top: 10px;
-  padding-top: 10px;
-  font-size: 14px;
-}
-
-.summary-total div {
+.price-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-top: 6px;
 }
 
-.summary-total strong {
-  font-size: 15px;
+.price-row.total {
+  font-weight: bold;
 }
