@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient.js";
+import "./admin.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // IMAGE FILE STATES (NEW)
   const [imageFile, setImageFile] = useState(null);
   const [imageFile1, setImageFile1] = useState(null);
   const [imageFile2, setImageFile2] = useState(null);
+
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const [form, setForm] = useState({
     category_id: "",
@@ -17,16 +19,12 @@ export default function AdminProducts() {
     price: "",
     stock: "",
     part_number: "",
-    image: "",
-    image1: "",
-    image2: "",
     compatible_model: "",
     description: "",
     status: true,
   });
 
   // ================= FETCH =================
-
   useEffect(() => {
     fetchProducts();
     fetchCategories();
@@ -51,7 +49,6 @@ export default function AdminProducts() {
   };
 
   // ================= IMAGE UPLOAD =================
-
   const uploadImage = async (file) => {
     if (!file) return "";
 
@@ -74,7 +71,6 @@ export default function AdminProducts() {
   };
 
   // ================= ADD PRODUCT =================
-
   const addProduct = async () => {
     if (!form.name || !form.price || !form.category_id) {
       alert("Category, Name aur Price required hai");
@@ -83,7 +79,6 @@ export default function AdminProducts() {
 
     setLoading(true);
 
-    // NEW IMAGE UPLOAD
     const mainImage = await uploadImage(imageFile);
     const img1 = await uploadImage(imageFile1);
     const img2 = await uploadImage(imageFile2);
@@ -100,7 +95,7 @@ export default function AdminProducts() {
         image2: img2,
         compatible_model: form.compatible_model,
         description: form.description,
-        status: form.status,
+        status: true,
       },
     ]);
 
@@ -115,9 +110,6 @@ export default function AdminProducts() {
         price: "",
         stock: "",
         part_number: "",
-        image: "",
-        image1: "",
-        image2: "",
         compatible_model: "",
         description: "",
         status: true,
@@ -138,13 +130,18 @@ export default function AdminProducts() {
     fetchProducts();
   };
 
+  const filteredProducts = selectedCategory
+    ? products.filter(p => p.category_id == selectedCategory)
+    : products;
+
   // ================= UI =================
-
   return (
-    <div>
-      <h2>Admin Products</h2>
+    <div className="admin-products">
 
-      <div style={{ display: "grid", gap: 10, maxWidth: 500 }}>
+      {/* ================= ADD FORM ================= */}
+      <div className="product-form">
+        <h3>Add Product</h3>
+
         <select
           value={form.category_id}
           onChange={(e) =>
@@ -152,7 +149,7 @@ export default function AdminProducts() {
           }
         >
           <option value="">Select Category</option>
-          {categories.map((c) => (
+          {categories.map(c => (
             <option key={c.id} value={c.id}>
               {c.name}
             </option>
@@ -185,24 +182,9 @@ export default function AdminProducts() {
           }
         />
 
-        {/* IMAGE UPLOAD (CAMERA / GALLERY) */}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile(e.target.files[0])}
-        />
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile1(e.target.files[0])}
-        />
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile2(e.target.files[0])}
-        />
+        <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files[0])} />
+        <input type="file" accept="image/*" onChange={e => setImageFile1(e.target.files[0])} />
+        <input type="file" accept="image/*" onChange={e => setImageFile2(e.target.files[0])} />
 
         <input
           placeholder="Compatible Models"
@@ -225,20 +207,47 @@ export default function AdminProducts() {
         </button>
       </div>
 
-      <hr />
+      {/* ================= PRODUCT LIST ================= */}
+      <div className="product-list">
+        <div className="list-head">
+          <h3>Products</h3>
 
-      {products.map((p) => (
-        <div key={p.id} style={{ marginBottom: 10 }}>
-          <b>{p.name}</b> — ₹{p.price}
-          <br />
-          Model: {p.compatible_model}
-          <br />
-          Category: {p.categories?.name}
-          <br />
-          <button onClick={() => deleteProduct(p.id)}>Delete</button>
-          <hr />
+          <select
+            value={selectedCategory}
+            onChange={e => setSelectedCategory(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
-      ))}
+
+        <div className="product-grid">
+          {filteredProducts.length === 0 && (
+            <p className="muted">No products available</p>
+          )}
+
+          {filteredProducts.map(p => (
+            <div className="product-card" key={p.id}>
+              <h4>{p.name}</h4>
+              <p>₹{p.price}</p>
+              <span>Stock: {p.stock}</span>
+              <small>{p.categories?.name}</small>
+
+              <button
+                className="delete-btn"
+                onClick={() => deleteProduct(p.id)}
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
-}
+          }
