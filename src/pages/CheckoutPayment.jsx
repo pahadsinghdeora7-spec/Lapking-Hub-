@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
-import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
@@ -23,85 +22,164 @@ export default function CheckoutPayment() {
   }, []);
 
   const loadPayment = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("payment_settings")
       .select("*")
       .eq("status", true)
       .limit(1)
       .single();
 
-    if (!error && data) {
-      setPayment(data);
-    }
+    if (data) setPayment(data);
   };
 
   if (!payment) return null;
 
   return (
-    <div className="checkout-page">
+    <div style={{ padding: 14, background: "#f6f8fb", minHeight: "100vh" }}>
 
-      <h2>Payment</h2>
+      <h2 style={{ marginBottom: 12 }}>Payment</h2>
 
-      {/* ✅ QR IMAGE — FINAL FIX */}
+      {/* QR CARD */}
       {payment.qr_image && (
-        <div className="qr-box">
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 12,
+            padding: 15,
+            textAlign: "center",
+            marginBottom: 15,
+          }}
+        >
           <img
             src={payment.qr_image}
-            alt="UPI QR"
-            style={{ width: "220px", maxWidth: "100%" }}
+            alt="QR"
+            style={{
+              width: 180,
+              height: 180,
+              objectFit: "contain",
+              marginBottom: 8,
+            }}
           />
-          <p>Scan QR to pay via UPI</p>
+          <div style={{ fontSize: 13, color: "#666" }}>
+            Scan QR to pay via UPI
+          </div>
         </div>
       )}
 
-      {/* UPI */}
-      <div className="upi-box">
+      {/* UPI ID */}
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: 12,
+          marginBottom: 15,
+          fontSize: 14,
+        }}
+      >
         <strong>UPI ID</strong>
-        <div>{payment.upi_id}</div>
+        <div style={{ marginTop: 4 }}>{payment.upi_id}</div>
       </div>
 
       {/* BUTTONS */}
-      <div className="pay-actions">
-        <button className="back-btn" onClick={() => navigate(-1)}>
+      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            flex: 1,
+            padding: 12,
+            borderRadius: 8,
+            border: "1px solid #ddd",
+            background: "#fff",
+          }}
+        >
           Back
         </button>
 
-        <button className="pay-btn">
+        <button
+          style={{
+            flex: 1,
+            padding: 12,
+            borderRadius: 8,
+            border: "none",
+            background: "#0b5cff",
+            color: "#fff",
+            fontWeight: 600,
+          }}
+        >
           Pay ₹{total}
         </button>
       </div>
 
       {/* ORDER SUMMARY */}
-      <h3>Order Summary</h3>
+      <h3 style={{ marginBottom: 10 }}>Order Summary</h3>
 
-      <div className="summary-box">
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: 12,
+        }}
+      >
         {cart.map((item, i) => (
-          <div className="summary-item" key={i}>
-            <img src={item.image} alt="" />
-            <div>
-              <div>{item.name}</div>
-              <small>Qty: {item.qty}</small>
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              gap: 10,
+              marginBottom: 10,
+              alignItems: "center",
+            }}
+          >
+            <img
+              src={item.image}
+              alt=""
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 6,
+                objectFit: "cover",
+              }}
+            />
+
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14 }}>{item.name}</div>
+              <div style={{ fontSize: 12, color: "#777" }}>
+                Qty: {item.qty}
+              </div>
             </div>
-            <strong>₹{item.price * item.qty}</strong>
+
+            <div style={{ fontWeight: 600 }}>
+              ₹{item.price * item.qty}
+            </div>
           </div>
         ))}
 
-        <div className="summary-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
-        </div>
+        <hr />
 
-        <div className="summary-row">
-          <span>Shipping</span>
-          <span>₹{shipping}</span>
-        </div>
+        <div style={{ fontSize: 14, marginTop: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>Subtotal</span>
+            <span>₹{subtotal}</span>
+          </div>
 
-        <div className="summary-row total">
-          <span>Total</span>
-          <span>₹{total}</span>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>Shipping</span>
+            <span>₹{shipping}</span>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontWeight: 700,
+              marginTop: 6,
+            }}
+          >
+            <span>Total</span>
+            <span>₹{total}</span>
+          </div>
         </div>
       </div>
-
     </div>
   );
-}
+        }
