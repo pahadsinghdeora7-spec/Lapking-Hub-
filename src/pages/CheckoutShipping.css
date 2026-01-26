@@ -1,33 +1,38 @@
+/* ============================
+   CHECKOUT SHIPPING DESIGN
+============================ */
+
 .checkout-container {
-  max-width: 720px;
-  margin: 20px auto 80px;
-  padding: 0 14px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  max-width: 650px;
+  margin: 15px auto 80px;
+  padding: 0 12px;
 }
 
+/* STEP LINE */
 .checkout-steps {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
   margin-bottom: 12px;
 }
 
 /* CARD */
 .card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px;
   margin-bottom: 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .card h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 15px;
   font-weight: 600;
+  margin-bottom: 10px;
 }
 
 /* ORDER SUMMARY */
-.summary-row {
+.summary-row,
+.summary-total {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
@@ -35,29 +40,46 @@
 }
 
 .summary-total {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-weight: 700;
-  font-size: 16px;
-  color: #1a73e8;
+  border-top: 1px dashed #ddd;
+  padding-top: 8px;
+  margin-top: 8px;
+  font-weight: 600;
+  color: #0b5ed7;
 }
 
 /* MODEL INPUT */
+.card label {
+  font-size: 14px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+
 .card input {
   width: 100%;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 11px;
+  border-radius: 8px;
   border: 1px solid #ddd;
-  margin-top: 8px;
+  outline: none;
   font-size: 14px;
 }
 
+.card input:focus {
+  border-color: #0b5ed7;
+}
+
 .card small {
-  display: block;
-  margin-top: 6px;
   font-size: 12px;
-  color: #666;
+  color: #777;
+  margin-top: 5px;
+  display: block;
+}
+
+/* COURIER TEXT */
+.muted-text {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 10px;
 }
 
 /* COURIER BOX */
@@ -65,12 +87,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 2px solid #eee;
-  border-radius: 12px;
-  padding: 14px;
-  margin-top: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
   cursor: pointer;
   transition: 0.2s;
+  background: #fff;
+}
+
+.courier-box:hover {
+  border-color: #0b5ed7;
+}
+
+.courier-box.active {
+  border-color: #0b5ed7;
+  background: #eef5ff;
 }
 
 .courier-box input {
@@ -79,52 +111,46 @@
 
 .courier-box div {
   flex: 1;
+  margin-left: 6px;
 }
 
 .courier-box b {
-  font-size: 15px;
+  font-size: 14px;
+  display: block;
 }
 
 .courier-box p {
-  font-size: 13px;
+  font-size: 12px;
   color: #666;
   margin-top: 2px;
 }
 
 .courier-box span {
   font-weight: 600;
+  font-size: 14px;
+  color: #0b5ed7;
 }
 
-.courier-box.active {
-  border-color: #1a73e8;
-  background: #f2f7ff;
-}
-
-/* NOTE */
-.muted-text {
-  font-size: 13px;
-  color: #666;
-}
-
-.secure-note {
-  font-size: 13px;
-  color: #2e7d32;
-  margin-top: 10px;
+/* SAFE NOTE */
+.safe-note {
+  font-size: 12px;
+  color: #4caf50;
+  margin-top: 8px;
 }
 
 /* BUTTON */
 .primary-btn {
   width: 100%;
-  background: #1a73e8;
-  color: white;
+  background: #0b5ed7;
+  color: #fff;
   border: none;
   padding: 14px;
-  font-size: 16px;
-  border-radius: 12px;
-  margin-top: 20px;
+  font-size: 15px;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .primary-btn:hover {
-  opacity: 0.95;
+  background: #094db3;
 }
