@@ -13,6 +13,7 @@ import Login from "./pages/Login.jsx"; // ✅ ADD THIS
 /* CHECKOUT */
 import CheckoutAddress from "./pages/CheckoutAddress.jsx";
 import CheckoutShipping from "./pages/CheckoutShipping.jsx";
+import CheckoutPayment from "./pages/CheckoutPayment";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
 import ReplacementRequest from "./pages/ReplacementRequest.jsx";
 
@@ -60,6 +61,7 @@ export default function App() {
               element={<CheckoutAddress />}
             />
             <Route path="/checkout/shipping" element={<CheckoutShipping />} />
+            <Route path="/checkout/payment" element={<CheckoutPayment />} />
 
             <Route path="/order/success" element={<OrderSuccess />} />
 
