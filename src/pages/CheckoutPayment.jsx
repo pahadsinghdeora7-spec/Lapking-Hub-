@@ -5,7 +5,9 @@ import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
+
   const [payment, setPayment] = useState(null);
+  const [selectedApp, setSelectedApp] = useState("gpay");
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -26,7 +28,6 @@ export default function CheckoutPayment() {
       .from("payment_settings")
       .select("*")
       .eq("status", true)
-      .limit(1)
       .single();
 
     if (data) setPayment(data);
@@ -34,59 +35,107 @@ export default function CheckoutPayment() {
 
   if (!payment) return null;
 
-  const upiLink = `upi://pay?pa=${payment.upi_id}&pn=King%20Metals&am=${total}&cu=INR`;
+  const upiLinks = {
+    gpay: `upi://pay?pa=${payment.upi_id}&pn=King%20Metals&am=${total}&cu=INR`,
+    phonepe: `upi://pay?pa=${payment.upi_id}&pn=King%20Metals&am=${total}&cu=INR`,
+    paytm: `upi://pay?pa=${payment.upi_id}&pn=King%20Metals&am=${total}&cu=INR`,
+  };
 
   return (
-    <div className="checkout-page">
+    <div className="checkout-payment-page">
 
-      <h2 className="secure-title">🔒 Secure Payment</h2>
+      <h2 className="title">🔒 Secure Payment</h2>
 
-      {/* QR BOX */}
-      <div className="qr-card">
+      {/* PAYMENT CARD */}
+      <div className="payment-card">
+
         <div className="merchant">
           <div className="logo">K</div>
           <div className="name">King Metals</div>
         </div>
 
         {payment.qr_image && (
-          <img src={payment.qr_image} alt="UPI QR" className="qr-img" />
+          <img
+            src={payment.qr_image}
+            alt="UPI QR"
+            className="qr-image"
+          />
         )}
 
-        <p className="scan-text">Scan to pay using any UPI app</p>
-      </div>
+        <p className="scan-text">
+          Scan to pay using any UPI app
+        </p>
 
-      {/* UPI ID */}
-      <div className="upi-box">
-        <strong>UPI ID</strong>
-        <div>{payment.upi_id}</div>
-        <small>Google Pay • PhonePe • Paytm</small>
-      </div>
+        <div className="upi-box">
+          <strong>UPI ID</strong>
+          <div>{payment.upi_id}</div>
+          <small>Google Pay • PhonePe • Paytm</small>
+        </div>
 
-      {/* APP BUTTONS */}
-      <div className="upi-apps">
-        <a href={upiLink} className="upi-btn gpay">GPay</a>
-        <a href={upiLink} className="upi-btn phonepe">PhonePe</a>
-        <a href={upiLink} className="upi-btn paytm">Paytm</a>
-      </div>
+        {/* UPI APP SELECT */}
+        <div className="upi-select">
 
-      {/* ACTION BUTTONS */}
-      <div className="pay-actions">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          Back
-        </button>
+          <div
+            className={
+              selectedApp === "gpay"
+                ? "upi-option active"
+                : "upi-option"
+            }
+            onClick={() => setSelectedApp("gpay")}
+          >
+            <img src="/gpay.svg" />
+            Google Pay
+          </div>
 
-        <a href={upiLink} className="pay-btn">
-          Confirm & Pay ₹{total}
-        </a>
+          <div
+            className={
+              selectedApp === "phonepe"
+                ? "upi-option active"
+                : "upi-option"
+            }
+            onClick={() => setSelectedApp("phonepe")}
+          >
+            <img src="/phonepe.svg" />
+            PhonePe
+          </div>
+
+          <div
+            className={
+              selectedApp === "paytm"
+                ? "upi-option active"
+                : "upi-option"
+            }
+            onClick={() => setSelectedApp("paytm")}
+          >
+            <img src="/paytm.svg" />
+            Paytm
+          </div>
+
+        </div>
+
+        {/* BUTTONS */}
+        <div className="pay-actions">
+          <button className="back-btn" onClick={() => navigate(-1)}>
+            Back
+          </button>
+
+          <a
+            href={upiLinks[selectedApp]}
+            className="pay-btn"
+          >
+            Confirm & Pay ₹{total}
+          </a>
+        </div>
+
       </div>
 
       {/* ORDER SUMMARY */}
-      <h3 className="summary-title">Order Summary</h3>
+      <div className="summary-card">
+        <h3>Order Summary</h3>
 
-      <div className="summary-box">
         {cart.map((item, i) => (
-          <div className="summary-item" key={i}>
-            <img src={item.image} alt="" />
+          <div className="summary-row" key={i}>
+            <img src={item.image} />
             <div className="info">
               <div>{item.name}</div>
               <small>Qty: {item.qty}</small>
@@ -95,21 +144,15 @@ export default function CheckoutPayment() {
           </div>
         ))}
 
-        <div className="summary-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
-        </div>
-
-        <div className="summary-row">
-          <span>Shipping</span>
-          <span>₹{shipping}</span>
-        </div>
-
-        <div className="summary-total">
-          <span>Total</span>
-          <span>₹{total}</span>
+        <div className="total-box">
+          <div>Subtotal <span>₹{subtotal}</span></div>
+          <div>Shipping <span>₹{shipping}</span></div>
+          <div className="final">
+            Total <span>₹{total}</span>
+          </div>
         </div>
       </div>
+
     </div>
   );
 }
