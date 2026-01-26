@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
-import "../CheckoutPayment.css";
+import "../styles/checkout.css";
+
 export default function CheckoutPayment() {
   const navigate = useNavigate();
   const [payment, setPayment] = useState(null);
@@ -28,7 +29,7 @@ export default function CheckoutPayment() {
       .limit(1)
       .single();
 
-    setPayment(data);
+    if (data) setPayment(data);
   };
 
   if (!payment) return null;
@@ -38,24 +39,28 @@ export default function CheckoutPayment() {
 
       <h2>🔒 Secure Payment</h2>
 
-      {/* QR */}
-      {payment.qr_image && (
-        <div className="qr-box">
-          <img src={payment.qr_image} alt="UPI QR" />
-          <p>Scan QR to pay via UPI</p>
+      {/* ===== QR BOX ===== */}
+      <div className="qr-box">
+        <div className="merchant">
+          <div className="logo">K</div>
+          <div className="name">King Metals</div>
         </div>
-      )}
 
-      {/* UPI */}
-      <div className="upi-box">
-        <strong>UPI ID</strong>
-        {payment.upi_id}
-        <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-          Pay using GPay, PhonePe, Paytm or any UPI app
-        </div>
+        {payment.qr_image && (
+          <img src={payment.qr_image} alt="UPI QR" />
+        )}
+
+        <p className="scan-text">Scan to pay using any UPI app</p>
       </div>
 
-      {/* Buttons */}
+      {/* ===== UPI ===== */}
+      <div className="upi-box">
+        <strong>UPI ID</strong>
+        <div>{payment.upi_id}</div>
+        <small>Google Pay • PhonePe • Paytm</small>
+      </div>
+
+      {/* ===== BUTTONS ===== */}
       <div className="pay-actions">
         <button className="back-btn" onClick={() => navigate(-1)}>
           Back
@@ -66,18 +71,16 @@ export default function CheckoutPayment() {
         </button>
       </div>
 
-      {/* ORDER SUMMARY */}
-      <h3>Order Summary</h3>
+      {/* ===== ORDER SUMMARY ===== */}
+      <h3 className="summary-title">Order Summary</h3>
 
       <div className="summary-box">
-
         {cart.map((item, i) => (
           <div className="summary-item" key={i}>
-
             <img
               src={item.image}
-              className="summary-img"
               alt={item.name}
+              className="summary-img"
             />
 
             <div className="summary-info">
@@ -85,10 +88,7 @@ export default function CheckoutPayment() {
               <div className="qty">Qty: {item.qty}</div>
             </div>
 
-            <div className="price">
-              ₹{item.price * item.qty}
-            </div>
-
+            <div className="price">₹{item.price}</div>
           </div>
         ))}
 
@@ -106,8 +106,8 @@ export default function CheckoutPayment() {
           <span>Total</span>
           <span>₹{total}</span>
         </div>
-
       </div>
+
     </div>
   );
 }
