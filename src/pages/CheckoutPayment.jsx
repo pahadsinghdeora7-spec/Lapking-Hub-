@@ -28,6 +28,7 @@ export default function CheckoutPayment() {
       .from("payment_settings")
       .select("*")
       .eq("status", true)
+      .limit(1)
       .single();
 
     if (data) setPayment(data);
@@ -35,30 +36,24 @@ export default function CheckoutPayment() {
 
   if (!payment) return null;
 
-  const upiLinks = {
-    gpay: `upi://pay?pa=${payment.upi_id}&pn=King%20Metals&am=${total}&cu=INR`,
-    phonepe: `upi://pay?pa=${payment.upi_id}&pn=King%20Metals&am=${total}&cu=INR`,
-    paytm: `upi://pay?pa=${payment.upi_id}&pn=King%20Metals&am=${total}&cu=INR`,
-  };
-
   return (
-    <div className="checkout-payment-page">
+    <div className="checkout-page">
 
       <h2 className="title">🔒 Secure Payment</h2>
 
-      {/* PAYMENT CARD */}
+      {/* ===== QR BOX ===== */}
       <div className="payment-card">
 
         <div className="merchant">
-          <div className="logo">K</div>
-          <div className="name">King Metals</div>
+          <div className="merchant-logo">K</div>
+          <div className="merchant-name">King Metals</div>
         </div>
 
         {payment.qr_image && (
           <img
             src={payment.qr_image}
             alt="UPI QR"
-            className="qr-image"
+            className="qr-img"
           />
         )}
 
@@ -66,93 +61,85 @@ export default function CheckoutPayment() {
           Scan to pay using any UPI app
         </p>
 
-        <div className="upi-box">
+        <div className="upi-id-box">
           <strong>UPI ID</strong>
           <div>{payment.upi_id}</div>
           <small>Google Pay • PhonePe • Paytm</small>
         </div>
 
-        {/* UPI APP SELECT */}
+        {/* ===== UPI SELECT ===== */}
         <div className="upi-select">
 
           <div
-            className={
-              selectedApp === "gpay"
-                ? "upi-option active"
-                : "upi-option"
-            }
+            className={`upi-option ${selectedApp === "gpay" ? "active" : ""}`}
             onClick={() => setSelectedApp("gpay")}
           >
-            <img src="/gpay.svg" />
+            <span className="upi-icon gpay">G</span>
             Google Pay
           </div>
 
           <div
-            className={
-              selectedApp === "phonepe"
-                ? "upi-option active"
-                : "upi-option"
-            }
+            className={`upi-option ${selectedApp === "phonepe" ? "active" : ""}`}
             onClick={() => setSelectedApp("phonepe")}
           >
-            <img src="/phonepe.svg" />
+            <span className="upi-icon phonepe">₹</span>
             PhonePe
           </div>
 
           <div
-            className={
-              selectedApp === "paytm"
-                ? "upi-option active"
-                : "upi-option"
-            }
+            className={`upi-option ${selectedApp === "paytm" ? "active" : ""}`}
             onClick={() => setSelectedApp("paytm")}
           >
-            <img src="/paytm.svg" />
+            <span className="upi-icon paytm">P</span>
             Paytm
           </div>
 
         </div>
 
-        {/* BUTTONS */}
+        {/* ===== BUTTONS ===== */}
         <div className="pay-actions">
           <button className="back-btn" onClick={() => navigate(-1)}>
             Back
           </button>
 
-          <a
-            href={upiLinks[selectedApp]}
-            className="pay-btn"
-          >
+          <button className="pay-btn">
             Confirm & Pay ₹{total}
-          </a>
+          </button>
         </div>
 
       </div>
 
-      {/* ORDER SUMMARY */}
+      {/* ===== ORDER SUMMARY ===== */}
       <div className="summary-card">
         <h3>Order Summary</h3>
 
         {cart.map((item, i) => (
-          <div className="summary-row" key={i}>
-            <img src={item.image} />
-            <div className="info">
+          <div key={i} className="summary-item">
+            <img src={item.image} alt="" />
+            <div>
               <div>{item.name}</div>
               <small>Qty: {item.qty}</small>
             </div>
-            <div className="price">₹{item.price}</div>
+            <strong>₹{item.price * item.qty}</strong>
           </div>
         ))}
 
-        <div className="total-box">
-          <div>Subtotal <span>₹{subtotal}</span></div>
-          <div>Shipping <span>₹{shipping}</span></div>
-          <div className="final">
-            Total <span>₹{total}</span>
-          </div>
+        <div className="summary-line">
+          <span>Subtotal</span>
+          <span>₹{subtotal}</span>
+        </div>
+
+        <div className="summary-line">
+          <span>Shipping</span>
+          <span>₹{shipping}</span>
+        </div>
+
+        <div className="summary-total">
+          <span>Total</span>
+          <span>₹{total}</span>
         </div>
       </div>
 
     </div>
   );
-}
+            }
