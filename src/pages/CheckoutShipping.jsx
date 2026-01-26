@@ -1,139 +1,125 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import React, { useState } from "react";
+import "./CheckoutShipping.css";
 
 export default function CheckoutShipping() {
 
-  // ================= STATES =================
-  const [cart, setCart] = useState([]);
-  const [couriers, setCouriers] = useState([]);
-  const [selectedCourier, setSelectedCourier] = useState(null);
+  const [courier, setCourier] = useState("bluedart");
 
-  // ================= LOAD CART =================
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(storedCart);
-  }, []);
-
-  // ================= LOAD COURIERS =================
-  useEffect(() => {
-    const loadCouriers = async () => {
-      const { data, error } = await supabase
-        .from("couriers")
-        .select("*")
-        .eq("status", true)
-        .order("price", { ascending: true });
-
-      if (!error && data.length > 0) {
-        setCouriers(data);
-        setSelectedCourier(data[0]); // default select
-      }
-    };
-
-    loadCouriers();
-  }, []);
-
-  // ================= CALCULATIONS =================
-  const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.qty,
-    0
-  );
-
-  const shipping = selectedCourier ? selectedCourier.price : 0;
-  const total = subtotal + shipping;
-
-  // ================= UI =================
   return (
-    <div className="checkout-container">
+    <div className="checkout-wrapper">
 
-      {/* ================= STEPS ================= */}
-      <div className="checkout-steps">
-        <span className="done">✔ Address</span>
-        <span className="active">🚚 Shipping</span>
-        <span>💳 Payment</span>
-      </div>
+      <div className="checkout-container">
 
-      {/* ================= ORDER SUMMARY ================= */}
-      <div className="card">
-        <h3>📋 Order Summary</h3>
+        {/* STEP INDICATOR */}
+        <div className="checkout-steps">
+          ✔ Address → 🚚 Shipping → 💳 Payment
+        </div>
 
-        {cart.map((item, i) => (
-          <div key={i} className="summary-item">
-            <span>{item.name} × {item.qty}</span>
-            <span>₹{item.price * item.qty}</span>
+        {/* ORDER SUMMARY */}
+        <div className="card">
+          <h3>📦 Order Summary</h3>
+
+          <div className="summary-row">
+            <span>Keyboard × 1</span>
+            <span>₹500</span>
           </div>
-        ))}
 
-        <hr />
+          <div className="summary-row">
+            <span>Subtotal</span>
+            <span>₹500</span>
+          </div>
 
-        <div className="summary-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
+          <div className="summary-row">
+            <span>Shipping</span>
+            <span>
+              {courier === "bluedart" && "₹149"}
+              {courier === "dtdc" && "₹79"}
+              {courier === "delhivery" && "₹99"}
+            </span>
+          </div>
+
+          <div className="summary-total">
+            <span>Total</span>
+            <span>
+              ₹
+              {courier === "bluedart"
+                ? 649
+                : courier === "dtdc"
+                ? 579
+                : 599}
+            </span>
+          </div>
         </div>
 
-        <div className="summary-row">
-          <span>Shipping</span>
-          <span>₹{shipping}</span>
+        {/* MODEL PART */}
+        <div className="card">
+          <label>🧩 Model & Part Number</label>
+
+          <input
+            type="text"
+            placeholder="e.g. Dell Latitude 7400 / 0CMX1D"
+          />
+
+          <small>
+            Helps us deliver correct spare part
+          </small>
         </div>
 
-        <div className="summary-total">
-          <span>Total</span>
-          <span>₹{total}</span>
-        </div>
-      </div>
+        {/* COURIER */}
+        <div className="card">
+          <h3>🚚 Select Courier</h3>
+          <small className="muted">
+            Courier & price managed from admin panel
+          </small>
 
-      {/* ================= MODEL PART ================= */}
-      <div className="card">
-        <label>🧾 Model & Part Number</label>
-        <input placeholder="e.g. Dell Latitude 7400 / 0CMX1D" />
-        <small>Helps us deliver correct spare part</small>
-      </div>
-
-      {/* ================= COURIERS ================= */}
-      <div className="card">
-        <h3>🚚 Select Courier</h3>
-
-        {couriers.map((c) => (
           <div
-            key={c.id}
-            className={`courier-box ${
-              selectedCourier?.id === c.id ? "active" : ""
-            }`}
-            onClick={() => setSelectedCourier(c)}
+            className={`courier-box ${courier === "bluedart" ? "active" : ""}`}
+            onClick={() => setCourier("bluedart")}
           >
-            <input
-              type="radio"
-              checked={selectedCourier?.id === c.id}
-              readOnly
-            />
-
+            <input type="radio" checked={courier === "bluedart"} readOnly />
             <div>
-              <b>{c.name}</b>
-              <p>{c.days}</p>
+              <b>BlueDart</b>
+              <p>2–4 working days</p>
             </div>
-
-            <span>₹{c.price}</span>
+            <span>₹149</span>
           </div>
-        ))}
 
-        <small className="courier-note">
-          Courier & price managed from admin panel
-        </small>
+          <div
+            className={`courier-box ${courier === "dtdc" ? "active" : ""}`}
+            onClick={() => setCourier("dtdc")}
+          >
+            <input type="radio" checked={courier === "dtdc"} readOnly />
+            <div>
+              <b>DTDC</b>
+              <p>4–6 working days</p>
+            </div>
+            <span>₹79</span>
+          </div>
+
+          <div
+            className={`courier-box ${courier === "delhivery" ? "active" : ""}`}
+            onClick={() => setCourier("delhivery")}
+          >
+            <input type="radio" checked={courier === "delhivery"} readOnly />
+            <div>
+              <b>Delhivery</b>
+              <p>3–5 working days</p>
+            </div>
+            <span>₹99</span>
+          </div>
+        </div>
+
+        {/* BUTTON */}
+        <button
+          className="primary-btn"
+          onClick={() => {
+            window.location.hash = "#/checkout/payment";
+          }}
+        >
+          Continue to Payment →
+        </button>
+
       </div>
-
-      {/* ================= BUTTON ================= */}
-      <button
-        className="primary-btn"
-        onClick={() => {
-          localStorage.setItem(
-            "selectedCourier",
-            JSON.stringify(selectedCourier)
-          );
-          window.location.hash = "#/checkout/payment";
-        }}
-      >
-        Continue to Payment →
-      </button>
-
     </div>
   );
-            }
+}
