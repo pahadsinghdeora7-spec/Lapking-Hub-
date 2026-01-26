@@ -1,15 +1,15 @@
-.checkout-page {
-  max-width: 420px;
-  margin: auto;
-  padding: 20px;
-}
-
-.payment-card {
-  background: #fff;
-  border-radius: 12px;
+.payment-page {
   padding: 20px;
   text-align: center;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.payment-box {
+  max-width: 380px;
+  margin: auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 .qr-img {
@@ -17,52 +17,34 @@
   margin: 15px auto;
 }
 
-.upi-box {
-  border: 1px dashed #ccc;
-  padding: 10px;
+.upi-text {
+  color: #555;
   margin-top: 10px;
-  border-radius: 8px;
-  font-size: 14px;
+}
+
+.upi-icons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 15px 0;
+}
+
+.upi-icons img {
+  width: 45px;
 }
 
 .pay-btn {
-  margin-top: 15px;
   width: 100%;
   background: #2563eb;
-  color: #fff;
-  padding: 12px;
-  border-radius: 8px;
+  color: white;
   border: none;
+  padding: 14px;
+  border-radius: 10px;
   font-size: 16px;
-}
-
-.summary-box {
-  background: #fff;
-  margin-top: 20px;
-  padding: 15px;
-  border-radius: 12px;
-}
-
-.summary-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.summary-row img {
-  width: 45px;
-  height: 45px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.price-row {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-}
-
-.price-row.total {
   font-weight: bold;
+  cursor: pointer;
+}
+
+.pay-btn:disabled {
+  background: #9db6ff;
 }
