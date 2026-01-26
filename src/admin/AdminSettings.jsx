@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient.js";
+import { supabase } from "../supabaseClient";
 
 export default function AdminSettings() {
+
+  // ---------------- SITE SETTINGS (OLD) ----------------
   const [form, setForm] = useState({
     site_name: "",
     logo: "",
@@ -14,13 +16,23 @@ export default function AdminSettings() {
     meta_description: "",
   });
 
+  // ---------------- PAYMENT SETTINGS (NEW) ----------------
+  const [payment, setPayment] = useState({
+    upi_id: "",
+    whatsapp: "",
+    note: "",
+    status: true,
+  });
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadSettings();
+    loadSiteSettings();
+    loadPaymentSettings();
   }, []);
 
-  const loadSettings = async () => {
+  // ================= SITE =================
+  const loadSiteSettings = async () => {
     const { data } = await supabase
       .from("site_settings")
       .select("*")
@@ -30,7 +42,18 @@ export default function AdminSettings() {
     if (data) setForm(data);
   };
 
-  const saveSettings = async () => {
+  // ================= PAYMENT =================
+  const loadPaymentSettings = async () => {
+    const { data } = await supabase
+      .from("payment_settings")
+      .select("*")
+      .limit(1)
+      .single();
+
+    if (data) setPayment(data);
+  };
+
+  const saveSiteSettings = async () => {
     setLoading(true);
 
     const { data } = await supabase
@@ -40,20 +63,41 @@ export default function AdminSettings() {
       .single();
 
     if (data?.id) {
-      await supabase
-        .from("site_settings")
-        .update(form)
-        .eq("id", data.id);
+      await supabase.from("site_settings").update(form).eq("id", data.id);
     } else {
       await supabase.from("site_settings").insert([form]);
     }
 
     setLoading(false);
-    alert("Settings saved successfully ✅");
+    alert("Site settings saved ✅");
+  };
+
+  const savePaymentSettings = async () => {
+    setLoading(true);
+
+    const { data } = await supabase
+      .from("payment_settings")
+      .select("id")
+      .limit(1)
+      .single();
+
+    if (data?.id) {
+      await supabase
+        .from("payment_settings")
+        .update(payment)
+        .eq("id", data.id);
+    } else {
+      await supabase.from("payment_settings").insert([payment]);
+    }
+
+    setLoading(false);
+    alert("Payment settings saved ✅");
   };
 
   return (
     <div className="admin-page">
+
+      {/* ================= SITE SETTINGS ================= */}
       <h2>Site Settings</h2>
 
       <div className="card">
@@ -81,61 +125,58 @@ export default function AdminSettings() {
           }
         />
 
-        <input
-          placeholder="WhatsApp Number"
-          value={form.whatsapp}
-          onChange={(e) =>
-            setForm({ ...form, whatsapp: e.target.value })
-          }
-        />
-
-        <input
-          placeholder="Support Email"
-          value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-        />
-
-        <textarea
-          placeholder="Address"
-          value={form.address}
-          onChange={(e) =>
-            setForm({ ...form, address: e.target.value })
-          }
-        />
-
-        <textarea
-          placeholder="Footer Text"
-          value={form.footer_text}
-          onChange={(e) =>
-            setForm({ ...form, footer_text: e.target.value })
-          }
-        />
-
-        <input
-          placeholder="Meta Title"
-          value={form.meta_title}
-          onChange={(e) =>
-            setForm({ ...form, meta_title: e.target.value })
-          }
-        />
-
-        <textarea
-          placeholder="Meta Description"
-          value={form.meta_description}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              meta_description: e.target.value,
-            })
-          }
-        />
-
-        <button onClick={saveSettings} disabled={loading}>
-          {loading ? "Saving..." : "Save Settings"}
+        <button onClick={saveSiteSettings} disabled={loading}>
+          Save Site Settings
         </button>
       </div>
+
+      {/* ================= PAYMENT SETTINGS ================= */}
+      <h2 style={{ marginTop: 40 }}>Payment Settings</h2>
+
+      <div className="card">
+
+        <input
+          placeholder="UPI ID"
+          value={payment.upi_id}
+          onChange={(e) =>
+            setPayment({ ...payment, upi_id: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="WhatsApp Number"
+          value={payment.whatsapp}
+          onChange={(e) =>
+            setPayment({ ...payment, whatsapp: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Note (after payment message)"
+          value={payment.note}
+          onChange={(e) =>
+            setPayment({ ...payment, note: e.target.value })
+          }
+        />
+
+        <select
+          value={payment.status ? "true" : "false"}
+          onChange={(e) =>
+            setPayment({
+              ...payment,
+              status: e.target.value === "true",
+            })
+          }
+        >
+          <option value="true">Payment Enabled</option>
+          <option value="false">Payment Disabled</option>
+        </select>
+
+        <button onClick={savePaymentSettings} disabled={loading}>
+          Save Payment Settings
+        </button>
+      </div>
+
     </div>
   );
-    }
+              }
