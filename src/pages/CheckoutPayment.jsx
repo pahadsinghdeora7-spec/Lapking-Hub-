@@ -6,6 +6,7 @@ export default function CheckoutPayment() {
   const navigate = useNavigate();
 
   const [payment, setPayment] = useState(null);
+
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   const subtotal = cart.reduce(
@@ -40,10 +41,14 @@ export default function CheckoutPayment() {
 
       <h2>Payment</h2>
 
-      {/* QR SECTION */}
-      {payment.qr_url && (
+      {/* ✅ QR IMAGE — FINAL FIX */}
+      {payment.qr_image && (
         <div className="qr-box">
-          <img src={payment.qr_url} alt="UPI QR" />
+          <img
+            src={payment.qr_image}
+            alt="UPI QR"
+            style={{ width: "220px", maxWidth: "100%" }}
+          />
           <p>Scan QR to pay via UPI</p>
         </div>
       )}
