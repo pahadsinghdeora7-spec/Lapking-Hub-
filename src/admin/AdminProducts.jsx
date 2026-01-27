@@ -4,7 +4,7 @@ import "./adminProducts.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
-  const [edit, setEdit] = useState(null);
+  const [openProduct, setOpenProduct] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -19,40 +19,38 @@ export default function AdminProducts() {
     setProducts(data || []);
   };
 
-  // ======================
-  // UPDATE PRODUCT
-  // ======================
+  // ================= UPDATE =================
   const updateProduct = async () => {
     const { error } = await supabase
       .from("products")
       .update({
-        name: edit.name,
-        price: edit.price,
-        stock: edit.stock,
-        part_number: edit.part_number,
-        brand: edit.brand,
-        compatible_models: edit.compatible_models,
-        description: edit.description,
-        category_slug: edit.category_slug
+        name: openProduct.name,
+        price: openProduct.price,
+        stock: openProduct.stock,
+        part_number: openProduct.part_number,
+        category_slug: openProduct.category_slug,
+        brand: openProduct.brand,
+        description: openProduct.description
       })
-      .eq("id", edit.id);
+      .eq("id", openProduct.id);
 
     if (!error) {
-      alert("Product updated successfully");
-      setEdit(null);
+      alert("Product updated");
+      setOpenProduct(null);
       fetchProducts();
-    } else {
-      alert("Update failed");
     }
   };
 
-  // ======================
-  // DELETE PRODUCT
-  // ======================
-  const deleteProduct = async (id) => {
+  // ================= DELETE =================
+  const deleteProduct = async () => {
     if (!window.confirm("Delete this product?")) return;
 
-    await supabase.from("products").delete().eq("id", id);
+    await supabase
+      .from("products")
+      .delete()
+      .eq("id", openProduct.id);
+
+    setOpenProduct(null);
     fetchProducts();
   };
 
@@ -61,7 +59,7 @@ export default function AdminProducts() {
 
       <h2>Products</h2>
 
-      {/* ================= PRODUCT TABLE ================= */}
+      {/* ================= TABLE ================= */}
       <div className="table-card">
         <table>
           <thead>
@@ -78,7 +76,11 @@ export default function AdminProducts() {
 
           <tbody>
             {products.map((p) => (
-              <tr key={p.id}>
+              <tr
+                key={p.id}
+                style={{ cursor: "pointer" }}
+                onClick={() => setOpenProduct(p)}
+              >
                 <td>
                   {p.image ? (
                     <img src={p.image} className="thumb" />
@@ -93,20 +95,10 @@ export default function AdminProducts() {
                 <td>₹{p.price}</td>
                 <td>{p.stock}</td>
 
-                <td className="actions">
-                  <button
-                    className="edit"
-                    onClick={() => setEdit(p)}
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    className="delete"
-                    onClick={() => deleteProduct(p.id)}
-                  >
-                    Delete
-                  </button>
+                <td>
+                  <span style={{ color: "#2563eb", fontSize: 12 }}>
+                    Click
+                  </span>
                 </td>
               </tr>
             ))}
@@ -114,26 +106,41 @@ export default function AdminProducts() {
         </table>
       </div>
 
-      {/* ================= EDIT MODAL ================= */}
-      {edit && (
+      {/* ================= POPUP ================= */}
+      {openProduct && (
         <div className="modal-bg">
           <div className="modal-card">
 
-            <h3>Edit Product</h3>
+            <h3>Product Details</h3>
+
+            {openProduct.image && (
+              <img
+                src={openProduct.image}
+                style={{
+                  width: 90,
+                  height: 90,
+                  objectFit: "cover",
+                  borderRadius: 8,
+                  marginBottom: 10
+                }}
+              />
+            )}
 
             <input
-              value={edit.name || ""}
+              value={openProduct.name || ""}
               onChange={(e) =>
-                setEdit({ ...edit, name: e.target.value })
+                setOpenProduct({ ...openProduct, name: e.target.value })
               }
-              placeholder="Product Name"
+              placeholder="Product name"
             />
 
-            {/* CATEGORY */}
             <select
-              value={edit.category_slug || ""}
+              value={openProduct.category_slug || ""}
               onChange={(e) =>
-                setEdit({ ...edit, category_slug: e.target.value })
+                setOpenProduct({
+                  ...openProduct,
+                  category_slug: e.target.value
+                })
               }
             >
               <option value="">Select Category</option>
@@ -145,53 +152,43 @@ export default function AdminProducts() {
             </select>
 
             <input
-              value={edit.price || ""}
+              value={openProduct.part_number || ""}
               onChange={(e) =>
-                setEdit({ ...edit, price: e.target.value })
-              }
-              placeholder="Price"
-            />
-
-            <input
-              value={edit.stock || ""}
-              onChange={(e) =>
-                setEdit({ ...edit, stock: e.target.value })
-              }
-              placeholder="Stock"
-            />
-
-            <input
-              value={edit.part_number || ""}
-              onChange={(e) =>
-                setEdit({ ...edit, part_number: e.target.value })
+                setOpenProduct({
+                  ...openProduct,
+                  part_number: e.target.value
+                })
               }
               placeholder="Part Number"
             />
 
             <input
-              value={edit.brand || ""}
+              value={openProduct.price || ""}
               onChange={(e) =>
-                setEdit({ ...edit, brand: e.target.value })
-              }
-              placeholder="Brand"
-            />
-
-            <textarea
-              value={edit.compatible_models || ""}
-              onChange={(e) =>
-                setEdit({
-                  ...edit,
-                  compatible_models: e.target.value
+                setOpenProduct({
+                  ...openProduct,
+                  price: e.target.value
                 })
               }
-              placeholder="Compatible Models"
+              placeholder="Price"
+            />
+
+            <input
+              value={openProduct.stock || ""}
+              onChange={(e) =>
+                setOpenProduct({
+                  ...openProduct,
+                  stock: e.target.value
+                })
+              }
+              placeholder="Stock"
             />
 
             <textarea
-              value={edit.description || ""}
+              value={openProduct.description || ""}
               onChange={(e) =>
-                setEdit({
-                  ...edit,
+                setOpenProduct({
+                  ...openProduct,
                   description: e.target.value
                 })
               }
@@ -203,11 +200,15 @@ export default function AdminProducts() {
                 Update
               </button>
 
+              <button className="delete" onClick={deleteProduct}>
+                Delete
+              </button>
+
               <button
                 className="btn-outline"
-                onClick={() => setEdit(null)}
+                onClick={() => setOpenProduct(null)}
               >
-                Cancel
+                Close
               </button>
             </div>
 
