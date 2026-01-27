@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
-import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
@@ -13,28 +12,29 @@ export default function CategoryProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
+    loadCategoryAndProducts();
   }, [slug]);
 
-  const loadData = async () => {
+  const loadCategoryAndProducts = async () => {
     setLoading(true);
 
-    // ✅ CATEGORY BY SLUG
+    // ✅ 1. Category fetch (SEO H1 + description)
     const { data: cat } = await supabase
       .from("categories")
-      .select("*")
+      .select("id, name, h1, description, slug")
       .eq("slug", slug)
       .single();
 
     if (!cat) {
       setCategory(null);
+      setProducts([]);
       setLoading(false);
       return;
     }
 
     setCategory(cat);
 
-    // ✅ PRODUCTS BY CATEGORY SLUG
+    // ✅ 2. Products fetch using category_slug
     const { data: prods } = await supabase
       .from("products")
       .select("*")
@@ -45,37 +45,48 @@ export default function CategoryProducts() {
     setLoading(false);
   };
 
-  if (loading) return <div className="page-loading">Loading...</div>;
+  if (loading) {
+    return <div style={{ padding: 20 }}>Loading...</div>;
+  }
 
-  if (!category) return <div className="page-loading">Category not found</div>;
+  if (!category) {
+    return <div style={{ padding: 20 }}>Category not found</div>;
+  }
 
   return (
-    <div className="category-page">
+    <div className="page-container">
 
-      {/* SEO */}
+      {/* ✅ SEO */}
       <Helmet>
         <title>{category.h1 || category.name} | Lapking Hub</title>
-        {category.description && (
-          <meta name="description" content={category.description} />
-        )}
+        <meta
+          name="description"
+          content={
+            category.description ||
+            `Buy ${category.name} laptop spare parts at best price in India`
+          }
+        />
       </Helmet>
 
-      {/* SEO CONTENT */}
-      <h1 className="cat-h1">
+      {/* ✅ H1 (Google SEO) */}
+      <h1 className="category-title">
         {category.h1 || category.name}
       </h1>
 
+      {/* ✅ SEO description visible */}
       {category.description && (
-        <p className="cat-desc">{category.description}</p>
+        <p className="category-description">
+          {category.description}
+        </p>
       )}
 
-      {/* PRODUCTS */}
+      {/* ✅ PRODUCTS */}
       {products.length === 0 ? (
-        <p className="no-products">
+        <p style={{ marginTop: 20 }}>
           No products found in this category
         </p>
       ) : (
-        <div className="products-grid">
+        <div className="product-grid">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
@@ -83,4 +94,4 @@ export default function CategoryProducts() {
       )}
     </div>
   );
-}
+      }
