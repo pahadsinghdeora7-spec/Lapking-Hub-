@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
-import "./AdminProducts.css";
+import "./adminProducts.css";
 
 export default function AdminProducts() {
   const navigate = useNavigate();
