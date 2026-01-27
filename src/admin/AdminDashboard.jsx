@@ -26,16 +26,10 @@ export default function AdminDashboard() {
     const { data: orders = [] } = await supabase.from("orders").select("*");
     const { data: products = [] } = await supabase.from("products").select("*");
 
-    // =====================
-    // CURRENT MONTH
-    // =====================
     const now = new Date();
     const month = now.getMonth();
     const year = now.getFullYear();
 
-    // =====================
-    // DELIVERED ORDERS
-    // =====================
     const deliveredOrders = orders.filter(o => {
       const d = new Date(o.created_at);
       return (
@@ -51,25 +45,14 @@ export default function AdminDashboard() {
       0
     );
 
-    // =====================
-    // PENDING
-    // =====================
     const pendingOrders = orders.filter(
-      o =>
-        o.order_status === "pending" ||
-        o.order_status === "new"
+      o => o.order_status === "pending" || o.order_status === "new"
     );
 
-    // =====================
-    // CANCELLED
-    // =====================
     const cancelledOrders = orders.filter(
       o => o.order_status === "cancelled"
     );
 
-    // =====================
-    // LOW STOCK
-    // =====================
     const low = products.filter(p => Number(p.quantity) <= 5);
 
     setStats({
@@ -145,6 +128,15 @@ export default function AdminDashboard() {
           <p>Total Customers</p>
         </div>
 
+        {/* ✅ ADD PRODUCT CARD */}
+        <div
+          className="stat-card add-product clickable"
+          onClick={() => navigate("/admin/products/add")}
+        >
+          <h4>+</h4>
+          <p>Add Product</p>
+        </div>
+
       </div>
 
       {/* ================= LOW STOCK ================= */}
@@ -214,4 +206,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-                  }
+}
