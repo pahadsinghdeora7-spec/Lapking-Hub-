@@ -30,8 +30,7 @@ export default function AdminDashboard() {
     const month = now.getMonth();
     const year = now.getFullYear();
 
-    // ✅ Delivered orders revenue
-    const deliveredOrders = orders.filter((o) => {
+    const deliveredOrders = orders.filter(o => {
       const d = new Date(o.created_at);
       return (
         (o.order_status === "completed" ||
@@ -47,14 +46,14 @@ export default function AdminDashboard() {
     );
 
     const pendingOrders = orders.filter(
-      (o) => o.order_status === "pending" || o.order_status === "new"
+      o => o.order_status === "pending" || o.order_status === "new"
     );
 
     const cancelledOrders = orders.filter(
-      (o) => o.order_status === "cancelled"
+      o => o.order_status === "cancelled"
     );
 
-    const low = products.filter((p) => Number(p.quantity) <= 5);
+    const low = products.filter(p => Number(p.stock) <= 5);
 
     setStats({
       monthRevenue,
@@ -78,7 +77,7 @@ export default function AdminDashboard() {
         <p>Welcome back! Here's what's happening.</p>
       </div>
 
-      {/* ================= DASHBOARD CARDS ================= */}
+      {/* ================= CARDS ================= */}
       <div className="stat-grid">
 
         <div
@@ -125,11 +124,11 @@ export default function AdminDashboard() {
           className="stat-card orange clickable"
           onClick={() => navigate("/admin/customers")}
         >
-          <h4>{stats.customers || "N/A"}</h4>
+          <h4>{stats.customers || "Not Available"}</h4>
           <p>Total Customers</p>
         </div>
 
-        {/* ➕ ADD PRODUCT */}
+        {/* ✅ ADD PRODUCT CARD (ALREADY WORKING) */}
         <div
           className="stat-card add-product clickable"
           onClick={() => navigate("/admin/products/add")}
@@ -138,13 +137,13 @@ export default function AdminDashboard() {
           <p>Add Product</p>
         </div>
 
-        {/* 🗑 DELETE PRODUCT */}
+        {/* ✅ BULK UPLOAD CARD (NEW — ONLY THIS ADDED) */}
         <div
-          className="stat-card delete-product clickable"
-          onClick={() => navigate("/admin/products")}
+          className="stat-card blue clickable"
+          onClick={() => navigate("/admin/products/bulk-upload")}
         >
-          <h4>🗑</h4>
-          <p>Delete Products</p>
+          <h4>📄</h4>
+          <p>Bulk Upload</p>
         </div>
 
       </div>
@@ -161,11 +160,11 @@ export default function AdminDashboard() {
         ) : (
           <table className="table">
             <tbody>
-              {lowStock.map((p) => (
+              {lowStock.map(p => (
                 <tr key={p.id}>
                   <td>{p.name}</td>
                   <td style={{ color: "red", fontWeight: 600 }}>
-                    {p.quantity}
+                    {p.stock}
                   </td>
                 </tr>
               ))}
@@ -200,7 +199,7 @@ export default function AdminDashboard() {
                 </td>
               </tr>
             ) : (
-              recentOrders.map((o) => (
+              recentOrders.map(o => (
                 <tr key={o.id}>
                   <td>#{o.id}</td>
                   <td>{new Date(o.created_at).toLocaleDateString()}</td>
@@ -216,4 +215,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-        }
+}
