@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Helmet } from "react-helmet";
@@ -6,7 +6,6 @@ import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
-  const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState(null);
@@ -17,22 +16,18 @@ export default function CategoryProducts() {
     fetchProducts();
   }, [slug]);
 
-  // ======================
-  // CATEGORY SEO DATA
-  // ======================
+  // ================= CATEGORY SEO =================
   const fetchCategory = async () => {
     const { data } = await supabase
       .from("categories")
-      .select("name, h1, description")
+      .select("h1, description, name")
       .eq("slug", slug)
       .single();
 
     setCategory(data);
   };
 
-  // ======================
-  // PRODUCTS BY CATEGORY
-  // ======================
+  // ================= PRODUCTS =================
   const fetchProducts = async () => {
     setLoading(true);
 
@@ -45,9 +40,7 @@ export default function CategoryProducts() {
     setLoading(false);
   };
 
-  // ======================
-  // ADD TO CART (SAFE)
-  // ======================
+  // ================= ADD TO CART =================
   const addToCart = (product) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -68,7 +61,9 @@ export default function CategoryProducts() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Product added to cart");
+
+    // ✅ cart count update everywhere
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   return (
@@ -76,9 +71,7 @@ export default function CategoryProducts() {
 
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>
-          {category?.name || slug} | Lapking Hub
-        </title>
+        <title>{category?.name || slug} | Lapking Hub</title>
         <meta
           name="description"
           content={category?.description || ""}
@@ -107,34 +100,22 @@ export default function CategoryProducts() {
           {products.map((p) => (
             <div className="cat-card" key={p.id}>
 
-              <img
-                src={p.image || "/no-image.png"}
-                alt={p.name}
-              />
+              <img src={p.image} alt={p.name} />
 
-              {/* NAME */}
               <h3>{p.name}</h3>
 
               {/* BRAND RIGHT SIDE */}
-              {p.brand && (
-                <div className="cat-meta">
-                  <span>Brand:</span>
-                  <b>{p.brand}</b>
-                </div>
-              )}
+              <div className="cat-meta">
+                <span>Brand: <b>{p.brand || "-"}</b></span>
+              </div>
 
-              {/* PART NUMBER RIGHT SIDE */}
-              {p.part_no && (
-                <div className="cat-meta">
-                  <span>Part No:</span>
-                  <b>{p.part_no}</b>
-                </div>
-              )}
+              {/* PART NUMBER RIGHT BOTTOM */}
+              <div className="cat-part">
+                Part No: {p.part_no || "-"}
+              </div>
 
-              {/* PRICE */}
-              <p className="price">₹{p.price}</p>
+              <p className="cat-price">₹{p.price}</p>
 
-              {/* ADD TO CART */}
               <button onClick={() => addToCart(p)}>
                 Add to Cart
               </button>
