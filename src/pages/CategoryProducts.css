@@ -1,29 +1,56 @@
+/* ===== CATEGORY PAGE ONLY ===== */
+
 .category-page {
   padding: 15px;
+  background: #f7f9fc;
+  min-height: 100vh;
 }
 
+/* H1 */
 .category-title {
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 6px;
+  color: #111;
 }
 
+/* SEO description */
 .category-description {
   font-size: 14px;
   color: #666;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
+  line-height: 1.5;
 }
 
-.category-page .product-grid {
+/* product grid */
+.category-products {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-/* ❌ admin css ko block kare */
+/* empty */
+.cat-empty {
+  text-align: center;
+  color: #777;
+  margin-top: 40px;
+  font-size: 14px;
+}
+
+/* loading */
+.cat-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 15px;
+}
+
+/* ❌ BLOCK ADMIN CSS */
 .category-page table,
-.category-page .save,
-.category-page .edit,
-.category-page .delete {
-  display: none !important;
+.category-page form,
+.category-page input[type="text"],
+.category-page textarea,
+.category-page button.save,
+.category-page button.edit,
+.category-page button.delete {
+  all: unset;
 }
