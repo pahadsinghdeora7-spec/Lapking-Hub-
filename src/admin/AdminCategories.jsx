@@ -2,17 +2,27 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./AdminCategories.css";
 
+/* SLUG GENERATOR */
+const makeSlug = (text) =>
+  text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "");
+
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
-
   const [name, setName] = useState("");
   const [h1, setH1] = useState("");
   const [description, setDescription] = useState("");
-
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ================= FETCH =================
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  /* FETCH */
   const fetchCategories = async () => {
     const { data } = await supabase
       .from("categories")
@@ -22,40 +32,48 @@ export default function AdminCategories() {
     setCategories(data || []);
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  // ================= ADD =================
-  const addCategory = async () => {
+  /* ADD / UPDATE */
+  const saveCategory = async () => {
     if (!name.trim()) {
-      alert("Category name required hai");
+      alert("Category name required");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.from("categories").insert([
-      {
-        name: name.trim(),
-        h1: h1.trim(),
-        description: description.trim(),
-      },
-    ]);
+    const payload = {
+      name,
+      slug: makeSlug(name),
+      h1,
+      description,
+    };
+
+    let res;
+
+    if (editId) {
+      res = await supabase
+        .from("categories")
+        .update(payload)
+        .eq("id", editId);
+    } else {
+      res = await supabase.from("categories").insert([payload]);
+    }
 
     setLoading(false);
 
-    if (error) {
-      alert(error.message);
+    if (res.error) {
+      alert(res.error.message);
       return;
     }
 
-    resetForm();
+    setName("");
+    setH1("");
+    setDescription("");
+    setEditId(null);
     fetchCategories();
-    alert("Category added successfully ✅");
   };
 
-  // ================= EDIT =================
+  /* EDIT */
   const editCategory = (cat) => {
     setEditId(cat.id);
     setName(cat.name || "");
@@ -63,61 +81,24 @@ export default function AdminCategories() {
     setDescription(cat.description || "");
   };
 
-  // ================= UPDATE =================
-  const updateCategory = async () => {
-    if (!editId) return;
-
-    setLoading(true);
-
-    const { error } = await supabase
-      .from("categories")
-      .update({
-        name: name.trim(),
-        h1: h1.trim(),
-        description: description.trim(),
-      })
-      .eq("id", editId);
-
-    setLoading(false);
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    resetForm();
-    fetchCategories();
-    alert("Category updated successfully ✅");
-  };
-
-  // ================= DELETE =================
+  /* DELETE */
   const deleteCategory = async (id) => {
-    if (!window.confirm("Delete this category?")) return;
+    if (!window.confirm("Delete category?")) return;
 
     await supabase.from("categories").delete().eq("id", id);
     fetchCategories();
   };
 
-  const resetForm = () => {
-    setEditId(null);
-    setName("");
-    setH1("");
-    setDescription("");
-  };
-
   return (
-    <div className="admin-category">
+    <div className="admin-box">
 
-      {/* TITLE */}
-      <div className="page-title">
+      <div className="title">
         <h2>📁 Categories (SEO Enabled)</h2>
-        <p>H1 & description Google SEO ke liye</p>
+        <p>H1 & description Google ke liye</p>
       </div>
 
       {/* FORM */}
-      <div className="category-card">
-        <h4>{editId ? "Edit Category" : "Add Category"}</h4>
-
+      <div className="form-card">
         <input
           placeholder="Category name (Keyboard)"
           value={name}
@@ -136,33 +117,23 @@ export default function AdminCategories() {
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <button
-          className="primary-btn"
-          onClick={editId ? updateCategory : addCategory}
-          disabled={loading}
-        >
+        <button onClick={saveCategory} disabled={loading}>
           {loading
             ? "Saving..."
             : editId
             ? "Update Category"
             : "Add Category"}
         </button>
-
-        {editId && (
-          <button className="cancel-btn" onClick={resetForm}>
-            Cancel
-          </button>
-        )}
       </div>
 
       {/* TABLE */}
-      <div className="category-table">
+      <div className="table-card">
         <table>
           <thead>
             <tr>
               <th>ID</th>
               <th>Name</th>
-              <th>SEO H1</th>
+              <th>Slug</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -172,17 +143,13 @@ export default function AdminCategories() {
               <tr key={c.id}>
                 <td>{c.id}</td>
                 <td>{c.name}</td>
-                <td>{c.h1 || "-"}</td>
-                <td className="actions">
-                  <button
-                    className="edit-btn"
-                    onClick={() => editCategory(c)}
-                  >
+                <td className="slug">{c.slug}</td>
+                <td>
+                  <button className="edit" onClick={() => editCategory(c)}>
                     Edit
                   </button>
-
                   <button
-                    className="delete-btn"
+                    className="delete"
                     onClick={() => deleteCategory(c.id)}
                   >
                     Delete
@@ -190,18 +157,10 @@ export default function AdminCategories() {
                 </td>
               </tr>
             ))}
-
-            {categories.length === 0 && (
-              <tr>
-                <td colSpan="4" className="empty">
-                  No categories found
-                </td>
-              </tr>
-            )}
           </tbody>
+
         </table>
       </div>
-
     </div>
   );
-        }
+}
