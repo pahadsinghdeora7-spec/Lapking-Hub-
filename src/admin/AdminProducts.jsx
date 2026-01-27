@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import * as XLSX from "xlsx";
 import "./adminProducts.css";
 
 export default function AdminProducts() {
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -11,13 +11,13 @@ export default function AdminProducts() {
   const [showAdd, setShowAdd] = useState(false);
   const [showBulk, setShowBulk] = useState(false);
   const [excelFile, setExcelFile] = useState(null);
-  const [search, setSearch] = useState("");
 
   const emptyForm = {
     name: "",
     category_slug: "",
     brand: "",
     part_number: "",
+    compatible_model: "",
     price: "",
     stock: "",
     description: "",
@@ -47,13 +47,14 @@ export default function AdminProducts() {
   }, []);
 
   // ================= OPEN EDIT =================
-  const openProduct = (item) => {
+  const openEdit = (item) => {
     setSelected(item);
     setForm({
       name: item.name || "",
       category_slug: item.category_slug || "",
       brand: item.brand || "",
       part_number: item.part_number || "",
+      compatible_model: item.compatible_model || "",
       price: item.price || "",
       stock: item.stock || "",
       description: item.description || "",
@@ -66,21 +67,29 @@ export default function AdminProducts() {
 
   // ================= UPDATE =================
   const updateProduct = async () => {
-    await supabase.from("products").update(form).eq("id", selected.id);
+    await supabase
+      .from("products")
+      .update(form)
+      .eq("id", selected.id);
+
     setSelected(null);
     fetchProducts();
   };
 
   // ================= DELETE =================
   const deleteProduct = async () => {
-    if (!window.confirm("Delete product?")) return;
+    if (!window.confirm("Delete this product?")) return;
 
-    await supabase.from("products").delete().eq("id", selected.id);
+    await supabase
+      .from("products")
+      .delete()
+      .eq("id", selected.id);
+
     setSelected(null);
     fetchProducts();
   };
 
-  // ================= ADD PRODUCT =================
+  // ================= ADD =================
   const addProduct = async () => {
     await supabase.from("products").insert(form);
     setShowAdd(false);
@@ -89,33 +98,32 @@ export default function AdminProducts() {
   };
 
   // ================= BULK UPLOAD =================
-  const handleBulkUpload = async () => {
-    if (!excelFile) {
-      alert("Select Excel file");
-      return;
-    }
+  const uploadExcel = async () => {
+    if (!excelFile) return alert("Select Excel file");
+
+    const XLSX = await import("xlsx");
 
     const reader = new FileReader();
 
     reader.onload = async (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
-
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet);
 
-      for (let row of rows) {
+      for (let r of rows) {
         await supabase.from("products").insert({
-          name: row.name || "",
-          category_slug: row.category_slug || "",
-          brand: row.brand || "",
-          part_number: row.part_number || "",
-          price: Number(row.price || 0),
-          stock: Number(row.stock || 0),
-          description: row.description || "",
-          image: row.image || "",
-          image1: row.image1 || "",
-          image2: row.image2 || "",
+          name: r.name || "",
+          category_slug: r.category_slug || "",
+          brand: r.brand || "",
+          part_number: r.part_number || "",
+          compatible_model: r.compatible_model || "",
+          price: Number(r.price || 0),
+          stock: Number(r.stock || 0),
+          description: r.description || "",
+          image: r.image || "",
+          image1: r.image1 || "",
+          image2: r.image2 || "",
           status: true
         });
       }
@@ -129,25 +137,13 @@ export default function AdminProducts() {
     reader.readAsArrayBuffer(excelFile);
   };
 
-  // ================= FILTER =================
-  const filtered = products.filter((p) =>
-    p.name?.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
     <div className="admin-products">
 
-      {/* ================= HEADER ================= */}
       <div className="top-bar">
         <h2>Products</h2>
 
-        <div className="top-actions">
-          <input
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
+        <div>
           <button onClick={() => setShowBulk(true)}>Bulk Upload</button>
           <button onClick={() => setShowAdd(true)}>+ Add Product</button>
         </div>
@@ -174,14 +170,12 @@ export default function AdminProducts() {
               <tr><td colSpan="8">Loading...</td></tr>
             )}
 
-            {!loading && filtered.map((p) => (
+            {!loading && products.map((p) => (
               <tr key={p.id}>
                 <td>
-                  {p.image ? (
-                    <img src={p.image} className="thumb" />
-                  ) : (
-                    <div className="no-img">No Image</div>
-                  )}
+                  {p.image
+                    ? <img src={p.image} className="thumb" />
+                    : <div className="no-img">No Image</div>}
                 </td>
 
                 <td>{p.name}</td>
@@ -192,7 +186,7 @@ export default function AdminProducts() {
                 <td>{p.stock || 0}</td>
 
                 <td>
-                  <button className="edit-btn" onClick={() => openProduct(p)}>
+                  <button className="edit-btn" onClick={() => openEdit(p)}>
                     Click
                   </button>
                 </td>
@@ -206,14 +200,27 @@ export default function AdminProducts() {
       {selected && (
         <div className="modal-bg">
           <div className="modal">
+
             <h3>Edit Product</h3>
 
-            {Object.keys(form).map((key) =>
-              key !== "status" ? (
-                key === "description" ? (
+            {[
+              ["Product Name", "name"],
+              ["Category", "category_slug"],
+              ["Brand", "brand"],
+              ["Part Number", "part_number"],
+              ["Compatible Model", "compatible_model"],
+              ["Price", "price"],
+              ["Stock", "stock"],
+              ["Description", "description"],
+              ["Main Image URL", "image"],
+              ["Image 1", "image1"],
+              ["Image 2", "image2"]
+            ].map(([label, key]) => (
+              <div key={key}>
+                <label>{label}</label>
+                {key === "description" ? (
                   <textarea
-                    key={key}
-                    placeholder={key}
+                    rows="4"
                     value={form[key]}
                     onChange={(e) =>
                       setForm({ ...form, [key]: e.target.value })
@@ -221,22 +228,21 @@ export default function AdminProducts() {
                   />
                 ) : (
                   <input
-                    key={key}
-                    placeholder={key}
                     value={form[key]}
                     onChange={(e) =>
                       setForm({ ...form, [key]: e.target.value })
                     }
                   />
-                )
-              ) : null
-            )}
+                )}
+              </div>
+            ))}
 
             <div className="modal-actions">
               <button className="save" onClick={updateProduct}>Update</button>
               <button className="delete" onClick={deleteProduct}>Delete</button>
               <button className="close" onClick={() => setSelected(null)}>Close</button>
             </div>
+
           </div>
         </div>
       )}
@@ -247,29 +253,19 @@ export default function AdminProducts() {
           <div className="modal">
             <h3>Add Product</h3>
 
-            {Object.keys(emptyForm).map((key) =>
-              key !== "status" ? (
-                key === "description" ? (
-                  <textarea
-                    key={key}
-                    placeholder={key}
-                    value={form[key]}
-                    onChange={(e) =>
-                      setForm({ ...form, [key]: e.target.value })
-                    }
-                  />
-                ) : (
+            {Object.keys(emptyForm).map((key) => (
+              key !== "status" && (
+                <div key={key}>
+                  <label>{key.replace("_", " ")}</label>
                   <input
-                    key={key}
-                    placeholder={key}
                     value={form[key]}
                     onChange={(e) =>
                       setForm({ ...form, [key]: e.target.value })
                     }
                   />
-                )
-              ) : null
-            )}
+                </div>
+              )
+            ))}
 
             <div className="modal-actions">
               <button className="save" onClick={addProduct}>Save</button>
@@ -279,25 +275,21 @@ export default function AdminProducts() {
         </div>
       )}
 
-      {/* ================= BULK UPLOAD ================= */}
+      {/* ================= BULK ================= */}
       {showBulk && (
         <div className="modal-bg">
           <div className="modal">
-            <h3>Bulk Upload (Excel)</h3>
+            <h3>Bulk Upload</h3>
 
             <input
               type="file"
-              accept=".xls,.xlsx"
+              accept=".xlsx,.xls"
               onChange={(e) => setExcelFile(e.target.files[0])}
             />
 
             <div className="modal-actions">
-              <button className="save" onClick={handleBulkUpload}>
-                Upload
-              </button>
-              <button className="close" onClick={() => setShowBulk(false)}>
-                Close
-              </button>
+              <button className="save" onClick={uploadExcel}>Upload</button>
+              <button className="close" onClick={() => setShowBulk(false)}>Close</button>
             </div>
           </div>
         </div>
@@ -305,4 +297,4 @@ export default function AdminProducts() {
 
     </div>
   );
-}
+      }
