@@ -1,145 +1,109 @@
-/* ===============================
-   CATEGORY – PROFESSIONAL ADMIN UI
-   Same style as Order Details modal
-================================ */
-
-.admin-category {
-  max-width: 900px;
+.admin-page {
+  max-width: 1100px;
   margin: auto;
-  padding-bottom: 40px;
 }
 
-/* HEADER */
-.cat-header {
-  margin-bottom: 18px;
-}
-
-.cat-header h2 {
+.page-head h2 {
   font-size: 22px;
-  font-weight: 700;
-  color: #111;
   margin-bottom: 4px;
 }
 
-.cat-header p {
+.page-head p {
   font-size: 13px;
-  color: #6b7280;
+  color: #666;
 }
 
-/* CARD */
-.cat-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 18px 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-}
-
-.cat-card h4 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #1f2937;
-}
-
-/* FORM */
-.cat-form {
-  display: grid;
-  gap: 12px;
-}
-
-.cat-form input,
-.cat-form textarea {
-  width: 100%;
-  padding: 11px 12px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  font-size: 14px;
-  background: #fafafa;
-  transition: 0.2s;
-}
-
-.cat-form textarea {
-  min-height: 90px;
-  resize: none;
-}
-
-.cat-form input:focus,
-.cat-form textarea:focus {
-  outline: none;
-  border-color: #2563eb;
+.card-box {
   background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
 }
 
-/* BUTTON */
-.cat-form button {
-  background: #2563eb;
+.card-box h4 {
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.card-box input,
+.card-box textarea {
+  width: 100%;
+  padding: 11px;
+  border-radius: 9px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.card-box textarea {
+  min-height: 90px;
+}
+
+.card-box input:focus,
+.card-box textarea:focus {
+  outline: none;
+  border-color: #0b5cff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save-btn {
+  background: #0b5cff;
   color: #fff;
   border: none;
-  padding: 11px;
-  border-radius: 10px;
+  padding: 10px 22px;
+  border-radius: 9px;
   font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
 }
 
-.cat-form button:hover {
-  background: #1d4ed8;
+.cancel-btn {
+  background: #eee;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 9px;
+  font-weight: 600;
 }
 
-/* TABLE */
-.cat-table {
+table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
 
-.cat-table thead {
-  background: #f8fafc;
-}
-
-.cat-table th {
+th {
+  background: #f8f9fb;
+  padding: 10px;
   text-align: left;
-  padding: 12px;
-  font-weight: 600;
-  color: #374151;
 }
 
-.cat-table td {
-  padding: 12px;
-  border-top: 1px solid #f1f5f9;
-  color: #111827;
+td {
+  padding: 10px;
+  border-top: 1px solid #eee;
 }
 
-.cat-table tr:hover {
-  background: #f9fafb;
+.actions {
+  display: flex;
+  gap: 8px;
 }
 
-/* DELETE BUTTON */
-.delete-btn {
-  background: #fee2e2;
-  color: #b91c1c;
+.edit-btn {
+  background: #eef4ff;
+  color: #0b5cff;
   border: none;
   padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 7px;
   font-weight: 600;
-  cursor: pointer;
 }
 
-.delete-btn:hover {
-  background: #fecaca;
-}
-
-/* MOBILE */
-@media (max-width: 600px) {
-  .cat-card {
-    padding: 16px;
-  }
-
-  .cat-table th,
-  .cat-table td {
-    padding: 10px;
-    font-size: 13px;
-  }
+.delete-btn {
+  background: #ffeaea;
+  color: #e53935;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-weight: 600;
 }
