@@ -1,65 +1,53 @@
-.card {
-  background: #fff;
-  padding: 22px;
-  border-radius: 14px;
+.bulk-wrapper {
   max-width: 520px;
-  box-shadow: 0 8px 25px rgba(0,0,0,.06);
+  margin: auto;
 }
 
-.card h2 {
-  margin-bottom: 6px;
+.bulk-wrapper h2 {
+  margin-bottom: 16px;
 }
 
-.note {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 14px;
+.bulk-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.06);
 }
 
-label {
-  display: block;
-  margin-top: 14px;
+.bulk-card label {
   font-weight: 600;
   font-size: 13px;
+  margin-top: 12px;
+  display: block;
 }
 
-select,
-input {
+.bulk-card select,
+.bulk-card input {
   margin-top: 6px;
+  margin-bottom: 12px;
   padding: 10px;
-  width: 100%;
   border-radius: 8px;
   border: 1px solid #ddd;
+  width: 100%;
 }
 
-.upload-btn {
-  margin-top: 18px;
+.bulk-card button {
+  width: 100%;
+  padding: 12px;
   background: #0b5cff;
   color: #fff;
   border: none;
-  padding: 12px;
-  width: 100%;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.upload-btn:hover {
-  opacity: .9;
+.bulk-card button:disabled {
+  opacity: 0.7;
 }
 
-.csv-format {
-  margin-top: 22px;
-  background: #f9fafb;
-  padding: 14px;
-  border-radius: 10px;
+.note {
+  margin-top: 14px;
   font-size: 12px;
-}
-
-pre {
-  background: #fff;
-  padding: 10px;
-  overflow-x: auto;
-  border-radius: 8px;
-  border: 1px dashed #ccc;
+  color: #666;
 }
