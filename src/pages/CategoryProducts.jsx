@@ -19,18 +19,18 @@ export default function CategoryProducts() {
     loadCart();
   }, [slug]);
 
-  /* ================= SEO CATEGORY ================= */
+  // ================= CATEGORY SEO =================
   const fetchCategory = async () => {
     const { data } = await supabase
       .from("categories")
-      .select("name,h1,description")
+      .select("name, h1, description")
       .eq("slug", slug)
       .single();
 
     setCategory(data);
   };
 
-  /* ================= PRODUCTS ================= */
+  // ================= PRODUCTS =================
   const fetchProducts = async () => {
     setLoading(true);
 
@@ -43,27 +43,28 @@ export default function CategoryProducts() {
     setLoading(false);
   };
 
-  /* ================= CART ================= */
+  // ================= CART =================
   const loadCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartIds(cart.map((i) => i.id));
+    setCartIds(cart.map(i => i.id));
   };
 
   const addToCart = (product) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    const exists = cart.find((i) => i.id === product.id);
+    const exists = cart.find(i => i.id === product.id);
     if (!exists) {
       cart.push({ ...product, qty: 1 });
       localStorage.setItem("cart", JSON.stringify(cart));
-      setCartIds(cart.map((i) => i.id));
     }
+
+    setCartIds(cart.map(i => i.id));
   };
 
-  /* ================= UI ================= */
   return (
     <div className="cat-page">
-      {/* ✅ SEO */}
+
+      {/* ================= SEO ================= */}
       <Helmet>
         <title>
           {category?.name || slug} | Lapking Hub
@@ -74,17 +75,17 @@ export default function CategoryProducts() {
         />
       </Helmet>
 
-      {/* H1 */}
+      {/* ================= H1 ================= */}
       <h1 className="cat-h1">
         {category?.h1 || category?.name}
       </h1>
 
-      {/* Description */}
+      {/* ================= DESCRIPTION ================= */}
       {category?.description && (
         <p className="cat-desc">{category.description}</p>
       )}
 
-      {/* PRODUCTS */}
+      {/* ================= PRODUCTS ================= */}
       {loading ? (
         <div className="cat-loading">Loading products...</div>
       ) : products.length === 0 ? (
@@ -99,27 +100,23 @@ export default function CategoryProducts() {
             >
               <img src={p.image} alt={p.name} />
 
-              <div className="card-body">
+              <div className="cat-body">
                 <h3>{p.name}</h3>
 
-                {/* RIGHT SIDE INFO */}
-                <div className="meta">
-                  <span className="brand">
-                    Brand: {p.brand || "-"}
-                  </span>
-                  <span className="part">
-                    Part No: {p.part_no || "-"}
-                  </span>
+                {/* BRAND + PART NO */}
+                <div className="cat-meta">
+                  <span>Brand: {p.brand || "-"}</span>
+                  <span>Part No: {p.part_no || "-"}</span>
                 </div>
 
-                <p className="price">₹{p.price}</p>
+                <div className="cat-price">₹{p.price}</div>
 
                 {/* ADD TO CART */}
                 <button
                   className={
                     cartIds.includes(p.id)
-                      ? "cart-btn active"
-                      : "cart-btn"
+                      ? "cat-btn added"
+                      : "cat-btn"
                   }
                   onClick={(e) => {
                     e.stopPropagation();
@@ -137,4 +134,4 @@ export default function CategoryProducts() {
       )}
     </div>
   );
-      }
+                  }
