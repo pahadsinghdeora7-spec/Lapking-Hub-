@@ -4,206 +4,173 @@ import "./adminProducts.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [openProduct, setOpenProduct] = useState(null);
+
+  // FETCH PRODUCTS
+  const fetchProducts = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (!error) {
+      setProducts(data || []);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .order("id", { ascending: false });
-
-    setProducts(data || []);
-  };
-
-  // ================= UPDATE =================
-  const updateProduct = async () => {
-    const { error } = await supabase
-      .from("products")
-      .update({
-        name: openProduct.name,
-        price: openProduct.price,
-        stock: openProduct.stock,
-        part_number: openProduct.part_number,
-        category_slug: openProduct.category_slug,
-        brand: openProduct.brand,
-        description: openProduct.description
-      })
-      .eq("id", openProduct.id);
-
-    if (!error) {
-      alert("Product updated");
-      setOpenProduct(null);
-      fetchProducts();
-    }
-  };
-
-  // ================= DELETE =================
-  const deleteProduct = async () => {
+  // DELETE PRODUCT
+  const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
 
-    await supabase
-      .from("products")
-      .delete()
-      .eq("id", openProduct.id);
-
-    setOpenProduct(null);
+    await supabase.from("products").delete().eq("id", id);
     fetchProducts();
   };
 
   return (
     <div className="admin-page">
+      <div className="page-header">
+        <h2>Products</h2>
 
-      <h2>Products</h2>
+        <div className="top-actions">
+          <button className="btn-outline">Bulk Upload</button>
+          <button className="btn-primary">+ Add Product</button>
+        </div>
+      </div>
 
-      {/* ================= TABLE ================= */}
       <div className="table-card">
-        <table>
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Part No</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {products.map((p) => (
-              <tr
-                key={p.id}
-                style={{ cursor: "pointer" }}
-                onClick={() => setOpenProduct(p)}
-              >
-                <td>
-                  {p.image ? (
-                    <img src={p.image} className="thumb" />
-                  ) : (
-                    <div className="no-image">No image</div>
-                  )}
-                </td>
-
-                <td>{p.name}</td>
-                <td>{p.category_slug || "-"}</td>
-                <td>{p.part_number}</td>
-                <td>₹{p.price}</td>
-                <td>{p.stock}</td>
-
-                <td>
-                  <span style={{ color: "#2563eb", fontSize: 12 }}>
-                    Click
-                  </span>
-                </td>
+        {loading ? (
+          <div className="loading">Loading products...</div>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Part No</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    {p.image ? (
+                      <img src={p.image} className="thumb" />
+                    ) : (
+                      <div className="no-image">No Image</div>
+                    )}
+                  </td>
+
+                  <td>{p.name}</td>
+                  <td>{p.category_slug || "-"}</td>
+                  <td>{p.part_number || "-"}</td>
+                  <td>₹{p.price || 0}</td>
+                  <td>{p.stock || 0}</td>
+
+                  <td>
+                    <div className="actions">
+                      <button
+                        className="edit"
+                        onClick={() => setOpenProduct(p)}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="delete"
+                        onClick={() => deleteProduct(p.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {products.length === 0 && (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: "center" }}>
+                    No products found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* ================= POPUP ================= */}
-      {openProduct && (
-        <div className="modal-bg">
-          <div className="modal-card">
 
+      {openProduct && (
+        <div className="popup-overlay">
+          <div className="popup-card">
             <h3>Product Details</h3>
 
-            {openProduct.image && (
-              <img
-                src={openProduct.image}
-                style={{
-                  width: 90,
-                  height: 90,
-                  objectFit: "cover",
-                  borderRadius: 8,
-                  marginBottom: 10
-                }}
-              />
-            )}
+            <div className="image-row">
+              {/* MAIN IMAGE */}
+              <div className="img-box">
+                <label>Main Image</label>
+                {openProduct.image ? (
+                  <img src={openProduct.image} className="thumb" />
+                ) : (
+                  <div className="no-image">No Image</div>
+                )}
+                <input type="file" />
+              </div>
 
-            <input
-              value={openProduct.name || ""}
-              onChange={(e) =>
-                setOpenProduct({ ...openProduct, name: e.target.value })
-              }
-              placeholder="Product name"
-            />
+              {/* IMAGE 1 */}
+              <div className="img-box">
+                <label>Image 1</label>
+                {openProduct.image1 ? (
+                  <img src={openProduct.image1} className="thumb" />
+                ) : (
+                  <div className="no-image">No Image</div>
+                )}
+                <input type="file" />
+              </div>
 
-            <select
-              value={openProduct.category_slug || ""}
-              onChange={(e) =>
-                setOpenProduct({
-                  ...openProduct,
-                  category_slug: e.target.value
-                })
-              }
-            >
-              <option value="">Select Category</option>
-              <option value="dc-jack">DC Jack</option>
-              <option value="keyboard">Keyboard</option>
-              <option value="battery">Battery</option>
-              <option value="charger">Charger</option>
-              <option value="fan">Fan</option>
-            </select>
+              {/* IMAGE 2 */}
+              <div className="img-box">
+                <label>Image 2</label>
+                {openProduct.image2 ? (
+                  <img src={openProduct.image2} className="thumb" />
+                ) : (
+                  <div className="no-image">No Image</div>
+                )}
+                <input type="file" />
+              </div>
+            </div>
 
-            <input
-              value={openProduct.part_number || ""}
-              onChange={(e) =>
-                setOpenProduct({
-                  ...openProduct,
-                  part_number: e.target.value
-                })
-              }
-              placeholder="Part Number"
-            />
-
-            <input
-              value={openProduct.price || ""}
-              onChange={(e) =>
-                setOpenProduct({
-                  ...openProduct,
-                  price: e.target.value
-                })
-              }
-              placeholder="Price"
-            />
-
-            <input
-              value={openProduct.stock || ""}
-              onChange={(e) =>
-                setOpenProduct({
-                  ...openProduct,
-                  stock: e.target.value
-                })
-              }
-              placeholder="Stock"
-            />
-
+            <input value={openProduct.name || ""} readOnly />
+            <input value={openProduct.price || ""} readOnly />
+            <input value={openProduct.stock || ""} readOnly />
+            <input value={openProduct.part_number || ""} readOnly />
             <textarea
               value={openProduct.description || ""}
-              onChange={(e) =>
-                setOpenProduct({
-                  ...openProduct,
-                  description: e.target.value
-                })
-              }
-              placeholder="Description"
-            />
+              readOnly
+            ></textarea>
 
-            <div className="modal-actions">
-              <button className="btn-primary" onClick={updateProduct}>
-                Update
-              </button>
-
-              <button className="delete" onClick={deleteProduct}>
+            <div className="popup-actions">
+              <button className="btn-primary">Update</button>
+              <button
+                className="btn-danger"
+                onClick={() => deleteProduct(openProduct.id)}
+              >
                 Delete
               </button>
-
               <button
                 className="btn-outline"
                 onClick={() => setOpenProduct(null)}
@@ -211,10 +178,9 @@ export default function AdminProducts() {
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
     </div>
   );
-}
+                        }
