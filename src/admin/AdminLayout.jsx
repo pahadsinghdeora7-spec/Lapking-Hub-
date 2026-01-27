@@ -1,16 +1,25 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import "./admin.css";
 
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
+  // ✅ LOGOUT FUNCTION
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  };
+
   return (
     <>
       {/* TOP BAR */}
       <div className="admin-top">
-        <button className="menu-btn" onClick={() => setOpen(true)}>☰</button>
+        <button className="menu-btn" onClick={() => setOpen(true)}>
+          ☰
+        </button>
 
         <div className="logo">
           👑 <b>LapkingHub</b>
@@ -46,7 +55,10 @@ export default function AdminLayout() {
           <NavLink to="/admin/settings">Settings</NavLink>
         </nav>
 
-        <button className="logout">Logout</button>
+        {/* ✅ WORKING LOGOUT */}
+        <button className="logout" onClick={handleLogout}>
+          Logout
+        </button>
       </aside>
 
       {/* MAIN CONTENT */}
