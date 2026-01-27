@@ -38,27 +38,41 @@ export default function CheckoutPayment() {
 
   async function handlePay() {
     try {
+      if (cartItems.length === 0) {
+        alert("Cart empty");
+        return;
+      }
+
       const orderCode =
         "LKH" + Math.floor(100000000 + Math.random() * 900000000);
 
+      // ✅ SAVE FULL ORDER DATA
       const { data, error } = await supabase
         .from("orders")
         .insert({
-          name: "Customer",
-          phone: "NA",
-          address: "NA",
+          name: "Website Order",
+          phone: "Not Provided",
+          address: "Online Order",
+
           shipping_name: "Standard",
           shipping_price: shippingPrice,
+
           total: total,
+
           payment_method: "UPI",
           payment_status: "pending",
           order_status: "new",
-          order_code: orderCode
+
+          order_code: orderCode,
+
+          // 🔥 MOST IMPORTANT
+          items: cartItems,
         })
         .select()
         .single();
 
       if (error) {
+        console.error(error);
         alert("Order create failed");
         return;
       }
@@ -73,6 +87,7 @@ export default function CheckoutPayment() {
       }, 1000);
 
     } catch (err) {
+      console.error(err);
       alert("Something went wrong");
     }
   }
