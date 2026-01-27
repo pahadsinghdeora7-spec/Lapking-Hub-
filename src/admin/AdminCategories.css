@@ -3,18 +3,20 @@
   margin: auto;
 }
 
-.page-title h2 {
+/* ---------- TITLE ---------- */
+.admin-category .page-title h2 {
   font-size: 22px;
   margin-bottom: 4px;
 }
 
-.page-title p {
+.admin-category .page-title p {
   font-size: 13px;
   color: #666;
   margin-bottom: 20px;
 }
 
-.category-card {
+/* ---------- CARD ---------- */
+.admin-category .category-card {
   background: #fff;
   padding: 20px;
   border-radius: 14px;
@@ -22,12 +24,12 @@
   margin-bottom: 25px;
 }
 
-.category-card h4 {
+.admin-category .category-card h4 {
   margin-bottom: 12px;
 }
 
-.category-card input,
-.category-card textarea {
+.admin-category .category-card input,
+.admin-category .category-card textarea {
   width: 100%;
   padding: 11px;
   border-radius: 8px;
@@ -36,11 +38,12 @@
   font-size: 14px;
 }
 
-.category-card textarea {
+.admin-category .category-card textarea {
   min-height: 90px;
 }
 
-.primary-btn {
+/* ---------- BUTTONS ---------- */
+.admin-category .primary-btn {
   width: 100%;
   padding: 12px;
   background: #0b5cff;
@@ -50,7 +53,7 @@
   font-weight: 600;
 }
 
-.cancel-btn {
+.admin-category .cancel-btn {
   margin-top: 10px;
   width: 100%;
   padding: 10px;
@@ -59,36 +62,38 @@
   border: none;
 }
 
-.category-table {
+/* ---------- TABLE ---------- */
+.admin-category .category-table {
   background: #fff;
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0,0,0,.06);
 }
 
-.category-table table {
+.admin-category .category-table table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
 
-.category-table th {
+.admin-category .category-table th {
   background: #f6f7fb;
   padding: 12px;
   text-align: left;
 }
 
-.category-table td {
+.admin-category .category-table td {
   padding: 12px;
   border-top: 1px solid #eee;
 }
 
-.actions {
+/* ---------- ACTION ---------- */
+.admin-category .actions {
   display: flex;
   gap: 8px;
 }
 
-.edit-btn {
+.admin-category .edit-btn {
   background: #e7f0ff;
   color: #0b5cff;
   border: none;
@@ -96,7 +101,7 @@
   border-radius: 6px;
 }
 
-.delete-btn {
+.admin-category .delete-btn {
   background: #ffecec;
   color: #e53935;
   border: none;
@@ -104,7 +109,7 @@
   border-radius: 6px;
 }
 
-.empty {
+.admin-category .empty {
   text-align: center;
   padding: 20px;
   color: #999;
