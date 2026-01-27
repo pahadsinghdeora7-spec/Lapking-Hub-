@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./AdminOrders.css";
 
 export default function AdminOrderView({ order, onClose, onSaved }) {
   const [paymentStatus, setPaymentStatus] = useState(order.payment_status);
   const [orderStatus, setOrderStatus] = useState(order.order_status);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  async function saveUpdate() {
-    setSaving(true);
+  async function updateOrder() {
+    setLoading(true);
 
     await supabase
       .from("orders")
@@ -18,35 +18,25 @@ export default function AdminOrderView({ order, onClose, onSaved }) {
       })
       .eq("id", order.id);
 
-    setSaving(false);
+    setLoading(false);
     onSaved();
     onClose();
   }
 
   return (
-    <div className="order-modal-overlay">
-      <div className="order-modal">
+    <div className="modal-bg">
+      <div className="modal-card">
 
         {/* HEADER */}
-        <div className="order-modal-head">
-          <h3>📦 Order Details</h3>
-          <button className="close-btn" onClick={onClose}>✕</button>
+        <div className="modal-head">
+          <h3>📦 Order #{order.order_code}</h3>
+          <button onClick={onClose}>✕</button>
         </div>
 
-        {/* BASIC INFO */}
-        <div className="order-card-grid">
+        {/* INFO GRID */}
+        <div className="info-grid">
           <div>
-            <label>Order Code</label>
-            <p>{order.order_code}</p>
-          </div>
-
-          <div>
-            <label>Total Amount</label>
-            <p>₹{order.total}</p>
-          </div>
-
-          <div>
-            <label>Customer Name</label>
+            <label>Customer</label>
             <p>{order.name}</p>
           </div>
 
@@ -59,10 +49,15 @@ export default function AdminOrderView({ order, onClose, onSaved }) {
             <label>Address</label>
             <p>{order.address}</p>
           </div>
+
+          <div>
+            <label>Total</label>
+            <p>₹{order.total}</p>
+          </div>
         </div>
 
         {/* STATUS */}
-        <div className="status-grid">
+        <div className="status-box">
           <div>
             <label>Payment Status</label>
             <select
@@ -92,41 +87,13 @@ export default function AdminOrderView({ order, onClose, onSaved }) {
           </div>
         </div>
 
-        {/* PRODUCTS */}
-        <div className="order-products">
-          <h4>🧾 Ordered Products</h4>
-
-          {!order.items || order.items.length === 0 ? (
-            <p className="muted">No product data</p>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.items.map((item, i) => (
-                  <tr key={i}>
-                    <td>{item.name}</td>
-                    <td>{item.qty}</td>
-                    <td>₹{item.price}</td>
-                    <td>₹{item.price * item.qty}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* ACTION */}
-        <div className="modal-actions">
-          <button className="btn-gray" onClick={onClose}>Close</button>
-          <button className="btn-primary" onClick={saveUpdate} disabled={saving}>
-            {saving ? "Saving..." : "Save Update"}
+        {/* FOOTER */}
+        <div className="modal-footer">
+          <button className="gray" onClick={onClose}>
+            Close
+          </button>
+          <button className="blue" onClick={updateOrder}>
+            {loading ? "Saving..." : "Save Update"}
           </button>
         </div>
 
