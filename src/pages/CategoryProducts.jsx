@@ -13,20 +13,20 @@ export default function CategoryProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategoryAndProducts();
+    fetchCategory();
   }, [slug]);
 
-  const fetchCategoryAndProducts = async () => {
+  const fetchCategory = async () => {
     setLoading(true);
 
-    // ✅ CATEGORY
-    const { data: cat } = await supabase
+    // 🔹 category fetch
+    const { data: cat, error } = await supabase
       .from("categories")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    if (!cat) {
+    if (error || !cat) {
       setCategory(null);
       setProducts([]);
       setLoading(false);
@@ -35,14 +35,14 @@ export default function CategoryProducts() {
 
     setCategory(cat);
 
-    // ✅ PRODUCTS
-    const { data: prod } = await supabase
+    // 🔹 products fetch
+    const { data: prods } = await supabase
       .from("products")
       .select("*")
       .eq("category", cat.name)
       .order("id", { ascending: false });
 
-    setProducts(prod || []);
+    setProducts(prods || []);
     setLoading(false);
   };
 
@@ -51,48 +51,46 @@ export default function CategoryProducts() {
   }
 
   if (!category) {
-    return <div className="cat-empty">Category not found</div>;
+    return <div className="cat-notfound">Category not found</div>;
   }
 
   return (
     <div className="category-page">
 
-      {/* SEO */}
+      {/* 🔥 SEO */}
       <Helmet>
-        <title>{category.h1 || category.name} | Lapking Hub</title>
+        <title>{category.h1 || category.name}</title>
         <meta
           name="description"
-          content={
-            category.description ||
-            `Buy ${category.name} laptop spare parts online at Lapking Hub`
-          }
+          content={category.description || category.name}
         />
       </Helmet>
 
-      {/* H1 */}
-      <h1 className="category-title">
+      {/* 🔹 H1 visible (SEO + user) */}
+      <h1 className="category-h1">
         {category.h1 || category.name}
       </h1>
 
-      {/* DESCRIPTION */}
+      {/* 🔹 description */}
       {category.description && (
-        <p className="category-description">
+        <p className="category-desc">
           {category.description}
         </p>
       )}
 
-      {/* PRODUCTS */}
+      {/* 🔹 PRODUCTS */}
       {products.length === 0 ? (
-        <div className="cat-empty">
+        <div className="no-products">
           No products found in this category
         </div>
       ) : (
-        <div className="category-products">
+        <div className="products-grid">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
+
     </div>
   );
 }
