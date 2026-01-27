@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./adminProducts.css";
+import "./AdminProducts.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -19,9 +19,9 @@ export default function AdminProducts() {
     setProducts(data || []);
   };
 
-  // =====================
+  // ======================
   // UPDATE PRODUCT
-  // =====================
+  // ======================
   const updateProduct = async () => {
     const { error } = await supabase
       .from("products")
@@ -38,7 +38,7 @@ export default function AdminProducts() {
       .eq("id", edit.id);
 
     if (!error) {
-      alert("Product updated");
+      alert("Product updated successfully");
       setEdit(null);
       fetchProducts();
     } else {
@@ -46,14 +46,22 @@ export default function AdminProducts() {
     }
   };
 
+  // ======================
+  // DELETE PRODUCT
+  // ======================
+  const deleteProduct = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
+
+    await supabase.from("products").delete().eq("id", id);
+    fetchProducts();
+  };
+
   return (
     <div className="admin-page">
 
       <h2>Products</h2>
 
-      {/* ===================== */}
-      {/* PRODUCT LIST */}
-      {/* ===================== */}
+      {/* ================= PRODUCT TABLE ================= */}
       <div className="table-card">
         <table>
           <thead>
@@ -92,6 +100,13 @@ export default function AdminProducts() {
                   >
                     Edit
                   </button>
+
+                  <button
+                    className="delete"
+                    onClick={() => deleteProduct(p.id)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
@@ -99,9 +114,7 @@ export default function AdminProducts() {
         </table>
       </div>
 
-      {/* ===================== */}
-      {/* EDIT POPUP */}
-      {/* ===================== */}
+      {/* ================= EDIT MODAL ================= */}
       {edit && (
         <div className="modal-bg">
           <div className="modal-card">
@@ -116,7 +129,7 @@ export default function AdminProducts() {
               placeholder="Product Name"
             />
 
-            {/* ✅ CATEGORY */}
+            {/* CATEGORY */}
             <select
               value={edit.category_slug || ""}
               onChange={(e) =>
@@ -203,4 +216,4 @@ export default function AdminProducts() {
       )}
     </div>
   );
-                           }
+}
