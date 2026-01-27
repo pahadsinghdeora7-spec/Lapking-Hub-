@@ -4,7 +4,7 @@ import { HashRouter as Router, Routes, Route, useLocation } from "react-router-d
 import Home from "./pages/Home.jsx";
 import Account from "./pages/Account.jsx";
 
-import CategoryProducts from "./pages/CategoryProducts.jsx";
+
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
@@ -58,7 +58,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<Account />} />
           
-          <Route path="/category/:slug" element={<CategoryProducts />} />
+          
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
