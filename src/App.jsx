@@ -27,7 +27,7 @@ import AddProductPage from "./admin/AddProductPage.jsx";
 
 import AdminBulkDelete from "./admin/AdminBulkDelete.jsx";
 import AdminBulkUpload from "./admin/AdminBulkUpload.jsx";
-
+import AdminCategories from "./admin/AdminCategories.jsx";
 import AdminOrders from "./admin/AdminOrders.jsx";
 import AdminOrderView from "./admin/AdminOrderView.jsx";
 import AdminReplacements from "./admin/AdminReplacements.jsx";
@@ -86,7 +86,7 @@ function AppContent() {
             <Route path="/admin/products/add" element={<AddProductPage />} />
             <Route path="products/bulk-upload" element={<AdminBulkUpload />} />
             <Route path="customers" element={<AdminCustomers />} />
-
+             <Route path="categories" element={<AdminCategories />} />
              <Route path="/admin/products/bulk-delete" element={<AdminBulkDelete />} />
             
             <Route path="orders" element={<AdminOrders />} />
