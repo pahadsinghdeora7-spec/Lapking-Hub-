@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import * as XLSX from "xlsx";
-import "./AddProductPage.css";
+import "./admin.css";
 
 export default function AdminBulkUpload() {
 
