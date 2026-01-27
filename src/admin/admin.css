@@ -1,16 +1,20 @@
-/* ===============================
-   ADMIN PANEL – LAPKING HUB
-   =============================== */
+/* =====================================================
+   LAPKING HUB — ADMIN PANEL (FINAL LOCK CSS)
+===================================================== */
 
-body {
-  background: #f6f8fb;
-  margin: 0;
+* {
+  box-sizing: border-box;
   font-family: system-ui, -apple-system, BlinkMacSystemFont;
 }
 
-/* ===============================
-   ADMIN TOP BAR
-   =============================== */
+body {
+  margin: 0;
+  background: #f6f8fb;
+}
+
+/* =====================================================
+   TOP HEADER
+===================================================== */
 
 .admin-top {
   height: 56px;
@@ -21,477 +25,167 @@ body {
   justify-content: space-between;
   padding: 0 14px;
   position: fixed;
-  top: 0;
   width: 100%;
-  z-index: 2000;
+  top: 0;
+  z-index: 1000;
 }
 
-.admin-top .menu-btn {
-  font-size: 22px;
+.admin-top button {
   background: none;
   border: none;
   color: #fff;
-  cursor: pointer;
+  font-size: 22px;
 }
 
 .admin-top .logo {
-  font-size: 16px;
   font-weight: 600;
+  font-size: 15px;
   text-align: center;
-  line-height: 1.2;
 }
 
 .admin-top .logo span {
   display: block;
   font-size: 11px;
-  opacity: 0.85;
+  opacity: .85;
 }
 
-/* ===============================
-   SIDEBAR
-   =============================== */
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -270px;
-  width: 270px;
-  height: 100vh;
-  background: #fff;
-  box-shadow: 2px 0 18px rgba(0,0,0,.15);
-  transition: 0.3s ease;
-  z-index: 3000;
-}
-
-.sidebar.show {
-  left: 0;
-}
-
-.side-head {
-  padding: 15px;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #eee;
-}
-
-.sidebar nav {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar nav a {
-  padding: 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #222;
-  font-size: 14px;
-  margin-bottom: 6px;
-  transition: 0.2s;
-}
-
-.sidebar nav a:hover {
-  background: #f1f5ff;
-}
-
-.sidebar nav a.active {
-  background: #0b5cff;
-  color: #fff;
-}
-
-.logout {
-  margin: 12px;
-  padding: 12px;
-  background: #ea5455;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-/* ===============================
-   OVERLAY
-   =============================== */
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  z-index: 2500;
-}
-
-/* ===============================
-   ADMIN MAIN CONTENT
-   =============================== */
+/* =====================================================
+   MAIN WRAPPER
+===================================================== */
 
 .admin-main {
   padding-top: 70px;
-  padding-left: 14px;
-  padding-right: 14px;
-  padding-bottom: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 30px;
+  max-width: 1200px;
+  margin: auto;
 }
 
-/* ===============================
-   DASHBOARD
-   =============================== */
-
-.dashboard h2 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.dashboard p {
-  color: #777;
-  font-size: 13px;
-  margin-bottom: 16px;
-}
-
-/* ===============================
-   STATS GRID
-   =============================== */
+/* =====================================================
+   DASHBOARD CARDS
+===================================================== */
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
 .stat-card {
   background: #fff;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 3px 10px rgba(0,0,0,.05);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  cursor: pointer;
+  transition: .25s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0,0,0,.12);
 }
 
 .stat-card h4 {
-  font-size: 20px;
   margin: 0;
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .stat-card p {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #666;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #555;
 }
 
-.green { border-left: 4px solid #28c76f; }
-.blue { border-left: 4px solid #0b5cff; }
-.orange { border-left: 4px solid #ff9f43; }
-.purple { border-left: 4px solid #7367f0; }
-.red { border-left: 4px solid #ea5455; }
+/* COLORS */
+.green { border-left: 5px solid #28c76f; }
+.blue { border-left: 5px solid #0b5cff; }
+.yellow { border-left: 5px solid #f6c343; }
+.red { border-left: 5px solid #ea5455; }
+.purple { border-left: 5px solid #7367f0; }
+.orange { border-left: 5px solid #ff9f43; }
 
-/* ===============================
-   CARDS
-   =============================== */
+/* ADD PRODUCT CARD */
+.add-product {
+  border-left: 5px solid #0b5cff;
+  background: linear-gradient(135deg, #eef4ff, #ffffff);
+  text-align: center;
+}
+
+.add-product h4 {
+  font-size: 34px;
+  color: #0b5cff;
+}
+
+/* =====================================================
+   COMMON CARD
+===================================================== */
 
 .card {
   background: #fff;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 18px;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.05);
 }
 
-/* ===============================
-   CHART PLACEHOLDER
-   =============================== */
-
-.chart-placeholder {
-  height: 180px;
-  background: #f3f6fb;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: #888;
-}
-
-/* ===============================
+/* =====================================================
    TABLE
-   =============================== */
+===================================================== */
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 
-.table th,
+.table th {
+  background: #f9fafb;
+  text-align: left;
+  padding: 10px;
+  font-weight: 600;
+  color: #444;
+}
+
 .table td {
   padding: 10px;
   border-bottom: 1px solid #eee;
 }
 
-.table th {
-  font-weight: 600;
-  color: #444;
-}
-
-/* ===============================
-   MOBILE OPTIMIZATION
-   =============================== */
-
-@media (min-width: 768px) {
-  .stat-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .admin-main {
-    max-width: 1200px;
-    margin: auto;
-  }
-   /* ===============================
-   ADMIN SETTINGS PROFESSIONAL UI
-================================ */
-
-.admin-page {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
-
-.admin-page h2 {
-  margin: 20px 0 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #222;
-}
-
-/* settings card */
-.admin-page .card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 25px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-}
-
-/* inputs */
-.admin-page input,
-.admin-page select {
-  width: 100%;
-  height: 44px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  padding: 0 12px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  background: #fafafa;
-}
-
-.admin-page input:focus,
-.admin-page select:focus {
-  outline: none;
-  border-color: #0b5cff;
-  background: #fff;
-}
-
-/* file upload */
-.admin-page input[type="file"] {
-  padding: 8px;
-  background: #f4f6fb;
-  border: 1px dashed #0b5cff;
-  cursor: pointer;
-}
-
-/* buttons */
-.admin-page button {
-  width: 100%;
-  height: 46px;
-  border: none;
-  border-radius: 10px;
-  background: #0b5cff;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.admin-page button:hover {
-  background: #084ad6;
-}
-
-/* qr preview */
-.admin-page img {
-  display: block;
-  margin: 10px auto;
-  max-width: 200px;
-  border-radius: 12px;
-  border: 1px solid #e5e5e5;
-  background: #fff;
-  padding: 6px;
-}
-
-/* mobile */
-@media (max-width: 768px) {
-  .admin-page {
-    padding: 15px;
-  }
-}
-   .stat-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.clickable {
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.clickable:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-}
-  }
-.admin-page {
-  padding: 20px;
-}
-
-.admin-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-.admin-card h3 {
-  margin-bottom: 15px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.form-grid input,
-.form-grid select,
-.form-grid textarea {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-.form-grid textarea {
-  grid-column: span 2;
-}
-
-.btn-primary {
-  margin-top: 15px;
-  background: #2563eb;
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-weight: bold;
-}
-
-.card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.product-grid {
-  margin-top: 15px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.product-box {
-  border: 1px solid #eee;
-  padding: 12px;
-  border-radius: 10px;
-  background: #fafafa;
-}
-
-.product-box span {
-  color: green;
-  font-weight: bold;
-}
-
-.muted {
-  color: #888;
-   }
-/* better spacing */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
-
-/* product name full width */
-.input-wide {
-  grid-column: span 2;
-}
-
-/* description full width */
-.form-grid textarea {
-  grid-column: span 4;
-}
-
-/* file upload better look */
-.form-grid input[type="file"] {
-  padding: 8px;
-  border: 1px dashed #cbd5e1;
-  background: #f8fafc;
-  border-radius: 8px;
-}
-
-/* clean professional look */
-.admin-card {
-  max-width: 1100px;
-  margin: auto;
-}
-
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .input-wide {
-    grid-column: span 2;
-  }
-
-  .form-grid textarea {
-    grid-column: span 2;
-  }
-}
-.admin-wrapper {
-  padding: 20px;
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.header-actions input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
+.thumb {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
   border-radius: 6px;
+  border: 1px solid #ddd;
 }
+
+.no-img {
+  width: 42px;
+  height: 42px;
+  background: #eee;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #777;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
 
 .btn-primary {
   background: #2563eb;
   color: #fff;
   border: none;
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .btn-outline {
@@ -499,166 +193,103 @@ body {
   border: 1px solid #2563eb;
   color: #2563eb;
   padding: 8px 14px;
-  border-radius: 6px;
-}
-
-.table-card {
-  background: #fff;
   border-radius: 8px;
-  overflow-x: auto;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  font-weight: 600;
 }
 
-.product-table {
+/* =====================================================
+   FORM
+===================================================== */
+
+input,
+select,
+textarea {
   width: 100%;
-  border-collapse: collapse;
-}
-
-.product-table th,
-.product-table td {
   padding: 10px;
-  border-bottom: 1px solid #eee;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   font-size: 14px;
 }
 
-.product-table th {
-  background: #f9fafb;
-  font-weight: 600;
+textarea {
+  min-height: 90px;
 }
 
-.thumb {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 4px;
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #0b5cff;
 }
 
-.no-img {
-  width: 40px;
-  height: 40px;
-  background: #e5e7eb;
+/* =====================================================
+   POPUP MODAL
+===================================================== */
+
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  z-index: 5000;
 }
 
-.stock-badge {
-  background: #dcfce7;
-  color: #15803d;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-weight: 600;
-}
-
-.status.active {
-  background: #dcfce7;
-  color: #15803d;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-.dots {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-.admin-container {
-  padding: 20px;
-}
-
-.card {
+.modal {
   background: #fff;
-  border-radius: 10px;
+  width: 95%;
+  max-width: 550px;
+  border-radius: 14px;
   padding: 20px;
-  margin: 20px 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,.06);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.modal h3 {
+  margin-bottom: 15px;
 }
 
-.full {
-  width: 100%;
-  margin-top: 12px;
-  min-height: 80px;
+.modal label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 10px;
+  display: block;
 }
 
-input, textarea {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+.modal-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th, .table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.thumb {
-  width: 45px;
-  height: 45px;
-  object-fit: contain;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-}
-
-.primary-btn {
-  background: #2563eb;
-  color: white;
+.modal-actions .save {
+  background: #0b5cff;
+  color: #fff;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
 }
 
-.gray-btn {
+.modal-actions .delete {
+  background: #ea5455;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.modal-actions .close {
   background: #eee;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  margin-left: 10px;
+  padding: 10px;
+  border-radius: 8px;
 }
 
-.edit-btn {
-  background: #facc15;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
+/* =====================================================
+   MOBILE
+===================================================== */
 
-.delete-btn {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-left: 6px;
-}
-
-.noimg {
-  font-size: 12px;
-  color: #999;
-}
-
-.btn-row {
-  margin-top: 15px;
-}
-.add-product {
-  border: 2px dashed #2563eb;
-  background: #f0f6ff;
-}
-
-.add-product h4 {
-  font-size: 32px;
-  color: #2563eb;
+@media (max-width: 600px) {
+  .stat-card h4 {
+    font-size: 20px;
+  }
 }
