@@ -1,96 +1,62 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Helmet } from "react-helmet";
 import { supabase } from "../supabaseClient";
-import ProductCard from "../components/ProductCard";
-import "./CategoryProducts.css";
+import { Helmet } from "react-helmet";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
 
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategoryProducts();
+    loadCategory();
   }, [slug]);
 
-  const fetchCategoryProducts = async () => {
-    setLoading(true);
-
-    // ✅ 1. get category from slug
-    const { data: cat, error } = await supabase
+  const loadCategory = async () => {
+    const { data: cat } = await supabase
       .from("categories")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    if (error || !cat) {
-      setLoading(false);
-      return;
-    }
+    if (!cat) return;
 
     setCategory(cat);
 
-    // ✅ 2. get products of that category
-    const { data: prod } = await supabase
+    const { data: prods } = await supabase
       .from("products")
       .select("*")
-      .eq("category_id", cat.id)
-      .order("id", { ascending: false });
+      .eq("category_id", cat.id);
 
-    setProducts(prod || []);
-    setLoading(false);
+    setProducts(prods || []);
   };
 
-  if (loading) {
-    return <div className="page-loading">Loading...</div>;
-  }
-
   if (!category) {
-    return <div className="page-loading">Category not found</div>;
+    return <div style={{ padding: 20 }}>Category not found</div>;
   }
 
   return (
-    <div className="category-page">
-
-      {/* ✅ SEO */}
+    <>
       <Helmet>
-        <title>{category.h1 || category.name} | Lapking Hub</title>
+        <title>{category.h1 || category.name}</title>
         <meta
           name="description"
           content={
             category.description ||
-            `Buy ${category.name} laptop spare parts at best price from Lapking Hub.`
+            `Buy ${category.name} online from Lapking Hub`
           }
         />
       </Helmet>
 
-      {/* ✅ H1 */}
-      <h1 className="category-title">
-        {category.h1 || category.name}
-      </h1>
+      <div style={{ padding: 16 }}>
+        <h1>{category.h1 || category.name}</h1>
+        <p style={{ color: "#666" }}>{category.description}</p>
 
-      {/* ✅ Description */}
-      {category.description && (
-        <p className="category-desc">
-          {category.description}
-        </p>
-      )}
-
-      {/* ✅ Products */}
-      {products.length === 0 ? (
-        <div className="no-products">
-          No products found in this category
-        </div>
-      ) : (
-        <div className="product-grid">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      )}
-    </div>
+        {products.length === 0 && (
+          <p style={{ marginTop: 20 }}>No products found</p>
+        )}
+      </div>
+    </>
   );
-      }
+}
