@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Helmet } from "react-helmet";
@@ -6,28 +6,31 @@ import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
+  const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [cartIds, setCartIds] = useState([]);
 
   useEffect(() => {
     fetchCategory();
     fetchProducts();
+    loadCart();
   }, [slug]);
 
-  // ================= CATEGORY SEO =================
+  /* ================= SEO CATEGORY ================= */
   const fetchCategory = async () => {
     const { data } = await supabase
       .from("categories")
-      .select("h1, description, name")
+      .select("name,h1,description")
       .eq("slug", slug)
       .single();
 
     setCategory(data);
   };
 
-  // ================= PRODUCTS =================
+  /* ================= PRODUCTS ================= */
   const fetchProducts = async () => {
     setLoading(true);
 
@@ -40,91 +43,98 @@ export default function CategoryProducts() {
     setLoading(false);
   };
 
-  // ================= ADD TO CART =================
+  /* ================= CART ================= */
+  const loadCart = () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCartIds(cart.map((i) => i.id));
+  };
+
   const addToCart = (product) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    const exist = cart.find((item) => item.id === product.id);
-
-    if (exist) {
-      exist.qty += 1;
-    } else {
-      cart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        brand: product.brand,
-        part_no: product.part_no,
-        qty: 1,
-      });
+    const exists = cart.find((i) => i.id === product.id);
+    if (!exists) {
+      cart.push({ ...product, qty: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      setCartIds(cart.map((i) => i.id));
     }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    // ✅ cart count update everywhere
-    window.dispatchEvent(new Event("cartUpdated"));
   };
 
+  /* ================= UI ================= */
   return (
     <div className="cat-page">
-
-      {/* ================= SEO ================= */}
+      {/* ✅ SEO */}
       <Helmet>
-        <title>{category?.name || slug} | Lapking Hub</title>
+        <title>
+          {category?.name || slug} | Lapking Hub
+        </title>
         <meta
           name="description"
           content={category?.description || ""}
         />
       </Helmet>
 
-      {/* ================= H1 ================= */}
+      {/* H1 */}
       <h1 className="cat-h1">
         {category?.h1 || category?.name}
       </h1>
 
-      {/* ================= DESCRIPTION ================= */}
+      {/* Description */}
       {category?.description && (
         <p className="cat-desc">{category.description}</p>
       )}
 
-      {/* ================= PRODUCTS ================= */}
+      {/* PRODUCTS */}
       {loading ? (
         <div className="cat-loading">Loading products...</div>
       ) : products.length === 0 ? (
-        <div className="cat-empty">
-          No products found in this category
-        </div>
+        <div className="cat-empty">No products found</div>
       ) : (
         <div className="cat-grid">
           {products.map((p) => (
-            <div className="cat-card" key={p.id}>
-
+            <div
+              className="cat-card"
+              key={p.id}
+              onClick={() => navigate(`/product/${p.id}`)}
+            >
               <img src={p.image} alt={p.name} />
 
-              <h3>{p.name}</h3>
+              <div className="card-body">
+                <h3>{p.name}</h3>
 
-              {/* BRAND RIGHT SIDE */}
-              <div className="cat-meta">
-                <span>Brand: <b>{p.brand || "-"}</b></span>
+                {/* RIGHT SIDE INFO */}
+                <div className="meta">
+                  <span className="brand">
+                    Brand: {p.brand || "-"}
+                  </span>
+                  <span className="part">
+                    Part No: {p.part_no || "-"}
+                  </span>
+                </div>
+
+                <p className="price">₹{p.price}</p>
+
+                {/* ADD TO CART */}
+                <button
+                  className={
+                    cartIds.includes(p.id)
+                      ? "cart-btn active"
+                      : "cart-btn"
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(p);
+                  }}
+                >
+                  {cartIds.includes(p.id)
+                    ? "Added ✓"
+                    : "Add to Cart"}
+                </button>
               </div>
-
-              {/* PART NUMBER RIGHT BOTTOM */}
-              <div className="cat-part">
-                Part No: {p.part_no || "-"}
-              </div>
-
-              <p className="cat-price">₹{p.price}</p>
-
-              <button onClick={() => addToCart(p)}>
-                Add to Cart
-              </button>
-
             </div>
           ))}
         </div>
       )}
-
     </div>
   );
-}
+      }
