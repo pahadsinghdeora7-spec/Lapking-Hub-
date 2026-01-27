@@ -9,14 +9,18 @@ export default function AddProduct() {
   const [form, setForm] = useState({
     name: "",
     category_slug: "",
-    price: "",
-    stock: "",
+    brand: "",
     part_number: "",
     compatible_model: "",
-    description: "",
-    image: "",
-    image1: "",
-    image2: ""
+    price: "",
+    stock: "",
+    description: ""
+  });
+
+  const [images, setImages] = useState({
+    image: null,
+    image1: null,
+    image2: null
   });
 
   // ================= LOAD CATEGORY =================
@@ -33,19 +37,43 @@ export default function AddProduct() {
     setCategories(data || []);
   };
 
-  // ================= CHANGE =================
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // ================= IMAGE UPLOAD =================
+  const uploadImage = async (file) => {
+    if (!file) return "";
+
+    const fileName = `${Date.now()}-${file.name}`;
+
+    const { error } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
+
+    if (error) return "";
+
+    const { data } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
   };
 
   // ================= SAVE =================
   const saveProduct = async () => {
+
     if (!form.name || !form.price) {
       alert("Product name & price required");
       return;
     }
 
-    const { error } = await supabase.from("products").insert([form]);
+    const mainImage = await uploadImage(images.image);
+    const image1 = await uploadImage(images.image1);
+    const image2 = await uploadImage(images.image2);
+
+    const { error } = await supabase.from("products").insert([{
+      ...form,
+      image: mainImage,
+      image1,
+      image2
+    }]);
 
     if (error) {
       alert("Error saving product");
@@ -55,14 +83,18 @@ export default function AddProduct() {
       setForm({
         name: "",
         category_slug: "",
-        price: "",
-        stock: "",
+        brand: "",
         part_number: "",
         compatible_model: "",
-        description: "",
-        image: "",
-        image1: "",
-        image2: ""
+        price: "",
+        stock: "",
+        description: ""
+      });
+
+      setImages({
+        image: null,
+        image1: null,
+        image2: null
       });
     }
   };
@@ -74,10 +106,7 @@ export default function AddProduct() {
       <div className="page-header">
         <h2>Add Product</h2>
 
-        <button
-          className="bulk-btn"
-          onClick={() => alert("Bulk upload coming next step")}
-        >
+        <button className="bulk-btn">
           Bulk Upload Excel
         </button>
       </div>
@@ -87,62 +116,60 @@ export default function AddProduct() {
         <h4>Product Details</h4>
 
         <input
-          name="name"
           placeholder="Product Name"
           value={form.name}
-          onChange={handleChange}
+          onChange={e => setForm({ ...form, name: e.target.value })}
         />
 
-        {/* CATEGORY */}
         <select
-          name="category_slug"
           value={form.category_slug}
-          onChange={handleChange}
+          onChange={e => setForm({ ...form, category_slug: e.target.value })}
         >
           <option value="">Select Category</option>
           {categories.map(c => (
-            <option key={c.slug} value={c.slug}>
-              {c.name}
-            </option>
+            <option key={c.slug} value={c.slug}>{c.name}</option>
           ))}
         </select>
 
         <div className="grid-2">
           <input
-            name="price"
-            placeholder="Price"
-            value={form.price}
-            onChange={handleChange}
+            placeholder="Brand"
+            value={form.brand}
+            onChange={e => setForm({ ...form, brand: e.target.value })}
           />
 
           <input
-            name="stock"
-            placeholder="Stock"
-            value={form.stock}
-            onChange={handleChange}
+            placeholder="Part Number"
+            value={form.part_number}
+            onChange={e => setForm({ ...form, part_number: e.target.value })}
           />
         </div>
 
         <input
-          name="part_number"
-          placeholder="Part Number"
-          value={form.part_number}
-          onChange={handleChange}
-        />
-
-        <input
-          name="compatible_model"
           placeholder="Compatible Model"
           value={form.compatible_model}
-          onChange={handleChange}
+          onChange={e => setForm({ ...form, compatible_model: e.target.value })}
         />
 
+        <div className="grid-2">
+          <input
+            placeholder="Price"
+            value={form.price}
+            onChange={e => setForm({ ...form, price: e.target.value })}
+          />
+
+          <input
+            placeholder="Stock"
+            value={form.stock}
+            onChange={e => setForm({ ...form, stock: e.target.value })}
+          />
+        </div>
+
         <textarea
-          rows="4"
-          name="description"
+          className="desc-box"
           placeholder="Product Description"
           value={form.description}
-          onChange={handleChange}
+          onChange={e => setForm({ ...form, description: e.target.value })}
         />
       </div>
 
@@ -150,26 +177,14 @@ export default function AddProduct() {
       <div className="card">
         <h4>Product Images</h4>
 
-        <input
-          name="image"
-          placeholder="Main Image URL"
-          value={form.image}
-          onChange={handleChange}
-        />
+        <label>Main Image</label>
+        <input type="file" onChange={e => setImages({ ...images, image: e.target.files[0] })} />
 
-        <input
-          name="image1"
-          placeholder="Image 1 URL"
-          value={form.image1}
-          onChange={handleChange}
-        />
+        <label>Image 1</label>
+        <input type="file" onChange={e => setImages({ ...images, image1: e.target.files[0] })} />
 
-        <input
-          name="image2"
-          placeholder="Image 2 URL"
-          value={form.image2}
-          onChange={handleChange}
-        />
+        <label>Image 2</label>
+        <input type="file" onChange={e => setImages({ ...images, image2: e.target.files[0] })} />
       </div>
 
       <button className="save-btn" onClick={saveProduct}>
@@ -178,4 +193,4 @@ export default function AddProduct() {
 
     </div>
   );
-      }
+            }
