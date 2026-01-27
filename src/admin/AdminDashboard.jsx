@@ -124,11 +124,11 @@ export default function AdminDashboard() {
           className="stat-card orange clickable"
           onClick={() => navigate("/admin/customers")}
         >
-          <h4>{stats.customers || "Not Available"}</h4>
+          <h4>{stats.customers || "—"}</h4>
           <p>Total Customers</p>
         </div>
 
-        {/* ✅ ADD PRODUCT CARD (ALREADY WORKING) */}
+        {/* ➕ ADD PRODUCT */}
         <div
           className="stat-card add-product clickable"
           onClick={() => navigate("/admin/products/add")}
@@ -137,13 +137,22 @@ export default function AdminDashboard() {
           <p>Add Product</p>
         </div>
 
-        {/* ✅ BULK UPLOAD CARD (NEW — ONLY THIS ADDED) */}
+        {/* 📄 BULK UPLOAD */}
         <div
           className="stat-card blue clickable"
           onClick={() => navigate("/admin/products/bulk-upload")}
         >
           <h4>📄</h4>
           <p>Bulk Upload</p>
+        </div>
+
+        {/* 🗑️ BULK DELETE */}
+        <div
+          className="stat-card red clickable"
+          onClick={() => navigate("/admin/products/bulk-delete")}
+        >
+          <h4>🗑️</h4>
+          <p>Bulk Delete</p>
         </div>
 
       </div>
@@ -215,4 +224,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-}
+      }
