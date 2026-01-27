@@ -1,85 +1,83 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { Helmet } from "react-helmet";
 import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
 
-  const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
+    fetchCategory();
+    fetchProducts();
   }, [slug]);
 
-  const loadData = async () => {
-    setLoading(true);
-
-    // 1️⃣ category find by slug
-    const { data: cat } = await supabase
+  // ✅ CATEGORY SEO DATA
+  const fetchCategory = async () => {
+    const { data } = await supabase
       .from("categories")
-      .select("*")
+      .select("h1, description, name")
       .eq("slug", slug)
       .single();
 
-    if (!cat) {
-      setCategory(null);
-      setProducts([]);
-      setLoading(false);
-      return;
-    }
-
-    setCategory(cat);
-
-    // 2️⃣ products by category NAME
-    const { data: prods } = await supabase
-      .from("products")
-      .select("*")
-      .ilike("category", cat.name);
-
-    setProducts(prods || []);
-    setLoading(false);
+    setCategory(data);
   };
 
-  if (loading) return <p className="cat-loading">Loading...</p>;
+  // ✅ PRODUCTS BY SLUG
+  const fetchProducts = async () => {
+    setLoading(true);
 
-  if (!category)
-    return <p className="cat-loading">Category not found</p>;
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_slug", slug);
+
+    setProducts(data || []);
+    setLoading(false);
+  };
 
   return (
     <div className="cat-page">
 
+      {/* ✅ SEO */}
       <Helmet>
-        <title>{category.h1 || category.name}</title>
+        <title>
+          {category?.name || slug} | Lapking Hub
+        </title>
         <meta
           name="description"
-          content={category.description || category.name}
+          content={category?.description || ""}
         />
       </Helmet>
 
+      {/* ✅ FRONTEND H1 */}
       <h1 className="cat-h1">
-        {category.h1 || category.name}
+        {category?.h1 || category?.name}
       </h1>
 
-      {category.description && (
-        <p className="cat-desc">{category.description}</p>
+      {/* ✅ FRONTEND DESCRIPTION */}
+      {category?.description && (
+        <p className="cat-desc">
+          {category.description}
+        </p>
       )}
 
-      {products.length === 0 ? (
-        <p className="cat-empty">
+      {/* PRODUCTS */}
+      {loading ? (
+        <div className="cat-loading">Loading products...</div>
+      ) : products.length === 0 ? (
+        <div className="cat-empty">
           No products found in this category
-        </p>
+        </div>
       ) : (
         <div className="cat-grid">
           {products.map((p) => (
             <div className="cat-card" key={p.id}>
-              <img
-                src={p.image || "/no-image.png"}
-                alt={p.name}
-              />
+              <img src={p.image} alt={p.name} />
               <h3>{p.name}</h3>
               <p>₹{p.price}</p>
               <button>Add to Cart</button>
@@ -90,4 +88,4 @@ export default function CategoryProducts() {
 
     </div>
   );
-}
+          }
