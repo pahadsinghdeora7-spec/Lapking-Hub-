@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const [image, setImage] = useState(null);
@@ -37,11 +38,7 @@ export default function AdminProducts() {
   };
 
   const fetchCategories = async () => {
-    const { data } = await supabase
-      .from("categories")
-      .select("*")
-      .order("name");
-
+    const { data } = await supabase.from("categories").select("*");
     setCategories(data || []);
   };
 
@@ -56,10 +53,7 @@ export default function AdminProducts() {
       .from("products")
       .upload(fileName, file);
 
-    if (error) {
-      alert("Image upload failed");
-      return "";
-    }
+    if (error) return "";
 
     const { data } = supabase.storage
       .from("products")
@@ -68,9 +62,9 @@ export default function AdminProducts() {
     return data.publicUrl;
   };
 
-  // ================= ADD PRODUCT =================
+  // ================= SAVE / UPDATE =================
 
-  const addProduct = async () => {
+  const saveProduct = async () => {
     if (!form.name || !form.price) {
       alert("Product name & price required");
       return;
@@ -78,32 +72,49 @@ export default function AdminProducts() {
 
     setLoading(true);
 
-    const img = await uploadImage(image);
-    const img1 = await uploadImage(image1);
-    const img2 = await uploadImage(image2);
+    let img = "";
+    let img1 = "";
+    let img2 = "";
 
-    const { error } = await supabase.from("products").insert([
-      {
-        category_id: form.category_id || null,
-        name: form.name,
-        price: Number(form.price),
-        stock: Number(form.stock || 0),
-        part_number: form.part_number,
-        compatible_model: form.compatible_model,
-        description: form.description,
-        image: img,
-        image1: img1,
-        image2: img2,
-      },
-    ]);
+    if (image) img = await uploadImage(image);
+    if (image1) img1 = await uploadImage(image1);
+    if (image2) img2 = await uploadImage(image2);
+
+    const payload = {
+      category_id: form.category_id || null,
+      name: form.name,
+      price: Number(form.price),
+      stock: Number(form.stock || 0),
+      part_number: form.part_number,
+      compatible_model: form.compatible_model,
+      description: form.description,
+    };
+
+    if (img) payload.image = img;
+    if (img1) payload.image1 = img1;
+    if (img2) payload.image2 = img2;
+
+    let result;
+
+    if (editId) {
+      // UPDATE
+      result = await supabase
+        .from("products")
+        .update(payload)
+        .eq("id", editId);
+    } else {
+      // INSERT
+      result = await supabase.from("products").insert([payload]);
+    }
 
     setLoading(false);
 
-    if (error) {
-      alert(error.message);
+    if (result.error) {
+      alert(result.error.message);
     } else {
-      alert("✅ Product added successfully");
+      alert(editId ? "✅ Product updated" : "✅ Product added");
 
+      setEditId(null);
       setForm({
         category_id: "",
         name: "",
@@ -118,15 +129,31 @@ export default function AdminProducts() {
       setImage1(null);
       setImage2(null);
 
-      fetchProducts(); // 🔥 IMPORTANT
+      fetchProducts();
     }
+  };
+
+  // ================= EDIT =================
+
+  const editProduct = (p) => {
+    setEditId(p.id);
+    setForm({
+      category_id: p.category_id || "",
+      name: p.name || "",
+      price: p.price || "",
+      stock: p.stock || "",
+      part_number: p.part_number || "",
+      compatible_model: p.compatible_model || "",
+      description: p.description || "",
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // ================= DELETE =================
 
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete product?")) return;
-
     await supabase.from("products").delete().eq("id", id);
     fetchProducts();
   };
@@ -137,178 +164,101 @@ export default function AdminProducts() {
     <div style={{ padding: 20 }}>
       <h2>Products</h2>
 
-      {/* ================= PRODUCT TABLE ================= */}
+      {/* PRODUCT LIST */}
+      <table width="100%" cellPadding="10">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Part No</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
-      <div style={{ background: "#fff", borderRadius: 10, padding: 15 }}>
-        <table width="100%" cellPadding="10">
-          <thead>
-            <tr style={{ background: "#f5f7fa" }}>
-              <th>Image</th>
-              <th>Product</th>
-              <th>Part No</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {products.length === 0 && (
-              <tr>
-                <td colSpan="6" align="center">
-                  No products
-                </td>
-              </tr>
-            )}
-
-            {products.map((p) => (
-              <tr key={p.id} style={{ borderBottom: "1px solid #eee" }}>
-                {/* IMAGE */}
-                <td>
-                  <div
+        <tbody>
+          {products.map((p) => (
+            <tr key={p.id}>
+              <td>
+                {p.image ? (
+                  <img
+                    src={p.image}
                     style={{
-                      width: 50,
-                      height: 50,
+                      width: 45,
+                      height: 45,
+                      objectFit: "contain",
                       border: "1px solid #ddd",
                       borderRadius: 6,
-                      overflow: "hidden",
-                      background: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
                     }}
-                  >
-                    {p.image ? (
-                      <img
-                        src={p.image}
-                        alt=""
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "contain",
-                          padding: 4,
-                        }}
-                      />
-                    ) : (
-                      <span style={{ fontSize: 10 }}>No Image</span>
-                    )}
-                  </div>
-                </td>
-
-                <td>{p.name}</td>
-                <td>{p.part_number || "-"}</td>
-                <td>₹{p.price}</td>
-                <td>{p.stock}</td>
-
-                <td>
-                  <button
-                    onClick={() => deleteProduct(p.id)}
-                    style={{
-                      background: "#ff4d4f",
-                      color: "#fff",
-                      border: "none",
-                      padding: "4px 10px",
-                      borderRadius: 5,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* ================= ADD PRODUCT ================= */}
-
-      <h3 style={{ marginTop: 30 }}>Add Product</h3>
-
-      <div
-        style={{
-          background: "#fff",
-          padding: 20,
-          borderRadius: 10,
-          maxWidth: 600,
-        }}
-      >
-        <select
-          value={form.category_id}
-          onChange={(e) =>
-            setForm({ ...form, category_id: e.target.value })
-          }
-        >
-          <option value="">Select Category</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
+                  />
+                ) : (
+                  "No image"
+                )}
+              </td>
+              <td>{p.name}</td>
+              <td>{p.part_number}</td>
+              <td>₹{p.price}</td>
+              <td>{p.stock}</td>
+              <td>
+                <button onClick={() => editProduct(p)}>Edit</button>{" "}
+                <button onClick={() => deleteProduct(p.id)}>Delete</button>
+              </td>
+            </tr>
           ))}
-        </select>
+        </tbody>
+      </table>
 
-        <input
-          placeholder="Product Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
+      {/* ADD / EDIT FORM */}
+      <h3 style={{ marginTop: 30 }}>
+        {editId ? "Edit Product" : "Add Product"}
+      </h3>
 
-        <input
-          placeholder="Price"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value })}
-        />
+      <input
+        placeholder="Product Name"
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+      />
 
-        <input
-          placeholder="Stock"
-          value={form.stock}
-          onChange={(e) => setForm({ ...form, stock: e.target.value })}
-        />
+      <input
+        placeholder="Price"
+        value={form.price}
+        onChange={(e) => setForm({ ...form, price: e.target.value })}
+      />
 
-        <input
-          placeholder="Part Number"
-          value={form.part_number}
-          onChange={(e) =>
-            setForm({ ...form, part_number: e.target.value })
-          }
-        />
+      <input
+        placeholder="Stock"
+        value={form.stock}
+        onChange={(e) => setForm({ ...form, stock: e.target.value })}
+      />
 
-        <input
-          placeholder="Compatible Models"
-          value={form.compatible_model}
-          onChange={(e) =>
-            setForm({ ...form, compatible_model: e.target.value })
-          }
-        />
+      <input
+        placeholder="Part Number"
+        value={form.part_number}
+        onChange={(e) =>
+          setForm({ ...form, part_number: e.target.value })
+        }
+      />
 
-        <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
-        />
+      <textarea
+        placeholder="Description"
+        value={form.description}
+        onChange={(e) =>
+          setForm({ ...form, description: e.target.value })
+        }
+      />
 
-        <input type="file" onChange={(e) => setImage(e.target.files[0])} />
-        <input type="file" onChange={(e) => setImage1(e.target.files[0])} />
-        <input type="file" onChange={(e) => setImage2(e.target.files[0])} />
+      <input type="file" onChange={(e) => setImage(e.target.files[0])} />
+      <input type="file" onChange={(e) => setImage1(e.target.files[0])} />
+      <input type="file" onChange={(e) => setImage2(e.target.files[0])} />
 
-        <button
-          onClick={addProduct}
-          disabled={loading}
-          style={{
-            marginTop: 10,
-            width: "100%",
-            padding: 10,
-            background: "#1677ff",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-          }}
-        >
-          {loading ? "Saving..." : "Save Product"}
-        </button>
-      </div>
+      <button onClick={saveProduct} disabled={loading}>
+        {loading
+          ? "Saving..."
+          : editId
+          ? "Update Product"
+          : "Save Product"}
+      </button>
     </div>
   );
-}
+      }
