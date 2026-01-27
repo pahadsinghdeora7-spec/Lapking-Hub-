@@ -1,8 +1,9 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
+import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
@@ -12,13 +13,13 @@ export default function CategoryProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategory();
+    loadCategory();
   }, [slug]);
 
-  const fetchCategory = async () => {
+  const loadCategory = async () => {
     setLoading(true);
 
-    // ✅ category data (H1 + description)
+    // 1️⃣ Category fetch by slug
     const { data: cat } = await supabase
       .from("categories")
       .select("*")
@@ -27,34 +28,39 @@ export default function CategoryProducts() {
 
     if (!cat) {
       setCategory(null);
+      setProducts([]);
       setLoading(false);
       return;
     }
 
     setCategory(cat);
 
-    // ✅ products of category
-    const { data: prod } = await supabase
+    // 2️⃣ Products of that category
+    const { data: prods } = await supabase
       .from("products")
       .select("*")
-      .eq("category", cat.name);
+      .eq("category", cat.name)
+      .order("id", { ascending: false });
 
-    setProducts(prod || []);
+    setProducts(prods || []);
     setLoading(false);
   };
 
-  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+  if (loading) {
+    return <div className="page-loading">Loading...</div>;
+  }
 
-  if (!category) return <p style={{ padding: 20 }}>Category not found</p>;
+  if (!category) {
+    return <div className="page-loading">Category not found</div>;
+  }
 
   return (
-    <>
-      {/* ✅ SEO */}
+    <div className="category-page">
+
+      {/* SEO */}
       <Helmet>
         <title>
-          {category.h1
-            ? category.h1
-            : `${category.name} | LapkingHub`}
+          {category.h1 || category.name} | Lapking Hub
         </title>
 
         {category.description && (
@@ -65,29 +71,30 @@ export default function CategoryProducts() {
         )}
       </Helmet>
 
-      <div style={{ padding: "16px" }}>
-        {/* ✅ H1 visible on page */}
-        <h1 style={{ fontSize: 22, marginBottom: 6 }}>
-          {category.h1 || category.name}
-        </h1>
+      {/* SEO CONTENT */}
+      <h1 className="cat-h1">
+        {category.h1 || category.name}
+      </h1>
 
-        {category.description && (
-          <p style={{ color: "#666", marginBottom: 20 }}>
-            {category.description}
-          </p>
-        )}
+      {category.description && (
+        <p className="cat-desc">
+          {category.description}
+        </p>
+      )}
 
-        {/* PRODUCTS */}
-        {products.length === 0 ? (
-          <p>No products found</p>
-        ) : (
-          <div className="product-grid">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        )}
-      </div>
-    </>
+      {/* PRODUCTS */}
+      {products.length === 0 ? (
+        <p className="no-products">
+          No products found in this category
+        </p>
+      ) : (
+        <div className="products-grid">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      )}
+
+    </div>
   );
-        }
+}
