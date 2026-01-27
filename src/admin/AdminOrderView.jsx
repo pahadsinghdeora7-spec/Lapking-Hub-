@@ -1,146 +1,89 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./admin.css";
+import "./AdminOrders.css";
 
-export default function AdminOrderView() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+export default function AdminOrderView({ order, onClose }) {
+  const [paymentStatus, setPaymentStatus] = useState(order.payment_status);
+  const [orderStatus, setOrderStatus] = useState(order.order_status);
+  const [saving, setSaving] = useState(false);
 
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+  async function handleUpdate() {
+    setSaving(true);
 
-  useEffect(() => {
-    loadOrder();
-  }, []);
-
-  async function loadOrder() {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("orders")
-      .select("*")
-      .eq("id", id)
-      .single();
+      .update({
+        payment_status: paymentStatus,
+        order_status: orderStatus,
+      })
+      .eq("id", order.id);
 
-    if (!error) {
-      setOrder(data);
+    setSaving(false);
+
+    if (error) {
+      alert("Update failed");
+    } else {
+      alert("Order updated successfully");
+      onClose();
     }
-
-    setLoading(false);
   }
 
-  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
-  if (!order) return <p style={{ padding: 20 }}>Order not found</p>;
-
-  const items = order.items || [];
-
   return (
-    <div className="admin-page">
+    <div className="order-modal-overlay">
+      <div className="order-modal">
 
-      {/* HEADER */}
-      <div className="admin-header">
-        <h2>Order Details</h2>
-        <button
-          className="btn-outline"
-          onClick={() => navigate(-1)}
-        >
-          ← Back
-        </button>
-      </div>
-
-      {/* ORDER INFO */}
-      <div className="card">
-        <h3>Order Information</h3>
-
-        <div className="form-grid">
-          <div>
-            <strong>Order ID</strong>
-            <p>#{order.id}</p>
-          </div>
-
-          <div>
-            <strong>Order Code</strong>
-            <p>{order.order_code}</p>
-          </div>
-
-          <div>
-            <strong>Date</strong>
-            <p>{new Date(order.created_at).toLocaleString()}</p>
-          </div>
-
-          <div>
-            <strong>Payment</strong>
-            <p>{order.payment_status}</p>
-          </div>
-
-          <div>
-            <strong>Status</strong>
-            <p>{order.order_status}</p>
-          </div>
-
-          <div>
-            <strong>Total</strong>
-            <p>₹{order.total}</p>
-          </div>
+        {/* HEADER */}
+        <div className="modal-head">
+          <h3>📦 Order Details</h3>
+          <button className="close-btn" onClick={onClose}>✕</button>
         </div>
-      </div>
 
-      {/* CUSTOMER INFO */}
-      <div className="card">
-        <h3>Customer Details</h3>
-
-        <div className="form-grid">
-          <div>
-            <strong>Name</strong>
-            <p>{order.name}</p>
-          </div>
-
-          <div>
-            <strong>Phone</strong>
-            <p>{order.phone}</p>
-          </div>
-
-          <div className="input-wide">
-            <strong>Address</strong>
-            <p>{order.address}</p>
-          </div>
+        {/* INFO */}
+        <div className="modal-section">
+          <p><b>Order Code:</b> {order.order_code}</p>
+          <p><b>Name:</b> {order.name || "Customer"}</p>
+          <p><b>Phone:</b> {order.phone || "NA"}</p>
+          <p><b>Address:</b> {order.address || "NA"}</p>
+          <p><b>Total:</b> ₹{order.total}</p>
         </div>
+
+        {/* STATUS */}
+        <div className="modal-section">
+          <label>Payment Status</label>
+          <select
+            value={paymentStatus}
+            onChange={(e) => setPaymentStatus(e.target.value)}
+          >
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+          </select>
+
+          <label>Order Status</label>
+          <select
+            value={orderStatus}
+            onChange={(e) => setOrderStatus(e.target.value)}
+          >
+            <option value="new">New</option>
+            <option value="processing">Processing</option>
+            <option value="packed">Packed</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        {/* ACTION */}
+        <div className="modal-actions">
+          <button className="gray-btn" onClick={onClose}>
+            Close
+          </button>
+
+          <button className="primary-btn" onClick={handleUpdate} disabled={saving}>
+            {saving ? "Saving..." : "Save Update"}
+          </button>
+        </div>
+
       </div>
-
-      {/* PRODUCT LIST */}
-      <div className="card">
-        <h3>Ordered Products</h3>
-
-        {items.length === 0 ? (
-          <p className="muted">No product data</p>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Qty</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {items.map((item, i) => (
-                <tr key={i}>
-                  <td>{i + 1}</td>
-                  <td>{item.name}</td>
-                  <td>₹{item.price}</td>
-                  <td>{item.qty}</td>
-                  <td>
-                    ₹{item.price * item.qty}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
     </div>
   );
-        }
+}
