@@ -14,7 +14,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <>
+    <div className="admin-panel">
       {/* TOP BAR */}
       <div className="admin-top">
         <button className="menu-btn" onClick={() => setOpen(true)}>
@@ -41,7 +41,9 @@ export default function AdminLayout() {
         </div>
 
         <nav>
-          <NavLink to="/admin" end>Dashboard</NavLink>
+          <NavLink to="/admin" end>
+            Dashboard
+          </NavLink>
           <NavLink to="/admin/products">Products</NavLink>
           <NavLink to="/admin/categories">Categories</NavLink>
           <NavLink to="/admin/subcategories">Subcategories</NavLink>
@@ -55,7 +57,7 @@ export default function AdminLayout() {
           <NavLink to="/admin/settings">Settings</NavLink>
         </nav>
 
-        {/* ✅ WORKING LOGOUT */}
+        {/* ✅ LOGOUT */}
         <button className="logout" onClick={handleLogout}>
           Logout
         </button>
@@ -65,6 +67,6 @@ export default function AdminLayout() {
       <main className="admin-main">
         <Outlet />
       </main>
-    </>
+    </div>
   );
 }
