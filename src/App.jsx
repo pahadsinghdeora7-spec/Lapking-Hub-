@@ -21,8 +21,12 @@ import ReplacementRequest from "./pages/ReplacementRequest.jsx";
 import AdminLogin from "./admin/AdminLogin.jsx";
 import AdminLayout from "./admin/AdminLayout.jsx";
 import AdminDashboard from "./admin/AdminDashboard.jsx";
+/* ADMIN PRODUCT */
 import AdminProducts from "./admin/AdminProducts.jsx";
 import AddProductPage from "./admin/AddProductPage.jsx";
+import AdminBulkUpload from "./admin/AdminBulkUpload.jsx";
+import AdminBulkDelete from "./admin/AdminBulkDelete.jsx";
+
 import AdminCategories from "./admin/AdminCategories.jsx";
 import AdminOrders from "./admin/AdminOrders.jsx";
 import AdminOrderView from "./admin/AdminOrderView.jsx";
@@ -79,6 +83,9 @@ function AppContent() {
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="/admin/products/add" element={<AddProductPage />} />
+            <Route path="/admin/products/bulk-upload" element={<AdminBulkUpload />} />
+
+             <Route path="/admin/products/bulk-delete" element={<AdminBulkDelete />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="orders/:id" element={<AdminOrderView />} />
