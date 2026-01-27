@@ -1,54 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./adminProducts.css";
+import "./AdminProducts.css";
 
-const AdminProducts = () => {
+export default function AdminProducts() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const [edit, setEdit] = useState(null);
-  const [showEdit, setShowEdit] = useState(false);
-
-  const [mainImg, setMainImg] = useState(null);
-  const [img1, setImg1] = useState(null);
-  const [img2, setImg2] = useState(null);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
-    setLoading(true);
     const { data } = await supabase
       .from("products")
       .select("*")
       .order("id", { ascending: false });
 
     setProducts(data || []);
-    setLoading(false);
   };
 
-  const openEdit = (item) => {
-    setEdit(item);
-    setShowEdit(true);
-  };
-
-  const uploadImage = async (file) => {
-    const fileName = `${Date.now()}-${file.name}`;
-    await supabase.storage.from("products").upload(fileName, file);
-    return supabase.storage.from("products").getPublicUrl(fileName).data.publicUrl;
-  };
-
+  // =====================
+  // UPDATE PRODUCT
+  // =====================
   const updateProduct = async () => {
-    let image = edit.image;
-    let image1 = edit.image1;
-    let image2 = edit.image2;
-
-    if (mainImg) image = await uploadImage(mainImg);
-    if (img1) image1 = await uploadImage(img1);
-    if (img2) image2 = await uploadImage(img2);
-
-    await supabase
+    const { error } = await supabase
       .from("products")
       .update({
         name: edit.name,
@@ -58,99 +33,76 @@ const AdminProducts = () => {
         brand: edit.brand,
         compatible_models: edit.compatible_models,
         description: edit.description,
-        image,
-        image1,
-        image2,
+        category_slug: edit.category_slug
       })
       .eq("id", edit.id);
 
-    alert("Product updated successfully ✅");
-
-    setShowEdit(false);
-    setEdit(null);
-    setMainImg(null);
-    setImg1(null);
-    setImg2(null);
-
-    fetchProducts();
-  };
-
-  const deleteProduct = async (id) => {
-    if (!window.confirm("Delete product?")) return;
-
-    await supabase.from("products").delete().eq("id", id);
-    fetchProducts();
+    if (!error) {
+      alert("Product updated");
+      setEdit(null);
+      fetchProducts();
+    } else {
+      alert("Update failed");
+    }
   };
 
   return (
     <div className="admin-page">
+
       <h2>Products</h2>
 
-      {loading && <div className="loading">Loading...</div>}
+      {/* ===================== */}
+      {/* PRODUCT LIST */}
+      {/* ===================== */}
+      <div className="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Part No</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-      {!loading && (
-        <div className="table-card">
-          <table>
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Part No</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Action</th>
+          <tbody>
+            {products.map((p) => (
+              <tr key={p.id}>
+                <td>
+                  {p.image ? (
+                    <img src={p.image} className="thumb" />
+                  ) : (
+                    <div className="no-image">No image</div>
+                  )}
+                </td>
+
+                <td>{p.name}</td>
+                <td>{p.category_slug || "-"}</td>
+                <td>{p.part_number}</td>
+                <td>₹{p.price}</td>
+                <td>{p.stock}</td>
+
+                <td className="actions">
+                  <button
+                    className="edit"
+                    onClick={() => setEdit(p)}
+                  >
+                    Edit
+                  </button>
+                </td>
               </tr>
-            </thead>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-            <tbody>
-              {products.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    {item.image ? (
-                      <img src={item.image} className="thumb" />
-                    ) : (
-                      <div className="no-image">No Image</div>
-                    )}
-                  </td>
-
-                  <td>{item.name}</td>
-                  <td>{item.part_number}</td>
-                  <td>₹{item.price}</td>
-                  <td>{item.stock}</td>
-
-                  <td className="actions">
-                    <button
-                      className="edit"
-                      onClick={() => openEdit(item)}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="delete"
-                      onClick={() => deleteProduct(item.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {products.length === 0 && (
-                <tr>
-                  <td colSpan="6" className="loading">
-                    No products found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ================= EDIT MODAL ================= */}
-
-      {showEdit && edit && (
+      {/* ===================== */}
+      {/* EDIT POPUP */}
+      {/* ===================== */}
+      {edit && (
         <div className="modal-bg">
           <div className="modal-card">
 
@@ -163,6 +115,21 @@ const AdminProducts = () => {
               }
               placeholder="Product Name"
             />
+
+            {/* ✅ CATEGORY */}
+            <select
+              value={edit.category_slug || ""}
+              onChange={(e) =>
+                setEdit({ ...edit, category_slug: e.target.value })
+              }
+            >
+              <option value="">Select Category</option>
+              <option value="dc-jack">DC Jack</option>
+              <option value="keyboard">Keyboard</option>
+              <option value="battery">Battery</option>
+              <option value="charger">Charger</option>
+              <option value="fan">Fan</option>
+            </select>
 
             <input
               value={edit.price || ""}
@@ -196,12 +163,12 @@ const AdminProducts = () => {
               placeholder="Brand"
             />
 
-            <input
+            <textarea
               value={edit.compatible_models || ""}
               onChange={(e) =>
                 setEdit({
                   ...edit,
-                  compatible_models: e.target.value,
+                  compatible_models: e.target.value
                 })
               }
               placeholder="Compatible Models"
@@ -212,20 +179,11 @@ const AdminProducts = () => {
               onChange={(e) =>
                 setEdit({
                   ...edit,
-                  description: e.target.value,
+                  description: e.target.value
                 })
               }
               placeholder="Description"
             />
-
-            <label>Main Image</label>
-            <input type="file" onChange={(e) => setMainImg(e.target.files[0])} />
-
-            <label>Image 1</label>
-            <input type="file" onChange={(e) => setImg1(e.target.files[0])} />
-
-            <label>Image 2</label>
-            <input type="file" onChange={(e) => setImg2(e.target.files[0])} />
 
             <div className="modal-actions">
               <button className="btn-primary" onClick={updateProduct}>
@@ -234,7 +192,7 @@ const AdminProducts = () => {
 
               <button
                 className="btn-outline"
-                onClick={() => setShowEdit(false)}
+                onClick={() => setEdit(null)}
               >
                 Cancel
               </button>
@@ -245,6 +203,4 @@ const AdminProducts = () => {
       )}
     </div>
   );
-};
-
-export default AdminProducts;
+                           }
