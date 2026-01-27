@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import "./admin.css";
+
 
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
