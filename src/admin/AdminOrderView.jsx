@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./AdminOrders.css";
 
-export default function AdminOrderView({ order, onClose }) {
+export default function AdminOrderView({ order, onClose, onSaved }) {
   const [paymentStatus, setPaymentStatus] = useState(order.payment_status);
   const [orderStatus, setOrderStatus] = useState(order.order_status);
   const [saving, setSaving] = useState(false);
 
-  async function handleUpdate() {
+  async function saveUpdate() {
     setSaving(true);
 
-    const { error } = await supabase
+    await supabase
       .from("orders")
       .update({
         payment_status: paymentStatus,
@@ -19,13 +19,8 @@ export default function AdminOrderView({ order, onClose }) {
       .eq("id", order.id);
 
     setSaving(false);
-
-    if (error) {
-      alert("Update failed");
-    } else {
-      alert("Order updated successfully");
-      onClose();
-    }
+    onSaved();
+    onClose();
   }
 
   return (
@@ -33,52 +28,104 @@ export default function AdminOrderView({ order, onClose }) {
       <div className="order-modal">
 
         {/* HEADER */}
-        <div className="modal-head">
+        <div className="order-modal-head">
           <h3>📦 Order Details</h3>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
-        {/* INFO */}
-        <div className="modal-section">
-          <p><b>Order Code:</b> {order.order_code}</p>
-          <p><b>Name:</b> {order.name || "Customer"}</p>
-          <p><b>Phone:</b> {order.phone || "NA"}</p>
-          <p><b>Address:</b> {order.address || "NA"}</p>
-          <p><b>Total:</b> ₹{order.total}</p>
+        {/* BASIC INFO */}
+        <div className="order-card-grid">
+          <div>
+            <label>Order Code</label>
+            <p>{order.order_code}</p>
+          </div>
+
+          <div>
+            <label>Total Amount</label>
+            <p>₹{order.total}</p>
+          </div>
+
+          <div>
+            <label>Customer Name</label>
+            <p>{order.name}</p>
+          </div>
+
+          <div>
+            <label>Phone</label>
+            <p>{order.phone}</p>
+          </div>
+
+          <div className="full">
+            <label>Address</label>
+            <p>{order.address}</p>
+          </div>
         </div>
 
         {/* STATUS */}
-        <div className="modal-section">
-          <label>Payment Status</label>
-          <select
-            value={paymentStatus}
-            onChange={(e) => setPaymentStatus(e.target.value)}
-          >
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-          </select>
+        <div className="status-grid">
+          <div>
+            <label>Payment Status</label>
+            <select
+              value={paymentStatus}
+              onChange={(e) => setPaymentStatus(e.target.value)}
+              className={`status ${paymentStatus}`}
+            >
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
 
-          <label>Order Status</label>
-          <select
-            value={orderStatus}
-            onChange={(e) => setOrderStatus(e.target.value)}
-          >
-            <option value="new">New</option>
-            <option value="processing">Processing</option>
-            <option value="packed">Packed</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+          <div>
+            <label>Order Status</label>
+            <select
+              value={orderStatus}
+              onChange={(e) => setOrderStatus(e.target.value)}
+              className={`status ${orderStatus}`}
+            >
+              <option value="new">New</option>
+              <option value="packed">Packed</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        {/* PRODUCTS */}
+        <div className="order-products">
+          <h4>🧾 Ordered Products</h4>
+
+          {!order.items || order.items.length === 0 ? (
+            <p className="muted">No product data</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.items.map((item, i) => (
+                  <tr key={i}>
+                    <td>{item.name}</td>
+                    <td>{item.qty}</td>
+                    <td>₹{item.price}</td>
+                    <td>₹{item.price * item.qty}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* ACTION */}
         <div className="modal-actions">
-          <button className="gray-btn" onClick={onClose}>
-            Close
-          </button>
-
-          <button className="primary-btn" onClick={handleUpdate} disabled={saving}>
+          <button className="btn-gray" onClick={onClose}>Close</button>
+          <button className="btn-primary" onClick={saveUpdate} disabled={saving}>
             {saving ? "Saving..." : "Save Update"}
           </button>
         </div>
