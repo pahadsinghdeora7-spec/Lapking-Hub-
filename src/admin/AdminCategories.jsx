@@ -4,9 +4,12 @@ import "./AdminCategories.css";
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
+
   const [name, setName] = useState("");
-  const [seoH1, setSeoH1] = useState("");
-  const [seoDesc, setSeoDesc] = useState("");
+  const [h1, setH1] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -22,7 +25,8 @@ export default function AdminCategories() {
     setCategories(data || []);
   };
 
-  const addCategory = async () => {
+  // ADD / UPDATE
+  const saveCategory = async () => {
     if (!name.trim()) {
       alert("Category name required hai");
       return;
@@ -30,70 +34,101 @@ export default function AdminCategories() {
 
     setLoading(true);
 
-    const { error } = await supabase.from("categories").insert([
-      {
-        name,
-        seo_h1: seoH1,
-        seo_description: seoDesc
-      }
-    ]);
+    if (editId) {
+      // UPDATE
+      await supabase
+        .from("categories")
+        .update({ name, h1, description })
+        .eq("id", editId);
+    } else {
+      // INSERT
+      await supabase.from("categories").insert([
+        {
+          name,
+          h1,
+          description,
+          slug: name.toLowerCase().replace(/\s+/g, "-"),
+        },
+      ]);
+    }
 
     setLoading(false);
+    resetForm();
+    fetchCategories();
+  };
 
-    if (error) {
-      alert(error.message);
-    } else {
-      setName("");
-      setSeoH1("");
-      setSeoDesc("");
-      fetchCategories();
-    }
+  const resetForm = () => {
+    setName("");
+    setH1("");
+    setDescription("");
+    setEditId(null);
+  };
+
+  const editCategory = (cat) => {
+    setEditId(cat.id);
+    setName(cat.name || "");
+    setH1(cat.h1 || "");
+    setDescription(cat.description || "");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const deleteCategory = async (id) => {
-    if (!window.confirm("Delete category?")) return;
+    if (!window.confirm("Delete this category permanently?")) return;
+
     await supabase.from("categories").delete().eq("id", id);
     fetchCategories();
   };
 
   return (
-    <div className="admin-category">
+    <div className="admin-page">
 
-      <div className="cat-header">
+      <div className="page-head">
         <h2>📁 Categories (SEO Enabled)</h2>
         <p>H1 & description Google ke liye</p>
       </div>
 
-      <div className="cat-card">
-        <h4>Add Category</h4>
+      {/* FORM */}
+      <div className="card-box">
+        <h4>{editId ? "Edit Category" : "Add Category"}</h4>
 
-        <div className="cat-form">
-          <input
-            placeholder="Category name (Keyboard)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+        <input
+          placeholder="Category name (Keyboard)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-          <input
-            placeholder="SEO H1 (Buy Keyboard Online in India)"
-            value={seoH1}
-            onChange={(e) => setSeoH1(e.target.value)}
-          />
+        <input
+          placeholder="SEO H1 (Buy Keyboard Online in India)"
+          value={h1}
+          onChange={(e) => setH1(e.target.value)}
+        />
 
-          <textarea
-            placeholder="SEO description (150–160 characters)"
-            value={seoDesc}
-            onChange={(e) => setSeoDesc(e.target.value)}
-          />
+        <textarea
+          placeholder="SEO description (150–160 characters)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-          <button onClick={addCategory}>
-            {loading ? "Saving..." : "Add Category"}
+        <div className="form-actions">
+          <button className="save-btn" onClick={saveCategory}>
+            {loading
+              ? "Saving..."
+              : editId
+              ? "Update Category"
+              : "Add Category"}
           </button>
+
+          {editId && (
+            <button className="cancel-btn" onClick={resetForm}>
+              Cancel
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="cat-card">
-        <table className="cat-table">
+      {/* TABLE */}
+      <div className="card-box">
+        <table>
           <thead>
             <tr>
               <th>ID</th>
@@ -108,8 +143,15 @@ export default function AdminCategories() {
               <tr key={c.id}>
                 <td>{c.id}</td>
                 <td>{c.name}</td>
-                <td>{c.seo_h1 || "-"}</td>
-                <td>
+                <td>{c.h1 || "-"}</td>
+                <td className="actions">
+                  <button
+                    className="edit-btn"
+                    onClick={() => editCategory(c)}
+                  >
+                    Edit
+                  </button>
+
                   <button
                     className="delete-btn"
                     onClick={() => deleteCategory(c.id)}
@@ -120,7 +162,6 @@ export default function AdminCategories() {
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
 
