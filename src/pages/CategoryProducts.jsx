@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { supabase } from "../supabaseClient";
-import ProductCard from "../components/ProductCard";
 import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
@@ -13,20 +12,20 @@ export default function CategoryProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategory();
+    loadData();
   }, [slug]);
 
-  const fetchCategory = async () => {
+  const loadData = async () => {
     setLoading(true);
 
-    // 🔹 category fetch
-    const { data: cat, error } = await supabase
+    // 1️⃣ category find by slug
+    const { data: cat } = await supabase
       .from("categories")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    if (error || !cat) {
+    if (!cat) {
       setCategory(null);
       setProducts([]);
       setLoading(false);
@@ -35,29 +34,24 @@ export default function CategoryProducts() {
 
     setCategory(cat);
 
-    // 🔹 products fetch
+    // 2️⃣ products by category NAME
     const { data: prods } = await supabase
       .from("products")
       .select("*")
-      .eq("category", cat.name)
-      .order("id", { ascending: false });
+      .ilike("category", cat.name);
 
     setProducts(prods || []);
     setLoading(false);
   };
 
-  if (loading) {
-    return <div className="cat-loading">Loading...</div>;
-  }
+  if (loading) return <p className="cat-loading">Loading...</p>;
 
-  if (!category) {
-    return <div className="cat-notfound">Category not found</div>;
-  }
+  if (!category)
+    return <p className="cat-loading">Category not found</p>;
 
   return (
-    <div className="category-page">
+    <div className="cat-page">
 
-      {/* 🔥 SEO */}
       <Helmet>
         <title>{category.h1 || category.name}</title>
         <meta
@@ -66,27 +60,30 @@ export default function CategoryProducts() {
         />
       </Helmet>
 
-      {/* 🔹 H1 visible (SEO + user) */}
-      <h1 className="category-h1">
+      <h1 className="cat-h1">
         {category.h1 || category.name}
       </h1>
 
-      {/* 🔹 description */}
       {category.description && (
-        <p className="category-desc">
-          {category.description}
-        </p>
+        <p className="cat-desc">{category.description}</p>
       )}
 
-      {/* 🔹 PRODUCTS */}
       {products.length === 0 ? (
-        <div className="no-products">
+        <p className="cat-empty">
           No products found in this category
-        </div>
+        </p>
       ) : (
-        <div className="products-grid">
+        <div className="cat-grid">
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <div className="cat-card" key={p.id}>
+              <img
+                src={p.image || "/no-image.png"}
+                alt={p.name}
+              />
+              <h3>{p.name}</h3>
+              <p>₹{p.price}</p>
+              <button>Add to Cart</button>
+            </div>
           ))}
         </div>
       )}
