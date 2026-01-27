@@ -1,21 +1,29 @@
-.dashboard {
+/* ===============================
+   ADMIN DASHBOARD ONLY
+=============================== */
+
+.admin-panel .dashboard {
   max-width: 1200px;
   margin: auto;
 }
 
-.dash-title {
+/* HEADER */
+.admin-panel .dash-head h2 {
   font-size: 22px;
   margin-bottom: 4px;
 }
 
-.dash-sub {
+.admin-panel .dash-head p {
   font-size: 13px;
   color: #666;
   margin-bottom: 20px;
 }
 
-/* GRID */
-.stat-grid {
+/* ===============================
+   STAT GRID
+=============================== */
+
+.admin-panel .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 14px;
@@ -23,49 +31,101 @@
 }
 
 /* CARD */
-.stat-card {
+.admin-panel .stat-card {
   background: #fff;
   border-radius: 14px;
-  padding: 18px;
+  padding: 16px;
   box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  cursor: pointer;
+  transition: 0.25s;
 }
 
-.stat-card h3 {
+.admin-panel .stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.admin-panel .stat-card h4 {
   margin: 0;
   font-size: 22px;
 }
 
-.stat-card p {
+.admin-panel .stat-card p {
   margin-top: 6px;
   font-size: 13px;
   color: #666;
 }
 
 /* COLORS */
-.blue { border-left: 5px solid #0b5cff; }
-.green { border-left: 5px solid #28c76f; }
-.yellow { border-left: 5px solid #f6c343; }
-.red { border-left: 5px solid #ea5455; }
-.purple { border-left: 5px solid #7367f0; }
-.orange { border-left: 5px solid #ff9f43; }
+.admin-panel .green  { border-left: 5px solid #28c76f; }
+.admin-panel .blue   { border-left: 5px solid #0b5cff; }
+.admin-panel .yellow { border-left: 5px solid #f6c343; }
+.admin-panel .red    { border-left: 5px solid #ea5455; }
+.admin-panel .purple { border-left: 5px solid #7367f0; }
+.admin-panel .orange { border-left: 5px solid #ff9f43; }
 
-/* LOW STOCK */
-.low-stock-card {
+/* ADD PRODUCT CARD */
+.admin-panel .add-product h4 {
+  font-size: 30px;
+  text-align: center;
+}
+
+.admin-panel .add-product p {
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ===============================
+   COMMON CARD
+=============================== */
+
+.admin-panel .card {
   background: #fff;
   border-radius: 14px;
   padding: 18px;
+  margin-bottom: 25px;
   box-shadow: 0 6px 18px rgba(0,0,0,.06);
 }
 
-.low-stock-card h4 {
-  margin-bottom: 10px;
+.admin-panel .card h4 {
+  margin-bottom: 12px;
 }
 
-.low-stock-card ul {
-  padding-left: 18px;
+/* ===============================
+   TABLE
+=============================== */
+
+.admin-panel .table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
-.low-stock-card li {
-  margin-bottom: 6px;
-  color: #444;
+.admin-panel .table th {
+  background: #f7f8fb;
+  padding: 10px;
+  text-align: left;
+}
+
+.admin-panel .table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===============================
+   TEXT
+=============================== */
+
+.admin-panel .muted {
+  color: #888;
+  font-size: 13px;
+}
+
+/* ===============================
+   MOBILE
+=============================== */
+
+@media (max-width: 600px) {
+  .admin-panel .stat-card h4 {
+    font-size: 20px;
+  }
 }
