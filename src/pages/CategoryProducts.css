@@ -1,56 +1,61 @@
-/* ===== CATEGORY PAGE ONLY ===== */
-
-.category-page {
+.cat-page {
   padding: 15px;
-  background: #f7f9fc;
-  min-height: 100vh;
 }
 
-/* H1 */
-.category-title {
+.cat-h1 {
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 6px;
-  color: #111;
 }
 
-/* SEO description */
-.category-description {
+.cat-desc {
   font-size: 14px;
   color: #666;
-  margin-bottom: 16px;
-  line-height: 1.5;
+  margin-bottom: 18px;
 }
 
-/* product grid */
-.category-products {
+.cat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-/* empty */
-.cat-empty {
+.cat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+
+.cat-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cat-card h3 {
+  font-size: 14px;
+  margin: 8px 0 4px;
+}
+
+.cat-card p {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.cat-card button {
+  width: 100%;
+  background: #0b5cff;
+  color: #fff;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.cat-empty,
+.cat-loading {
+  padding: 20px;
   text-align: center;
   color: #777;
-  margin-top: 40px;
-  font-size: 14px;
-}
-
-/* loading */
-.cat-loading {
-  text-align: center;
-  padding: 40px;
-  font-size: 15px;
-}
-
-/* ❌ BLOCK ADMIN CSS */
-.category-page table,
-.category-page form,
-.category-page input[type="text"],
-.category-page textarea,
-.category-page button.save,
-.category-page button.edit,
-.category-page button.delete {
-  all: unset;
 }
