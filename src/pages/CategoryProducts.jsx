@@ -13,13 +13,13 @@ export default function CategoryProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadCategory();
+    loadData();
   }, [slug]);
 
-  const loadCategory = async () => {
+  const loadData = async () => {
     setLoading(true);
 
-    // 1️⃣ Category fetch by slug
+    // ✅ CATEGORY BY SLUG
     const { data: cat } = await supabase
       .from("categories")
       .select("*")
@@ -28,46 +28,35 @@ export default function CategoryProducts() {
 
     if (!cat) {
       setCategory(null);
-      setProducts([]);
       setLoading(false);
       return;
     }
 
     setCategory(cat);
 
-    // 2️⃣ Products of that category
+    // ✅ PRODUCTS BY CATEGORY SLUG
     const { data: prods } = await supabase
       .from("products")
       .select("*")
-      .eq("category", cat.name)
+      .eq("category_slug", slug)
       .order("id", { ascending: false });
 
     setProducts(prods || []);
     setLoading(false);
   };
 
-  if (loading) {
-    return <div className="page-loading">Loading...</div>;
-  }
+  if (loading) return <div className="page-loading">Loading...</div>;
 
-  if (!category) {
-    return <div className="page-loading">Category not found</div>;
-  }
+  if (!category) return <div className="page-loading">Category not found</div>;
 
   return (
     <div className="category-page">
 
       {/* SEO */}
       <Helmet>
-        <title>
-          {category.h1 || category.name} | Lapking Hub
-        </title>
-
+        <title>{category.h1 || category.name} | Lapking Hub</title>
         {category.description && (
-          <meta
-            name="description"
-            content={category.description}
-          />
+          <meta name="description" content={category.description} />
         )}
       </Helmet>
 
@@ -77,9 +66,7 @@ export default function CategoryProducts() {
       </h1>
 
       {category.description && (
-        <p className="cat-desc">
-          {category.description}
-        </p>
+        <p className="cat-desc">{category.description}</p>
       )}
 
       {/* PRODUCTS */}
@@ -94,7 +81,6 @@ export default function CategoryProducts() {
           ))}
         </div>
       )}
-
     </div>
   );
 }
