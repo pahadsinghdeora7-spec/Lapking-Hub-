@@ -1,65 +1,74 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import * as XLSX from "xlsx";
 import "./admin.css";
 
 export default function AdminBulkUpload() {
-
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleUpload = async () => {
-    if (!file) return alert("Select Excel file");
+    if (!file) return alert("Please select CSV file");
 
     setLoading(true);
 
-    const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
+    const text = await file.text();
+    const rows = text.split("\n").map(r => r.split(","));
 
-    for (const row of rows) {
+    // remove header
+    rows.shift();
+
+    for (let row of rows) {
+      const [
+        name,
+        category_slug,
+        brand,
+        part_number,
+        compatible_model,
+        price,
+        stock,
+        description
+      ] = row;
+
+      if (!name) continue;
+
       await supabase.from("products").insert({
-        name: row.name,
-        category_slug: row.category_slug,
-        compatible_model: row.compatible_model,
-        price: row.price,
-        stock: row.stock,
-        description: row.description,
+        name: name?.trim(),
+        category_slug: category_slug?.trim(),
+        brand: brand?.trim(),
+        part_number: part_number?.trim(),
+        compatible_model: compatible_model?.trim(),
+        price: Number(price || 0),
+        stock: Number(stock || 0),
+        description: description?.trim(),
         status: true
       });
     }
 
     setLoading(false);
-    alert("Bulk upload completed ✅");
+    alert("Bulk upload completed");
   };
 
   return (
-    <div className="admin-products">
+    <div className="admin-page">
 
       <h2>Bulk Upload Products</h2>
 
       <div className="card">
+        <p style={{ fontSize: 13, color: "#666" }}>
+          Upload CSV file only (Excel → Save As → CSV UTF-8)
+        </p>
+
         <input
           type="file"
-          accept=".xlsx,.xls"
+          accept=".csv"
           onChange={(e) => setFile(e.target.files[0])}
         />
 
-        <button className="save-btn" onClick={handleUpload} disabled={loading}>
-          {loading ? "Uploading..." : "Upload Excel"}
+        <button onClick={handleUpload} disabled={loading}>
+          {loading ? "Uploading..." : "Upload CSV"}
         </button>
-
-        <p style={{ marginTop: 10, fontSize: 13 }}>
-          Excel columns must be:
-          <br />
-          <b>
-            name, category_slug, compatible_model,
-            price, stock, description
-          </b>
-        </p>
       </div>
 
     </div>
   );
-      }
+}
