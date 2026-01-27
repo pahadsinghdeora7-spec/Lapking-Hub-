@@ -1,7 +1,8 @@
 .cat-page {
-  padding: 15px;
+  padding: 14px;
 }
 
+/* ================= TITLE ================= */
 .cat-h1 {
   font-size: 22px;
   font-weight: 700;
@@ -14,63 +15,88 @@
   margin-bottom: 18px;
 }
 
+/* ================= GRID ================= */
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
+/* ================= CARD ================= */
 .cat-card {
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,.06);
   overflow: hidden;
-  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
+/* ================= IMAGE ================= */
 .cat-card img {
   width: 100%;
-  height: 140px;
+  height: 150px;
   object-fit: cover;
+  background: #f1f1f1;
 }
 
+/* ================= BODY ================= */
 .cat-body {
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
+/* ================= NAME ================= */
 .cat-body h3 {
   font-size: 14px;
-  margin-bottom: 4px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  min-height: 34px;
 }
 
+/* ================= META ================= */
 .cat-meta {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
   color: #555;
   margin-bottom: 6px;
+  min-height: 16px;
 }
 
+/* ================= PRICE ================= */
 .cat-price {
+  font-size: 15px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
+/* ================= BUTTON ================= */
 .cat-btn {
+  margin-top: auto;
   width: 100%;
-  background: #0b5cff;
-  color: #fff;
-  border: none;
   padding: 9px;
   border-radius: 8px;
+  border: none;
   font-weight: 600;
-  transition: 0.2s;
+  background: #0b5cff;
+  color: #fff;
+  transition: 0.2s ease;
 }
 
+.cat-btn:active {
+  transform: scale(0.97);
+}
+
+/* ADDED STATE */
 .cat-btn.added {
   background: #28a745;
 }
 
+/* ================= EMPTY / LOADING ================= */
 .cat-loading,
 .cat-empty {
   text-align: center;
