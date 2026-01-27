@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AddProductPage.css";
+import "./adminAddProduct.css";
 
 export default function AdminAddProduct() {
 
@@ -25,7 +25,6 @@ export default function AdminAddProduct() {
     image2: null
   });
 
-  // ================= LOAD CATEGORIES =================
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -39,7 +38,6 @@ export default function AdminAddProduct() {
     setCategories(data || []);
   };
 
-  // ================= IMAGE UPLOAD =================
   const uploadImage = async (file) => {
     if (!file) return null;
 
@@ -61,11 +59,9 @@ export default function AdminAddProduct() {
     return data.publicUrl;
   };
 
-  // ================= SAVE PRODUCT =================
   const saveProduct = async () => {
-
     if (!form.name || !form.category_id || !form.price) {
-      alert("Product name, category & price required");
+      alert("Product name, category and price required");
       return;
     }
 
@@ -94,7 +90,6 @@ export default function AdminAddProduct() {
     setLoading(false);
 
     if (error) {
-      console.log(error);
       alert("Error saving product");
       return;
     }
@@ -123,13 +118,13 @@ export default function AdminAddProduct() {
 
       <div className="card">
 
+        <label>Product Name</label>
         <input
-          placeholder="Product Name"
           value={form.name}
           onChange={(e)=>setForm({...form,name:e.target.value})}
         />
 
-        {/* CATEGORY DROPDOWN */}
+        <label>Category</label>
         <select
           value={form.category_id}
           onChange={(e)=>{
@@ -143,57 +138,61 @@ export default function AdminAddProduct() {
         >
           <option value="">Select Category</option>
           {categories.map(c => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
+            <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
 
+        <label>Brand</label>
         <input
-          placeholder="Brand"
           value={form.brand}
           onChange={(e)=>setForm({...form,brand:e.target.value})}
         />
 
+        <label>Part Number</label>
         <input
-          placeholder="Part Number"
           value={form.part_number}
           onChange={(e)=>setForm({...form,part_number:e.target.value})}
         />
 
+        <label>Compatible Model</label>
         <input
-          placeholder="Compatible Model"
           value={form.compatible_model}
           onChange={(e)=>setForm({...form,compatible_model:e.target.value})}
         />
 
+        <label>Price</label>
         <input
           type="number"
-          placeholder="Price"
           value={form.price}
           onChange={(e)=>setForm({...form,price:e.target.value})}
         />
 
+        <label>Stock</label>
         <input
           type="number"
-          placeholder="Stock"
           value={form.stock}
           onChange={(e)=>setForm({...form,stock:e.target.value})}
         />
 
+        <label>Description</label>
         <textarea
           rows="5"
-          placeholder="Product Description"
           value={form.description}
           onChange={(e)=>setForm({...form,description:e.target.value})}
         />
+
       </div>
 
       <div className="card">
         <h4>Product Images</h4>
 
+        <label>Main Image</label>
         <input type="file" onChange={(e)=>setImages({...images,image:e.target.files[0]})}/>
+
+        <label>Image 1</label>
         <input type="file" onChange={(e)=>setImages({...images,image1:e.target.files[0]})}/>
+
+        <label>Image 2</label>
         <input type="file" onChange={(e)=>setImages({...images,image2:e.target.files[0]})}/>
       </div>
 
@@ -203,4 +202,4 @@ export default function AdminAddProduct() {
 
     </div>
   );
-          }
+}
