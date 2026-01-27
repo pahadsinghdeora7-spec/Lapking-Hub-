@@ -1,87 +1,85 @@
-.admin-page {
-  max-width: 1100px;
+.admin-category {
+  max-width: 900px;
   margin: auto;
 }
 
-.page-head h2 {
+.page-title h2 {
   font-size: 22px;
   margin-bottom: 4px;
 }
 
-.page-head p {
+.page-title p {
   font-size: 13px;
   color: #666;
+  margin-bottom: 20px;
 }
 
-.card-box {
+.category-card {
   background: #fff;
+  padding: 20px;
   border-radius: 14px;
-  padding: 18px;
-  margin-top: 18px;
   box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  margin-bottom: 25px;
 }
 
-.card-box h4 {
+.category-card h4 {
   margin-bottom: 12px;
-  font-size: 15px;
 }
 
-.card-box input,
-.card-box textarea {
+.category-card input,
+.category-card textarea {
   width: 100%;
   padding: 11px;
-  border-radius: 9px;
+  border-radius: 8px;
   border: 1px solid #ddd;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-size: 14px;
 }
 
-.card-box textarea {
+.category-card textarea {
   min-height: 90px;
 }
 
-.card-box input:focus,
-.card-box textarea:focus {
-  outline: none;
-  border-color: #0b5cff;
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.save-btn {
+.primary-btn {
+  width: 100%;
+  padding: 12px;
   background: #0b5cff;
   color: #fff;
   border: none;
-  padding: 10px 22px;
-  border-radius: 9px;
+  border-radius: 10px;
   font-weight: 600;
 }
 
 .cancel-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
   background: #eee;
+  border-radius: 10px;
   border: none;
-  padding: 10px 18px;
-  border-radius: 9px;
-  font-weight: 600;
 }
 
-table {
+.category-table {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+
+.category-table table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
 
-th {
-  background: #f8f9fb;
-  padding: 10px;
+.category-table th {
+  background: #f6f7fb;
+  padding: 12px;
   text-align: left;
 }
 
-td {
-  padding: 10px;
+.category-table td {
+  padding: 12px;
   border-top: 1px solid #eee;
 }
 
@@ -91,61 +89,23 @@ td {
 }
 
 .edit-btn {
-  background: #eef4ff;
+  background: #e7f0ff;
   color: #0b5cff;
   border: none;
-  padding: 6px 14px;
-  border-radius: 7px;
-  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
 }
 
 .delete-btn {
-  background: #ffeaea;
+  background: #ffecec;
   color: #e53935;
   border: none;
-  padding: 6px 14px;
-  border-radius: 7px;
-  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
 }
 
-/* ===== ACTION BUTTONS ===== */
-
-.actions {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.edit-btn {
-  background: #eaf1ff;
-  color: #0b5cff;
-  border: 1px solid #cfe0ff;
-  padding: 7px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.edit-btn:hover {
-  background: #0b5cff;
-  color: #fff;
-}
-
-.delete-btn {
-  background: #fff;
-  color: #e53935;
-  border: 1px solid #f3bcbc;
-  padding: 7px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.delete-btn:hover {
-  background: #e53935;
-  color: #fff;
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: #999;
 }
