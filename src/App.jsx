@@ -3,7 +3,7 @@ import { HashRouter as Router, Routes, Route, useLocation } from "react-router-d
 /* USER PAGES */
 import Home from "./pages/Home.jsx";
 import Account from "./pages/Account.jsx";
-
+<Route path="/categories" element={<Categories />} />
 import CategoryProducts from "./pages/CategoryProducts.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
@@ -57,7 +57,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<Account />} />
-          
+          <Route path="/category/:slug" element={<CategoryProducts />} />
           <Route path="/category/:slug" element={<CategoryProducts />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
