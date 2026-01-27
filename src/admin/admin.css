@@ -1,0 +1,264 @@
+/* ===============================
+   LAPKING HUB — ADMIN PANEL FINAL
+=============================== */
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+body {
+  margin: 0;
+  background: #f6f8fb;
+}
+
+/* ===============================
+   ADMIN WRAPPER
+=============================== */
+
+.admin-panel {
+  min-height: 100vh;
+  background: #f6f8fb;
+}
+
+/* ===============================
+   TOP HEADER
+=============================== */
+
+.admin-top {
+  height: 56px;
+  background: #0b5cff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 4000;
+}
+
+.menu-btn,
+.view-store {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.menu-btn {
+  font-size: 22px;
+}
+
+.logo {
+  font-weight: 600;
+  text-align: center;
+  font-size: 15px;
+}
+
+.logo .small {
+  display: block;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* ===============================
+   SIDEBAR
+=============================== */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100vh;
+  background: #ffffff;
+  padding-top: 60px;
+  z-index: 3500;
+  transition: 0.3s ease;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.15);
+}
+
+.sidebar.show {
+  left: 0;
+}
+
+.side-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 56px;
+  width: 100%;
+  background: #0b5cff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-weight: 600;
+}
+
+.side-head button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 14px 18px;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar nav a.active {
+  background: #eef4ff;
+  color: #0b5cff;
+  font-weight: 600;
+}
+
+.logout {
+  width: 90%;
+  margin: 20px auto;
+  display: block;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #ea5455;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===============================
+   OVERLAY
+=============================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 3000;
+}
+
+/* ===============================
+   MAIN AREA
+=============================== */
+
+.admin-main {
+  padding-top: 75px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 40px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* ===============================
+   DASHBOARD
+=============================== */
+
+.dash-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.dash-head p {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 18px;
+}
+
+/* ===============================
+   STATS GRID
+=============================== */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-card h4 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.stat-card p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* colors */
+.green { border-left: 5px solid #28c76f; }
+.blue { border-left: 5px solid #0b5cff; }
+.yellow { border-left: 5px solid #f6c343; }
+.red { border-left: 5px solid #ea5455; }
+.purple { border-left: 5px solid #7367f0; }
+.orange { border-left: 5px solid #ff9f43; }
+
+/* ===============================
+   CARD
+=============================== */
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.05);
+}
+
+.card h4 {
+  margin-bottom: 12px;
+}
+
+/* ===============================
+   TABLE
+=============================== */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  background: #f9fafb;
+  padding: 10px;
+}
+
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===============================
+   MOBILE
+=============================== */
+
+@media (max-width: 600px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  }
