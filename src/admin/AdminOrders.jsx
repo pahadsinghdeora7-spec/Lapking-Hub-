@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./admin.css";
+import AdminOrderView from "./AdminOrderView";
+import "./AdminOrders.css";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
@@ -12,38 +12,23 @@ export default function AdminOrders() {
   }, []);
 
   async function loadOrders() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("orders")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("id", { ascending: false });
 
-    setOrders(data || []);
-    setLoading(false);
+    if (!error) {
+      setOrders(data || []);
+    }
   }
-
-  async function updateOrder() {
-    await supabase
-      .from("orders")
-      .update({
-        payment_status: selectedOrder.payment_status,
-        order_status: selectedOrder.order_status
-      })
-      .eq("id", selectedOrder.id);
-
-    alert("Order updated successfully");
-    setSelectedOrder(null);
-    loadOrders();
-  }
-
-  if (loading) return <p className="loading">Loading orders...</p>;
 
   return (
-    <div className="admin-wrapper">
+    <div className="admin-page">
 
       <h2>🛒 Orders</h2>
 
-      <div className="table-card">
-        <table className="product-table">
+      <div className="card">
+        <table className="table">
           <thead>
             <tr>
               <th>#</th>
@@ -57,114 +42,42 @@ export default function AdminOrders() {
           </thead>
 
           <tbody>
-            {orders.map((o, i) => (
-              <tr key={o.id}>
-                <td>{i + 1}</td>
-                <td>{o.name || "Customer"}</td>
-                <td>{o.phone || "NA"}</td>
-                <td>₹{o.total}</td>
-
-                <td>
-                  <span className={`status ${o.payment_status}`}>
-                    {o.payment_status}
-                  </span>
-                </td>
-
-                <td>
-                  <span className={`status ${o.order_status}`}>
-                    {o.order_status}
-                  </span>
-                </td>
-
-                <td>
-                  <button
-                    className="btn-primary"
-                    onClick={() => setSelectedOrder(o)}
-                  >
-                    View
-                  </button>
+            {orders.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={{ textAlign: "center" }}>
+                  No orders found
                 </td>
               </tr>
-            ))}
+            ) : (
+              orders.map((o, index) => (
+                <tr key={o.id}>
+                  <td>{index + 1}</td>
+                  <td>{o.name || "Customer"}</td>
+                  <td>{o.phone || "NA"}</td>
+                  <td>₹{o.total}</td>
+                  <td>{o.payment_status}</td>
+                  <td>{o.order_status}</td>
+                  <td>
+                    <button
+                      className="view-btn"
+                      onClick={() => setSelectedOrder(o)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* ================= ORDER DETAILS POPUP ================= */}
-
+      {/* ✅ ORDER POPUP */}
       {selectedOrder && (
-        <div className="modal-overlay">
-
-          <div className="modal-box">
-
-            <h3>📦 Order Details</h3>
-
-            <p><b>Order Code:</b> {selectedOrder.order_code}</p>
-            <p><b>Name:</b> {selectedOrder.name}</p>
-            <p><b>Phone:</b> {selectedOrder.phone}</p>
-            <p><b>Address:</b> {selectedOrder.address}</p>
-
-            <hr />
-
-            <label>Payment Status</label>
-            <select
-              value={selectedOrder.payment_status}
-              onChange={(e) =>
-                setSelectedOrder({
-                  ...selectedOrder,
-                  payment_status: e.target.value
-                })
-              }
-            >
-              <option value="pending">Pending</option>
-              <option value="paid">Paid</option>
-            </select>
-
-            <label>Order Status</label>
-            <select
-              value={selectedOrder.order_status}
-              onChange={(e) =>
-                setSelectedOrder({
-                  ...selectedOrder,
-                  order_status: e.target.value
-                })
-              }
-            >
-              <option value="new">New</option>
-              <option value="processing">Processing</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-
-            <hr />
-
-            <h4>🧾 Products</h4>
-
-            {selectedOrder.items?.length ? (
-              selectedOrder.items.map((item, i) => (
-                <div key={i} className="order-item">
-                  {item.name} × {item.qty} = ₹{item.price * item.qty}
-                </div>
-              ))
-            ) : (
-              <p className="muted">No product data</p>
-            )}
-
-            <div className="modal-actions">
-              <button className="btn-primary" onClick={updateOrder}>
-                Save Update
-              </button>
-
-              <button
-                className="btn-outline"
-                onClick={() => setSelectedOrder(null)}
-              >
-                Close
-              </button>
-            </div>
-
-          </div>
-        </div>
+        <AdminOrderView
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
       )}
 
     </div>
