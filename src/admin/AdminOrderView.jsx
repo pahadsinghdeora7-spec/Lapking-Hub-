@@ -1,153 +1,146 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient.js";
-import "./AdminOrders.css";
+import { supabase } from "../supabaseClient";
+import "./admin.css";
 
 export default function AdminOrderView() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [order, setOrder] = useState(null);
-  const [items, setItems] = useState([]);
-  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
-
-  // 🔄 Load order
-  const loadOrder = async () => {
-    setLoading(true);
-
-    const { data: orderData } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    const { data: itemsData } = await supabase
-      .from("order_items")
-      .select("*")
-      .eq("order_id", id);
-
-    setOrder(orderData);
-    setItems(itemsData || []);
-    setStatus(orderData?.order_status || "");
-    setLoading(false);
-  };
 
   useEffect(() => {
     loadOrder();
   }, []);
 
-  // ✅ Update order status
-  const updateStatus = async () => {
-    await supabase
+  async function loadOrder() {
+    const { data, error } = await supabase
       .from("orders")
-      .update({ order_status: status })
-      .eq("id", id);
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    alert("Order status updated");
-    loadOrder();
-  };
+    if (!error) {
+      setOrder(data);
+    }
 
-  // ✅ Update payment status
-  const updatePayment = async (value) => {
-    await supabase
-      .from("orders")
-      .update({ payment_status: value })
-      .eq("id", id);
-
-    loadOrder();
-  };
+    setLoading(false);
+  }
 
   if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+  if (!order) return <p style={{ padding: 20 }}>Order not found</p>;
 
-  if (!order) return <p>Order not found</p>;
+  const items = order.items || [];
 
   return (
-    <div className="admin-orders">
+    <div className="admin-page">
 
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ← Back
-      </button>
-
-      <h2>Order #{order.id}</h2>
-
-      {/* CUSTOMER */}
-      <div className="card">
-        <h4>Customer Details</h4>
-        <p><b>Name:</b> {order.name}</p>
-        <p><b>Phone:</b> {order.phone}</p>
-        <p><b>Email:</b> {order.email || "-"}</p>
-        <p><b>Address:</b> {order.address}</p>
-        <p><b>Model / Part:</b> {order.model_part || "-"}</p>
-      </div>
-
-      {/* SHIPPING */}
-      <div className="card">
-        <h4>Shipping</h4>
-        <p><b>Courier:</b> {order.shipping_name || "-"}</p>
-        <p><b>Charge:</b> ₹{order.shipping_price || 0}</p>
-      </div>
-
-      {/* PAYMENT */}
-      <div className="card">
-        <h4>Payment</h4>
-        <p>
-          <b>Method:</b> {order.payment_method}
-        </p>
-
-        <p>
-          <b>Status:</b>{" "}
-          <span className={`badge ${order.payment_status}`}>
-            {order.payment_status}
-          </span>
-        </p>
-
-        {order.payment_status === "pending" && (
-          <button
-            className="btn green"
-            onClick={() => updatePayment("paid")}
-          >
-            Approve Payment
-          </button>
-        )}
-      </div>
-
-      {/* ITEMS */}
-      <div className="card">
-        <h4>Items</h4>
-
-        {items.length === 0 && <p>No items</p>}
-
-        {items.map((item) => (
-          <div key={item.id} className="order-item">
-            <p><b>{item.product_name}</b></p>
-            <p>Qty: {item.qty}</p>
-            <p>Price: ₹{item.price}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* STATUS */}
-      <div className="card">
-        <h4>Order Status</h4>
-
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
+      {/* HEADER */}
+      <div className="admin-header">
+        <h2>Order Details</h2>
+        <button
+          className="btn-outline"
+          onClick={() => navigate(-1)}
         >
-          <option value="new">New</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="packed">Packed</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-
-        <button className="btn blue" onClick={updateStatus}>
-          Update Status
+          ← Back
         </button>
+      </div>
+
+      {/* ORDER INFO */}
+      <div className="card">
+        <h3>Order Information</h3>
+
+        <div className="form-grid">
+          <div>
+            <strong>Order ID</strong>
+            <p>#{order.id}</p>
+          </div>
+
+          <div>
+            <strong>Order Code</strong>
+            <p>{order.order_code}</p>
+          </div>
+
+          <div>
+            <strong>Date</strong>
+            <p>{new Date(order.created_at).toLocaleString()}</p>
+          </div>
+
+          <div>
+            <strong>Payment</strong>
+            <p>{order.payment_status}</p>
+          </div>
+
+          <div>
+            <strong>Status</strong>
+            <p>{order.order_status}</p>
+          </div>
+
+          <div>
+            <strong>Total</strong>
+            <p>₹{order.total}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* CUSTOMER INFO */}
+      <div className="card">
+        <h3>Customer Details</h3>
+
+        <div className="form-grid">
+          <div>
+            <strong>Name</strong>
+            <p>{order.name}</p>
+          </div>
+
+          <div>
+            <strong>Phone</strong>
+            <p>{order.phone}</p>
+          </div>
+
+          <div className="input-wide">
+            <strong>Address</strong>
+            <p>{order.address}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* PRODUCT LIST */}
+      <div className="card">
+        <h3>Ordered Products</h3>
+
+        {items.length === 0 ? (
+          <p className="muted">No product data</p>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {items.map((item, i) => (
+                <tr key={i}>
+                  <td>{i + 1}</td>
+                  <td>{item.name}</td>
+                  <td>₹{item.price}</td>
+                  <td>{item.qty}</td>
+                  <td>
+                    ₹{item.price * item.qty}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
     </div>
   );
-      }
+        }
