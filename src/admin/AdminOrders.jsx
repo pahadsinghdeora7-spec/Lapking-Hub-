@@ -7,28 +7,25 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
-
   async function loadOrders() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("orders")
       .select("*")
       .order("id", { ascending: false });
 
-    if (!error) {
-      setOrders(data || []);
-    }
+    setOrders(data || []);
   }
 
-  return (
-    <div className="admin-page">
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
+  return (
+    <div className="admin-wrapper">
       <h2>🛒 Orders</h2>
 
-      <div className="card">
-        <table className="table">
+      <div className="table-card">
+        <table className="product-table">
           <thead>
             <tr>
               <th>#</th>
@@ -42,44 +39,44 @@ export default function AdminOrders() {
           </thead>
 
           <tbody>
-            {orders.length === 0 ? (
-              <tr>
-                <td colSpan="7" style={{ textAlign: "center" }}>
-                  No orders found
+            {orders.map((o) => (
+              <tr key={o.id}>
+                <td>{o.id}</td>
+                <td>{o.name}</td>
+                <td>{o.phone}</td>
+                <td>₹{o.total}</td>
+                <td>
+                  <span className={`badge pay-${o.payment_status}`}>
+                    {o.payment_status}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge order-${o.order_status}`}>
+                    {o.order_status}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    className="view-btn"
+                    onClick={() => setSelectedOrder(o)}
+                  >
+                    View
+                  </button>
                 </td>
               </tr>
-            ) : (
-              orders.map((o, index) => (
-                <tr key={o.id}>
-                  <td>{index + 1}</td>
-                  <td>{o.name || "Customer"}</td>
-                  <td>{o.phone || "NA"}</td>
-                  <td>₹{o.total}</td>
-                  <td>{o.payment_status}</td>
-                  <td>{o.order_status}</td>
-                  <td>
-                    <button
-                      className="view-btn"
-                      onClick={() => setSelectedOrder(o)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
 
-      {/* ✅ ORDER POPUP */}
+      {/* ✅ MODAL */}
       {selectedOrder && (
         <AdminOrderView
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
+          onSaved={loadOrders}
         />
       )}
-
     </div>
   );
 }
