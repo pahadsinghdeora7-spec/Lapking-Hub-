@@ -1,69 +1,115 @@
 .add-product-page {
   padding: 20px;
-  background: #f5f7fb;
+  max-width: 900px;
+  margin: auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* ================= HEADER ================= */
+.add-product-page h2 {
+  font-size: 22px;
+  font-weight: 600;
   margin-bottom: 15px;
+  color: #1f2937;
 }
 
-.bulk-btn {
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
+/* ================= CARD ================= */
 .card {
-  background: #fff;
-  padding: 18px;
+  background: #ffffff;
   border-radius: 12px;
+  padding: 18px;
   margin-bottom: 18px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
 .card h4 {
   margin-bottom: 12px;
   font-size: 16px;
+  font-weight: 600;
+  color: #111827;
 }
 
+/* ================= LABEL ================= */
+.card label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+
+/* ================= INPUT ================= */
 .card input,
-.card select {
+.card select,
+.card textarea {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 11px 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.desc-box {
-  width: 100%;
-  min-height: 140px;
-  resize: vertical;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #d1d5db;
   font-size: 14px;
+  outline: none;
+  background: #fff;
+  transition: all 0.2s ease;
 }
 
+.card input:focus,
+.card select:focus,
+.card textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* ================= TEXTAREA ================= */
+.card textarea {
+  resize: none;
+  min-height: 110px;
+}
+
+/* ================= FILE INPUT ================= */
+.card input[type="file"] {
+  padding: 8px;
+  border: 1px dashed #c7d2fe;
+  background: #f8faff;
+  cursor: pointer;
+}
+
+/* ================= BUTTON ================= */
 .save-btn {
   width: 100%;
-  background: #2563eb;
-  color: #fff;
-  border: none;
+  margin-top: 10px;
   padding: 14px;
   border-radius: 10px;
-  font-size: 16px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
   cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.save-btn:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+}
+
+.save-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 600px) {
+  .add-product-page {
+    padding: 14px;
   }
+
+  .card {
+    padding: 15px;
+  }
+
+  .save-btn {
+    font-size: 14px;
+    padding: 13px;
+  }
+}
