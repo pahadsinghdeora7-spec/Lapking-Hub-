@@ -1,33 +1,60 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import "./adminProducts.css";
+import { supabase } from "../supabaseClient";
 
-export default function AdminProducts() {
+const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [openProduct, setOpenProduct] = useState(null);
 
-  // FETCH PRODUCTS
-  const fetchProducts = async () => {
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("id", { ascending: false });
-
-    if (!error) {
-      setProducts(data || []);
-    }
-
-    setLoading(false);
-  };
+  const [selected, setSelected] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // DELETE PRODUCT
+  const fetchProducts = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (!error) setProducts(data || []);
+    setLoading(false);
+  };
+
+  const openPopup = (product) => {
+    setSelected({ ...product });
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setSelected(null);
+  };
+
+  const updateProduct = async () => {
+    const { error } = await supabase
+      .from("products")
+      .update({
+        name: selected.name,
+        price: selected.price,
+        stock: selected.stock,
+        part_number: selected.part_number,
+        description: selected.description,
+        category_slug: selected.category_slug,
+        brand: selected.brand,
+      })
+      .eq("id", selected.id);
+
+    if (!error) {
+      alert("Product updated");
+      closePopup();
+      fetchProducts();
+    }
+  };
+
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
 
@@ -37,18 +64,11 @@ export default function AdminProducts() {
 
   return (
     <div className="admin-page">
-      <div className="page-header">
-        <h2>Products</h2>
-
-        <div className="top-actions">
-          <button className="btn-outline">Bulk Upload</button>
-          <button className="btn-primary">+ Add Product</button>
-        </div>
-      </div>
+      <h2>Products</h2>
 
       <div className="table-card">
         {loading ? (
-          <div className="loading">Loading products...</div>
+          <div className="loading">Loading...</div>
         ) : (
           <table>
             <thead>
@@ -65,7 +85,7 @@ export default function AdminProducts() {
 
             <tbody>
               {products.map((p) => (
-                <tr key={p.id}>
+                <tr key={p.id} onClick={() => openPopup(p)}>
                   <td>
                     {p.image ? (
                       <img src={p.image} className="thumb" />
@@ -73,108 +93,101 @@ export default function AdminProducts() {
                       <div className="no-image">No Image</div>
                     )}
                   </td>
-
                   <td>{p.name}</td>
                   <td>{p.category_slug || "-"}</td>
-                  <td>{p.part_number || "-"}</td>
-                  <td>₹{p.price || 0}</td>
-                  <td>{p.stock || 0}</td>
-
+                  <td>{p.part_number}</td>
+                  <td>₹{p.price}</td>
+                  <td>{p.stock}</td>
                   <td>
-                    <div className="actions">
-                      <button
-                        className="edit"
-                        onClick={() => setOpenProduct(p)}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="delete"
-                        onClick={() => deleteProduct(p.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    <button
+                      className="delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteProduct(p.id);
+                      }}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
-
-              {products.length === 0 && (
-                <tr>
-                  <td colSpan="7" style={{ textAlign: "center" }}>
-                    No products found
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         )}
       </div>
 
-      {/* ================= POPUP ================= */}
+      {/* POPUP */}
+      {showPopup && selected && (
+        <div className="popup-bg">
+          <div className="popup-box">
+            <h3>Edit Product</h3>
 
-      {openProduct && (
-        <div className="popup-overlay">
-          <div className="popup-card">
-            <h3>Product Details</h3>
+            <label>Product Name</label>
+            <input
+              value={selected.name || ""}
+              onChange={(e) =>
+                setSelected({ ...selected, name: e.target.value })
+              }
+            />
 
-            <div className="image-row">
-              {/* MAIN IMAGE */}
-              <div className="img-box">
-                <label>Main Image</label>
-                {openProduct.image ? (
-                  <img src={openProduct.image} className="thumb" />
-                ) : (
-                  <div className="no-image">No Image</div>
-                )}
-                <input type="file" />
-              </div>
+            <label>Category</label>
+            <input
+              value={selected.category_slug || ""}
+              onChange={(e) =>
+                setSelected({
+                  ...selected,
+                  category_slug: e.target.value,
+                })
+              }
+            />
 
-              {/* IMAGE 1 */}
-              <div className="img-box">
-                <label>Image 1</label>
-                {openProduct.image1 ? (
-                  <img src={openProduct.image1} className="thumb" />
-                ) : (
-                  <div className="no-image">No Image</div>
-                )}
-                <input type="file" />
-              </div>
+            <label>Price</label>
+            <input
+              value={selected.price || ""}
+              onChange={(e) =>
+                setSelected({ ...selected, price: e.target.value })
+              }
+            />
 
-              {/* IMAGE 2 */}
-              <div className="img-box">
-                <label>Image 2</label>
-                {openProduct.image2 ? (
-                  <img src={openProduct.image2} className="thumb" />
-                ) : (
-                  <div className="no-image">No Image</div>
-                )}
-                <input type="file" />
-              </div>
-            </div>
+            <label>Stock</label>
+            <input
+              value={selected.stock || ""}
+              onChange={(e) =>
+                setSelected({ ...selected, stock: e.target.value })
+              }
+            />
 
-            <input value={openProduct.name || ""} readOnly />
-            <input value={openProduct.price || ""} readOnly />
-            <input value={openProduct.stock || ""} readOnly />
-            <input value={openProduct.part_number || ""} readOnly />
+            <label>Part Number</label>
+            <input
+              value={selected.part_number || ""}
+              onChange={(e) =>
+                setSelected({
+                  ...selected,
+                  part_number: e.target.value,
+                })
+              }
+            />
+
+            <label>Description</label>
             <textarea
-              value={openProduct.description || ""}
-              readOnly
-            ></textarea>
+              rows="4"
+              value={selected.description || ""}
+              onChange={(e) =>
+                setSelected({
+                  ...selected,
+                  description: e.target.value,
+                })
+              }
+            />
 
             <div className="popup-actions">
-              <button className="btn-primary">Update</button>
-              <button
-                className="btn-danger"
-                onClick={() => deleteProduct(openProduct.id)}
-              >
+              <button className="save" onClick={updateProduct}>
+                Update
+              </button>
+              <button className="danger" onClick={() => deleteProduct(selected.id)}>
                 Delete
               </button>
-              <button
-                className="btn-outline"
-                onClick={() => setOpenProduct(null)}
-              >
+              <button className="cancel" onClick={closePopup}>
                 Close
               </button>
             </div>
@@ -183,4 +196,6 @@ export default function AdminProducts() {
       )}
     </div>
   );
-                        }
+};
+
+export default AdminProducts;
