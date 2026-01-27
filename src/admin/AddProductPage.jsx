@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./addProduct.css";
+import "./AddProduct.css";
 
 export default function AddProduct() {
 
