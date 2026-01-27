@@ -1,36 +1,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./admin.css";
+import "./AdminBulkDelete.css";
 
 export default function AdminBulkDelete() {
-
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selected, setSelected] = useState([]);
-  const [categoryId, setCategoryId] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [category, setCategory] = useState("");
 
+  // ================= FETCH =================
   useEffect(() => {
-    loadProducts();
-    loadCategories();
+    fetchCategories();
+    fetchProducts();
   }, []);
 
-  // ===============================
-  // LOAD PRODUCTS
-  // ===============================
-  const loadProducts = async () => {
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .order("id", { ascending: false });
-
-    setProducts(data || []);
-  };
-
-  // ===============================
-  // LOAD CATEGORIES
-  // ===============================
-  const loadCategories = async () => {
+  const fetchCategories = async () => {
     const { data } = await supabase
       .from("categories")
       .select("*")
@@ -39,150 +23,99 @@ export default function AdminBulkDelete() {
     setCategories(data || []);
   };
 
-  // ===============================
-  // SELECT SINGLE
-  // ===============================
+  const fetchProducts = async (cat = "") => {
+    let query = supabase.from("products").select("*");
+
+    if (cat) {
+      query = query.eq("category_slug", cat);
+    }
+
+    const { data } = await query.order("id", { ascending: false });
+    setProducts(data || []);
+    setSelectedIds([]);
+  };
+
+  // ================= CATEGORY CHANGE =================
+  const handleCategory = (value) => {
+    setCategory(value);
+    fetchProducts(value);
+  };
+
+  // ================= SELECT =================
   const toggleSelect = (id) => {
-    setSelected(prev =>
+    setSelectedIds((prev) =>
       prev.includes(id)
-        ? prev.filter(x => x !== id)
+        ? prev.filter((x) => x !== id)
         : [...prev, id]
     );
   };
 
-  // ===============================
-  // SELECT ALL
-  // ===============================
-  const toggleAll = () => {
-    if (selected.length === products.length) {
-      setSelected([]);
+  const selectAll = (checked) => {
+    if (checked) {
+      setSelectedIds(products.map((p) => p.id));
     } else {
-      setSelected(products.map(p => p.id));
+      setSelectedIds([]);
     }
   };
 
-  // ===============================
-  // DELETE SELECTED
-  // ===============================
+  // ================= DELETE =================
   const deleteSelected = async () => {
-    if (selected.length === 0) {
-      alert("Please select products first");
+    if (selectedIds.length === 0) {
+      alert("Select at least one product");
       return;
     }
 
-    if (!window.confirm(`${selected.length} products delete karna hai?`)) return;
+    const confirm = window.confirm(
+      `Delete ${selectedIds.length} products?`
+    );
 
-    setLoading(true);
-
-    await supabase
-      .from("products")
-      .delete()
-      .in("id", selected);
-
-    setSelected([]);
-    loadProducts();
-    setLoading(false);
-  };
-
-  // ===============================
-  // DELETE BY CATEGORY
-  // ===============================
-  const deleteByCategory = async () => {
-    if (!categoryId) return alert("Category select karo");
-
-    if (!window.confirm("Is category ke sab products delete ho jayenge")) return;
-
-    setLoading(true);
+    if (!confirm) return;
 
     await supabase
       .from("products")
       .delete()
-      .eq("category_id", categoryId);
+      .in("id", selectedIds);
 
-    loadProducts();
-    setLoading(false);
-  };
-
-  // ===============================
-  // DELETE LOW STOCK
-  // ===============================
-  const deleteLowStock = async () => {
-    if (!window.confirm("Low stock products delete karna hai?")) return;
-
-    setLoading(true);
-
-    await supabase
-      .from("products")
-      .delete()
-      .lte("stock", 5);
-
-    loadProducts();
-    setLoading(false);
+    fetchProducts(category);
   };
 
   return (
-    <div className="admin-page">
+    <div className="bulk-page">
 
       <h2>Bulk Delete Products</h2>
 
-      {/* ================= ACTION CARD ================= */}
-      <div className="admin-card">
+      {/* FILTER */}
+      <div className="bulk-filter">
 
-        <div className="form-grid">
+        <select
+          value={category}
+          onChange={(e) => handleCategory(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.slug}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
-          {/* CATEGORY DELETE */}
-          <select value={categoryId} onChange={e => setCategoryId(e.target.value)}>
-            <option value="">Select Category</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-
-          <button
-            className="delete-btn"
-            onClick={deleteByCategory}
-            disabled={loading}
-          >
-            Delete Category Products
-          </button>
-
-          {/* LOW STOCK */}
-          <button
-            className="delete-btn"
-            onClick={deleteLowStock}
-            disabled={loading}
-          >
-            Delete Low Stock (≤ 5)
-          </button>
-
+        <div className="select-all">
+          <input
+            type="checkbox"
+            checked={
+              products.length > 0 &&
+              selectedIds.length === products.length
+            }
+            onChange={(e) => selectAll(e.target.checked)}
+          />
+          <span>Select All</span>
         </div>
 
       </div>
 
-      {/* ================= TABLE ================= */}
-      <div className="admin-card">
-
-        <div style={{ marginBottom: 10 }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={selected.length === products.length && products.length > 0}
-              onChange={toggleAll}
-            />{" "}
-            Select All
-          </label>
-
-          <button
-            onClick={deleteSelected}
-            className="delete-btn"
-            style={{ marginLeft: 15 }}
-            disabled={loading}
-          >
-            Delete Selected ({selected.length})
-          </button>
-        </div>
-
-        <table className="table">
+      {/* TABLE */}
+      <div className="bulk-table">
+        <table>
           <thead>
             <tr>
               <th></th>
@@ -195,30 +128,37 @@ export default function AdminBulkDelete() {
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center" }}>
+                <td colSpan="4" className="empty-text">
                   No products found
                 </td>
               </tr>
             ) : (
-              products.map(p => (
+              products.map((p) => (
                 <tr key={p.id}>
                   <td>
                     <input
                       type="checkbox"
-                      checked={selected.includes(p.id)}
+                      checked={selectedIds.includes(p.id)}
                       onChange={() => toggleSelect(p.id)}
                     />
                   </td>
+
                   <td>{p.name}</td>
-                  <td>₹{p.price}</td>
-                  <td>{p.stock}</td>
+                  <td>₹{p.price || 0}</td>
+                  <td>{p.stock || 0}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
-
       </div>
+
+      <button
+        className="bulk-delete-btn"
+        onClick={deleteSelected}
+      >
+        Delete Selected Products
+      </button>
 
     </div>
   );
