@@ -10,7 +10,6 @@
 body {
   margin: 0;
   background: #f6f8fb;
-  overflow-x: hidden;
 }
 
 /* ===============================
@@ -26,13 +25,12 @@ body {
   justify-content: space-between;
   padding: 0 14px;
   position: fixed;
+  width: 100%;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 3000;
+  z-index: 4000;
 }
 
-.admin-top button {
+.menu-btn {
   background: none;
   border: none;
   color: #fff;
@@ -40,12 +38,20 @@ body {
   cursor: pointer;
 }
 
-.admin-top .logo {
+.view-store {
+  background: none;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logo {
   font-weight: 600;
   font-size: 15px;
 }
 
-.admin-top .logo span {
+.logo .small {
   display: block;
   font-size: 11px;
   opacity: 0.85;
@@ -62,12 +68,94 @@ body {
   padding-bottom: 30px;
   max-width: 1200px;
   margin: auto;
-  position: relative;
-  z-index: 1;
 }
 
 /* ===============================
-   DASHBOARD
+   SIDEBAR
+=============================== */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100vh;
+  background: #ffffff;
+  z-index: 3500;
+  padding-top: 60px;
+  transition: 0.3s ease;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.15);
+  overflow-y: auto;
+}
+
+.sidebar.show {
+  left: 0;
+}
+
+.side-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 56px;
+  width: 100%;
+  background: #0b5cff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-weight: 600;
+}
+
+.side-head button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 14px 18px;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar nav a.active {
+  background: #eef4ff;
+  color: #0b5cff;
+  font-weight: 600;
+}
+
+.logout {
+  width: 90%;
+  margin: 20px auto;
+  display: block;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #ea5455;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ===============================
+   OVERLAY
+=============================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 3000;
+}
+
+/* ===============================
+   DASHBOARD CARDS
 =============================== */
 
 .stat-grid {
@@ -101,7 +189,7 @@ body {
   color: #666;
 }
 
-/* colors */
+/* card colors */
 .green { border-left: 5px solid #28c76f; }
 .blue { border-left: 5px solid #0b5cff; }
 .yellow { border-left: 5px solid #f6c343; }
@@ -109,19 +197,8 @@ body {
 .purple { border-left: 5px solid #7367f0; }
 .orange { border-left: 5px solid #ff9f43; }
 
-.add-product {
-  background: #eef4ff;
-  border-left: 5px solid #0b5cff;
-  text-align: center;
-}
-
-.add-product h4 {
-  font-size: 32px;
-  color: #0b5cff;
-}
-
 /* ===============================
-   CARD
+   COMMON CARD
 =============================== */
 
 .card {
@@ -153,26 +230,6 @@ body {
   border-bottom: 1px solid #eee;
 }
 
-.thumb {
-  width: 42px;
-  height: 42px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-}
-
-.no-img {
-  width: 42px;
-  height: 42px;
-  background: #eee;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  color: #777;
-}
-
 /* ===============================
    FORM
 =============================== */
@@ -187,88 +244,11 @@ textarea {
   font-size: 14px;
 }
 
-textarea {
-  min-height: 90px;
-}
-
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
   border-color: #0b5cff;
-}
-
-/* ===============================
-   MODAL
-=============================== */
-
-.modal-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 6000;
-}
-
-.modal {
-  background: #fff;
-  width: 95%;
-  max-width: 520px;
-  border-radius: 14px;
-  padding: 20px;
-}
-
-.modal h3 {
-  margin-bottom: 15px;
-}
-
-.modal label {
-  font-size: 13px;
-  font-weight: 600;
-  display: block;
-  margin-top: 10px;
-}
-
-.modal-actions {
-  margin-top: 18px;
-  display: flex;
-  gap: 10px;
-}
-
-.modal-actions button {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.modal-actions .save {
-  background: #0b5cff;
-  color: #fff;
-}
-
-.modal-actions .delete {
-  background: #ea5455;
-  color: #fff;
-}
-
-.modal-actions .close {
-  background: #eee;
-}
-
-/* ===============================
-   WHATSAPP FIX
-=============================== */
-
-.whatsapp-btn {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  z-index: 2000;
 }
 
 /* ===============================
