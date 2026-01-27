@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import * as XLSX from "xlsx";
 import "./adminProducts.css";
 
 export default function AdminProducts() {
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [selected, setSelected] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [showBulk, setShowBulk] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [search, setSearch] = useState("");
 
-  const [imageFile, setImageFile] = useState(null);
-  const [imageFile1, setImageFile1] = useState(null);
-  const [imageFile2, setImageFile2] = useState(null);
-
-  const [form, setForm] = useState({
+  const emptyForm = {
     name: "",
     category_slug: "",
     brand: "",
@@ -20,12 +21,13 @@ export default function AdminProducts() {
     price: "",
     stock: "",
     description: "",
-    compatible_model: "",
     image: "",
     image1: "",
     image2: "",
     status: true
-  });
+  };
+
+  const [form, setForm] = useState(emptyForm);
 
   // ================= FETCH =================
   const fetchProducts = async () => {
@@ -44,33 +46,9 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
-  // ================= IMAGE UPLOAD =================
-  const uploadImage = async (file) => {
-    if (!file) return null;
-
-    const ext = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random()}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from("products")
-      .upload(fileName, file);
-
-    if (error) {
-      alert("Image upload failed");
-      return null;
-    }
-
-    const { data } = supabase.storage
-      .from("products")
-      .getPublicUrl(fileName);
-
-    return data.publicUrl;
-  };
-
-  // ================= OPEN POPUP =================
+  // ================= OPEN EDIT =================
   const openProduct = (item) => {
     setSelected(item);
-
     setForm({
       name: item.name || "",
       category_slug: item.category_slug || "",
@@ -79,62 +57,103 @@ export default function AdminProducts() {
       price: item.price || "",
       stock: item.stock || "",
       description: item.description || "",
-      compatible_model: item.compatible_model || "",
       image: item.image || "",
       image1: item.image1 || "",
       image2: item.image2 || "",
       status: item.status ?? true
     });
-
-    setImageFile(null);
-    setImageFile1(null);
-    setImageFile2(null);
   };
 
   // ================= UPDATE =================
   const updateProduct = async () => {
-
-    let image = form.image;
-    let image1 = form.image1;
-    let image2 = form.image2;
-
-    if (imageFile) image = await uploadImage(imageFile);
-    if (imageFile1) image1 = await uploadImage(imageFile1);
-    if (imageFile2) image2 = await uploadImage(imageFile2);
-
-    await supabase
-      .from("products")
-      .update({
-        ...form,
-        image,
-        image1,
-        image2
-      })
-      .eq("id", selected.id);
-
+    await supabase.from("products").update(form).eq("id", selected.id);
     setSelected(null);
     fetchProducts();
   };
 
   // ================= DELETE =================
   const deleteProduct = async () => {
-    if (!window.confirm("Delete this product?")) return;
+    if (!window.confirm("Delete product?")) return;
 
-    await supabase
-      .from("products")
-      .delete()
-      .eq("id", selected.id);
-
+    await supabase.from("products").delete().eq("id", selected.id);
     setSelected(null);
     fetchProducts();
   };
 
+  // ================= ADD PRODUCT =================
+  const addProduct = async () => {
+    await supabase.from("products").insert(form);
+    setShowAdd(false);
+    setForm(emptyForm);
+    fetchProducts();
+  };
+
+  // ================= BULK UPLOAD =================
+  const handleBulkUpload = async () => {
+    if (!excelFile) {
+      alert("Select Excel file");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet);
+
+      for (let row of rows) {
+        await supabase.from("products").insert({
+          name: row.name || "",
+          category_slug: row.category_slug || "",
+          brand: row.brand || "",
+          part_number: row.part_number || "",
+          price: Number(row.price || 0),
+          stock: Number(row.stock || 0),
+          description: row.description || "",
+          image: row.image || "",
+          image1: row.image1 || "",
+          image2: row.image2 || "",
+          status: true
+        });
+      }
+
+      alert("Bulk upload successful ✅");
+      setExcelFile(null);
+      setShowBulk(false);
+      fetchProducts();
+    };
+
+    reader.readAsArrayBuffer(excelFile);
+  };
+
+  // ================= FILTER =================
+  const filtered = products.filter((p) =>
+    p.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="admin-products">
 
-      <h2>Products</h2>
+      {/* ================= HEADER ================= */}
+      <div className="top-bar">
+        <h2>Products</h2>
 
-      {/* ================= PRODUCT LIST ================= */}
+        <div className="top-actions">
+          <input
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <button onClick={() => setShowBulk(true)}>Bulk Upload</button>
+          <button onClick={() => setShowAdd(true)}>+ Add Product</button>
+        </div>
+      </div>
+
+      {/* ================= TABLE ================= */}
       <div className="table-box">
         <table>
           <thead>
@@ -152,12 +171,10 @@ export default function AdminProducts() {
 
           <tbody>
             {loading && (
-              <tr>
-                <td colSpan="8">Loading...</td>
-              </tr>
+              <tr><td colSpan="8">Loading...</td></tr>
             )}
 
-            {!loading && products.map((p) => (
+            {!loading && filtered.map((p) => (
               <tr key={p.id}>
                 <td>
                   {p.image ? (
@@ -175,11 +192,8 @@ export default function AdminProducts() {
                 <td>{p.stock || 0}</td>
 
                 <td>
-                  <button
-                    className="edit-btn"
-                    onClick={() => openProduct(p)}
-                  >
-                    View / Edit
+                  <button className="edit-btn" onClick={() => openProduct(p)}>
+                    Click
                   </button>
                 </td>
               </tr>
@@ -188,86 +202,103 @@ export default function AdminProducts() {
         </table>
       </div>
 
-      {/* ================= POPUP ================= */}
+      {/* ================= EDIT POPUP ================= */}
       {selected && (
         <div className="modal-bg">
           <div className="modal">
-
             <h3>Edit Product</h3>
 
-            <label>Product Name</label>
-            <input
-              value={form.name}
-              onChange={(e) =>
-                setForm({ ...form, name: e.target.value })
-              }
-            />
-
-            <label>Category</label>
-            <input
-              value={form.category_slug}
-              onChange={(e) =>
-                setForm({ ...form, category_slug: e.target.value })
-              }
-            />
-
-            <label>Brand</label>
-            <input
-              value={form.brand}
-              onChange={(e) =>
-                setForm({ ...form, brand: e.target.value })
-              }
-            />
-
-            <label>Part Number</label>
-            <input
-              value={form.part_number}
-              onChange={(e) =>
-                setForm({ ...form, part_number: e.target.value })
-              }
-            />
-
-            <label>Compatible Model</label>
-            <textarea
-              rows="3"
-              value={form.compatible_model}
-              onChange={(e) =>
-                setForm({ ...form, compatible_model: e.target.value })
-              }
-            />
-
-            <label>Description</label>
-            <textarea
-              rows="4"
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-            />
-
-            <label>Main Image</label>
-            <input type="file" onChange={(e) => setImageFile(e.target.files[0])} />
-
-            <label>Image 1</label>
-            <input type="file" onChange={(e) => setImageFile1(e.target.files[0])} />
-
-            <label>Image 2</label>
-            <input type="file" onChange={(e) => setImageFile2(e.target.files[0])} />
+            {Object.keys(form).map((key) =>
+              key !== "status" ? (
+                key === "description" ? (
+                  <textarea
+                    key={key}
+                    placeholder={key}
+                    value={form[key]}
+                    onChange={(e) =>
+                      setForm({ ...form, [key]: e.target.value })
+                    }
+                  />
+                ) : (
+                  <input
+                    key={key}
+                    placeholder={key}
+                    value={form[key]}
+                    onChange={(e) =>
+                      setForm({ ...form, [key]: e.target.value })
+                    }
+                  />
+                )
+              ) : null
+            )}
 
             <div className="modal-actions">
-              <button className="save" onClick={updateProduct}>
-                Update
-              </button>
+              <button className="save" onClick={updateProduct}>Update</button>
+              <button className="delete" onClick={deleteProduct}>Delete</button>
+              <button className="close" onClick={() => setSelected(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-              <button className="delete" onClick={deleteProduct}>
-                Delete
-              </button>
+      {/* ================= ADD PRODUCT ================= */}
+      {showAdd && (
+        <div className="modal-bg">
+          <div className="modal">
+            <h3>Add Product</h3>
 
-              <button className="close" onClick={() => setSelected(null)}>
+            {Object.keys(emptyForm).map((key) =>
+              key !== "status" ? (
+                key === "description" ? (
+                  <textarea
+                    key={key}
+                    placeholder={key}
+                    value={form[key]}
+                    onChange={(e) =>
+                      setForm({ ...form, [key]: e.target.value })
+                    }
+                  />
+                ) : (
+                  <input
+                    key={key}
+                    placeholder={key}
+                    value={form[key]}
+                    onChange={(e) =>
+                      setForm({ ...form, [key]: e.target.value })
+                    }
+                  />
+                )
+              ) : null
+            )}
+
+            <div className="modal-actions">
+              <button className="save" onClick={addProduct}>Save</button>
+              <button className="close" onClick={() => setShowAdd(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= BULK UPLOAD ================= */}
+      {showBulk && (
+        <div className="modal-bg">
+          <div className="modal">
+            <h3>Bulk Upload (Excel)</h3>
+
+            <input
+              type="file"
+              accept=".xls,.xlsx"
+              onChange={(e) => setExcelFile(e.target.files[0])}
+            />
+
+            <div className="modal-actions">
+              <button className="save" onClick={handleBulkUpload}>
+                Upload
+              </button>
+              <button className="close" onClick={() => setShowBulk(false)}>
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
