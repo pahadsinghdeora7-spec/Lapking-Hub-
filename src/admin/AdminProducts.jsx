@@ -3,31 +3,21 @@ import { supabase } from "../supabaseClient";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [image, setImage] = useState(null);
-  const [image1, setImage1] = useState(null);
-  const [image2, setImage2] = useState(null);
-
   const [form, setForm] = useState({
-    category_id: "",
     name: "",
     price: "",
     stock: "",
     part_number: "",
-    compatible_model: "",
     description: "",
   });
 
+  const [image, setImage] = useState(null);
+
   // ================= FETCH =================
-
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
-
   const fetchProducts = async () => {
     const { data } = await supabase
       .from("products")
@@ -37,23 +27,17 @@ export default function AdminProducts() {
     setProducts(data || []);
   };
 
-  const fetchCategories = async () => {
-    const { data } = await supabase.from("categories").select("*");
-    setCategories(data || []);
-  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   // ================= IMAGE UPLOAD =================
-
   const uploadImage = async (file) => {
     if (!file) return "";
 
     const fileName = `${Date.now()}-${file.name}`;
 
-    const { error } = await supabase.storage
-      .from("products")
-      .upload(fileName, file);
-
-    if (error) return "";
+    await supabase.storage.from("products").upload(fileName, file);
 
     const { data } = supabase.storage
       .from("products")
@@ -63,8 +47,7 @@ export default function AdminProducts() {
   };
 
   // ================= SAVE / UPDATE =================
-
-  const saveProduct = async () => {
+  const handleSave = async () => {
     if (!form.name || !form.price) {
       alert("Product name & price required");
       return;
@@ -72,99 +55,154 @@ export default function AdminProducts() {
 
     setLoading(true);
 
-    let img = "";
-    let img1 = "";
-    let img2 = "";
-
-    if (image) img = await uploadImage(image);
-    if (image1) img1 = await uploadImage(image1);
-    if (image2) img2 = await uploadImage(image2);
+    let imgUrl = "";
+    if (image) imgUrl = await uploadImage(image);
 
     const payload = {
-      category_id: form.category_id || null,
       name: form.name,
       price: Number(form.price),
       stock: Number(form.stock || 0),
       part_number: form.part_number,
-      compatible_model: form.compatible_model,
       description: form.description,
     };
 
-    if (img) payload.image = img;
-    if (img1) payload.image1 = img1;
-    if (img2) payload.image2 = img2;
-
-    let result;
+    if (imgUrl) payload.image = imgUrl;
 
     if (editId) {
-      // UPDATE
-      result = await supabase
-        .from("products")
-        .update(payload)
-        .eq("id", editId);
+      await supabase.from("products").update(payload).eq("id", editId);
+      alert("✅ Product updated");
     } else {
-      // INSERT
-      result = await supabase.from("products").insert([payload]);
+      await supabase.from("products").insert([payload]);
+      alert("✅ Product added");
     }
 
     setLoading(false);
+    setShowForm(false);
+    setEditId(null);
+    setForm({
+      name: "",
+      price: "",
+      stock: "",
+      part_number: "",
+      description: "",
+    });
+    setImage(null);
 
-    if (result.error) {
-      alert(result.error.message);
-    } else {
-      alert(editId ? "✅ Product updated" : "✅ Product added");
-
-      setEditId(null);
-      setForm({
-        category_id: "",
-        name: "",
-        price: "",
-        stock: "",
-        part_number: "",
-        compatible_model: "",
-        description: "",
-      });
-
-      setImage(null);
-      setImage1(null);
-      setImage2(null);
-
-      fetchProducts();
-    }
+    fetchProducts();
   };
 
   // ================= EDIT =================
-
-  const editProduct = (p) => {
+  const handleEdit = (p) => {
     setEditId(p.id);
     setForm({
-      category_id: p.category_id || "",
       name: p.name || "",
       price: p.price || "",
       stock: p.stock || "",
       part_number: p.part_number || "",
-      compatible_model: p.compatible_model || "",
       description: p.description || "",
     });
-
+    setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // ================= DELETE =================
-
-  const deleteProduct = async (id) => {
-    if (!window.confirm("Delete product?")) return;
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
     await supabase.from("products").delete().eq("id", id);
     fetchProducts();
   };
-
-  // ================= UI =================
 
   return (
     <div style={{ padding: 20 }}>
       <h2>Products</h2>
 
-      {/* PRODUCT LIST */}
+      {/* TOP BUTTON */}
+      <div style={{ marginBottom: 15 }}>
+        <button
+          style={{
+            background: "#2563eb",
+            color: "#fff",
+            padding: "8px 14px",
+            borderRadius: 6,
+            border: "none",
+          }}
+          onClick={() => {
+            setShowForm(true);
+            setEditId(null);
+          }}
+        >
+          + Add Product
+        </button>
+      </div>
+
+      {/* FORM CARD */}
+      {showForm && (
+        <div
+          style={{
+            background: "#fff",
+            padding: 20,
+            borderRadius: 10,
+            boxShadow: "0 2px 10px rgba(0,0,0,.08)",
+            marginBottom: 30,
+          }}
+        >
+          <h3>{editId ? "Edit Product" : "Add Product"}</h3>
+
+          <input
+            placeholder="Product name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+
+          <input
+            placeholder="Price"
+            value={form.price}
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
+          />
+
+          <input
+            placeholder="Stock"
+            value={form.stock}
+            onChange={(e) => setForm({ ...form, stock: e.target.value })}
+          />
+
+          <input
+            placeholder="Part number"
+            value={form.part_number}
+            onChange={(e) =>
+              setForm({ ...form, part_number: e.target.value })
+            }
+          />
+
+          <textarea
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+          />
+
+          <input type="file" onChange={(e) => setImage(e.target.files[0])} />
+
+          <div style={{ marginTop: 10 }}>
+            <button onClick={handleSave} disabled={loading}>
+              {loading ? "Saving..." : editId ? "Update Product" : "Save Product"}
+            </button>
+
+            <button
+              style={{ marginLeft: 10 }}
+              onClick={() => {
+                setShowForm(false);
+                setEditId(null);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* PRODUCT TABLE */}
       <table width="100%" cellPadding="10">
         <thead>
           <tr>
@@ -188,8 +226,8 @@ export default function AdminProducts() {
                       width: 45,
                       height: 45,
                       objectFit: "contain",
-                      border: "1px solid #ddd",
                       borderRadius: 6,
+                      border: "1px solid #ddd",
                     }}
                   />
                 ) : (
@@ -201,64 +239,13 @@ export default function AdminProducts() {
               <td>₹{p.price}</td>
               <td>{p.stock}</td>
               <td>
-                <button onClick={() => editProduct(p)}>Edit</button>{" "}
-                <button onClick={() => deleteProduct(p.id)}>Delete</button>
+                <button onClick={() => handleEdit(p)}>Edit</button>{" "}
+                <button onClick={() => handleDelete(p.id)}>Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {/* ADD / EDIT FORM */}
-      <h3 style={{ marginTop: 30 }}>
-        {editId ? "Edit Product" : "Add Product"}
-      </h3>
-
-      <input
-        placeholder="Product Name"
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-      />
-
-      <input
-        placeholder="Price"
-        value={form.price}
-        onChange={(e) => setForm({ ...form, price: e.target.value })}
-      />
-
-      <input
-        placeholder="Stock"
-        value={form.stock}
-        onChange={(e) => setForm({ ...form, stock: e.target.value })}
-      />
-
-      <input
-        placeholder="Part Number"
-        value={form.part_number}
-        onChange={(e) =>
-          setForm({ ...form, part_number: e.target.value })
-        }
-      />
-
-      <textarea
-        placeholder="Description"
-        value={form.description}
-        onChange={(e) =>
-          setForm({ ...form, description: e.target.value })
-        }
-      />
-
-      <input type="file" onChange={(e) => setImage(e.target.files[0])} />
-      <input type="file" onChange={(e) => setImage1(e.target.files[0])} />
-      <input type="file" onChange={(e) => setImage2(e.target.files[0])} />
-
-      <button onClick={saveProduct} disabled={loading}>
-        {loading
-          ? "Saving..."
-          : editId
-          ? "Update Product"
-          : "Save Product"}
-      </button>
     </div>
   );
-      }
+}
