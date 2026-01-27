@@ -1,5 +1,5 @@
 .cat-page {
-  padding: 14px;
+  padding: 15px;
 }
 
 .cat-h1 {
@@ -14,17 +14,15 @@
   margin-bottom: 18px;
 }
 
-/* GRID */
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-/* CARD */
 .cat-card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,.06);
   overflow: hidden;
   cursor: pointer;
@@ -36,18 +34,16 @@
   object-fit: cover;
 }
 
-/* BODY */
-.card-body {
+.cat-body {
   padding: 10px;
 }
 
-.card-body h3 {
+.cat-body h3 {
   font-size: 14px;
   margin-bottom: 4px;
 }
 
-/* RIGHT INFO */
-.meta {
+.cat-meta {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
@@ -55,13 +51,12 @@
   margin-bottom: 6px;
 }
 
-.price {
+.cat-price {
   font-weight: 700;
   margin-bottom: 8px;
 }
 
-/* CART BUTTON */
-.cart-btn {
+.cat-btn {
   width: 100%;
   background: #0b5cff;
   color: #fff;
@@ -69,18 +64,16 @@
   padding: 9px;
   border-radius: 8px;
   font-weight: 600;
-  transition: all 0.15s ease;
-  box-shadow: 0 4px 10px rgba(11,92,255,.35);
+  transition: 0.2s;
 }
 
-/* PRESS EFFECT */
-.cart-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 5px rgba(11,92,255,.25);
-}
-
-/* AFTER ADD */
-.cart-btn.active {
+.cat-btn.added {
   background: #28a745;
-  box-shadow: 0 4px 10px rgba(40,167,69,.35);
+}
+
+.cat-loading,
+.cat-empty {
+  text-align: center;
+  padding: 30px;
+  color: #777;
 }
