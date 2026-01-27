@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import Papa from "papaparse";
+import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import "./AdminBulkUpload.css";
 
 export default function AdminBulkUpload() {
   const [file, setFile] = useState(null);
+  const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
-  const [categoryId, setCategoryId] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // load categories
   useEffect(() => {
-    fetchCategories();
+    loadCategories();
   }, []);
 
-  async function fetchCategories() {
+  async function loadCategories() {
     const { data } = await supabase
       .from("categories")
       .select("id,name")
@@ -22,89 +22,96 @@ export default function AdminBulkUpload() {
     setCategories(data || []);
   }
 
-  function handleFile(e) {
-    setFile(e.target.files[0]);
-  }
+  // CSV reader (NO library)
+  const readCSV = (text) => {
+    const lines = text.split("\n").filter(Boolean);
+    const headers = lines[0].split(",").map(h => h.trim());
+
+    return lines.slice(1).map(line => {
+      const values = line.split(",");
+      let obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = values[i]?.trim() || "";
+      });
+      return obj;
+    });
+  };
 
   async function handleUpload() {
-    if (!file) return alert("CSV file select karo");
-    if (!categoryId) return alert("Category select karo");
+    if (!file || !category) {
+      alert("Select category and CSV file");
+      return;
+    }
 
     setLoading(true);
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async function (results) {
-        const rows = results.data;
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      try {
+        const text = e.target.result;
+        const rows = readCSV(text);
 
         const products = rows.map((row) => ({
-          name: row.name || "",
-          price: Number(row.price) || 0,
-          stock: Number(row.stock) || 0,
-          brand: row.brand || "",
-          part_no: row.part_no || "",
-          description: row.description || "",
-          image: row.image || "", // 🔥 IMAGE URL
-          category_id: categoryId
+          name: row.name,
+          price: Number(row.price || 0),
+          stock: Number(row.stock || 0),
+          category_id: category,
+          image: row.image || "",
+          description: row.description || ""
         }));
 
         const { error } = await supabase
           .from("products")
           .insert(products);
 
-        setLoading(false);
-
         if (error) {
-          alert("Upload failed ❌");
-          console.log(error);
+          alert("Upload failed");
         } else {
-          alert("Bulk upload successful ✅");
+          alert("✅ Products uploaded successfully");
           setFile(null);
         }
+      } catch (err) {
+        alert("Invalid CSV file");
       }
-    });
+
+      setLoading(false);
+    };
+
+    reader.readAsText(file);
   }
 
   return (
-    <div className="card">
+    <div className="bulk-wrapper">
       <h2>📦 Bulk Upload Products</h2>
 
-      <p className="note">
-        Excel → Save As → <b>CSV UTF-8</b>
-      </p>
+      <div className="bulk-card">
+        <label>Select Category</label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">-- Select Category --</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
 
-      {/* CATEGORY */}
-      <label>Select Category</label>
-      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-        <option value="">-- Select Category --</option>
-        {categories.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.name}
-          </option>
-        ))}
-      </select>
+        <label>Upload CSV File</label>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => setFile(e.target.files[0])}
+        />
 
-      {/* FILE */}
-      <label>Upload CSV File</label>
-      <input type="file" accept=".csv" onChange={handleFile} />
+        <button onClick={handleUpload} disabled={loading}>
+          {loading ? "Uploading..." : "Upload CSV"}
+        </button>
 
-      <button className="upload-btn" onClick={handleUpload} disabled={loading}>
-        {loading ? "Uploading..." : "Upload CSV"}
-      </button>
-
-      <div className="csv-format">
-        <h4>CSV Columns Format</h4>
-
-        <pre>
-name,price,stock,brand,part_no,description,image
-Keyboard,599,50,Dell,KB01,USB Keyboard,https://image-url.jpg
-Mouse,299,100,HP,MS02,Optical Mouse,https://image-url.jpg
-        </pre>
-
-        <p>
-          ⚠ Image column must contain <b>public image URL</b>
-        </p>
+        <div className="note">
+          <b>CSV Format:</b><br />
+          name, price, stock, category, image, description
+        </div>
       </div>
     </div>
   );
