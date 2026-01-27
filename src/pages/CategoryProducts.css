@@ -1,50 +1,29 @@
 .category-page {
-  padding: 14px;
+  padding: 15px;
 }
 
 .category-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
-.product-grid {
+.category-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.category-page .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-.product-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 10px;
-  text-decoration: none;
-  color: #000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.product-card img {
-  width: 100%;
-  height: 140px;
-  object-fit: contain;
-}
-
-.product-card h3 {
-  font-size: 13px;
-  margin: 6px 0;
-}
-
-.price {
-  font-weight: 700;
-  color: #0056ff;
-}
-
-.product-card button {
-  width: 100%;
-  margin-top: 6px;
-  background: #0056ff;
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 8px;
+/* ❌ admin css ko block kare */
+.category-page table,
+.category-page .save,
+.category-page .edit,
+.category-page .delete {
+  display: none !important;
 }
