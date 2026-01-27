@@ -263,3 +263,36 @@ select:focus {
     font-size: 20px;
   }
        }
+/* ===============================
+   FIX CLICK & LAYER ISSUE
+   (DO NOT REMOVE)
+=============================== */
+
+.admin-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3000;
+}
+
+.admin-main {
+  position: relative;
+  z-index: 1;
+}
+
+/* modal always above everything */
+.modal-bg {
+  z-index: 6000;
+}
+
+/* whatsapp floating button */
+.whatsapp-btn {
+  z-index: 2000;
+  position: fixed;
+}
+
+/* prevent invisible overlay blocking clicks */
+body {
+  overflow-x: hidden;
+}
