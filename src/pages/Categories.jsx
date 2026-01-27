@@ -1,57 +1,96 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { supabase } from "../supabaseClient";
-import "./Categories.css";
+import ProductCard from "../components/ProductCard";
+import "./CategoryProducts.css";
 
-export default function Categories() {
-  const [categories, setCategories] = useState([]);
+export default function CategoryProducts() {
+  const { slug } = useParams();
+
+  const [category, setCategory] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategoryProducts();
+  }, [slug]);
 
-  const fetchCategories = async () => {
-    const { data } = await supabase
+  const fetchCategoryProducts = async () => {
+    setLoading(true);
+
+    // ✅ 1. get category from slug
+    const { data: cat, error } = await supabase
       .from("categories")
-      .select("id, name, slug")
-      .eq("status", true)
+      .select("*")
+      .eq("slug", slug)
+      .single();
+
+    if (error || !cat) {
+      setLoading(false);
+      return;
+    }
+
+    setCategory(cat);
+
+    // ✅ 2. get products of that category
+    const { data: prod } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_id", cat.id)
       .order("id", { ascending: false });
 
-    setCategories(data || []);
+    setProducts(prod || []);
+    setLoading(false);
   };
 
+  if (loading) {
+    return <div className="page-loading">Loading...</div>;
+  }
+
+  if (!category) {
+    return <div className="page-loading">Category not found</div>;
+  }
+
   return (
-    <div className="cat-page">
+    <div className="category-page">
+
+      {/* ✅ SEO */}
       <Helmet>
-        <title>All Categories | Lapking Hub</title>
+        <title>{category.h1 || category.name} | Lapking Hub</title>
         <meta
           name="description"
-          content="Browse all laptop spare parts categories at Lapking Hub including keyboards, batteries, DC jacks and more."
+          content={
+            category.description ||
+            `Buy ${category.name} laptop spare parts at best price from Lapking Hub.`
+          }
         />
       </Helmet>
 
-      <h1 className="cat-title">All Categories</h1>
-      <p className="cat-sub">
-        Browse all laptop spare parts categories
-      </p>
+      {/* ✅ H1 */}
+      <h1 className="category-title">
+        {category.h1 || category.name}
+      </h1>
 
-      <div className="cat-grid">
-        {categories.map((cat) => (
-          <Link
-            key={cat.id}
-            to={`/category/${cat.slug}`}
-            className="cat-card"
-          >
-            <h3>{cat.name}</h3>
-            <span>Shop Now →</span>
-          </Link>
-        ))}
-      </div>
+      {/* ✅ Description */}
+      {category.description && (
+        <p className="category-desc">
+          {category.description}
+        </p>
+      )}
 
-      <div className="cat-seo-text">
-        Lapking Hub is India’s trusted wholesale supplier of laptop spare parts.
-      </div>
+      {/* ✅ Products */}
+      {products.length === 0 ? (
+        <div className="no-products">
+          No products found in this category
+        </div>
+      ) : (
+        <div className="product-grid">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+      }
