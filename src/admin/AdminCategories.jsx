@@ -13,6 +13,7 @@ const makeSlug = (text) =>
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const [h1, setH1] = useState("");
   const [description, setDescription] = useState("");
   const [editId, setEditId] = useState(null);
@@ -41,23 +42,18 @@ export default function AdminCategories() {
 
     setLoading(true);
 
+    const finalSlug = editId ? slug : makeSlug(name);
+
     const payload = {
       name,
-      slug: makeSlug(name),
+      slug: finalSlug,
       h1,
       description,
     };
 
-    let res;
-
-    if (editId) {
-      res = await supabase
-        .from("categories")
-        .update(payload)
-        .eq("id", editId);
-    } else {
-      res = await supabase.from("categories").insert([payload]);
-    }
+    const res = editId
+      ? await supabase.from("categories").update(payload).eq("id", editId)
+      : await supabase.from("categories").insert([payload]);
 
     setLoading(false);
 
@@ -67,6 +63,7 @@ export default function AdminCategories() {
     }
 
     setName("");
+    setSlug("");
     setH1("");
     setDescription("");
     setEditId(null);
@@ -77,6 +74,7 @@ export default function AdminCategories() {
   const editCategory = (cat) => {
     setEditId(cat.id);
     setName(cat.name || "");
+    setSlug(cat.slug || "");
     setH1(cat.h1 || "");
     setDescription(cat.description || "");
   };
@@ -90,19 +88,27 @@ export default function AdminCategories() {
   };
 
   return (
-    <div className="admin-box">
+    <div className="admin-category">
 
-      <div className="title">
+      <div className="page-title">
         <h2>📁 Categories (SEO Enabled)</h2>
-        <p>H1 & description Google ke liye</p>
+        <p>Google ranking ke liye H1 & description</p>
       </div>
 
       {/* FORM */}
-      <div className="form-card">
+      <div className="category-card">
+
         <input
           placeholder="Category name (Keyboard)"
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+
+        <input
+          placeholder="Slug (auto generated)"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          disabled={!editId}
         />
 
         <input
@@ -117,17 +123,33 @@ export default function AdminCategories() {
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <button onClick={saveCategory} disabled={loading}>
+        <button className="primary-btn" onClick={saveCategory}>
           {loading
             ? "Saving..."
             : editId
             ? "Update Category"
             : "Add Category"}
         </button>
+
+        {editId && (
+          <button
+            className="cancel-btn"
+            onClick={() => {
+              setEditId(null);
+              setName("");
+              setSlug("");
+              setH1("");
+              setDescription("");
+            }}
+          >
+            Cancel
+          </button>
+        )}
+
       </div>
 
       {/* TABLE */}
-      <div className="table-card">
+      <div className="category-table">
         <table>
           <thead>
             <tr>
@@ -143,13 +165,13 @@ export default function AdminCategories() {
               <tr key={c.id}>
                 <td>{c.id}</td>
                 <td>{c.name}</td>
-                <td className="slug">{c.slug}</td>
-                <td>
-                  <button className="edit" onClick={() => editCategory(c)}>
+                <td>{c.slug}</td>
+                <td className="actions">
+                  <button className="edit-btn" onClick={() => editCategory(c)}>
                     Edit
                   </button>
                   <button
-                    className="delete"
+                    className="delete-btn"
                     onClick={() => deleteCategory(c.id)}
                   >
                     Delete
@@ -157,10 +179,18 @@ export default function AdminCategories() {
                 </td>
               </tr>
             ))}
-          </tbody>
 
+            {categories.length === 0 && (
+              <tr>
+                <td colSpan="4" className="empty">
+                  No categories found
+                </td>
+              </tr>
+            )}
+          </tbody>
         </table>
       </div>
+
     </div>
   );
 }
