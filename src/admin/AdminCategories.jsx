@@ -12,10 +12,7 @@ export default function AdminCategories() {
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
+  // ================= FETCH =================
   const fetchCategories = async () => {
     const { data } = await supabase
       .from("categories")
@@ -25,8 +22,12 @@ export default function AdminCategories() {
     setCategories(data || []);
   };
 
-  // ADD / UPDATE
-  const saveCategory = async () => {
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // ================= ADD =================
+  const addCategory = async () => {
     if (!name.trim()) {
       alert("Category name required hai");
       return;
@@ -34,61 +35,87 @@ export default function AdminCategories() {
 
     setLoading(true);
 
-    if (editId) {
-      // UPDATE
-      await supabase
-        .from("categories")
-        .update({ name, h1, description })
-        .eq("id", editId);
-    } else {
-      // INSERT
-      await supabase.from("categories").insert([
-        {
-          name,
-          h1,
-          description,
-          slug: name.toLowerCase().replace(/\s+/g, "-"),
-        },
-      ]);
-    }
+    const { error } = await supabase.from("categories").insert([
+      {
+        name: name.trim(),
+        h1: h1.trim(),
+        description: description.trim(),
+      },
+    ]);
 
     setLoading(false);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
     resetForm();
     fetchCategories();
+    alert("Category added successfully ✅");
   };
 
-  const resetForm = () => {
-    setName("");
-    setH1("");
-    setDescription("");
-    setEditId(null);
-  };
-
+  // ================= EDIT =================
   const editCategory = (cat) => {
     setEditId(cat.id);
     setName(cat.name || "");
     setH1(cat.h1 || "");
     setDescription(cat.description || "");
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // ================= UPDATE =================
+  const updateCategory = async () => {
+    if (!editId) return;
+
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("categories")
+      .update({
+        name: name.trim(),
+        h1: h1.trim(),
+        description: description.trim(),
+      })
+      .eq("id", editId);
+
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    resetForm();
+    fetchCategories();
+    alert("Category updated successfully ✅");
+  };
+
+  // ================= DELETE =================
   const deleteCategory = async (id) => {
-    if (!window.confirm("Delete this category permanently?")) return;
+    if (!window.confirm("Delete this category?")) return;
 
     await supabase.from("categories").delete().eq("id", id);
     fetchCategories();
   };
 
-  return (
-    <div className="admin-page">
+  const resetForm = () => {
+    setEditId(null);
+    setName("");
+    setH1("");
+    setDescription("");
+  };
 
-      <div className="page-head">
+  return (
+    <div className="admin-category">
+
+      {/* TITLE */}
+      <div className="page-title">
         <h2>📁 Categories (SEO Enabled)</h2>
-        <p>H1 & description Google ke liye</p>
+        <p>H1 & description Google SEO ke liye</p>
       </div>
 
       {/* FORM */}
-      <div className="card-box">
+      <div className="category-card">
         <h4>{editId ? "Edit Category" : "Add Category"}</h4>
 
         <input
@@ -109,25 +136,27 @@ export default function AdminCategories() {
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <div className="form-actions">
-          <button className="save-btn" onClick={saveCategory}>
-            {loading
-              ? "Saving..."
-              : editId
-              ? "Update Category"
-              : "Add Category"}
-          </button>
+        <button
+          className="primary-btn"
+          onClick={editId ? updateCategory : addCategory}
+          disabled={loading}
+        >
+          {loading
+            ? "Saving..."
+            : editId
+            ? "Update Category"
+            : "Add Category"}
+        </button>
 
-          {editId && (
-            <button className="cancel-btn" onClick={resetForm}>
-              Cancel
-            </button>
-          )}
-        </div>
+        {editId && (
+          <button className="cancel-btn" onClick={resetForm}>
+            Cancel
+          </button>
+        )}
       </div>
 
       {/* TABLE */}
-      <div className="card-box">
+      <div className="category-table">
         <table>
           <thead>
             <tr>
@@ -161,10 +190,18 @@ export default function AdminCategories() {
                 </td>
               </tr>
             ))}
+
+            {categories.length === 0 && (
+              <tr>
+                <td colSpan="4" className="empty">
+                  No categories found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
     </div>
   );
-}
+        }
