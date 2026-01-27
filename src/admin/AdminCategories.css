@@ -107,3 +107,45 @@ td {
   border-radius: 7px;
   font-weight: 600;
 }
+
+/* ===== ACTION BUTTONS ===== */
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.edit-btn {
+  background: #eaf1ff;
+  color: #0b5cff;
+  border: 1px solid #cfe0ff;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.edit-btn:hover {
+  background: #0b5cff;
+  color: #fff;
+}
+
+.delete-btn {
+  background: #fff;
+  color: #e53935;
+  border: 1px solid #f3bcbc;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #e53935;
+  color: #fff;
+}
