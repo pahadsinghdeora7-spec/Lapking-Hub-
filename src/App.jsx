@@ -4,7 +4,7 @@ import { HashRouter as Router, Routes, Route, useLocation } from "react-router-d
 import Home from "./pages/Home.jsx";
 import Account from "./pages/Account.jsx";
 
-
+import CategoryProducts from "./pages/CategoryProducts.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
@@ -27,7 +27,7 @@ import AddProductPage from "./admin/AddProductPage.jsx";
 
 import AdminBulkDelete from "./admin/AdminBulkDelete.jsx";
 import AdminBulkUpload from "./admin/AdminBulkUpload.jsx";
-import AdminCategories from "./admin/AdminCategories.jsx";
+
 import AdminOrders from "./admin/AdminOrders.jsx";
 import AdminOrderView from "./admin/AdminOrderView.jsx";
 import AdminReplacements from "./admin/AdminReplacements.jsx";
@@ -58,7 +58,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<Account />} />
           
-          
+          <Route path="/category/:slug" element={<CategoryProducts />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
@@ -88,7 +88,7 @@ function AppContent() {
             <Route path="customers" element={<AdminCustomers />} />
 
              <Route path="/admin/products/bulk-delete" element={<AdminBulkDelete />} />
-            <Route path="categories" element={<AdminCategories />} />
+            
             <Route path="orders" element={<AdminOrders />} />
             <Route path="orders/:id" element={<AdminOrderView />} />
             <Route path="replacements" element={<AdminReplacements />} />
