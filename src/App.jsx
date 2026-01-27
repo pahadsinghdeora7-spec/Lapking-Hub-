@@ -22,6 +22,7 @@ import AdminLogin from "./admin/AdminLogin.jsx";
 import AdminLayout from "./admin/AdminLayout.jsx";
 import AdminDashboard from "./admin/AdminDashboard.jsx";
 import AdminProducts from "./admin/AdminProducts.jsx";
+import AddProductPage from "./admin/AddProductPage.jsx";
 import AdminCategories from "./admin/AdminCategories.jsx";
 import AdminOrders from "./admin/AdminOrders.jsx";
 import AdminOrderView from "./admin/AdminOrderView.jsx";
@@ -77,6 +78,7 @@ function AppContent() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
+            <Route path="/admin/products/add" element={<AddProductPage />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="orders/:id" element={<AdminOrderView />} />
