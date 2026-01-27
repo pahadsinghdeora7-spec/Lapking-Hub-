@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./AddProductPage.css";
 
 export default function AdminAddProduct() {
 
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
+    category_id: "",
     category_slug: "",
     brand: "",
     part_number: "",
@@ -22,6 +24,20 @@ export default function AdminAddProduct() {
     image1: null,
     image2: null
   });
+
+  // ================= LOAD CATEGORIES =================
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from("categories")
+      .select("id,name,slug")
+      .order("name");
+
+    setCategories(data || []);
+  };
 
   // ================= IMAGE UPLOAD =================
   const uploadImage = async (file) => {
@@ -45,10 +61,11 @@ export default function AdminAddProduct() {
     return data.publicUrl;
   };
 
-  // ================= SAVE =================
+  // ================= SAVE PRODUCT =================
   const saveProduct = async () => {
-    if (!form.name || !form.price) {
-      alert("Product name & price required");
+
+    if (!form.name || !form.category_id || !form.price) {
+      alert("Product name, category & price required");
       return;
     }
 
@@ -58,22 +75,21 @@ export default function AdminAddProduct() {
     const img1 = await uploadImage(images.image1);
     const img2 = await uploadImage(images.image2);
 
-    const { error } = await supabase.from("products").insert([
-      {
-        name: form.name,
-        category_slug: form.category_slug,
-        brand: form.brand,
-        part_number: form.part_number,
-        compatible_model: form.compatible_model,
-        price: Number(form.price),
-        stock: Number(form.stock || 0),
-        description: form.description,
-        image: mainImg,
-        image1: img1,
-        image2: img2,
-        status: true
-      }
-    ]);
+    const { error } = await supabase.from("products").insert([{
+      name: form.name,
+      category_id: Number(form.category_id),
+      category_slug: form.category_slug,
+      brand: form.brand,
+      part_number: form.part_number,
+      compatible_model: form.compatible_model,
+      price: Number(form.price),
+      stock: Number(form.stock || 0),
+      description: form.description,
+      image: mainImg,
+      image1: img1,
+      image2: img2,
+      status: true
+    }]);
 
     setLoading(false);
 
@@ -87,6 +103,7 @@ export default function AdminAddProduct() {
 
     setForm({
       name: "",
+      category_id: "",
       category_slug: "",
       brand: "",
       part_number: "",
@@ -96,11 +113,7 @@ export default function AdminAddProduct() {
       description: ""
     });
 
-    setImages({
-      image: null,
-      image1: null,
-      image2: null
-    });
+    setImages({ image: null, image1: null, image2: null });
   };
 
   return (
@@ -108,19 +121,33 @@ export default function AdminAddProduct() {
 
       <h2>Add Product</h2>
 
-      {/* PRODUCT DETAILS */}
       <div className="card">
+
         <input
           placeholder="Product Name"
           value={form.name}
           onChange={(e)=>setForm({...form,name:e.target.value})}
         />
 
-        <input
-          placeholder="Category (dc-jack, keyboard)"
-          value={form.category_slug}
-          onChange={(e)=>setForm({...form,category_slug:e.target.value})}
-        />
+        {/* CATEGORY DROPDOWN */}
+        <select
+          value={form.category_id}
+          onChange={(e)=>{
+            const cat = categories.find(c => c.id === Number(e.target.value));
+            setForm({
+              ...form,
+              category_id: cat.id,
+              category_slug: cat.slug
+            });
+          }}
+        >
+          <option value="">Select Category</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
         <input
           placeholder="Brand"
@@ -162,18 +189,12 @@ export default function AdminAddProduct() {
         />
       </div>
 
-      {/* IMAGES */}
       <div className="card">
         <h4>Product Images</h4>
 
-        <label>Main Image</label>
-        <input type="file" onChange={(e)=>setImages({...images,image:e.target.files[0]})} />
-
-        <label>Image 1</label>
-        <input type="file" onChange={(e)=>setImages({...images,image1:e.target.files[0]})} />
-
-        <label>Image 2</label>
-        <input type="file" onChange={(e)=>setImages({...images,image2:e.target.files[0]})} />
+        <input type="file" onChange={(e)=>setImages({...images,image:e.target.files[0]})}/>
+        <input type="file" onChange={(e)=>setImages({...images,image1:e.target.files[0]})}/>
+        <input type="file" onChange={(e)=>setImages({...images,image2:e.target.files[0]})}/>
       </div>
 
       <button className="save-btn" onClick={saveProduct} disabled={loading}>
@@ -182,4 +203,4 @@ export default function AdminAddProduct() {
 
     </div>
   );
-      }
+          }
