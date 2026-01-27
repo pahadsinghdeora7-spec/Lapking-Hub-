@@ -3,9 +3,14 @@ import { supabase } from "../supabaseClient";
 import "./adminProducts.css";
 
 export default function AdminProducts() {
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+
+  const [imageFile, setImageFile] = useState(null);
+  const [imageFile1, setImageFile1] = useState(null);
+  const [imageFile2, setImageFile2] = useState(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -15,6 +20,7 @@ export default function AdminProducts() {
     price: "",
     stock: "",
     description: "",
+    compatible_model: "",
     image: "",
     image1: "",
     image2: "",
@@ -24,6 +30,7 @@ export default function AdminProducts() {
   // ================= FETCH =================
   const fetchProducts = async () => {
     setLoading(true);
+
     const { data } = await supabase
       .from("products")
       .select("*")
@@ -37,9 +44,33 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
+  // ================= IMAGE UPLOAD =================
+  const uploadImage = async (file) => {
+    if (!file) return null;
+
+    const ext = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random()}.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
+
+    if (error) {
+      alert("Image upload failed");
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  };
+
   // ================= OPEN POPUP =================
   const openProduct = (item) => {
     setSelected(item);
+
     setForm({
       name: item.name || "",
       category_slug: item.category_slug || "",
@@ -48,18 +79,37 @@ export default function AdminProducts() {
       price: item.price || "",
       stock: item.stock || "",
       description: item.description || "",
+      compatible_model: item.compatible_model || "",
       image: item.image || "",
       image1: item.image1 || "",
       image2: item.image2 || "",
       status: item.status ?? true
     });
+
+    setImageFile(null);
+    setImageFile1(null);
+    setImageFile2(null);
   };
 
   // ================= UPDATE =================
   const updateProduct = async () => {
+
+    let image = form.image;
+    let image1 = form.image1;
+    let image2 = form.image2;
+
+    if (imageFile) image = await uploadImage(imageFile);
+    if (imageFile1) image1 = await uploadImage(imageFile1);
+    if (imageFile2) image2 = await uploadImage(imageFile2);
+
     await supabase
       .from("products")
-      .update(form)
+      .update({
+        ...form,
+        image,
+        image1,
+        image2
+      })
       .eq("id", selected.id);
 
     setSelected(null);
@@ -84,7 +134,7 @@ export default function AdminProducts() {
 
       <h2>Products</h2>
 
-      {/* ================= TABLE ================= */}
+      {/* ================= PRODUCT LIST ================= */}
       <div className="table-box">
         <table>
           <thead>
@@ -102,7 +152,9 @@ export default function AdminProducts() {
 
           <tbody>
             {loading && (
-              <tr><td colSpan="8">Loading...</td></tr>
+              <tr>
+                <td colSpan="8">Loading...</td>
+              </tr>
             )}
 
             {!loading && products.map((p) => (
@@ -127,7 +179,7 @@ export default function AdminProducts() {
                     className="edit-btn"
                     onClick={() => openProduct(p)}
                   >
-                    Click
+                    View / Edit
                   </button>
                 </td>
               </tr>
@@ -146,7 +198,9 @@ export default function AdminProducts() {
             <label>Product Name</label>
             <input
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
             />
 
             <label>Category</label>
@@ -160,7 +214,9 @@ export default function AdminProducts() {
             <label>Brand</label>
             <input
               value={form.brand}
-              onChange={(e) => setForm({ ...form, brand: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, brand: e.target.value })
+              }
             />
 
             <label>Part Number</label>
@@ -171,18 +227,13 @@ export default function AdminProducts() {
               }
             />
 
-            <label>Price</label>
-            <input
-              type="number"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
-            />
-
-            <label>Stock</label>
-            <input
-              type="number"
-              value={form.stock}
-              onChange={(e) => setForm({ ...form, stock: e.target.value })}
+            <label>Compatible Model</label>
+            <textarea
+              rows="3"
+              value={form.compatible_model}
+              onChange={(e) =>
+                setForm({ ...form, compatible_model: e.target.value })
+              }
             />
 
             <label>Description</label>
@@ -194,34 +245,25 @@ export default function AdminProducts() {
               }
             />
 
-            <label>Main Image URL</label>
-            <input
-              value={form.image}
-              onChange={(e) => setForm({ ...form, image: e.target.value })}
-            />
+            <label>Main Image</label>
+            <input type="file" onChange={(e) => setImageFile(e.target.files[0])} />
 
             <label>Image 1</label>
-            <input
-              value={form.image1}
-              onChange={(e) => setForm({ ...form, image1: e.target.value })}
-            />
+            <input type="file" onChange={(e) => setImageFile1(e.target.files[0])} />
 
             <label>Image 2</label>
-            <input
-              value={form.image2}
-              onChange={(e) => setForm({ ...form, image2: e.target.value })}
-            />
+            <input type="file" onChange={(e) => setImageFile2(e.target.files[0])} />
 
             <div className="modal-actions">
-              <button onClick={updateProduct} className="save">
+              <button className="save" onClick={updateProduct}>
                 Update
               </button>
 
-              <button onClick={deleteProduct} className="delete">
+              <button className="delete" onClick={deleteProduct}>
                 Delete
               </button>
 
-              <button onClick={() => setSelected(null)} className="close">
+              <button className="close" onClick={() => setSelected(null)}>
                 Close
               </button>
             </div>
