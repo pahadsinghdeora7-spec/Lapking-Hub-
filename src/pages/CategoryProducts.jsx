@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { Helmet } from "react-helmet";
 import ProductCard from "../components/ProductCard";
-import "./CategoryProducts.css";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
@@ -13,13 +12,13 @@ export default function CategoryProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategoryAndProducts();
+    fetchCategory();
   }, [slug]);
 
-  const fetchCategoryAndProducts = async () => {
+  const fetchCategory = async () => {
     setLoading(true);
 
-    // 🔹 CATEGORY DATA
+    // ✅ category data (H1 + description)
     const { data: cat } = await supabase
       .from("categories")
       .select("*")
@@ -34,62 +33,61 @@ export default function CategoryProducts() {
 
     setCategory(cat);
 
-    // 🔹 PRODUCTS DATA
+    // ✅ products of category
     const { data: prod } = await supabase
       .from("products")
       .select("*")
-      .eq("category_slug", slug)
-      .eq("status", true)
-      .order("id", { ascending: false });
+      .eq("category", cat.name);
 
     setProducts(prod || []);
     setLoading(false);
   };
 
-  if (loading) {
-    return <div className="cat-loading">Loading...</div>;
-  }
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
 
-  if (!category) {
-    return <div className="cat-not-found">Category not found</div>;
-  }
+  if (!category) return <p style={{ padding: 20 }}>Category not found</p>;
 
   return (
-    <div className="category-page">
+    <>
+      {/* ✅ SEO */}
       <Helmet>
-        <title>{category.h1 || category.name} | Lapking Hub</title>
-        <meta
-          name="description"
-          content={
-            category.description ||
-            `Buy ${category.name} laptop spare parts online from Lapking Hub.`
-          }
-        />
+        <title>
+          {category.h1
+            ? category.h1
+            : `${category.name} | LapkingHub`}
+        </title>
+
+        {category.description && (
+          <meta
+            name="description"
+            content={category.description}
+          />
+        )}
       </Helmet>
 
-      {/* SEO CONTENT */}
-      <h1 className="category-title">
-        {category.h1 || category.name}
-      </h1>
+      <div style={{ padding: "16px" }}>
+        {/* ✅ H1 visible on page */}
+        <h1 style={{ fontSize: 22, marginBottom: 6 }}>
+          {category.h1 || category.name}
+        </h1>
 
-      {category.description && (
-        <p className="category-desc">
-          {category.description}
-        </p>
-      )}
+        {category.description && (
+          <p style={{ color: "#666", marginBottom: 20 }}>
+            {category.description}
+          </p>
+        )}
 
-      {/* PRODUCTS */}
-      {products.length === 0 ? (
-        <div className="no-products">
-          No products found in this category
-        </div>
-      ) : (
-        <div className="product-grid">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      )}
-    </div>
+        {/* PRODUCTS */}
+        {products.length === 0 ? (
+          <p>No products found</p>
+        ) : (
+          <div className="product-grid">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
-}
+        }
