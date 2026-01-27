@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import * as XLSX from "xlsx";
 import "./adminProducts.css";
 
 export default function AdminProducts() {
 
   const [products, setProducts] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-
   const [selected, setSelected] = useState(null);
-  const [showAdd, setShowAdd] = useState(false);
-  const [showBulk, setShowBulk] = useState(false);
-  const [excelFile, setExcelFile] = useState(null);
 
-  const emptyForm = {
+  const [form, setForm] = useState({
     name: "",
     category_slug: "",
     brand: "",
@@ -24,22 +21,19 @@ export default function AdminProducts() {
     description: "",
     image: "",
     image1: "",
-    image2: "",
-    status: true
-  };
-
-  const [form, setForm] = useState(emptyForm);
+    image2: ""
+  });
 
   // ================= FETCH =================
   const fetchProducts = async () => {
     setLoading(true);
-
     const { data } = await supabase
       .from("products")
       .select("*")
       .order("id", { ascending: false });
 
     setProducts(data || []);
+    setFiltered(data || []);
     setLoading(false);
   };
 
@@ -47,23 +41,23 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
-  // ================= OPEN EDIT =================
-  const openEdit = (item) => {
+  // ================= SEARCH =================
+  useEffect(() => {
+    const value = search.toLowerCase();
+
+    const result = products.filter(p =>
+      p.name?.toLowerCase().includes(value) ||
+      p.part_number?.toLowerCase().includes(value) ||
+      p.brand?.toLowerCase().includes(value)
+    );
+
+    setFiltered(result);
+  }, [search, products]);
+
+  // ================= OPEN =================
+  const openProduct = (item) => {
     setSelected(item);
-    setForm({
-      name: item.name || "",
-      category_slug: item.category_slug || "",
-      brand: item.brand || "",
-      part_number: item.part_number || "",
-      compatible_model: item.compatible_model || "",
-      price: item.price || "",
-      stock: item.stock || "",
-      description: item.description || "",
-      image: item.image || "",
-      image1: item.image1 || "",
-      image2: item.image2 || "",
-      status: item.status ?? true
-    });
+    setForm({ ...item });
   };
 
   // ================= UPDATE =================
@@ -75,68 +69,25 @@ export default function AdminProducts() {
 
   // ================= DELETE =================
   const deleteProduct = async () => {
-    if (!window.confirm("Delete this product?")) return;
-
+    if (!window.confirm("Delete product?")) return;
     await supabase.from("products").delete().eq("id", selected.id);
     setSelected(null);
     fetchProducts();
   };
 
-  // ================= ADD =================
-  const addProduct = async () => {
-    await supabase.from("products").insert(form);
-    setShowAdd(false);
-    setForm(emptyForm);
-    fetchProducts();
-  };
-
-  // ================= BULK UPLOAD =================
-  const uploadExcel = () => {
-    if (!excelFile) return alert("Select Excel file");
-
-    const reader = new FileReader();
-
-    reader.onload = async (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet);
-
-      for (let r of rows) {
-        await supabase.from("products").insert({
-          name: r.name || "",
-          category_slug: r.category_slug || "",
-          brand: r.brand || "",
-          part_number: r.part_number || "",
-          compatible_model: r.compatible_model || "",
-          price: Number(r.price || 0),
-          stock: Number(r.stock || 0),
-          description: r.description || "",
-          image: r.image || "",
-          image1: r.image1 || "",
-          image2: r.image2 || "",
-          status: true
-        });
-      }
-
-      alert("Bulk upload successful ✅");
-      setExcelFile(null);
-      setShowBulk(false);
-      fetchProducts();
-    };
-
-    reader.readAsArrayBuffer(excelFile);
-  };
-
   return (
     <div className="admin-products">
 
-      <div className="top-bar">
+      {/* HEADER */}
+      <div className="page-header">
         <h2>Products</h2>
-        <div>
-          <button onClick={() => setShowBulk(true)}>Bulk Upload</button>
-          <button onClick={() => setShowAdd(true)}>+ Add Product</button>
-        </div>
+
+        <input
+          className="search-box"
+          placeholder="Search product, part no, brand..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       {/* TABLE */}
@@ -160,19 +111,28 @@ export default function AdminProducts() {
               <tr><td colSpan="8">Loading...</td></tr>
             )}
 
-            {!loading && products.map(p => (
+            {!loading && filtered.map(p => (
               <tr key={p.id}>
                 <td>
-                  {p.image ? <img src={p.image} className="thumb" /> : <div className="no-img">No Image</div>}
+                  {p.image
+                    ? <img src={p.image} className="thumb" />
+                    : <div className="no-img">No image</div>}
                 </td>
+
                 <td>{p.name}</td>
                 <td>{p.category_slug || "-"}</td>
                 <td>{p.brand || "-"}</td>
                 <td>{p.part_number || "-"}</td>
                 <td>₹{p.price || 0}</td>
                 <td>{p.stock || 0}</td>
+
                 <td>
-                  <button className="edit-btn" onClick={() => openEdit(p)}>Click</button>
+                  <button
+                    className="edit-btn"
+                    onClick={() => openProduct(p)}
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}
@@ -180,7 +140,43 @@ export default function AdminProducts() {
         </table>
       </div>
 
-      {/* ADD / EDIT / BULK POPUPS SAME AS BEFORE */}
+      {/* ================= EDIT POPUP ================= */}
+      {selected && (
+        <div className="modal-bg">
+          <div className="modal">
+
+            <h3>Edit Product</h3>
+
+            <label>Product Name</label>
+            <input value={form.name || ""} onChange={e => setForm({ ...form, name: e.target.value })} />
+
+            <label>Category</label>
+            <input value={form.category_slug || ""} onChange={e => setForm({ ...form, category_slug: e.target.value })} />
+
+            <label>Brand</label>
+            <input value={form.brand || ""} onChange={e => setForm({ ...form, brand: e.target.value })} />
+
+            <label>Part Number</label>
+            <input value={form.part_number || ""} onChange={e => setForm({ ...form, part_number: e.target.value })} />
+
+            <label>Compatible Model</label>
+            <input value={form.compatible_model || ""} onChange={e => setForm({ ...form, compatible_model: e.target.value })} />
+
+            <label>Description</label>
+            <textarea rows="4" value={form.description || ""} onChange={e => setForm({ ...form, description: e.target.value })} />
+
+            <label>Main Image URL</label>
+            <input value={form.image || ""} onChange={e => setForm({ ...form, image: e.target.value })} />
+
+            <div className="modal-actions">
+              <button className="save" onClick={updateProduct}>Update</button>
+              <button className="delete" onClick={deleteProduct}>Delete</button>
+              <button className="close" onClick={() => setSelected(null)}>Close</button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
