@@ -1,62 +1,69 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { supabase } from "../supabaseClient";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { supabase } from "../supabaseClient";
+import "./Categories.css";
 
-export default function CategoryProducts() {
-  const { slug } = useParams();
-
-  const [category, setCategory] = useState(null);
-  const [products, setProducts] = useState([]);
+export default function Categories() {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadCategory();
-  }, [slug]);
+    fetchCategories();
+  }, []);
 
-  const loadCategory = async () => {
-    const { data: cat } = await supabase
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
       .from("categories")
-      .select("*")
-      .eq("slug", slug)
-      .single();
+      .select("id, name, slug, h1, description")
+      .eq("status", true)
+      .order("id", { ascending: true });
 
-    if (!cat) return;
+    if (!error) {
+      setCategories(data || []);
+    }
 
-    setCategory(cat);
-
-    const { data: prods } = await supabase
-      .from("products")
-      .select("*")
-      .eq("category_id", cat.id);
-
-    setProducts(prods || []);
+    setLoading(false);
   };
 
-  if (!category) {
-    return <div style={{ padding: 20 }}>Category not found</div>;
-  }
-
   return (
-    <>
+    <div className="cat-page">
       <Helmet>
-        <title>{category.h1 || category.name}</title>
+        <title>All Categories | Lapking Hub</title>
         <meta
           name="description"
-          content={
-            category.description ||
-            `Buy ${category.name} online from Lapking Hub`
-          }
+          content="Browse all laptop spare parts categories at Lapking Hub."
         />
       </Helmet>
 
-      <div style={{ padding: 16 }}>
-        <h1>{category.h1 || category.name}</h1>
-        <p style={{ color: "#666" }}>{category.description}</p>
+      <h1 className="cat-title">All Categories</h1>
+      <p className="cat-sub">
+        Browse laptop spare parts by category
+      </p>
 
-        {products.length === 0 && (
-          <p style={{ marginTop: 20 }}>No products found</p>
-        )}
+      {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
+
+      {!loading && categories.length === 0 && (
+        <p style={{ textAlign: "center" }}>No categories found</p>
+      )}
+
+      <div className="cat-grid">
+        {categories.map((cat) => (
+          <Link
+            key={cat.id}
+            to={`/category/${cat.slug}`}
+            className="cat-card"
+          >
+            <div className="cat-icon">📁</div>
+            <h3>{cat.name}</h3>
+            <span>Shop Now →</span>
+          </Link>
+        ))}
       </div>
-    </>
+
+      <div className="cat-seo-text">
+        Lapking Hub – Wholesale laptop spare parts supplier in India.
+      </div>
+    </div>
   );
 }
