@@ -1,5 +1,6 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
 import "./CategoryProducts.css";
@@ -7,51 +8,88 @@ import "./CategoryProducts.css";
 export default function CategoryProducts() {
   const { slug } = useParams();
 
+  const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadProducts();
+    fetchCategoryAndProducts();
   }, [slug]);
 
-  const loadProducts = async () => {
+  const fetchCategoryAndProducts = async () => {
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("products")
+    // 🔹 CATEGORY DATA
+    const { data: cat } = await supabase
+      .from("categories")
       .select("*")
-      .eq("category_slug", slug)   // ✅ REAL FIX
-      .eq("status", true);         // ✅ only active products
+      .eq("slug", slug)
+      .single();
 
-    if (error) {
-      console.error(error);
-      setProducts([]);
-    } else {
-      setProducts(data || []);
+    if (!cat) {
+      setCategory(null);
+      setLoading(false);
+      return;
     }
 
+    setCategory(cat);
+
+    // 🔹 PRODUCTS DATA
+    const { data: prod } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_slug", slug)
+      .eq("status", true)
+      .order("id", { ascending: false });
+
+    setProducts(prod || []);
     setLoading(false);
   };
 
+  if (loading) {
+    return <div className="cat-loading">Loading...</div>;
+  }
+
+  if (!category) {
+    return <div className="cat-not-found">Category not found</div>;
+  }
+
   return (
     <div className="category-page">
-      <h2 className="category-title">
-        {slug.replace("-", " ").toUpperCase()}
-      </h2>
+      <Helmet>
+        <title>{category.h1 || category.name} | Lapking Hub</title>
+        <meta
+          name="description"
+          content={
+            category.description ||
+            `Buy ${category.name} laptop spare parts online from Lapking Hub.`
+          }
+        />
+      </Helmet>
 
-      {loading && <p>Loading products...</p>}
+      {/* SEO CONTENT */}
+      <h1 className="category-title">
+        {category.h1 || category.name}
+      </h1>
 
-      {!loading && products.length === 0 && (
-        <p style={{ textAlign: "center", marginTop: "30px" }}>
-          No products found
+      {category.description && (
+        <p className="category-desc">
+          {category.description}
         </p>
       )}
 
-      <div className="product-grid">
-        {products.map((item) => (
-          <ProductCard key={item.id} product={item} />
-        ))}
-      </div>
+      {/* PRODUCTS */}
+      {products.length === 0 ? (
+        <div className="no-products">
+          No products found in this category
+        </div>
+      ) : (
+        <div className="product-grid">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
