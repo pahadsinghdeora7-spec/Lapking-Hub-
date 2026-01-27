@@ -34,6 +34,7 @@ import AdminReplacements from "./admin/AdminReplacements.jsx";
 import AdminCouriers from "./admin/AdminCouriers.jsx";
 import AdminSettings from "./admin/AdminSettings.jsx";
 
+import AdminCustomers from "./admin/AdminCustomers.jsx";
 /* COMPONENTS */
 import Header from "./components/Header.jsx";
 import BottomNav from "./components/BottomNav.jsx";
@@ -84,6 +85,7 @@ function AppContent() {
             <Route path="products" element={<AdminProducts />} />
             <Route path="/admin/products/add" element={<AddProductPage />} />
             <Route path="products/bulk-upload" element={<AdminBulkUpload />} />
+            <Route path="customers" element={<AdminCustomers />} />
 
              <Route path="/admin/products/bulk-delete" element={<AdminBulkDelete />} />
             <Route path="categories" element={<AdminCategories />} />
