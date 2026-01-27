@@ -653,3 +653,12 @@ input, textarea {
 .btn-row {
   margin-top: 15px;
 }
+.add-product {
+  border: 2px dashed #2563eb;
+  background: #f0f6ff;
+}
+
+.add-product h4 {
+  font-size: 32px;
+  color: #2563eb;
+}
