@@ -565,3 +565,91 @@ body {
   font-size: 20px;
   cursor: pointer;
 }
+.admin-container {
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.full {
+  width: 100%;
+  margin-top: 12px;
+  min-height: 80px;
+}
+
+input, textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.thumb {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.primary-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.gray-btn {
+  background: #eee;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-left: 10px;
+}
+
+.edit-btn {
+  background: #facc15;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.noimg {
+  font-size: 12px;
+  color: #999;
+}
+
+.btn-row {
+  margin-top: 15px;
+}
