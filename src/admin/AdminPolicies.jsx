@@ -1,187 +1,176 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient.js";
+import { supabase } from "../supabaseClient";
+import "./admin.css";
 
 export default function AdminPolicies() {
-  const [policies, setPolicies] = useState([]);
-  const [loading, setLoading] = useState(false);
-
+  const [pages, setPages] = useState([]);
   const [form, setForm] = useState({
-    id: null,
-    title: "",
     slug: "",
+    title: "",
     content: "",
-    status: true,
+    meta_title: "",
+    meta_description: "",
+    meta_keywords: ""
   });
 
-  // ---------------- FETCH POLICIES ----------------
-  const fetchPolicies = async () => {
-    const { data } = await supabase
-      .from("policies")
-      .select("*")
-      .order("id");
-
-    setPolicies(data || []);
-  };
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchPolicies();
+    loadPages();
   }, []);
 
-  // ---------------- SAVE / UPDATE ----------------
-  const savePolicy = async () => {
-    if (!form.title || !form.slug) {
-      alert("Title aur slug required hai");
+  async function loadPages() {
+    const { data } = await supabase
+      .from("about_pages")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    setPages(data || []);
+  }
+
+  async function handleSave() {
+    if (!form.slug || !form.title || !form.content) {
+      alert("Slug, Title & Content required");
       return;
     }
 
     setLoading(true);
 
-    if (form.id) {
-      // update
-      await supabase
-        .from("policies")
+    const { data: existing } = await supabase
+      .from("about_pages")
+      .select("id")
+      .eq("slug", form.slug)
+      .maybeSingle();
+
+    let res;
+
+    if (existing) {
+      res = await supabase
+        .from("about_pages")
         .update({
           title: form.title,
-          slug: form.slug,
           content: form.content,
-          status: form.status,
+          meta_title: form.meta_title,
+          meta_description: form.meta_description,
+          meta_keywords: form.meta_keywords
         })
-        .eq("id", form.id);
+        .eq("id", existing.id);
     } else {
-      // insert
-      await supabase.from("policies").insert([
+      res = await supabase.from("about_pages").insert([
         {
-          title: form.title,
           slug: form.slug,
+          title: form.title,
           content: form.content,
-          status: form.status,
-        },
+          meta_title: form.meta_title,
+          meta_description: form.meta_description,
+          meta_keywords: form.meta_keywords,
+          status: true
+        }
       ]);
     }
 
     setLoading(false);
-    setForm({
-      id: null,
-      title: "",
-      slug: "",
-      content: "",
-      status: true,
-    });
 
-    fetchPolicies();
-    alert("Policy saved successfully");
-  };
+    if (res.error) {
+      alert(res.error.message);
+    } else {
+      alert("Policy saved successfully ✅");
+      setForm({
+        slug: "",
+        title: "",
+        content: "",
+        meta_title: "",
+        meta_description: "",
+        meta_keywords: ""
+      });
+      loadPages();
+    }
+  }
 
-  // ---------------- EDIT ----------------
-  const editPolicy = (p) => {
+  function editPage(p) {
     setForm({
-      id: p.id,
-      title: p.title,
       slug: p.slug,
-      content: p.content || "",
-      status: p.status,
+      title: p.title,
+      content: p.content,
+      meta_title: p.meta_title || "",
+      meta_description: p.meta_description || "",
+      meta_keywords: p.meta_keywords || ""
     });
-  };
-
-  // ---------------- DELETE ----------------
-  const deletePolicy = async (id) => {
-    if (!window.confirm("Delete this policy?")) return;
-
-    await supabase.from("policies").delete().eq("id", id);
-    fetchPolicies();
-  };
+  }
 
   return (
-    <div className="admin-page">
-      <h2>📜 Policy Management</h2>
+    <div className="admin-panel">
+      <h2>📜 Policy Manager</h2>
 
-      {/* FORM */}
-      <div className="card">
-        <h3>{form.id ? "Edit Policy" : "Add New Policy"}</h3>
+      <input
+        placeholder="Slug (privacy-policy)"
+        value={form.slug}
+        onChange={(e) => setForm({ ...form, slug: e.target.value })}
+      />
 
-        <input
-          type="text"
-          placeholder="Policy Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-        />
+      <input
+        placeholder="Title"
+        value={form.title}
+        onChange={(e) => setForm({ ...form, title: e.target.value })}
+      />
 
-        <input
-          type="text"
-          placeholder="Slug (example: warranty, refund)"
-          value={form.slug}
-          onChange={(e) => setForm({ ...form, slug: e.target.value })}
-        />
+      <textarea
+        placeholder="Policy Content"
+        rows="8"
+        value={form.content}
+        onChange={(e) => setForm({ ...form, content: e.target.value })}
+      />
 
-        <textarea
-          rows="8"
-          placeholder="Policy content (HTML allowed)"
-          value={form.content}
-          onChange={(e) => setForm({ ...form, content: e.target.value })}
-        />
+      <input
+        placeholder="Meta Title"
+        value={form.meta_title}
+        onChange={(e) =>
+          setForm({ ...form, meta_title: e.target.value })
+        }
+      />
 
-        <label style={{ marginTop: 10 }}>
-          <input
-            type="checkbox"
-            checked={form.status}
-            onChange={(e) =>
-              setForm({ ...form, status: e.target.checked })
-            }
-          />{" "}
-          Active
-        </label>
+      <input
+        placeholder="Meta Description"
+        value={form.meta_description}
+        onChange={(e) =>
+          setForm({ ...form, meta_description: e.target.value })
+        }
+      />
 
-        <br />
+      <input
+        placeholder="Meta Keywords"
+        value={form.meta_keywords}
+        onChange={(e) =>
+          setForm({ ...form, meta_keywords: e.target.value })
+        }
+      />
 
-        <button
-          className="btn blue"
-          onClick={savePolicy}
-          disabled={loading}
+      <button onClick={handleSave} disabled={loading}>
+        {loading ? "Saving..." : "Save Policy"}
+      </button>
+
+      <hr />
+
+      <h3>Saved Pages</h3>
+
+      {pages.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            padding: "10px",
+            border: "1px solid #ddd",
+            borderRadius: "6px",
+            marginBottom: "8px",
+            cursor: "pointer"
+          }}
+          onClick={() => editPage(p)}
         >
-          {loading ? "Saving..." : "Save Policy"}
-        </button>
-      </div>
-
-      {/* LIST */}
-      <div className="card">
-        <h3>All Policies</h3>
-
-        {policies.length === 0 && <p>No policies added yet.</p>}
-
-        {policies.map((p) => (
-          <div
-            key={p.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              borderBottom: "1px solid #eee",
-              padding: "8px 0",
-            }}
-          >
-            <div>
-              <b>{p.title}</b>
-              <br />
-              <small>/{p.slug}</small>
-            </div>
-
-            <div>
-              <button
-                className="btn"
-                onClick={() => editPolicy(p)}
-              >
-                Edit
-              </button>
-
-              <button
-                className="btn red"
-                onClick={() => deletePolicy(p.id)}
-              >
-                Delete
-              </button>
-            </div>
+          <b>{p.title}</b>
+          <div style={{ fontSize: "13px", color: "#666" }}>
+            /page/{p.slug}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
