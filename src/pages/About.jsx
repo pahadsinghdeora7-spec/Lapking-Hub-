@@ -7,21 +7,21 @@ export default function AboutUs() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAbout();
+    loadAbout();
   }, []);
 
-  async function fetchAbout() {
+  async function loadAbout() {
     const { data, error } = await supabase
       .from("about_pages")
       .select("*")
-      .eq("slug", "about-us")   // ✅ EXACT MATCH
-      .eq("status", true)
+      .eq("slug", "about-us")
+      .limit(1)
       .single();
 
     setLoading(false);
 
-    if (error) {
-      console.log("About error:", error.message);
+    if (error || !data) {
+      console.log("ABOUT ERROR:", error);
       setAbout(null);
       return;
     }
@@ -29,24 +29,18 @@ export default function AboutUs() {
     setAbout(data);
   }
 
-  if (loading) {
-    return <div className="about-loading">Loading...</div>;
-  }
+  if (loading) return <div className="about-loading">Loading...</div>;
 
-  if (!about) {
+  if (!about)
     return <div className="about-empty">About Us not available</div>;
-  }
 
   return (
     <div className="about-page">
       <h1>{about.title}</h1>
 
-      <div
-        className="about-content"
-        dangerouslySetInnerHTML={{
-          __html: about.content?.replace(/\n/g, "<br />"),
-        }}
-      />
+      <p className="about-content">
+        {about.content}
+      </p>
     </div>
   );
 }
