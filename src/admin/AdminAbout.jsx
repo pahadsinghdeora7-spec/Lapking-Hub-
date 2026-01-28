@@ -3,6 +3,9 @@ import { supabase } from "../supabaseClient";
 import "./AboutUs.css";
 
 export default function AdminAbout() {
+
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     title: "",
     content: "",
@@ -11,14 +14,8 @@ export default function AdminAbout() {
     meta_keyword: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
-  // LOAD ABOUT DATA
-  useEffect(() => {
-    loadAbout();
-  }, []);
-
-  const loadAbout = async () => {
+  // ================= LOAD ABOUT DATA =================
+  const fetchAbout = async () => {
     const { data } = await supabase
       .from("policies")
       .select("*")
@@ -36,75 +33,122 @@ export default function AdminAbout() {
     }
   };
 
-  // SAVE ABOUT US
+  useEffect(() => {
+    fetchAbout();
+  }, []);
+
+  // ================= SAVE ABOUT =================
   const handleSave = async () => {
     setLoading(true);
 
-    await supabase.from("policies").upsert({
-      slug: "about-us",
-      title: form.title,
-      content: form.content,
-      meta_title: form.meta_title,
-      meta_description: form.meta_description,
-      meta_keyword: form.meta_keyword,
-      status: true,
-    });
+    const { data } = await supabase
+      .from("policies")
+      .select("id")
+      .eq("slug", "about-us")
+      .single();
 
+    if (data) {
+      // UPDATE
+      await supabase
+        .from("policies")
+        .update({
+          title: form.title,
+          content: form.content,
+          meta_title: form.meta_title,
+          meta_description: form.meta_description,
+          meta_keyword: form.meta_keyword,
+          status: true,
+        })
+        .eq("slug", "about-us");
+    } else {
+      // INSERT
+      await supabase.from("policies").insert([
+        {
+          slug: "about-us",
+          title: form.title,
+          content: form.content,
+          meta_title: form.meta_title,
+          meta_description: form.meta_description,
+          meta_keyword: form.meta_keyword,
+          status: true,
+        },
+      ]);
+    }
+
+    alert("About Us saved successfully");
     setLoading(false);
-    alert("About Us updated successfully");
   };
 
+  // ================= UI =================
   return (
-    <div className="admin-panel">
+    <div className="about-wrap">
 
       <h2>About Us</h2>
 
-      <div className="card">
+      <div className="about-form">
 
-        <label>Page Title</label>
-        <input
-          value={form.title}
-          onChange={(e) =>
-            setForm({ ...form, title: e.target.value })
-          }
-        />
+        {/* PAGE TITLE */}
+        <div>
+          <label>Page Title</label>
+          <input
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
+            placeholder="About LapkingHub"
+          />
+        </div>
 
-        <label>Content</label>
-        <textarea
-          rows="8"
-          value={form.content}
-          onChange={(e) =>
-            setForm({ ...form, content: e.target.value })
-          }
-        />
+        {/* CONTENT */}
+        <div>
+          <label>Content</label>
+          <textarea
+            value={form.content}
+            onChange={(e) =>
+              setForm({ ...form, content: e.target.value })
+            }
+            placeholder="Write about your business..."
+          />
+        </div>
 
-        <label>Meta Title (SEO)</label>
-        <input
-          value={form.meta_title}
-          onChange={(e) =>
-            setForm({ ...form, meta_title: e.target.value })
-          }
-        />
+        {/* SEO BOX */}
+        <div className="seo-box">
+          <h4>SEO Settings</h4>
 
-        <label>Meta Description (SEO)</label>
-        <textarea
-          rows="3"
-          value={form.meta_description}
-          onChange={(e) =>
-            setForm({ ...form, meta_description: e.target.value })
-          }
-        />
+          <div>
+            <label>Meta Title</label>
+            <input
+              value={form.meta_title}
+              onChange={(e) =>
+                setForm({ ...form, meta_title: e.target.value })
+              }
+            />
+          </div>
 
-        <label>Meta Keywords</label>
-        <input
-          value={form.meta_keyword}
-          onChange={(e) =>
-            setForm({ ...form, meta_keyword: e.target.value })
-          }
-        />
+          <div>
+            <label>Meta Description</label>
+            <textarea
+              value={form.meta_description}
+              onChange={(e) =>
+                setForm({ ...form, meta_description: e.target.value })
+              }
+            />
+          </div>
 
+          <div>
+            <label>Meta Keywords</label>
+            <input
+              value={form.meta_keyword}
+              onChange={(e) =>
+                setForm({ ...form, meta_keyword: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        {/* SAVE */}
         <button
-          className="save-btn"
+          className="about-save-btn"
           onClick={handleSave}
           disabled={loading}
         >
@@ -114,4 +158,4 @@ export default function AdminAbout() {
       </div>
     </div>
   );
-          }
+            }
