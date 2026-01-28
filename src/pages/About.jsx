@@ -16,7 +16,7 @@ export default function AboutUs() {
       .select("*")
       .eq("slug", "about-us")
       .limit(1)
-      .single();
+      .maybeSingle();
 
     setLoading(false);
 
@@ -29,52 +29,13 @@ export default function AboutUs() {
     setAbout(data);
   }
 
-  if (loading)
-    return <div className="about-loading">Loading About Us...</div>;
-
-  if (!about)
-    return <div className="about-empty">About Us not available</div>;
+  if (loading) return <div className="about-loading">Loading...</div>;
+  if (!about) return <div className="about-empty">About Us not available</div>;
 
   return (
-    <div className="about-container">
-      <div className="about-card">
-
-        {/* TITLE */}
-        <h1 className="about-title">
-          {about.title}
-        </h1>
-
-        {/* MAIN CONTENT */}
-        <p className="about-content">
-          {about.content}
-        </p>
-
-        {/* EXTRA TRUST SECTION */}
-        <div className="about-highlights">
-
-          <div className="highlight-box">
-            <span>✅</span>
-            <p>100% Genuine Laptop & Computer Accessories</p>
-          </div>
-
-          <div className="highlight-box">
-            <span>🚚</span>
-            <p>Fast & Reliable Delivery Across India</p>
-          </div>
-
-          <div className="highlight-box">
-            <span>💼</span>
-            <p>Trusted by Retailers, Businesses & Technicians</p>
-          </div>
-
-          <div className="highlight-box">
-            <span>📞</span>
-            <p>Customer Support: +91 8306939006</p>
-          </div>
-
-        </div>
-
-      </div>
+    <div className="about-page">
+      <h1>{about.title}</h1>
+      <p className="about-content">{about.content}</p>
     </div>
   );
 }
