@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AboutUs.css";
 
 export default function AdminAbout() {
-
-  const [loading, setLoading] = useState(false);
-
   const [form, setForm] = useState({
     title: "",
     content: "",
     meta_title: "",
-    meta_description: "",
-    meta_keyword: "",
+    meta_descript: "",
+    meta_keyword: ""
   });
 
-  // ================= LOAD ABOUT DATA =================
+  // FETCH EXISTING DATA
+  useEffect(() => {
+    fetchAbout();
+  }, []);
+
   const fetchAbout = async () => {
     const { data } = await supabase
       .from("policies")
@@ -27,135 +27,87 @@ export default function AdminAbout() {
         title: data.title || "",
         content: data.content || "",
         meta_title: data.meta_title || "",
-        meta_description: data.meta_description || "",
-        meta_keyword: data.meta_keyword || "",
+        meta_descript: data.meta_descript || "",
+        meta_keyword: data.meta_keyword || ""
       });
     }
   };
 
-  useEffect(() => {
-    fetchAbout();
-  }, []);
-
-  // ================= SAVE ABOUT =================
+  // SAVE (UPSERT)
   const handleSave = async () => {
-    setLoading(true);
+    const { error } = await supabase.from("policies").upsert({
+      slug: "about-us",
+      title: form.title,
+      content: form.content,
+      meta_title: form.meta_title,
+      meta_descript: form.meta_descript,
+      meta_keyword: form.meta_keyword,
+      status: true
+    });
 
-    const { data } = await supabase
-      .from("policies")
-      .select("id")
-      .eq("slug", "about-us")
-      .single();
-
-    if (data) {
-      // UPDATE
-      await supabase
-        .from("policies")
-        .update({
-          title: form.title,
-          content: form.content,
-          meta_title: form.meta_title,
-          meta_description: form.meta_description,
-          meta_keyword: form.meta_keyword,
-          status: true,
-        })
-        .eq("slug", "about-us");
+    if (!error) {
+      alert("About Us saved successfully");
     } else {
-      // INSERT
-      await supabase.from("policies").insert([
-        {
-          slug: "about-us",
-          title: form.title,
-          content: form.content,
-          meta_title: form.meta_title,
-          meta_description: form.meta_description,
-          meta_keyword: form.meta_keyword,
-          status: true,
-        },
-      ]);
+      alert("Error saving About Us");
+      console.log(error);
     }
-
-    alert("About Us saved successfully");
-    setLoading(false);
   };
 
-  // ================= UI =================
   return (
-    <div className="about-wrap">
-
+    <div className="admin-page">
       <h2>About Us</h2>
 
-      <div className="about-form">
+      <label>Page Title</label>
+      <input
+        value={form.title}
+        onChange={(e) =>
+          setForm({ ...form, title: e.target.value })
+        }
+      />
 
-        {/* PAGE TITLE */}
-        <div>
-          <label>Page Title</label>
-          <input
-            value={form.title}
-            onChange={(e) =>
-              setForm({ ...form, title: e.target.value })
-            }
-            placeholder="About LapkingHub"
-          />
-        </div>
+      <label>Content</label>
+      <textarea
+        rows="6"
+        value={form.content}
+        onChange={(e) =>
+          setForm({ ...form, content: e.target.value })
+        }
+      />
 
-        {/* CONTENT */}
-        <div>
-          <label>Content</label>
-          <textarea
-            value={form.content}
-            onChange={(e) =>
-              setForm({ ...form, content: e.target.value })
-            }
-            placeholder="Write about your business..."
-          />
-        </div>
+      <h4 style={{ marginTop: 20 }}>SEO Settings</h4>
 
-        {/* SEO BOX */}
-        <div className="seo-box">
-          <h4>SEO Settings</h4>
+      <label>Meta Title</label>
+      <input
+        value={form.meta_title}
+        onChange={(e) =>
+          setForm({ ...form, meta_title: e.target.value })
+        }
+      />
 
-          <div>
-            <label>Meta Title</label>
-            <input
-              value={form.meta_title}
-              onChange={(e) =>
-                setForm({ ...form, meta_title: e.target.value })
-              }
-            />
-          </div>
+      <label>Meta Description</label>
+      <textarea
+        rows="3"
+        value={form.meta_descript}
+        onChange={(e) =>
+          setForm({ ...form, meta_descript: e.target.value })
+        }
+      />
 
-          <div>
-            <label>Meta Description</label>
-            <textarea
-              value={form.meta_description}
-              onChange={(e) =>
-                setForm({ ...form, meta_description: e.target.value })
-              }
-            />
-          </div>
+      <label>Meta Keywords</label>
+      <input
+        value={form.meta_keyword}
+        onChange={(e) =>
+          setForm({ ...form, meta_keyword: e.target.value })
+        }
+      />
 
-          <div>
-            <label>Meta Keywords</label>
-            <input
-              value={form.meta_keyword}
-              onChange={(e) =>
-                setForm({ ...form, meta_keyword: e.target.value })
-              }
-            />
-          </div>
-        </div>
-
-        {/* SAVE */}
-        <button
-          className="about-save-btn"
-          onClick={handleSave}
-          disabled={loading}
-        >
-          {loading ? "Saving..." : "Save About Us"}
-        </button>
-
-      </div>
+      <button
+        onClick={handleSave}
+        style={{ marginTop: 15 }}
+        className="save-btn"
+      >
+        Save About Us
+      </button>
     </div>
   );
-            }
+        }
