@@ -13,10 +13,9 @@ export default function AdminLayout() {
   };
 
   return (
-    // ✅ THIS IS THE MAIN FIX
     <div className="admin-panel">
 
-      {/* TOP BAR */}
+      {/* ================= TOP BAR ================= */}
       <div className="admin-top">
         <button className="menu-btn" onClick={() => setOpen(true)}>
           ☰
@@ -34,7 +33,7 @@ export default function AdminLayout() {
 
       {open && <div className="overlay" onClick={() => setOpen(false)} />}
 
-      {/* SIDEBAR */}
+      {/* ================= SIDEBAR ================= */}
       <aside className={`sidebar ${open ? "show" : ""}`}>
         <div className="side-head">
           <span>👑 LapkingHub</span>
@@ -54,7 +53,9 @@ export default function AdminLayout() {
           <NavLink to="/admin/couriers">Couriers</NavLink>
           <NavLink to="/admin/policies">Policies</NavLink>
           <NavLink to="/admin/settings">Settings</NavLink>
-          <li></li><NavLink to="/admin/about">About Us</Link></li>
+
+          {/* ✅ ABOUT US */}
+          <NavLink to="/admin/about">About Us</NavLink>
         </nav>
 
         <button className="logout" onClick={handleLogout}>
@@ -62,7 +63,7 @@ export default function AdminLayout() {
         </button>
       </aside>
 
-      {/* MAIN CONTENT */}
+      {/* ================= MAIN CONTENT ================= */}
       <main className="admin-main">
         <Outlet />
       </main>
