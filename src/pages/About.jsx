@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Helmet } from "react-helmet";
-import "./About.css";
+import "./AboutUs.css";
 
 export default function About() {
   const [about, setAbout] = useState(null);
