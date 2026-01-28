@@ -10,46 +10,66 @@ export default function PageView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadPage();
+    fetchPage();
+    window.scrollTo(0, 0);
   }, [slug]);
 
-  async function loadPage() {
+  async function fetchPage() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("about_pages")
       .select("*")
       .eq("slug", slug)
       .eq("status", true)
-      .single();
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     setLoading(false);
 
     if (error || !data) {
+      console.log("PAGE ERROR:", error);
       setPage(null);
       return;
     }
 
-    // ✅ SEO AUTO
-    document.title = data.meta_title || data.title;
+    // ✅ SEO
+    if (data.meta_title) {
+      document.title = data.meta_title;
+    }
 
-    const metaDesc = document.querySelector("meta[name='description']");
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        "content",
-        data.meta_description || data.title
+    if (data.meta_description) {
+      let metaDesc = document.querySelector(
+        "meta[name='description']"
       );
+
+      if (!metaDesc) {
+        metaDesc = document.createElement("meta");
+        metaDesc.name = "description";
+        document.head.appendChild(metaDesc);
+      }
+
+      metaDesc.content = data.meta_description;
     }
 
     setPage(data);
   }
 
-  if (loading) return <div className="page-loading">Loading...</div>;
+  if (loading) {
+    return <div className="page-loading">Loading...</div>;
+  }
 
-  if (!page)
-    return <div className="page-empty">Page not available</div>;
+  if (!page) {
+    return (
+      <div className="page-empty">
+        Page not available
+      </div>
+    );
+  }
 
   return (
     <div className="page-wrapper">
-
       <div className="page-card">
         <h1 className="page-title">{page.title}</h1>
 
@@ -58,12 +78,7 @@ export default function PageView() {
             <p key={i}>{line}</p>
           ))}
         </div>
-
-        <div className="page-contact">
-          📞 Customer Support: <b>+91 8306939006</b>
-        </div>
       </div>
-
     </div>
   );
-}
+        }
