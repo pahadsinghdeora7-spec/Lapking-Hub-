@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import "./AboutUs.css";
 
 export default function AdminAbout() {
   const [form, setForm] = useState({
