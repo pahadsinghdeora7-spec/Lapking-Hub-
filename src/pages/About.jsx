@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-
+import "./AboutUs.css";
 export default function AboutUs() {
   const [about, setAbout] = useState(null);
   const [loading, setLoading] = useState(true);
