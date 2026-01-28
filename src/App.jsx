@@ -29,6 +29,7 @@ import AdminOrderView from "./admin/AdminOrderView.jsx";
 import AdminReplacements from "./admin/AdminReplacements.jsx";
 import AdminCouriers from "./admin/AdminCouriers.jsx";
 import AdminSettings from "./admin/AdminSettings.jsx";
+import AdminSettings from "./admin/AdminAbout.jsx";
 
 /* ================= COMPONENTS ================= */
 import Header from "./components/Header.jsx";
@@ -84,6 +85,7 @@ export default function App() {
               <Route path="replacements" element={<AdminReplacements />} />
               <Route path="couriers" element={<AdminCouriers />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="settings" element={<AdminAbout />} />
             </Route>
 
           </Routes>
