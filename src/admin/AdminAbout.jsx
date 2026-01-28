@@ -13,17 +13,17 @@ export default function AdminAbout() {
 
   const [loading, setLoading] = useState(false);
 
-  // 🔥 LOAD ABOUT DATA
+  // ================= LOAD =================
   useEffect(() => {
-    fetchAbout();
+    loadAbout();
   }, []);
 
-  const fetchAbout = async () => {
-    const { data, error } = await supabase
+  const loadAbout = async () => {
+    const { data } = await supabase
       .from("about_pages")
       .select("*")
       .eq("slug", "about-us")
-      .single();
+      .maybeSingle(); // ✅ IMPORTANT
 
     if (data) {
       setForm({
@@ -36,7 +36,7 @@ export default function AdminAbout() {
     }
   };
 
-  // 🔥 SAVE ABOUT
+  // ================= SAVE =================
   const handleSave = async () => {
     setLoading(true);
 
@@ -44,13 +44,12 @@ export default function AdminAbout() {
       .from("about_pages")
       .select("id")
       .eq("slug", "about-us")
-      .single();
+      .maybeSingle(); // ✅ FIX
 
-    let result;
+    let response;
 
     if (existing) {
-      // UPDATE
-      result = await supabase
+      response = await supabase
         .from("about_pages")
         .update({
           title: form.title,
@@ -59,10 +58,9 @@ export default function AdminAbout() {
           meta_description: form.meta_description,
           meta_keywords: form.meta_keywords,
         })
-        .eq("slug", "about-us");
+        .eq("id", existing.id);
     } else {
-      // INSERT
-      result = await supabase.from("about_pages").insert([
+      response = await supabase.from("about_pages").insert([
         {
           slug: "about-us",
           title: form.title,
@@ -77,11 +75,11 @@ export default function AdminAbout() {
 
     setLoading(false);
 
-    if (result.error) {
+    if (response.error) {
+      console.error("SUPABASE ERROR 👉", response.error);
       alert("Error saving About Us");
-      console.error(result.error);
     } else {
-      alert("About Us saved successfully");
+      alert("About Us saved successfully ✅");
     }
   };
 
@@ -107,7 +105,9 @@ export default function AdminAbout() {
       <input
         placeholder="Meta Title"
         value={form.meta_title}
-        onChange={(e) => setForm({ ...form, meta_title: e.target.value })}
+        onChange={(e) =>
+          setForm({ ...form, meta_title: e.target.value })
+        }
       />
 
       <input
