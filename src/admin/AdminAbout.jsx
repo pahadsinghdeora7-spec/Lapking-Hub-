@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./AboutUs.css";
 
@@ -10,17 +10,13 @@ export default function AdminAbout() {
     content: "",
     meta_title: "",
     meta_description: "",
-    meta_keywords: "",
+    meta_keyword: ""
   });
 
-  // 🔹 LOAD ABOUT DATA
-  useEffect(() => {
-    fetchAbout();
-  }, []);
-
+  // 🔹 Fetch existing About Us
   const fetchAbout = async () => {
     const { data } = await supabase
-      .from("policies")
+      .from("about_pages")
       .select("*")
       .eq("slug", "about-us")
       .single();
@@ -31,63 +27,42 @@ export default function AdminAbout() {
         content: data.content || "",
         meta_title: data.meta_title || "",
         meta_description: data.meta_description || "",
-        meta_keywords: data.meta_keywords || "",
+        meta_keyword: data.meta_keyword || ""
       });
     }
   };
 
-  // 🔹 SAVE ABOUT
-  const saveAbout = async () => {
+  useEffect(() => {
+    fetchAbout();
+  }, []);
+
+  // 🔹 Save / Update
+  const handleSave = async () => {
     setLoading(true);
 
-    // check row exist or not
-    const { data: existing } = await supabase
-      .from("policies")
-      .select("id")
-      .eq("slug", "about-us")
-      .single();
-
-    let result;
-
-    if (existing) {
-      // ✅ UPDATE
-      result = await supabase
-        .from("policies")
-        .update({
-          title: form.title,
-          content: form.content,
-          meta_title: form.meta_title,
-          meta_description: form.meta_description,
-          meta_keywords: form.meta_keywords,
-        })
-        .eq("slug", "about-us");
-    } else {
-      // ✅ INSERT
-      result = await supabase.from("policies").insert([
-        {
-          slug: "about-us",
-          title: form.title,
-          content: form.content,
-          meta_title: form.meta_title,
-          meta_description: form.meta_description,
-          meta_keywords: form.meta_keywords,
-          status: true,
-        },
-      ]);
-    }
+    const { error } = await supabase
+      .from("about_pages")
+      .update({
+        title: form.title,
+        content: form.content,
+        meta_title: form.meta_title,
+        meta_description: form.meta_description,
+        meta_keyword: form.meta_keyword
+      })
+      .eq("slug", "about-us");
 
     setLoading(false);
 
-    if (result.error) {
+    if (error) {
       alert("Error saving About Us");
-      console.error(result.error);
+      console.error(error);
     } else {
       alert("About Us saved successfully");
     }
   };
 
   return (
-    <div className="about-admin">
+    <div className="admin-about">
       <h2>About Us</h2>
 
       <label>Page Title</label>
@@ -98,7 +73,7 @@ export default function AdminAbout() {
 
       <label>Content</label>
       <textarea
-        rows="6"
+        rows="5"
         value={form.content}
         onChange={(e) => setForm({ ...form, content: e.target.value })}
       />
@@ -108,9 +83,7 @@ export default function AdminAbout() {
       <input
         placeholder="Meta Title"
         value={form.meta_title}
-        onChange={(e) =>
-          setForm({ ...form, meta_title: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, meta_title: e.target.value })}
       />
 
       <input
@@ -123,14 +96,14 @@ export default function AdminAbout() {
 
       <input
         placeholder="Meta Keywords"
-        value={form.meta_keywords}
+        value={form.meta_keyword}
         onChange={(e) =>
-          setForm({ ...form, meta_keywords: e.target.value })
+          setForm({ ...form, meta_keyword: e.target.value })
         }
       />
 
-      <button onClick={saveAbout} disabled={loading}>
-        {loading ? "Saving..." : "Save About"}
+      <button onClick={handleSave} disabled={loading}>
+        {loading ? "Saving..." : "Save About Us"}
       </button>
     </div>
   );
