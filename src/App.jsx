@@ -31,6 +31,7 @@ import AdminReplacements from "./admin/AdminReplacements.jsx";
 import AdminCouriers from "./admin/AdminCouriers.jsx";
 import AdminSettings from "./admin/AdminSettings.jsx";
 import AdminAbout from "./admin/AdminAbout.jsx";
+import AdminPolicies from "./admin/AdminPolicies.jsx";
 
 /* ================= COMPONENTS ================= */
 import Header from "./components/Header.jsx";
@@ -88,6 +89,7 @@ export default function App() {
               <Route path="couriers" element={<AdminCouriers />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="about" element={<AdminAbout />} />
+              <Route path="policies" element={<AdminPolicies />} />
             </Route>
 
           </Routes>
