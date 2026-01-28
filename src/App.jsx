@@ -17,6 +17,9 @@ import CheckoutPayment from "./pages/CheckoutPayment";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
 import ReplacementRequest from "./pages/ReplacementRequest.jsx";
 
+/* POLICIES */
+import About from "./pages/About";
+
 /* ADMIN */
 import AdminLogin from "./admin/AdminLogin.jsx";
 import AdminLayout from "./admin/AdminLayout.jsx";
@@ -77,9 +80,10 @@ function AppContent() {
           {/* REPLACEMENT */}
           <Route
             path="/replacement/order/:id/product/:productId"
-            element={<ReplacementRequest />}
-          />
+            element={<ReplacementRequest />}/>
 
+          <Route path="/about-us" element={<About />} />
+          
           {/* ADMIN LOGIN */}
           <Route path="/admin/login" element={<AdminLogin />} />
 
