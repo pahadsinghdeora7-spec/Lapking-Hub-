@@ -8,7 +8,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  async function handleSendOtp() {
+  async function handleContinue() {
     if (mobile.length !== 10) {
       alert("Enter valid 10 digit mobile number");
       return;
@@ -16,11 +16,9 @@ export default function Login() {
 
     setLoading(true);
 
-    // 🔐 generate fake OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // save otp in database
-    const { error } = await supabase.from("otp_logins").insert([
+    await supabase.from("otp_logins").insert([
       {
         mobile,
         otp,
@@ -28,38 +26,44 @@ export default function Login() {
       }
     ]);
 
+    localStorage.setItem("otp_mobile", mobile);
+    localStorage.setItem("otp_code", otp);
+
     setLoading(false);
 
-    if (error) {
-      alert("OTP error: " + error.message);
-      return;
-    }
-
-    // store temporarily
-    localStorage.setItem("login_mobile", mobile);
-    localStorage.setItem("login_otp", otp);
-
-    // redirect to otp page
     navigate("/verify-otp");
   }
 
   return (
-    <div className="login-page">
-      <h2>Login</h2>
+    <div className="auth-container">
+      <h2>Login or Sign up</h2>
 
-      <p>Enter your mobile number</p>
+      <p className="sub-text">
+        Enter your mobile number to continue
+      </p>
 
-      <input
-        type="tel"
-        placeholder="Enter mobile number"
-        value={mobile}
-        maxLength={10}
-        onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
-      />
+      <div className="mobile-box">
+        <span>+91</span>
+        <input
+          type="tel"
+          maxLength="10"
+          placeholder="Mobile number"
+          value={mobile}
+          onChange={(e) =>
+            setMobile(e.target.value.replace(/\D/g, ""))
+          }
+        />
+      </div>
 
-      <button onClick={handleSendOtp} disabled={loading}>
-        {loading ? "Sending OTP..." : "Send OTP"}
+      <button onClick={handleContinue} disabled={loading}>
+        {loading ? "Please wait..." : "Continue"}
       </button>
+
+      <p className="terms">
+        By continuing, you agree to LapkingHub’s
+        <br />
+        Terms & Conditions and Privacy Policy
+      </p>
     </div>
   );
 }
