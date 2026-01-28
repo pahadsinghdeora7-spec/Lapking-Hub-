@@ -17,15 +17,17 @@ export default function AdminAbout() {
     loadAbout();
   }, []);
 
+  // ================= LOAD ABOUT =================
   async function loadAbout() {
     const { data, error } = await supabase
       .from("about_pages")
       .select("*")
       .eq("slug", "about-us")
-      .maybeSingle();
+      .limit(1)
+      .single();
 
     if (error) {
-      alert("LOAD ERROR: " + error.message);
+      console.log("About not found yet");
       return;
     }
 
@@ -40,54 +42,28 @@ export default function AdminAbout() {
     }
   }
 
+  // ================= SAVE ABOUT =================
   async function handleSave() {
     setLoading(true);
 
-    const { data: existing, error: fetchError } = await supabase
+    const { error } = await supabase
       .from("about_pages")
-      .select("id")
-      .eq("slug", "about-us")
-      .maybeSingle();
-
-    if (fetchError) {
-      alert("FETCH ERROR: " + fetchError.message);
-      setLoading(false);
-      return;
-    }
-
-    let response;
-
-    if (existing) {
-      response = await supabase
-        .from("about_pages")
-        .update({
-          title: form.title,
-          content: form.content,
-          meta_title: form.meta_title,
-          meta_description: form.meta_description,
-          meta_keywords: form.meta_keywords,
-        })
-        .eq("id", existing.id);
-    } else {
-      response = await supabase.from("about_pages").insert([
-        {
-          slug: "about-us",
-          title: form.title,
-          content: form.content,
-          meta_title: form.meta_title,
-          meta_description: form.meta_description,
-          meta_keywords: form.meta_keywords,
-          status: true,
-        },
-      ]);
-    }
+      .update({
+        title: form.title,
+        content: form.content,
+        meta_title: form.meta_title,
+        meta_description: form.meta_description,
+        meta_keywords: form.meta_keywords,
+        status: true,
+      })
+      .eq("slug", "about-us");
 
     setLoading(false);
 
-    if (response.error) {
-      alert("SAVE ERROR: " + response.error.message);
+    if (error) {
+      alert("SAVE ERROR: " + error.message);
     } else {
-      alert("About Us saved successfully ✅");
+      alert("About Us updated successfully ✅");
     }
   }
 
@@ -96,19 +72,24 @@ export default function AdminAbout() {
       <h2>About Us</h2>
 
       <input
-        placeholder="Title"
+        placeholder="Page Title"
         value={form.title}
-        onChange={(e) => setForm({ ...form, title: e.target.value })}
+        onChange={(e) =>
+          setForm({ ...form, title: e.target.value })
+        }
       />
 
       <textarea
-        placeholder="Content"
+        placeholder="About content"
+        rows={6}
         value={form.content}
-        onChange={(e) => setForm({ ...form, content: e.target.value })}
+        onChange={(e) =>
+          setForm({ ...form, content: e.target.value })
+        }
       />
 
       <input
-        placeholder="Meta title"
+        placeholder="Meta title (SEO)"
         value={form.meta_title}
         onChange={(e) =>
           setForm({ ...form, meta_title: e.target.value })
@@ -116,7 +97,7 @@ export default function AdminAbout() {
       />
 
       <input
-        placeholder="Meta description"
+        placeholder="Meta description (SEO)"
         value={form.meta_description}
         onChange={(e) =>
           setForm({ ...form, meta_description: e.target.value })
@@ -124,7 +105,7 @@ export default function AdminAbout() {
       />
 
       <input
-        placeholder="Meta keywords"
+        placeholder="Meta keywords (SEO)"
         value={form.meta_keywords}
         onChange={(e) =>
           setForm({ ...form, meta_keywords: e.target.value })
