@@ -3,19 +3,23 @@ import { supabase } from "../supabaseClient";
 import "./AboutUs.css";
 
 export default function AdminAbout() {
-  const [loading, setLoading] = useState(false);
-
   const [form, setForm] = useState({
     title: "",
     content: "",
     meta_title: "",
     meta_description: "",
-    meta_keyword: ""
+    meta_keywords: "",
   });
 
-  // 🔹 Fetch existing About Us
+  const [loading, setLoading] = useState(false);
+
+  // 🔥 LOAD ABOUT DATA
+  useEffect(() => {
+    fetchAbout();
+  }, []);
+
   const fetchAbout = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("about_pages")
       .select("*")
       .eq("slug", "about-us")
@@ -27,42 +31,62 @@ export default function AdminAbout() {
         content: data.content || "",
         meta_title: data.meta_title || "",
         meta_description: data.meta_description || "",
-        meta_keyword: data.meta_keyword || ""
+        meta_keywords: data.meta_keywords || "",
       });
     }
   };
 
-  useEffect(() => {
-    fetchAbout();
-  }, []);
-
-  // 🔹 Save / Update
+  // 🔥 SAVE ABOUT
   const handleSave = async () => {
     setLoading(true);
 
-    const { error } = await supabase
+    const { data: existing } = await supabase
       .from("about_pages")
-      .update({
-        title: form.title,
-        content: form.content,
-        meta_title: form.meta_title,
-        meta_description: form.meta_description,
-        meta_keyword: form.meta_keyword
-      })
-      .eq("slug", "about-us");
+      .select("id")
+      .eq("slug", "about-us")
+      .single();
+
+    let result;
+
+    if (existing) {
+      // UPDATE
+      result = await supabase
+        .from("about_pages")
+        .update({
+          title: form.title,
+          content: form.content,
+          meta_title: form.meta_title,
+          meta_description: form.meta_description,
+          meta_keywords: form.meta_keywords,
+        })
+        .eq("slug", "about-us");
+    } else {
+      // INSERT
+      result = await supabase.from("about_pages").insert([
+        {
+          slug: "about-us",
+          title: form.title,
+          content: form.content,
+          meta_title: form.meta_title,
+          meta_description: form.meta_description,
+          meta_keywords: form.meta_keywords,
+          status: true,
+        },
+      ]);
+    }
 
     setLoading(false);
 
-    if (error) {
+    if (result.error) {
       alert("Error saving About Us");
-      console.error(error);
+      console.error(result.error);
     } else {
       alert("About Us saved successfully");
     }
   };
 
   return (
-    <div className="admin-about">
+    <div className="admin-panel">
       <h2>About Us</h2>
 
       <label>Page Title</label>
@@ -96,9 +120,9 @@ export default function AdminAbout() {
 
       <input
         placeholder="Meta Keywords"
-        value={form.meta_keyword}
+        value={form.meta_keywords}
         onChange={(e) =>
-          setForm({ ...form, meta_keyword: e.target.value })
+          setForm({ ...form, meta_keywords: e.target.value })
         }
       />
 
