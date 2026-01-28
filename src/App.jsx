@@ -51,6 +51,7 @@ export default function App() {
             {/* ================= USER ================= */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/account" element={<Account />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/category/:slug" element={<CategoryProducts />} />
