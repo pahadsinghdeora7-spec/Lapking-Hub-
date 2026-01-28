@@ -54,6 +54,7 @@ export default function AdminLayout() {
           <NavLink to="/admin/couriers">Couriers</NavLink>
           <NavLink to="/admin/policies">Policies</NavLink>
           <NavLink to="/admin/settings">Settings</NavLink>
+          <li></li><NavLink to="/admin/about">About Us</Link></li>
         </nav>
 
         <button className="logout" onClick={handleLogout}>
