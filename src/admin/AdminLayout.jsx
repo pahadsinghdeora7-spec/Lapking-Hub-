@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./admin.css";
@@ -6,6 +6,35 @@ import "./admin.css";
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+
+  // ✅ ADMIN SECURITY CHECK (NEW)
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      // not logged in
+      if (!user) {
+        navigate("/admin/login");
+        return;
+      }
+
+      // check admin table
+      const { data: admin } = await supabase
+        .from("admin_users")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+
+      if (!admin) {
+        await supabase.auth.signOut();
+        navigate("/admin/login");
+      }
+    };
+
+    checkAdmin();
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
