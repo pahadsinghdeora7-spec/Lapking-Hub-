@@ -40,6 +40,10 @@ import Header from "./components/Header.jsx";
 import BottomNav from "./components/BottomNav.jsx";
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
 
+/* POLICIES */
+import AdminAbout from "./admin/AdminAbout";
+
+
 function AppContent() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
@@ -94,6 +98,7 @@ function AppContent() {
             <Route path="replacements" element={<AdminReplacements />} />
             <Route path="couriers" element={<AdminCouriers />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="about" element={<AdminAbout />} />
           </Route>
 
         </Routes>
