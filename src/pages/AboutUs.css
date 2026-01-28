@@ -1,60 +1,57 @@
-/* ===============================
-   ABOUT US PAGE – FRONTEND
-   Lapking Hub
-================================ */
-
 .about-page {
-  max-width: 1100px;
-  margin: 30px auto;
-  padding: 25px;
+  max-width: 900px;
+  margin: 20px auto 80px;
+  padding: 20px;
   background: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
+/* Page Title */
 .about-page h1 {
   font-size: 26px;
   font-weight: 700;
-  color: #1f2937;
+  color: #111827;
   margin-bottom: 15px;
-  border-bottom: 3px solid #2563eb;
+  border-bottom: 2px solid #2563eb;
   display: inline-block;
   padding-bottom: 6px;
 }
 
+/* Content */
 .about-content {
   margin-top: 15px;
   font-size: 16px;
   line-height: 1.8;
   color: #374151;
-  white-space: pre-line;
 }
 
-/* ---------- Loading ---------- */
+/* Paragraph spacing */
+.about-content p {
+  margin-bottom: 12px;
+}
 
+/* Loading text */
 .about-loading {
   text-align: center;
-  padding: 60px;
-  font-size: 18px;
+  padding: 40px;
+  font-size: 16px;
   color: #6b7280;
 }
 
-/* ---------- Not Found ---------- */
-
-.about-notfound {
+/* Not available message */
+.about-empty {
   text-align: center;
-  padding: 70px 20px;
-  font-size: 18px;
-  color: #dc2626;
-  font-weight: 600;
+  padding: 50px 20px;
+  font-size: 16px;
+  color: #9ca3af;
 }
 
-/* ---------- Mobile Responsive ---------- */
-
-@media (max-width: 768px) {
+/* Mobile responsive */
+@media (max-width: 600px) {
   .about-page {
-    margin: 15px;
-    padding: 18px;
+    margin: 10px;
+    padding: 15px;
   }
 
   .about-page h1 {
@@ -63,6 +60,5 @@
 
   .about-content {
     font-size: 15px;
-    line-height: 1.7;
   }
 }
