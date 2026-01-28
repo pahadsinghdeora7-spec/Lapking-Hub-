@@ -1,61 +1,31 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { Helmet } from "react-helmet";
 import "./AboutUs.css";
 
-export default function AboutUs() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function About() {
+  const [about, setAbout] = useState(null);
 
   useEffect(() => {
     fetchAbout();
   }, []);
 
   const fetchAbout = async () => {
-    const { data, error } = await supabase
-      .from("policies")
+    const { data } = await supabase
+      .from("about_pages")
       .select("*")
       .eq("slug", "about-us")
+      .eq("status", true)
       .single();
 
-    if (!error) {
-      setData(data);
-    }
-
-    setLoading(false);
+    setAbout(data);
   };
 
-  if (loading) {
-    return <div className="about-loading">Loading...</div>;
-  }
-
-  if (!data) {
-    return <div className="about-empty">About Us not found</div>;
-  }
+  if (!about) return <div style={{ padding: 20 }}>Loading...</div>;
 
   return (
     <div className="about-page">
-
-      {/* ✅ SEO */}
-      <Helmet>
-        <title>{data.meta_title || data.title}</title>
-        <meta
-          name="description"
-          content={data.meta_description || ""}
-        />
-        <meta
-          name="keywords"
-          content={data.meta_keyword || ""}
-        />
-      </Helmet>
-
-      {/* CONTENT */}
-      <h1 className="about-title">{data.title}</h1>
-
-      <div
-        className="about-content"
-        dangerouslySetInnerHTML={{ __html: data.content }}
-      />
+      <h1>{about.title}</h1>
+      <p>{about.content}</p>
     </div>
   );
 }
