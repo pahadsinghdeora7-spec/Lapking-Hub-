@@ -10,6 +10,7 @@ import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
 import Login from "./pages/Login.jsx";
 import About from "./pages/About.jsx";
+import PageView from "./pages/PageView";
 
 /* ================= CHECKOUT ================= */
 import CheckoutAddress from "./pages/CheckoutAddress.jsx";
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/page/:slug" element={<PageView />} />
 
             {/* ABOUT */}
             <Route path="/about-us" element={<About />} />
