@@ -12,7 +12,7 @@ export default function DrawerMenu({ open, onClose }) {
           position: "fixed",
           inset: 0,
           background: "rgba(0,0,0,0.45)",
-          zIndex: 999
+          zIndex: 999,
         }}
       />
 
@@ -30,7 +30,7 @@ export default function DrawerMenu({ open, onClose }) {
           display: "flex",
           flexDirection: "column",
           boxShadow: "2px 0 15px rgba(0,0,0,0.25)",
-          animation: "slideIn 0.25s ease"
+          animation: "slideIn 0.25s ease",
         }}
       >
         {/* HEADER */}
@@ -41,7 +41,7 @@ export default function DrawerMenu({ open, onClose }) {
               border: "none",
               background: "none",
               fontSize: "22px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             ✕
@@ -65,11 +65,32 @@ export default function DrawerMenu({ open, onClose }) {
 
           <hr style={{ margin: "15px 0" }} />
 
-          <MenuItem to="/policies" text="Policies" onClose={onClose} />
-          <MenuItem to="/contact" text="Contact Us" onClose={onClose} />
+          {/* ✅ POLICIES (CMS BASED) */}
+          <MenuItem
+            to="/page/privacy-policy"
+            text="Privacy Policy"
+            onClose={onClose}
+          />
+          <MenuItem
+            to="/page/terms-conditions"
+            text="Terms & Conditions"
+            onClose={onClose}
+          />
+          <MenuItem
+            to="/page/refund-policy"
+            text="Refund Policy"
+            onClose={onClose}
+          />
+          <MenuItem
+            to="/page/shipping-policy"
+            text="Shipping Policy"
+            onClose={onClose}
+          />
 
-          {/* ✅ FIXED */}
-          <MenuItem to="/about-us" text="About Us" onClose={onClose} />
+          <hr style={{ margin: "15px 0" }} />
+
+          {/* ABOUT */}
+          <MenuItem to="/page/about-us" text="About Us" onClose={onClose} />
         </div>
 
         {/* LOGOUT */}
@@ -84,7 +105,7 @@ export default function DrawerMenu({ open, onClose }) {
             borderRadius: "8px",
             fontSize: "15px",
             fontWeight: "600",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           Logout
@@ -116,7 +137,7 @@ function MenuItem({ to, text, onClose }) {
         color: "#222",
         fontSize: "15px",
         fontWeight: "500",
-        borderRadius: "6px"
+        borderRadius: "6px",
       }}
     >
       {text}
