@@ -1,0 +1,86 @@
+/* ================= ABOUT US ADMIN ================= */
+
+.about-wrap {
+  max-width: 900px;
+  margin: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.about-wrap h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #1e293b;
+}
+
+/* FORM */
+.about-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.about-form label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #334155;
+}
+
+.about-form input,
+.about-form textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  outline: none;
+}
+
+.about-form textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.about-form input:focus,
+.about-form textarea:focus {
+  border-color: #2563eb;
+}
+
+/* SEO BOX */
+.seo-box {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+}
+
+.seo-box h4 {
+  margin-bottom: 10px;
+  color: #0f172a;
+  font-size: 15px;
+}
+
+/* SAVE BUTTON */
+.about-save-btn {
+  background: #2563eb;
+  color: #ffffff;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.about-save-btn:hover {
+  background: #1d4ed8;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .about-wrap {
+    padding: 15px;
+  }
+  }
