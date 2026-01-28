@@ -29,7 +29,7 @@ import AdminOrderView from "./admin/AdminOrderView.jsx";
 import AdminReplacements from "./admin/AdminReplacements.jsx";
 import AdminCouriers from "./admin/AdminCouriers.jsx";
 import AdminSettings from "./admin/AdminSettings.jsx";
-import AdminSettings from "./admin/AdminAbout.jsx";
+import AdminAbout from "./admin/AdminAbout.jsx";
 
 /* ================= COMPONENTS ================= */
 import Header from "./components/Header.jsx";
@@ -41,13 +41,12 @@ export default function App() {
     <Router>
       <div className="app-root">
 
-        {/* FRONTEND HEADER */}
         <Header />
 
         <main className="app-main">
           <Routes>
 
-            {/* ================= USER ROUTES ================= */}
+            {/* USER */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/account" element={<Account />} />
@@ -57,25 +56,24 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
 
-            {/* ✅ ABOUT US */}
+            {/* ABOUT */}
             <Route path="/about-us" element={<About />} />
 
-            {/* ================= CHECKOUT ================= */}
+            {/* CHECKOUT */}
             <Route path="/checkout/address" element={<CheckoutAddress />} />
             <Route path="/checkout/shipping" element={<CheckoutShipping />} />
             <Route path="/checkout/payment" element={<CheckoutPayment />} />
             <Route path="/order/success" element={<OrderSuccess />} />
 
-            {/* ================= REPLACEMENT ================= */}
+            {/* REPLACEMENT */}
             <Route
               path="/replacement/order/:id/product/:productId"
               element={<ReplacementRequest />}
             />
 
-            {/* ================= ADMIN LOGIN ================= */}
+            {/* ADMIN */}
             <Route path="/admin/login" element={<AdminLogin />} />
 
-            {/* ================= ADMIN PANEL ================= */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
@@ -85,16 +83,13 @@ export default function App() {
               <Route path="replacements" element={<AdminReplacements />} />
               <Route path="couriers" element={<AdminCouriers />} />
               <Route path="settings" element={<AdminSettings />} />
-              <Route path="settings" element={<AdminAbout />} />
+              <Route path="about" element={<AdminAbout />} />
             </Route>
 
           </Routes>
         </main>
 
-        {/* BOTTOM NAV */}
         <BottomNav />
-
-        {/* WHATSAPP FLOAT */}
         <WhatsAppButton />
 
       </div>
