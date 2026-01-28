@@ -47,7 +47,7 @@ export default function App() {
         <main className="app-main">
           <Routes>
 
-            {/* USER */}
+            {/* ================= USER ================= */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/account" element={<Account />} />
@@ -56,24 +56,26 @@ export default function App() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
+
+            {/* ✅ ALL POLICIES + CMS PAGES */}
             <Route path="/page/:slug" element={<PageView />} />
 
             {/* ABOUT */}
             <Route path="/about-us" element={<About />} />
 
-            {/* CHECKOUT */}
+            {/* ================= CHECKOUT ================= */}
             <Route path="/checkout/address" element={<CheckoutAddress />} />
             <Route path="/checkout/shipping" element={<CheckoutShipping />} />
             <Route path="/checkout/payment" element={<CheckoutPayment />} />
             <Route path="/order/success" element={<OrderSuccess />} />
 
-            {/* REPLACEMENT */}
+            {/* ================= REPLACEMENT ================= */}
             <Route
               path="/replacement/order/:id/product/:productId"
               element={<ReplacementRequest />}
             />
 
-            {/* ADMIN */}
+            {/* ================= ADMIN ================= */}
             <Route path="/admin/login" element={<AdminLogin />} />
 
             <Route path="/admin" element={<AdminLayout />}>
