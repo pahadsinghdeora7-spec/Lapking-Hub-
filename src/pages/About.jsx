@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Helmet } from "react-helmet";
-import "./AboutUs.css";
 
-export default function AboutUs() {
+export default function About() {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAbout();
@@ -20,42 +18,29 @@ export default function AboutUs() {
       .single();
 
     setData(data);
-    setLoading(false);
   };
 
-  if (loading) {
-    return <div className="page-loading">Loading...</div>;
-  }
-
-  if (!data) {
-    return <div className="page-loading">About Us not found</div>;
-  }
+  if (!data) return <p style={{ padding: 20 }}>About Us not found</p>;
 
   return (
-    <div className="about-page">
-
-      {/* ✅ SEO */}
+    <div style={{ padding: 20 }}>
       <Helmet>
-        <title>{data.meta_title || data.title}</title>
+        <title>{data.meta_title}</title>
         <meta
           name="description"
-          content={data.meta_description || ""}
+          content={data.meta_descript}
         />
         <meta
           name="keywords"
-          content={data.meta_keywords || ""}
+          content={data.meta_keyword}
         />
       </Helmet>
 
-      <div className="about-card">
-        <h1>{data.title}</h1>
+      <h1>{data.title}</h1>
 
-        <div
-          className="about-content"
-          dangerouslySetInnerHTML={{ __html: data.content }}
-        />
+      <div style={{ marginTop: 15, lineHeight: 1.7 }}>
+        {data.content}
       </div>
-
     </div>
   );
 }
