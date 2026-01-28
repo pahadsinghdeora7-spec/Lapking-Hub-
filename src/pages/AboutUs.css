@@ -1,0 +1,31 @@
+.about-page {
+  padding: 15px;
+  background: #f6f8fb;
+  min-height: 80vh;
+}
+
+.about-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.about-card h1 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #1e293b;
+}
+
+.about-content {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #444;
+}
+
+.page-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
