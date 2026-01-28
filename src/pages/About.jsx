@@ -2,24 +2,26 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./AboutUs.css";
 
-export default function AboutUs() {
+export default function About() {
   const [about, setAbout] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAbout();
+    fetchAbout();
   }, []);
 
-  async function loadAbout() {
+  async function fetchAbout() {
     const { data, error } = await supabase
       .from("about_pages")
-      .select("*")
-      .eq("slug", "about-us") // ✅ SAME SLUG
+      .select("title, content")
+      .eq("slug", "about-us")
       .eq("status", true)
-      .maybeSingle();
+      .limit(1)
+      .single();
 
     if (error) {
-      console.log(error);
+      console.log("ABOUT ERROR:", error.message);
+      setAbout(null);
     } else {
       setAbout(data);
     }
@@ -32,16 +34,13 @@ export default function AboutUs() {
   }
 
   if (!about) {
-    return <div className="about-notfound">About Us not found</div>;
+    return <div className="about-notfound">About not found</div>;
   }
 
   return (
     <div className="about-page">
       <h1>{about.title}</h1>
-
-      <p className="about-content">
-        {about.content}
-      </p>
+      <p className="about-content">{about.content}</p>
     </div>
   );
 }
