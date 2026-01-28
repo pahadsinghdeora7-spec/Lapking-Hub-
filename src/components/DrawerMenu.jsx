@@ -67,7 +67,9 @@ export default function DrawerMenu({ open, onClose }) {
 
           <MenuItem to="/policies" text="Policies" onClose={onClose} />
           <MenuItem to="/contact" text="Contact Us" onClose={onClose} />
-          <MenuItem to="/about" text="About Us" onClose={onClose} />
+
+          {/* ✅ FIXED */}
+          <MenuItem to="/about-us" text="About Us" onClose={onClose} />
         </div>
 
         {/* LOGOUT */}
