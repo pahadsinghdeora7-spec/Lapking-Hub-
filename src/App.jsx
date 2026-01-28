@@ -9,6 +9,7 @@ import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
 import Login from "./pages/Login.jsx";
+import VerifyOtp from "./pages/VerifyOtp.jsx";
 import About from "./pages/About.jsx";
 import PageView from "./pages/PageView";
 
