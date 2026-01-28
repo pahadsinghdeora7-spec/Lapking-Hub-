@@ -1,46 +1,59 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AboutUs.css";
+import { Helmet } from "react-helmet";
+import "./About.css";
 
 export default function About() {
   const [about, setAbout] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAbout();
+    loadAbout();
   }, []);
 
-  async function fetchAbout() {
+  async function loadAbout() {
     const { data, error } = await supabase
       .from("about_pages")
-      .select("title, content")
+      .select("*")
       .eq("slug", "about-us")
-      .eq("status", true)
-      .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      console.log("ABOUT ERROR:", error.message);
-      setAbout(null);
-    } else {
+    if (!error && data) {
       setAbout(data);
     }
 
     setLoading(false);
   }
 
-  if (loading) {
-    return <div className="about-loading">Loading...</div>;
-  }
+  if (loading) return <p className="about-loading">Loading...</p>;
 
-  if (!about) {
-    return <div className="about-notfound">About not found</div>;
-  }
+  if (!about)
+    return <p className="about-empty">About us not available</p>;
 
   return (
     <div className="about-page">
+
+      {/* SEO */}
+      <Helmet>
+        <title>{about.meta_title || "About Us | Lapking Hub"}</title>
+        <meta
+          name="description"
+          content={about.meta_description || ""}
+        />
+        <meta
+          name="keywords"
+          content={about.meta_keywords || ""}
+        />
+      </Helmet>
+
       <h1>{about.title}</h1>
-      <p className="about-content">{about.content}</p>
+
+      <div
+        className="about-content"
+        dangerouslySetInnerHTML={{
+          __html: about.content.replace(/\n/g, "<br/>"),
+        }}
+      />
     </div>
   );
 }
