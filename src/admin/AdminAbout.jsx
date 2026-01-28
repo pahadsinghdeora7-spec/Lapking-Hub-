@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AboutUs.css";
 
 export default function AdminAbout() {
   const [form, setForm] = useState({
@@ -13,17 +12,21 @@ export default function AdminAbout() {
 
   const [loading, setLoading] = useState(false);
 
-  // ================= LOAD =================
   useEffect(() => {
     loadAbout();
   }, []);
 
-  const loadAbout = async () => {
-    const { data } = await supabase
+  async function loadAbout() {
+    const { data, error } = await supabase
       .from("about_pages")
       .select("*")
       .eq("slug", "about-us")
-      .maybeSingle(); // ✅ IMPORTANT
+      .maybeSingle();
+
+    if (error) {
+      alert("LOAD ERROR: " + error.message);
+      return;
+    }
 
     if (data) {
       setForm({
@@ -34,17 +37,22 @@ export default function AdminAbout() {
         meta_keywords: data.meta_keywords || "",
       });
     }
-  };
+  }
 
-  // ================= SAVE =================
-  const handleSave = async () => {
+  async function handleSave() {
     setLoading(true);
 
-    const { data: existing } = await supabase
+    const { data: existing, error: fetchError } = await supabase
       .from("about_pages")
       .select("id")
       .eq("slug", "about-us")
-      .maybeSingle(); // ✅ FIX
+      .maybeSingle();
+
+    if (fetchError) {
+      alert("FETCH ERROR: " + fetchError.message);
+      setLoading(false);
+      return;
+    }
 
     let response;
 
@@ -76,34 +84,30 @@ export default function AdminAbout() {
     setLoading(false);
 
     if (response.error) {
-      console.error("SUPABASE ERROR 👉", response.error);
-      alert("Error saving About Us");
+      alert("SAVE ERROR: " + response.error.message);
     } else {
       alert("About Us saved successfully ✅");
     }
-  };
+  }
 
   return (
     <div className="admin-panel">
       <h2>About Us</h2>
 
-      <label>Page Title</label>
       <input
+        placeholder="Title"
         value={form.title}
         onChange={(e) => setForm({ ...form, title: e.target.value })}
       />
 
-      <label>Content</label>
       <textarea
-        rows="5"
+        placeholder="Content"
         value={form.content}
         onChange={(e) => setForm({ ...form, content: e.target.value })}
       />
 
-      <h3>SEO Settings</h3>
-
       <input
-        placeholder="Meta Title"
+        placeholder="Meta title"
         value={form.meta_title}
         onChange={(e) =>
           setForm({ ...form, meta_title: e.target.value })
@@ -111,7 +115,7 @@ export default function AdminAbout() {
       />
 
       <input
-        placeholder="Meta Description"
+        placeholder="Meta description"
         value={form.meta_description}
         onChange={(e) =>
           setForm({ ...form, meta_description: e.target.value })
@@ -119,7 +123,7 @@ export default function AdminAbout() {
       />
 
       <input
-        placeholder="Meta Keywords"
+        placeholder="Meta keywords"
         value={form.meta_keywords}
         onChange={(e) =>
           setForm({ ...form, meta_keywords: e.target.value })
@@ -127,7 +131,7 @@ export default function AdminAbout() {
       />
 
       <button onClick={handleSave} disabled={loading}>
-        {loading ? "Saving..." : "Save About Us"}
+        {loading ? "Saving..." : "Save"}
       </button>
     </div>
   );
