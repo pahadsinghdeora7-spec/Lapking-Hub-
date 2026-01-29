@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Login.css";
 
 export default function Login() {
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function handleContinue() {
     if (mobile.length !== 10) {
@@ -16,6 +18,7 @@ export default function Login() {
 
     setLoading(true);
 
+    // ✅ RANDOM OTP EVERY TIME
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     await supabase.from("otp_logins").insert([
@@ -26,8 +29,18 @@ export default function Login() {
       }
     ]);
 
+    // ✅ SAVE OTP DATA
     localStorage.setItem("otp_mobile", mobile);
     localStorage.setItem("otp_code", otp);
+
+    // ✅ SAVE REDIRECT PATH (VERY IMPORTANT)
+    const redirectPath =
+      location.state?.from || "/";
+
+    localStorage.setItem(
+      "redirect_after_login",
+      redirectPath
+    );
 
     setLoading(false);
 
