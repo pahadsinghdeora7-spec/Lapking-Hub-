@@ -4,8 +4,8 @@ import "./account.css";
 
 export default function Account() {
 
-  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
     full_name: "",
@@ -16,32 +16,26 @@ export default function Account() {
     pincode: ""
   });
 
-  // 🔹 LOAD PROFILE AFTER LOGIN
+  // ✅ AUTH LISTENER (MOST IMPORTANT)
   useEffect(() => {
-    loadProfile();
-  }, []);
 
-  async function loadProfile() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
 
-      if (!user) {
-        alert("Please login again");
+      if (!session?.user) {
+        setLoading(false);
         return;
       }
 
-      setUser(user);
+      setUser(session.user);
 
-      const { data, error } = await supabase
+      // 🔹 FETCH PROFILE
+      const { data } = await supabase
         .from("user_profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", session.user.id)
         .single();
-
-      if (error && error.code !== "PGRST116") {
-        alert("Profile load error");
-        return;
-      }
 
       if (data) {
         setForm({
@@ -54,16 +48,15 @@ export default function Account() {
         });
       }
 
-    } catch (err) {
-      alert("Something went wrong");
-    }
+      setLoading(false);
+    });
 
-    setLoading(false);
-  }
+    return () => subscription.unsubscribe();
+  }, []);
 
-  // 🔹 SAVE / UPDATE ADDRESS
+  // ✅ SAVE ADDRESS
   async function saveAddress() {
-    if (!user) return;
+    if (!user) return alert("Login required");
 
     const { error } = await supabase
       .from("user_profiles")
@@ -83,71 +76,46 @@ export default function Account() {
     return <p style={{ padding: 20 }}>Loading account...</p>;
   }
 
+  if (!user) {
+    return <p style={{ padding: 20 }}>Please login to continue</p>;
+  }
+
   return (
     <div className="account-page">
 
+      {/* PROFILE */}
       <div className="account-profile">
         <div className="avatar">👤</div>
         <h3>Welcome to LapkingHub</h3>
         <p>{user.email}</p>
       </div>
 
+      {/* ADDRESS */}
       <h4>📍 Delivery Address</h4>
 
       <div className="address-form">
-        <input
-          placeholder="Full Name"
-          value={form.full_name}
-          onChange={(e) =>
-            setForm({ ...form, full_name: e.target.value })
-          }
-        />
+        <input placeholder="Full Name" value={form.full_name}
+          onChange={e => setForm({ ...form, full_name: e.target.value })} />
 
-        <input
-          placeholder="Mobile Number"
-          value={form.mobile}
-          onChange={(e) =>
-            setForm({ ...form, mobile: e.target.value })
-          }
-        />
+        <input placeholder="Mobile" value={form.mobile}
+          onChange={e => setForm({ ...form, mobile: e.target.value })} />
 
-        <input
-          placeholder="Address"
-          value={form.address}
-          onChange={(e) =>
-            setForm({ ...form, address: e.target.value })
-          }
-        />
+        <input placeholder="Address" value={form.address}
+          onChange={e => setForm({ ...form, address: e.target.value })} />
 
-        <input
-          placeholder="City"
-          value={form.city}
-          onChange={(e) =>
-            setForm({ ...form, city: e.target.value })
-          }
-        />
+        <input placeholder="City" value={form.city}
+          onChange={e => setForm({ ...form, city: e.target.value })} />
 
-        <input
-          placeholder="State"
-          value={form.state}
-          onChange={(e) =>
-            setForm({ ...form, state: e.target.value })
-          }
-        />
+        <input placeholder="State" value={form.state}
+          onChange={e => setForm({ ...form, state: e.target.value })} />
 
-        <input
-          placeholder="Pincode"
-          value={form.pincode}
-          onChange={(e) =>
-            setForm({ ...form, pincode: e.target.value })
-          }
-        />
+        <input placeholder="Pincode" value={form.pincode}
+          onChange={e => setForm({ ...form, pincode: e.target.value })} />
 
-        <button onClick={saveAddress}>
-          Save Address
-        </button>
+        <button onClick={saveAddress}>Save Address</button>
       </div>
 
+      {/* LOGOUT */}
       <button
         className="logout-btn"
         onClick={() => supabase.auth.signOut()}
@@ -157,4 +125,4 @@ export default function Account() {
 
     </div>
   );
-}
+      }
