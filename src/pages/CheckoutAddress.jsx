@@ -5,30 +5,19 @@ import "./CheckoutAddress.css";
 export default function CheckoutAddress() {
   const navigate = useNavigate();
 
-  const [checkingLogin, setCheckingLogin] = useState(true);
-
-  // ✅ LOGIN CHECK — SAFE VERSION
+  // 🔐 LOGIN CHECK
   useEffect(() => {
     const userMobile = localStorage.getItem("user_mobile");
 
     if (!userMobile) {
-      // 🔁 login ke baad yahi return kare
       localStorage.setItem(
         "redirect_after_login",
-        "/checkout/address"
+        "checkout/address"
       );
 
-      navigate("/login", { replace: true });
-    } else {
-      // ✅ user logged in
-      setCheckingLogin(false);
+      navigate("/login");
     }
   }, [navigate]);
-
-  // ⛔ jab tak login check ho raha hai
-  if (checkingLogin) {
-    return null;
-  }
 
   const [form, setForm] = useState({
     business_name: "",
@@ -41,7 +30,6 @@ export default function CheckoutAddress() {
     pincode: ""
   });
 
-  // 🔁 HANDLE CHANGE
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -49,7 +37,6 @@ export default function CheckoutAddress() {
     });
   };
 
-  // ✅ SUBMIT
   const handleContinue = () => {
     if (
       !form.business_name ||
@@ -64,7 +51,6 @@ export default function CheckoutAddress() {
       return;
     }
 
-    // 🔐 SAVE ADDRESS
     localStorage.setItem(
       "checkout_address",
       JSON.stringify(form)
@@ -78,43 +64,32 @@ export default function CheckoutAddress() {
       <div className="address-card">
 
         <h2>📦 Delivery Address</h2>
-        <p className="sub-text">
-          Please enter your delivery details
-        </p>
 
-        {/* BUSINESS NAME */}
         <label>Business Name *</label>
         <input
-          type="text"
           name="business_name"
           value={form.business_name}
           onChange={handleChange}
         />
 
-        {/* GST */}
-        <label>GST Number (optional)</label>
+        <label>GST (optional)</label>
         <input
-          type="text"
           name="gst"
           value={form.gst}
           onChange={handleChange}
         />
 
-        {/* FULL NAME */}
         <label>Full Name *</label>
         <input
-          type="text"
           name="name"
           value={form.name}
           onChange={handleChange}
         />
 
-        {/* MOBILE */}
-        <label>Mobile Number *</label>
+        <label>Mobile *</label>
         <div className="mobile-box">
           <span>+91</span>
           <input
-            type="tel"
             name="phone"
             maxLength="10"
             value={form.phone}
@@ -122,58 +97,41 @@ export default function CheckoutAddress() {
           />
         </div>
 
-        {/* ADDRESS */}
-        <label>Shop Address *</label>
+        <label>Address *</label>
         <textarea
           name="address"
-          rows="3"
           value={form.address}
           onChange={handleChange}
         />
 
-        {/* CITY + STATE */}
         <div className="row">
-          <div>
-            <label>City *</label>
-            <input
-              type="text"
-              name="city"
-              value={form.city}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label>State *</label>
-            <input
-              type="text"
-              name="state"
-              value={form.state}
-              onChange={handleChange}
-            />
-          </div>
+          <input
+            name="city"
+            placeholder="City"
+            value={form.city}
+            onChange={handleChange}
+          />
+          <input
+            name="state"
+            placeholder="State"
+            value={form.state}
+            onChange={handleChange}
+          />
         </div>
 
-        {/* PINCODE */}
         <label>Pincode *</label>
         <input
-          type="number"
           name="pincode"
           value={form.pincode}
           onChange={handleChange}
         />
 
-        {/* BUTTON */}
         <button
           className="continue-btn"
           onClick={handleContinue}
         >
           Continue to Shipping →
         </button>
-
-        <p className="safe-text">
-          🔒 Your information is safe and used only for delivery
-        </p>
 
       </div>
     </div>
