@@ -1,5 +1,3 @@
-// src/pages/Account.jsx
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
@@ -8,106 +6,79 @@ import "./account.css";
 export default function Account() {
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  const ADMIN_EMAIL = "pahadsinghdeora23@gmail.com";
-
+  // ===============================
+  // LOAD SESSION + PROFILE
+  // ===============================
   useEffect(() => {
-    let ignore = false;
-
     async function loadAccount() {
       const {
-        data: { session }
-      } = await supabase.auth.getSession();
+        data: { user }
+      } = await supabase.auth.getUser();
 
-      if (!session?.user) {
-        setLoading(false);
+      if (!user) {
+        localStorage.setItem("redirect_after_login", "/account");
+        navigate("/login");
         return;
       }
 
-      const currentUser = session.user;
-      setUser(currentUser);
+      setUser(user);
 
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
-        .eq("user_id", currentUser.id)
+        .eq("user_id", user.id)
         .single();
 
-      if (!ignore) {
-        if (!error) setProfile(data || null);
-        setLoading(false);
+      if (!error && data) {
+        setProfile(data);
       }
+
+      setLoading(false);
     }
 
     loadAccount();
+  }, [navigate]);
 
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) {
-        setUser(null);
-        setProfile(null);
-        setLoading(false);
-      } else {
-        setUser(session.user);
-      }
-    });
+  // ===============================
+  // LOGOUT
+  // ===============================
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/");
+  }
 
-    return () => {
-      ignore = true;
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  // 🔄 Loading
+  // ===============================
+  // LOADING
+  // ===============================
   if (loading) {
     return (
-      <p style={{ padding: 20, textAlign: "center" }}>
+      <div style={{ textAlign: "center", padding: "40px" }}>
         Loading account...
-      </p>
+      </div>
     );
   }
 
-  // 🔐 Not logged in
-  if (!user) {
-    localStorage.setItem("redirect_after_login", "/account");
-    return (
-      <p style={{ padding: 20, textAlign: "center" }}>
-        Please login to continue
-      </p>
-    );
-  }
-
+  // ===============================
+  // UI
+  // ===============================
   return (
     <div className="account-page">
 
-      {/* PROFILE */}
+      {/* PROFILE HEADER */}
       <div className="account-profile">
         <div className="avatar">👤</div>
-        <h3>Customer</h3>
-        <p>{user.email}</p>
-      </div>
 
-      {/* USER DETAILS */}
-      {profile && (
-        <div className="account-details">
-          {profile.full_name && (
-            <p><b>Name:</b> {profile.full_name}</p>
-          )}
-          {profile.mobile && (
-            <p><b>Mobile:</b> {profile.mobile}</p>
-          )}
-          {profile.city && (
-            <p><b>City:</b> {profile.city}</p>
-          )}
-          {profile.pincode && (
-            <p><b>Pincode:</b> {profile.pincode}</p>
-          )}
-        </div>
-      )}
+        <h3>{profile?.full_name || "Customer"}</h3>
+        <p>{profile?.email || user.email}</p>
+
+        {profile?.mobile && (
+          <p>📞 +91 {profile.mobile}</p>
+        )}
+      </div>
 
       {/* MENU */}
       <div className="account-menu">
@@ -117,23 +88,23 @@ export default function Account() {
           onClick={() => navigate("/orders")}
         >
           📦 Orders
-          <span>View your order history</span>
+          <span>Your order history</span>
         </div>
 
         <div
           className="account-item"
           onClick={() => navigate("/checkout/address")}
         >
-          🏠 Manage Address
-          <span>Edit delivery details</span>
+          🏠 Delivery Address
+          <span>Manage your delivery details</span>
         </div>
 
         <div
           className="account-item"
           onClick={() => navigate("/replacement")}
         >
-          🔁 Replacement & Returns
-          <span>Request replacement</span>
+          🔁 Replacement Requests
+          <span>Request replacement for orders</span>
         </div>
 
         <div
@@ -141,19 +112,19 @@ export default function Account() {
           onClick={() => navigate("/wishlist")}
         >
           ⭐ Wishlist
-          <span>Saved products</span>
+          <span>Your saved products</span>
         </div>
 
         <div
           className="account-item"
           onClick={() => navigate("/rewards")}
         >
-          🎁 Rewards & Offers
-          <span>Your rewards & coupons</span>
+          🎁 Rewards
+          <span>Your reward points</span>
         </div>
 
-        {/* 🔐 ADMIN — EMAIL BASED */}
-        {user.email === ADMIN_EMAIL && (
+        {/* ADMIN ACCESS */}
+        {profile?.role === "admin" && (
           <div
             className="account-item admin"
             onClick={() => navigate("/admin")}
@@ -162,20 +133,12 @@ export default function Account() {
             <span>Store management</span>
           </div>
         )}
-
       </div>
 
       {/* LOGOUT */}
-      <button
-        className="logout-btn"
-        onClick={async () => {
-          await supabase.auth.signOut();
-          navigate("/");
-        }}
-      >
+      <button className="logout-btn" onClick={handleLogout}>
         Logout
       </button>
-
     </div>
   );
-        }
+}
