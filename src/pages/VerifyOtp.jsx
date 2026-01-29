@@ -5,31 +5,53 @@ import "./Login.css";
 
 export default function VerifyOtp() {
   const navigate = useNavigate();
+
   const mobile = localStorage.getItem("otp_mobile");
   const realOtp = localStorage.getItem("otp_code");
 
   const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function verifyOtp() {
+    if (otp.length !== 6) {
+      alert("Enter 6 digit OTP");
+      return;
+    }
+
     if (otp !== realOtp) {
       alert("Incorrect OTP");
       return;
     }
 
-    // mark verified
+    setLoading(true);
+
+    // ✅ mark otp verified
     await supabase
       .from("otp_logins")
       .update({ verified: true })
       .eq("mobile", mobile);
 
-    // create user profile
+    // ✅ create / update user profile
     await supabase.from("user_profiles").upsert({
       mobile
     });
 
+    // ✅ LOGIN SESSION
     localStorage.setItem("user_mobile", mobile);
 
-    navigate("/");
+    // ✅ GET REDIRECT PATH
+    const redirect =
+      localStorage.getItem("redirect_after_login") || "/";
+
+    // ✅ CLEAR OTP DATA
+    localStorage.removeItem("otp_code");
+    localStorage.removeItem("otp_mobile");
+    localStorage.removeItem("redirect_after_login");
+
+    setLoading(false);
+
+    // ✅ FINAL REDIRECT
+    navigate(redirect, { replace: true });
   }
 
   return (
@@ -40,7 +62,7 @@ export default function VerifyOtp() {
         OTP sent to +91 {mobile}
       </p>
 
-      {/* SHOW OTP (FAKE LOGIN) */}
+      {/* FAKE OTP DISPLAY */}
       <div className="otp-show">
         OTP: <b>{realOtp}</b>
       </div>
@@ -55,8 +77,8 @@ export default function VerifyOtp() {
         }
       />
 
-      <button onClick={verifyOtp}>
-        Verify & Login
+      <button onClick={verifyOtp} disabled={loading}>
+        {loading ? "Verifying..." : "Verify & Login"}
       </button>
     </div>
   );
