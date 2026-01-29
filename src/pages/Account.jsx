@@ -1,104 +1,107 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./account.css";
 
 export default function Account() {
+  const navigate = useNavigate();
+
   const [tab, setTab] = useState("orders");
+  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
 
-  const isAdmin = true;
-
+  // 🔐 get logged user
   useEffect(() => {
-    loadData();
+    getProfile();
   }, []);
 
-  async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser();
+  async function getProfile() {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
 
-    if (!user) return;
+    if (!user) {
+      navigate("/login");
+      return;
+    }
 
-    const { data: profileData } = await supabase
+    const { data } = await supabase
       .from("user_profiles")
       .select("*")
       .eq("user_id", user.id)
       .single();
 
-    setProfile(profileData);
-
-    const { data: orderData } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    setOrders(orderData || []);
-
-    const { data: wishlistData } = await supabase
-      .from("wishlist")
-      .select("*")
-      .eq("user_id", user.id);
-
-    setWishlist(wishlistData || []);
+    setProfile(data);
+    setLoading(false);
   }
 
+  async function logout() {
+    await supabase.auth.signOut();
+    navigate("/login");
+  }
+
+  if (loading) return <p style={{ padding: 20 }}>Loading account...</p>;
+
   return (
-    <div className="account-layout">
+    <div className="account-page">
 
-      {/* LEFT MENU */}
-      <div className="account-sidebar">
+      {/* PROFILE HEADER */}
+      <div className="account-profile">
+        <div className="avatar">👤</div>
+        <h3>Welcome to LapkingHub</h3>
+        <p>Wholesale Laptop Accessories</p>
+      </div>
 
-        <div className="profile-box">
-          👤
-          <h4>{profile?.full_name || "LapkingHub User"}</h4>
-          <p>Wholesale Buyer Account</p>
-        </div>
+      {/* TABS */}
+      <div className="account-tabs">
 
-        <div onClick={() => setTab("orders")} className="menu-item">📦 My Orders</div>
-        <div onClick={() => setTab("address")} className="menu-item">📍 Address</div>
-        <div onClick={() => setTab("replacement")} className="menu-item">🔁 Replacement</div>
-        <div onClick={() => setTab("wishlist")} className="menu-item">⭐ Wishlist</div>
-        <div onClick={() => setTab("policies")} className="menu-item">📄 Policies</div>
-        <div onClick={() => setTab("about")} className="menu-item">ℹ️ About Us</div>
-        <div onClick={() => setTab("contact")} className="menu-item">☎️ Contact Us</div>
+        <button onClick={() => setTab("orders")} className="menu-item">
+          📦 My Orders
+        </button>
 
-        {isAdmin && (
-          <div onClick={() => window.location.href="/admin"} className="menu-item admin">
-            🛠 Admin Panel
-          </div>
-        )}
+        <button onClick={() => setTab("address")} className="menu-item">
+          📍 Address
+        </button>
+
+        <button onClick={() => setTab("replacement")} className="menu-item">
+          🔁 Replacement
+        </button>
+
+        <button onClick={() => setTab("profile")} className="menu-item">
+          👤 Profile
+        </button>
+
+        <button
+          className="menu-item"
+          onClick={() => navigate("/admin")}
+          style={{ color: "#0d6efd", fontWeight: "600" }}
+        >
+          🛠 Admin Panel
+        </button>
 
       </div>
 
-      {/* RIGHT CONTENT */}
+      {/* CONTENT */}
       <div className="account-content">
 
         {/* ORDERS */}
         {tab === "orders" && (
           <>
-            <h3>My Orders</h3>
-            <p>Track your wholesale orders easily.</p>
-
-            {orders.length === 0 && <p>No orders found.</p>}
-
-            {orders.map(o => (
-              <div key={o.id} className="card">
-                <b>Order ID:</b> #{o.id}<br/>
-                <b>Total:</b> ₹{o.total_amount}<br/>
-                <b>Status:</b> {o.status}
-              </div>
-            ))}
+            <h4>📦 My Orders</h4>
+            <p>Your all orders will appear here.</p>
           </>
         )}
 
         {/* ADDRESS */}
-        {tab === "address" && profile && (
+        {tab === "address" && (
           <>
-            <h3>Delivery Address</h3>
-            <p>Your saved delivery location.</p>
+            <h4>📍 Delivery Address</h4>
 
-            <div className="card">
+            <p style={{ color: "#666", fontSize: 14 }}>
+              This address will be used for all deliveries.
+            </p>
+
+            <div className="address-box">
               <p><b>Name:</b> {profile.full_name}</p>
               <p><b>Mobile:</b> {profile.mobile}</p>
               <p><b>Address:</b> {profile.address}</p>
@@ -112,63 +115,36 @@ export default function Account() {
         {/* REPLACEMENT */}
         {tab === "replacement" && (
           <>
-            <h3>Replacement Requests</h3>
-            <p>Request replacement for damaged or wrong items.</p>
-
-            {orders.map(o => (
-              <div key={o.id} className="card">
-                Order #{o.id}
-                <button style={{marginTop:10}}>
-                  Request Replacement
-                </button>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* WISHLIST */}
-        {tab === "wishlist" && (
-          <>
-            <h3>Wishlist</h3>
-            <p>Your saved products for future purchase.</p>
-
-            {wishlist.length === 0 && <p>No items in wishlist.</p>}
-          </>
-        )}
-
-        {/* POLICIES */}
-        {tab === "policies" && (
-          <>
-            <h3>Policies</h3>
-            <p>Return • Replacement • Shipping • Privacy</p>
-
-            <div className="card">
-              Replacement allowed within 7 days for genuine issues.
-            </div>
-          </>
-        )}
-
-        {/* ABOUT */}
-        {tab === "about" && (
-          <>
-            <h3>About LapkingHub</h3>
+            <h4>🔁 Replacement Requests</h4>
             <p>
-              LapkingHub is a wholesale platform for laptop and computer
-              accessories across India.
+              If product damaged or wrong item received,
+              you can request replacement here.
             </p>
           </>
         )}
 
-        {/* CONTACT */}
-        {tab === "contact" && (
+        {/* PROFILE */}
+        {tab === "profile" && (
           <>
-            <h3>Contact Us</h3>
-            <p>📞 WhatsApp: 9873670361</p>
-            <p>📧 Support: lapkinghub@gmail.com</p>
+            <h4>👤 My Profile</h4>
+
+            <div className="profile-box">
+              <p><b>Full Name:</b> {profile.full_name}</p>
+              <p><b>Email:</b> {profile.email}</p>
+              <p><b>Mobile:</b> {profile.mobile}</p>
+              <p><b>Business:</b> {profile.business_name || "—"}</p>
+              <p><b>GST:</b> {profile.gst_number || "—"}</p>
+            </div>
           </>
         )}
 
       </div>
+
+      {/* LOGOUT */}
+      <button className="logout-btn" onClick={logout}>
+        Logout
+      </button>
+
     </div>
   );
-      }
+}
