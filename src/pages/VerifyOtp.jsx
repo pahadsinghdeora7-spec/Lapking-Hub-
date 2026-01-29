@@ -17,7 +17,7 @@ export default function VerifyOtp() {
       return;
     }
 
-    // ✅ mark verified
+    // ✅ mark OTP verified
     await supabase
       .from("otp_logins")
       .update({ verified: true })
@@ -26,13 +26,16 @@ export default function VerifyOtp() {
     // ✅ save login
     localStorage.setItem("user_mobile", mobile);
 
-    // 🔥 MOST IMPORTANT PART
+    // ✅ get redirect page
     const redirect =
       localStorage.getItem("redirect_after_login") || "/";
 
+    // cleanup
     localStorage.removeItem("redirect_after_login");
+    localStorage.removeItem("otp_code");
 
-    navigate(redirect, { replace: true });
+    // ✅ IMPORTANT
+    navigate(redirect);
   }
 
   return (
@@ -43,7 +46,7 @@ export default function VerifyOtp() {
         OTP sent to +91 {mobile}
       </p>
 
-      {/* FAKE OTP DISPLAY */}
+      {/* fake OTP display */}
       <div className="otp-show">
         OTP: <b>{realOtp}</b>
       </div>
@@ -59,7 +62,7 @@ export default function VerifyOtp() {
       />
 
       <button onClick={verifyOtp}>
-        Verify & Login
+        Verify & Continue
       </button>
     </div>
   );
