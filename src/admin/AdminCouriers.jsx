@@ -3,129 +3,103 @@ import { supabase } from "../supabaseClient.js";
 
 export default function AdminCouriers() {
   const [couriers, setCouriers] = useState([]);
+
   const [form, setForm] = useState({
     name: "",
     price: "",
-    status: true,
+    days: "",
+    status: true
   });
-  const [editId, setEditId] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  // 🔐 ONLY ADMIN ACCESS
+  const [editId, setEditId] = useState(null);
+
+  // ===============================
+  // LOAD COURIERS
+  // ===============================
   useEffect(() => {
-    checkAdmin();
+    loadCouriers();
   }, []);
 
-  const checkAdmin = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user || user.email !== "pahadsinghdeora23@gmail.com") {
-      alert("Unauthorized access");
-      window.location.href = "/";
-      return;
-    }
-
-    load();
-  };
-
-  // =============================
-  // LOAD COURIERS
-  // =============================
-  const load = async () => {
+  async function loadCouriers() {
     const { data, error } = await supabase
       .from("couriers")
       .select("*")
       .order("id", { ascending: false });
 
-    if (error) {
-      alert(error.message);
-    } else {
+    if (!error) {
       setCouriers(data || []);
     }
+  }
 
-    setLoading(false);
-  };
-
-  // =============================
-  // SAVE
-  // =============================
-  const save = async () => {
-    if (!form.name || !form.price) {
-      alert("Courier name & price required");
+  // ===============================
+  // SAVE / UPDATE
+  // ===============================
+  async function saveCourier() {
+    if (!form.name || !form.price || !form.days) {
+      alert("Please enter courier name, delivery price and delivery timeline.");
       return;
     }
-
-    const payload = {
-      name: form.name,
-      price: Number(form.price), // ✅ FIX
-      status: form.status,
-    };
-
-    let res;
 
     if (editId) {
-      res = await supabase
+      await supabase
         .from("couriers")
-        .update(payload)
+        .update(form)
         .eq("id", editId);
     } else {
-      res = await supabase.from("couriers").insert([payload]);
+      await supabase.from("couriers").insert([form]);
     }
 
-    if (res.error) {
-      alert(res.error.message);
-      return;
-    }
+    setForm({
+      name: "",
+      price: "",
+      days: "",
+      status: true
+    });
 
-    setForm({ name: "", price: "", status: true });
     setEditId(null);
-    load();
-  };
+    loadCouriers();
+  }
 
-  // =============================
+  // ===============================
   // EDIT
-  // =============================
-  const edit = (c) => {
+  // ===============================
+  function editCourier(c) {
     setEditId(c.id);
     setForm({
       name: c.name,
       price: c.price,
-      status: c.status,
+      days: c.days,
+      status: c.status
     });
-  };
+  }
 
-  // =============================
+  // ===============================
   // DELETE
-  // =============================
-  const remove = async (id) => {
-    if (!window.confirm("Delete courier?")) return;
+  // ===============================
+  async function removeCourier(id) {
+    if (!window.confirm("Are you sure you want to remove this courier service?")) return;
 
-    const { error } = await supabase
-      .from("couriers")
-      .delete()
-      .eq("id", id);
+    await supabase.from("couriers").delete().eq("id", id);
+    loadCouriers();
+  }
 
-    if (error) {
-      alert(error.message);
-    } else {
-      load();
-    }
-  };
-
-  if (loading) return <p style={{ padding: 20 }}>Loading couriers...</p>;
-
+  // ===============================
+  // UI
+  // ===============================
   return (
     <div className="admin-page">
-      <h2>🚚 Couriers</h2>
 
-      {/* FORM */}
+      <h2>🚚 Courier Management</h2>
+      <p style={{ color: "#666", marginBottom: 20 }}>
+        Manage courier partners, delivery charges and estimated delivery timelines.
+      </p>
+
+      {/* ADD / EDIT */}
       <div className="card">
-        <h3>{editId ? "Edit Courier" : "Add Courier"}</h3>
+        <h3>{editId ? "Update Courier Service" : "Add New Courier Service"}</h3>
 
         <input
-          placeholder="Courier name"
+          placeholder="Courier company name (e.g. DTDC, Delhivery, Blue Dart)"
           value={form.name}
           onChange={(e) =>
             setForm({ ...form, name: e.target.value })
@@ -133,15 +107,23 @@ export default function AdminCouriers() {
         />
 
         <input
+          placeholder="Delivery charge (₹)"
           type="number"
-          placeholder="Price"
           value={form.price}
           onChange={(e) =>
             setForm({ ...form, price: e.target.value })
           }
         />
 
-        <label style={{ display: "flex", gap: 8 }}>
+        <input
+          placeholder="Estimated delivery time (e.g. 2–3 working days)"
+          value={form.days}
+          onChange={(e) =>
+            setForm({ ...form, days: e.target.value })
+          }
+        />
+
+        <label style={{ display: "flex", gap: 8, marginTop: 12 }}>
           <input
             type="checkbox"
             checked={form.status}
@@ -149,21 +131,24 @@ export default function AdminCouriers() {
               setForm({ ...form, status: e.target.checked })
             }
           />
-          Active
+          Enable this courier for customers
         </label>
 
-        <button onClick={save}>
-          {editId ? "Update Courier" : "Add Courier"}
+        <button onClick={saveCourier}>
+          {editId ? "Save Changes" : "Add Courier"}
         </button>
       </div>
 
-      {/* TABLE */}
+      {/* LIST */}
       <div className="card">
+        <h3>Available Courier Services</h3>
+
         <table className="table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Price</th>
+              <th>Courier Partner</th>
+              <th>Delivery Charge</th>
+              <th>Delivery Time</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -174,16 +159,22 @@ export default function AdminCouriers() {
               <tr key={c.id}>
                 <td>{c.name}</td>
                 <td>₹{c.price}</td>
+                <td>{c.days}</td>
                 <td>{c.status ? "Active" : "Disabled"}</td>
                 <td>
-                  <button onClick={() => edit(c)}>Edit</button>
-                  <button onClick={() => remove(c.id)}>Delete</button>
+                  <button onClick={() => editCourier(c)}>
+                    Edit
+                  </button>
+                  <button onClick={() => removeCourier(c.id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
     </div>
   );
-    }
+                       }
