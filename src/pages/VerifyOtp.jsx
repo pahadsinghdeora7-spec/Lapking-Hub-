@@ -17,25 +17,22 @@ export default function VerifyOtp() {
       return;
     }
 
+    // ✅ mark verified
     await supabase
       .from("otp_logins")
       .update({ verified: true })
       .eq("mobile", mobile);
 
-    await supabase.from("user_profiles").upsert({
-      mobile
-    });
-
-    // ✅ LOGIN SUCCESS
+    // ✅ save login
     localStorage.setItem("user_mobile", mobile);
 
-    // ✅ REDIRECT FIX
+    // 🔥 MOST IMPORTANT PART
     const redirect =
       localStorage.getItem("redirect_after_login") || "/";
 
     localStorage.removeItem("redirect_after_login");
 
-    navigate(redirect);
+    navigate(redirect, { replace: true });
   }
 
   return (
@@ -46,14 +43,15 @@ export default function VerifyOtp() {
         OTP sent to +91 {mobile}
       </p>
 
+      {/* FAKE OTP DISPLAY */}
       <div className="otp-show">
         OTP: <b>{realOtp}</b>
       </div>
 
       <input
         className="otp-input"
+        placeholder="Enter 6 digit OTP"
         maxLength="6"
-        placeholder="Enter OTP"
         value={otp}
         onChange={(e) =>
           setOtp(e.target.value.replace(/\D/g, ""))
