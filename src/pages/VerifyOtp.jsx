@@ -3,61 +3,58 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Login.css";
 
-export default function VerifyOtp() {
+export default function Login() {
+  const [mobile, setMobile] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const mobile = localStorage.getItem("otp_mobile");
-  const realOtp = localStorage.getItem("otp_code");
-
-  const [otp, setOtp] = useState("");
-
-  async function verifyOtp() {
-    if (otp !== realOtp) {
-      alert("Incorrect OTP");
+  async function handleContinue() {
+    if (mobile.length !== 10) {
+      alert("Enter valid 10 digit mobile number");
       return;
     }
 
-    await supabase
-      .from("otp_logins")
-      .update({ verified: true })
-      .eq("mobile", mobile);
+    setLoading(true);
 
-    localStorage.setItem("user_mobile", mobile);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // ✅ HASH ROUTER FIX
-    const redirect =
-      localStorage.getItem("redirect_after_login") || "";
+    await supabase.from("otp_logins").insert({
+      mobile,
+      otp,
+      verified: false
+    });
 
-    localStorage.removeItem("redirect_after_login");
-    localStorage.removeItem("otp_code");
+    localStorage.setItem("otp_mobile", mobile);
+    localStorage.setItem("otp_code", otp);
 
-    navigate("/" + redirect);
+    setLoading(false);
+
+    navigate("/verify-otp");
   }
 
   return (
     <div className="auth-container">
-      <h2>Verify OTP</h2>
+      <h2>Login or Sign up</h2>
 
       <p className="sub-text">
-        OTP sent to +91 {mobile}
+        Enter your mobile number to continue
       </p>
 
-      <div className="otp-show">
-        OTP: <b>{realOtp}</b>
+      <div className="mobile-box">
+        <span>+91</span>
+        <input
+          type="tel"
+          maxLength="10"
+          value={mobile}
+          onChange={(e) =>
+            setMobile(e.target.value.replace(/\D/g, ""))
+          }
+          placeholder="Mobile number"
+        />
       </div>
 
-      <input
-        className="otp-input"
-        placeholder="Enter OTP"
-        maxLength="6"
-        value={otp}
-        onChange={(e) =>
-          setOtp(e.target.value.replace(/\D/g, ""))
-        }
-      />
-
-      <button onClick={verifyOtp}>
-        Verify & Continue
+      <button onClick={handleContinue} disabled={loading}>
+        {loading ? "Please wait..." : "Continue"}
       </button>
     </div>
   );
