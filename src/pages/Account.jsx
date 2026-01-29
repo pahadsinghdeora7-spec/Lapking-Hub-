@@ -27,13 +27,13 @@ export default function Account() {
 
       setUser(user);
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("user_profiles")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      if (!error && data) {
+      if (data) {
         setProfile(data);
       }
 
@@ -123,8 +123,8 @@ export default function Account() {
           <span>Your reward points</span>
         </div>
 
-        {/* ADMIN ACCESS */}
-        {profile?.role === "admin" && (
+        {/* ✅ ADMIN — EMAIL BASED */}
+        {user?.email === "pahadsinghdeora23@gmail.com" && (
           <div
             className="account-item admin"
             onClick={() => navigate("/admin")}
