@@ -1,146 +1,163 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./account.css";
 
-export default function Account() {
-  const navigate = useNavigate();
-
-  const [activeTab, setActiveTab] = useState("orders");
-  const [profile, setProfile] = useState(null);
+export default function AccountAddress() {
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
 
-  // 🔐 LOAD USER PROFILE
+  const [form, setForm] = useState({
+    full_name: "",
+    mobile: "",
+    business_name: "",
+    gst_number: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: ""
+  });
+
+  // 🔹 LOAD USER ADDRESS
   useEffect(() => {
     loadProfile();
   }, []);
 
   async function loadProfile() {
     const {
-      data: { user },
-      error
+      data: { user }
     } = await supabase.auth.getUser();
 
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+    if (!user) return;
 
-    const { data, error: profileError } = await supabase
+    const { data } = await supabase
       .from("user_profiles")
       .select("*")
       .eq("user_id", user.id)
-      .maybeSingle();
+      .single();
 
-    if (profileError) {
-      console.error("Profile error:", profileError);
+    if (data) {
+      setForm({
+        full_name: data.full_name || "",
+        mobile: data.mobile || "",
+        business_name: data.business_name || "",
+        gst_number: data.gst_number || "",
+        address: data.address || "",
+        city: data.city || "",
+        state: data.state || "",
+        pincode: data.pincode || ""
+      });
     }
 
-    setProfile(data);
     setLoading(false);
   }
 
-  async function logout() {
-    await supabase.auth.signOut();
-    navigate("/login");
+  // 🔹 SAVE / UPDATE
+  async function saveAddress() {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    await supabase.from("user_profiles").upsert({
+      user_id: user.id,
+      ...form
+    });
+
+    alert("Address saved successfully ✅");
+    setEditing(false);
   }
 
-  if (loading) {
-    return <p style={{ padding: 20 }}>Loading your account...</p>;
-  }
+  if (loading) return <p>Loading address...</p>;
 
   return (
-    <div className="account-page">
+    <div className="address-box">
 
-      {/* HEADER */}
-      <div className="account-profile">
-        <div className="avatar">👤</div>
-        <h3>Welcome to LapkingHub</h3>
-        <p>Wholesale Laptop Accessories</p>
-      </div>
+      <h3>📍 Delivery Address</h3>
+      <p className="muted">
+        This address will be used for order delivery and invoices.
+      </p>
 
-      {/* TABS */}
-      <div className="account-tabs">
-        <button onClick={() => setActiveTab("orders")}>📦 My Orders</button>
-        <button onClick={() => setActiveTab("address")}>📍 Address</button>
-        <button onClick={() => setActiveTab("replacement")}>🔁 Replacement</button>
-        <button onClick={() => setActiveTab("profile")}>👤 Profile</button>
-        <button
-          onClick={() => navigate("/admin")}
-          style={{ color: "#0d6efd", fontWeight: 600 }}
-        >
-          🛠 Admin Panel
-        </button>
-      </div>
+      {!editing ? (
+        <>
+          {form.address ? (
+            <div className="address-view">
+              <p><b>{form.full_name}</b></p>
+              <p>{form.mobile}</p>
+              <p>{form.address}</p>
+              <p>{form.city}, {form.state} - {form.pincode}</p>
 
-      {/* CONTENT */}
-      <div className="account-content">
+              {form.business_name && (
+                <p>🏢 {form.business_name}</p>
+              )}
 
-        {/* ORDERS */}
-        {activeTab === "orders" && (
-          <>
-            <h4>📦 My Orders</h4>
-            <p>Your orders will appear here after purchase.</p>
-          </>
-        )}
+              {form.gst_number && (
+                <p>GST: {form.gst_number}</p>
+              )}
+            </div>
+          ) : (
+            <p>No address saved yet.</p>
+          )}
 
-        {/* ADDRESS */}
-        {activeTab === "address" && (
-          <>
-            <h4>📍 Delivery Address</h4>
+          <button onClick={() => setEditing(true)}>
+            {form.address ? "Edit Address" : "Add Address"}
+          </button>
+        </>
+      ) : (
+        <>
+          <input
+            placeholder="Full Name"
+            value={form.full_name}
+            onChange={e => setForm({ ...form, full_name: e.target.value })}
+          />
 
-            {!profile ? (
-              <p>No address saved yet.</p>
-            ) : (
-              <div className="address-box">
-                <p><b>Name:</b> {profile.full_name}</p>
-                <p><b>Mobile:</b> {profile.mobile}</p>
-                <p><b>Address:</b> {profile.address}</p>
-                <p><b>City:</b> {profile.city}</p>
-                <p><b>State:</b> {profile.state}</p>
-                <p><b>Pincode:</b> {profile.pincode}</p>
-              </div>
-            )}
-          </>
-        )}
+          <input
+            placeholder="Mobile Number"
+            value={form.mobile}
+            onChange={e => setForm({ ...form, mobile: e.target.value })}
+          />
 
-        {/* PROFILE */}
-        {activeTab === "profile" && (
-          <>
-            <h4>👤 My Profile</h4>
+          <input
+            placeholder="Business Name (optional)"
+            value={form.business_name}
+            onChange={e => setForm({ ...form, business_name: e.target.value })}
+          />
 
-            {!profile ? (
-              <p>Profile not completed yet.</p>
-            ) : (
-              <div className="profile-box">
-                <p><b>Full Name:</b> {profile.full_name}</p>
-                <p><b>Email:</b> {profile.email}</p>
-                <p><b>Mobile:</b> {profile.mobile}</p>
-                <p><b>Business:</b> {profile.business_name || "—"}</p>
-                <p><b>GST:</b> {profile.gst_number || "—"}</p>
-              </div>
-            )}
-          </>
-        )}
+          <input
+            placeholder="GST Number (optional)"
+            value={form.gst_number}
+            onChange={e => setForm({ ...form, gst_number: e.target.value })}
+          />
 
-        {/* REPLACEMENT */}
-        {activeTab === "replacement" && (
-          <>
-            <h4>🔁 Replacement</h4>
-            <p>
-              If product damaged or wrong item received,
-              you can request replacement from here.
-            </p>
-          </>
-        )}
+          <textarea
+            placeholder="Full Address"
+            value={form.address}
+            onChange={e => setForm({ ...form, address: e.target.value })}
+          />
 
-      </div>
+          <input
+            placeholder="City"
+            value={form.city}
+            onChange={e => setForm({ ...form, city: e.target.value })}
+          />
 
-      {/* LOGOUT */}
-      <button className="logout-btn" onClick={logout}>
-        Logout
-      </button>
+          <input
+            placeholder="State"
+            value={form.state}
+            onChange={e => setForm({ ...form, state: e.target.value })}
+          />
 
+          <input
+            placeholder="Pincode"
+            value={form.pincode}
+            onChange={e => setForm({ ...form, pincode: e.target.value })}
+          />
+
+          <button onClick={saveAddress}>
+            Save Address
+          </button>
+        </>
+      )}
     </div>
   );
-                  }
+}
