@@ -4,214 +4,183 @@ import { supabase } from "../supabaseClient";
 import "./account.css";
 
 export default function Account() {
-
   const navigate = useNavigate();
 
-  const [tab, setTab] = useState("details");
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
 
-  const [profile, setProfile] = useState({
+  const [form, setForm] = useState({
     full_name: "",
-    email: "",
     mobile: "",
-    business_name: "",
-    gst_number: "",
     address: "",
     city: "",
     state: "",
     pincode: ""
   });
 
-  const [orders, setOrders] = useState([]);
-
-  // ===============================
-  // LOAD USER DATA
-  // ===============================
+  // 🔐 LOAD USER + PROFILE
   useEffect(() => {
-    loadProfile();
-    loadOrders();
+    loadAccount();
   }, []);
 
-  async function loadProfile() {
+  async function loadAccount() {
     try {
-      const { data: authData } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      if (!authData?.user) {
+      if (!user) {
         alert("Please login first");
         navigate("/login");
         return;
       }
 
-      const { data, error } = await supabase
+      setUser(user);
+
+      // 🔥 PROFILE FETCH
+      let { data: profileData } = await supabase
         .from("user_profiles")
         .select("*")
-        .eq("user_id", authData.user.id)
+        .eq("user_id", user.id)
         .single();
 
-      if (error) {
-        alert("Profile load error: " + error.message);
-        return;
+      // 🔥 CREATE PROFILE IF NOT EXISTS
+      if (!profileData) {
+        const { data: newProfile, error } = await supabase
+          .from("user_profiles")
+          .insert({
+            user_id: user.id,
+            email: user.email,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        profileData = newProfile;
       }
 
-      if (data) setProfile(data);
+      setProfile(profileData);
+      setForm({
+        full_name: profileData.full_name || "",
+        mobile: profileData.mobile || "",
+        address: profileData.address || "",
+        city: profileData.city || "",
+        state: profileData.state || "",
+        pincode: profileData.pincode || "",
+      });
 
     } catch (err) {
-      alert("Unexpected error: " + err.message);
+      alert("Account load error: " + err.message);
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadOrders() {
+  // 💾 SAVE ADDRESS
+  async function saveAddress() {
     try {
-      const { data: authData } = await supabase.auth.getUser();
-
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("user_id", authData.user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        alert("Orders load error: " + error.message);
-        return;
-      }
-
-      setOrders(data || []);
-    } catch (err) {
-      alert("Order error: " + err.message);
-    }
-  }
-
-  // ===============================
-  // SAVE PROFILE
-  // ===============================
-  async function saveProfile() {
-    try {
-      const { data: authData } = await supabase.auth.getUser();
-
       const { error } = await supabase
         .from("user_profiles")
-        .upsert({
-          user_id: authData.user.id,
-          ...profile
-        });
+        .update(form)
+        .eq("user_id", user.id);
 
-      if (error) {
-        alert("Save failed: " + error.message);
-        return;
-      }
+      if (error) throw error;
 
-      alert("✅ Address & profile saved successfully");
+      alert("Address saved successfully ✅");
+      loadAccount();
 
     } catch (err) {
       alert("Save error: " + err.message);
     }
   }
 
-  // ===============================
-  // LOGOUT
-  // ===============================
+  // 🚪 LOGOUT
   async function logout() {
     await supabase.auth.signOut();
     navigate("/login");
   }
 
-  // ===============================
-  // UI
-  // ===============================
-  if (loading) return <p style={{ padding: 20 }}>Loading account...</p>;
+  if (loading) {
+    return <div style={{ padding: 20 }}>Loading account...</div>;
+  }
 
   return (
     <div className="account-page">
 
-      {/* HEADER */}
+      {/* PROFILE HEADER */}
       <div className="account-profile">
         <div className="avatar">👤</div>
         <h3>Welcome to LapkingHub</h3>
         <p>Wholesale Laptop Accessories</p>
+        <small>{profile?.email}</small>
       </div>
 
       {/* TABS */}
       <div className="account-tabs">
-        <button onClick={() => setTab("details")}>👤 Account</button>
-        <button onClick={() => setTab("orders")}>📦 Orders</button>
-        <button onClick={() => setTab("return")}>🔁 Return</button>
-        <button onClick={() => setTab("wishlist")}>⭐ Watchlist</button>
-        <button onClick={() => setTab("rewards")}>🎁 Rewards</button>
-        <button onClick={() => setTab("policies")}>📄 Policies</button>
-        <button onClick={() => setTab("about")}>ℹ About</button>
-        <button onClick={() => setTab("contact")}>📞 Contact</button>
+        <button>📦 My Orders</button>
+        <button>📍 Address</button>
+        <button>🔁 Replacement</button>
+        <button>❤️ Wishlist</button>
+        <button>🎁 Rewards</button>
+        <button>📄 Policies</button>
+        <button>☎ Contact</button>
         <button onClick={() => navigate("/admin")}>🛠 Admin</button>
       </div>
 
-      {/* CONTENT */}
-      <div className="account-content">
+      {/* ADDRESS */}
+      <div className="address-box">
+        <h4>📍 Delivery Address</h4>
+        <p style={{ fontSize: 13, color: "#666" }}>
+          This address will be used for order delivery and invoices.
+        </p>
 
-        {/* ACCOUNT DETAILS */}
-        {tab === "details" && (
-          <>
-            <h4>Delivery Address</h4>
+        <input
+          placeholder="Full Name"
+          value={form.full_name}
+          onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+        />
 
-            <input placeholder="Full Name" value={profile.full_name}
-              onChange={e => setProfile({ ...profile, full_name: e.target.value })} />
+        <input
+          placeholder="Mobile Number"
+          value={form.mobile}
+          onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+        />
 
-            <input placeholder="Mobile" value={profile.mobile}
-              onChange={e => setProfile({ ...profile, mobile: e.target.value })} />
+        <input
+          placeholder="Address"
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+        />
 
-            <input placeholder="Business Name" value={profile.business_name}
-              onChange={e => setProfile({ ...profile, business_name: e.target.value })} />
+        <input
+          placeholder="City"
+          value={form.city}
+          onChange={(e) => setForm({ ...form, city: e.target.value })}
+        />
 
-            <input placeholder="GST Number" value={profile.gst_number}
-              onChange={e => setProfile({ ...profile, gst_number: e.target.value })} />
+        <input
+          placeholder="State"
+          value={form.state}
+          onChange={(e) => setForm({ ...form, state: e.target.value })}
+        />
 
-            <input placeholder="Address" value={profile.address}
-              onChange={e => setProfile({ ...profile, address: e.target.value })} />
+        <input
+          placeholder="Pincode"
+          value={form.pincode}
+          onChange={(e) => setForm({ ...form, pincode: e.target.value })}
+        />
 
-            <input placeholder="City" value={profile.city}
-              onChange={e => setProfile({ ...profile, city: e.target.value })} />
-
-            <input placeholder="State" value={profile.state}
-              onChange={e => setProfile({ ...profile, state: e.target.value })} />
-
-            <input placeholder="Pincode" value={profile.pincode}
-              onChange={e => setProfile({ ...profile, pincode: e.target.value })} />
-
-            <button onClick={saveProfile}>💾 Save Address</button>
-          </>
-        )}
-
-        {/* ORDERS */}
-        {tab === "orders" && (
-          <>
-            <h4>My Orders</h4>
-            {orders.length === 0 ? (
-              <p>No orders found</p>
-            ) : (
-              orders.map(o => (
-                <div key={o.id} className="order-box">
-                  <p><b>Order ID:</b> {o.id}</p>
-                  <p>Status: {o.status}</p>
-                  <p>Total: ₹{o.total}</p>
-                </div>
-              ))
-            )}
-          </>
-        )}
-
-        {tab === "return" && <p>Return / Replacement coming soon</p>}
-        {tab === "wishlist" && <p>Your saved products will appear here</p>}
-        {tab === "rewards" && <p>Reward points coming soon</p>}
-        {tab === "policies" && <p>All store policies shown here</p>}
-        {tab === "about" && <p>LapkingHub – Trusted wholesale laptop accessories supplier.</p>}
-        {tab === "contact" && <p>📞 Support: 9873670361</p>}
-
+        <button className="save-btn" onClick={saveAddress}>
+          Save Address
+        </button>
       </div>
 
+      {/* LOGOUT */}
       <button className="logout-btn" onClick={logout}>
         Logout
       </button>
-
     </div>
   );
-      }
+}
