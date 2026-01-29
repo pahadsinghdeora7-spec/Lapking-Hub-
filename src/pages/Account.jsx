@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./account.css";
 
-export default function AccountAddress() {
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
+export default function Account() {
 
-  const [form, setForm] = useState({
+  const navigate = useNavigate();
+
+  const [tab, setTab] = useState("details");
+  const [loading, setLoading] = useState(true);
+
+  const [profile, setProfile] = useState({
     full_name: "",
+    email: "",
     mobile: "",
     business_name: "",
     gst_number: "",
@@ -17,147 +22,196 @@ export default function AccountAddress() {
     pincode: ""
   });
 
-  // 🔹 LOAD USER ADDRESS
+  const [orders, setOrders] = useState([]);
+
+  // ===============================
+  // LOAD USER DATA
+  // ===============================
   useEffect(() => {
     loadProfile();
+    loadOrders();
   }, []);
 
   async function loadProfile() {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
+    try {
+      const { data: authData } = await supabase.auth.getUser();
 
-    if (!user) return;
+      if (!authData?.user) {
+        alert("Please login first");
+        navigate("/login");
+        return;
+      }
 
-    const { data } = await supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", authData.user.id)
+        .single();
 
-    if (data) {
-      setForm({
-        full_name: data.full_name || "",
-        mobile: data.mobile || "",
-        business_name: data.business_name || "",
-        gst_number: data.gst_number || "",
-        address: data.address || "",
-        city: data.city || "",
-        state: data.state || "",
-        pincode: data.pincode || ""
-      });
+      if (error) {
+        alert("Profile load error: " + error.message);
+        return;
+      }
+
+      if (data) setProfile(data);
+
+    } catch (err) {
+      alert("Unexpected error: " + err.message);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
-  // 🔹 SAVE / UPDATE
-  async function saveAddress() {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
+  async function loadOrders() {
+    try {
+      const { data: authData } = await supabase.auth.getUser();
 
-    if (!user) return;
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("user_id", authData.user.id)
+        .order("created_at", { ascending: false });
 
-    await supabase.from("user_profiles").upsert({
-      user_id: user.id,
-      ...form
-    });
+      if (error) {
+        alert("Orders load error: " + error.message);
+        return;
+      }
 
-    alert("Address saved successfully ✅");
-    setEditing(false);
+      setOrders(data || []);
+    } catch (err) {
+      alert("Order error: " + err.message);
+    }
   }
 
-  if (loading) return <p>Loading address...</p>;
+  // ===============================
+  // SAVE PROFILE
+  // ===============================
+  async function saveProfile() {
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+
+      const { error } = await supabase
+        .from("user_profiles")
+        .upsert({
+          user_id: authData.user.id,
+          ...profile
+        });
+
+      if (error) {
+        alert("Save failed: " + error.message);
+        return;
+      }
+
+      alert("✅ Address & profile saved successfully");
+
+    } catch (err) {
+      alert("Save error: " + err.message);
+    }
+  }
+
+  // ===============================
+  // LOGOUT
+  // ===============================
+  async function logout() {
+    await supabase.auth.signOut();
+    navigate("/login");
+  }
+
+  // ===============================
+  // UI
+  // ===============================
+  if (loading) return <p style={{ padding: 20 }}>Loading account...</p>;
 
   return (
-    <div className="address-box">
+    <div className="account-page">
 
-      <h3>📍 Delivery Address</h3>
-      <p className="muted">
-        This address will be used for order delivery and invoices.
-      </p>
+      {/* HEADER */}
+      <div className="account-profile">
+        <div className="avatar">👤</div>
+        <h3>Welcome to LapkingHub</h3>
+        <p>Wholesale Laptop Accessories</p>
+      </div>
 
-      {!editing ? (
-        <>
-          {form.address ? (
-            <div className="address-view">
-              <p><b>{form.full_name}</b></p>
-              <p>{form.mobile}</p>
-              <p>{form.address}</p>
-              <p>{form.city}, {form.state} - {form.pincode}</p>
+      {/* TABS */}
+      <div className="account-tabs">
+        <button onClick={() => setTab("details")}>👤 Account</button>
+        <button onClick={() => setTab("orders")}>📦 Orders</button>
+        <button onClick={() => setTab("return")}>🔁 Return</button>
+        <button onClick={() => setTab("wishlist")}>⭐ Watchlist</button>
+        <button onClick={() => setTab("rewards")}>🎁 Rewards</button>
+        <button onClick={() => setTab("policies")}>📄 Policies</button>
+        <button onClick={() => setTab("about")}>ℹ About</button>
+        <button onClick={() => setTab("contact")}>📞 Contact</button>
+        <button onClick={() => navigate("/admin")}>🛠 Admin</button>
+      </div>
 
-              {form.business_name && (
-                <p>🏢 {form.business_name}</p>
-              )}
+      {/* CONTENT */}
+      <div className="account-content">
 
-              {form.gst_number && (
-                <p>GST: {form.gst_number}</p>
-              )}
-            </div>
-          ) : (
-            <p>No address saved yet.</p>
-          )}
+        {/* ACCOUNT DETAILS */}
+        {tab === "details" && (
+          <>
+            <h4>Delivery Address</h4>
 
-          <button onClick={() => setEditing(true)}>
-            {form.address ? "Edit Address" : "Add Address"}
-          </button>
-        </>
-      ) : (
-        <>
-          <input
-            placeholder="Full Name"
-            value={form.full_name}
-            onChange={e => setForm({ ...form, full_name: e.target.value })}
-          />
+            <input placeholder="Full Name" value={profile.full_name}
+              onChange={e => setProfile({ ...profile, full_name: e.target.value })} />
 
-          <input
-            placeholder="Mobile Number"
-            value={form.mobile}
-            onChange={e => setForm({ ...form, mobile: e.target.value })}
-          />
+            <input placeholder="Mobile" value={profile.mobile}
+              onChange={e => setProfile({ ...profile, mobile: e.target.value })} />
 
-          <input
-            placeholder="Business Name (optional)"
-            value={form.business_name}
-            onChange={e => setForm({ ...form, business_name: e.target.value })}
-          />
+            <input placeholder="Business Name" value={profile.business_name}
+              onChange={e => setProfile({ ...profile, business_name: e.target.value })} />
 
-          <input
-            placeholder="GST Number (optional)"
-            value={form.gst_number}
-            onChange={e => setForm({ ...form, gst_number: e.target.value })}
-          />
+            <input placeholder="GST Number" value={profile.gst_number}
+              onChange={e => setProfile({ ...profile, gst_number: e.target.value })} />
 
-          <textarea
-            placeholder="Full Address"
-            value={form.address}
-            onChange={e => setForm({ ...form, address: e.target.value })}
-          />
+            <input placeholder="Address" value={profile.address}
+              onChange={e => setProfile({ ...profile, address: e.target.value })} />
 
-          <input
-            placeholder="City"
-            value={form.city}
-            onChange={e => setForm({ ...form, city: e.target.value })}
-          />
+            <input placeholder="City" value={profile.city}
+              onChange={e => setProfile({ ...profile, city: e.target.value })} />
 
-          <input
-            placeholder="State"
-            value={form.state}
-            onChange={e => setForm({ ...form, state: e.target.value })}
-          />
+            <input placeholder="State" value={profile.state}
+              onChange={e => setProfile({ ...profile, state: e.target.value })} />
 
-          <input
-            placeholder="Pincode"
-            value={form.pincode}
-            onChange={e => setForm({ ...form, pincode: e.target.value })}
-          />
+            <input placeholder="Pincode" value={profile.pincode}
+              onChange={e => setProfile({ ...profile, pincode: e.target.value })} />
 
-          <button onClick={saveAddress}>
-            Save Address
-          </button>
-        </>
-      )}
+            <button onClick={saveProfile}>💾 Save Address</button>
+          </>
+        )}
+
+        {/* ORDERS */}
+        {tab === "orders" && (
+          <>
+            <h4>My Orders</h4>
+            {orders.length === 0 ? (
+              <p>No orders found</p>
+            ) : (
+              orders.map(o => (
+                <div key={o.id} className="order-box">
+                  <p><b>Order ID:</b> {o.id}</p>
+                  <p>Status: {o.status}</p>
+                  <p>Total: ₹{o.total}</p>
+                </div>
+              ))
+            )}
+          </>
+        )}
+
+        {tab === "return" && <p>Return / Replacement coming soon</p>}
+        {tab === "wishlist" && <p>Your saved products will appear here</p>}
+        {tab === "rewards" && <p>Reward points coming soon</p>}
+        {tab === "policies" && <p>All store policies shown here</p>}
+        {tab === "about" && <p>LapkingHub – Trusted wholesale laptop accessories supplier.</p>}
+        {tab === "contact" && <p>📞 Support: 9873670361</p>}
+
+      </div>
+
+      <button className="logout-btn" onClick={logout}>
+        Logout
+      </button>
+
     </div>
   );
-}
+      }
