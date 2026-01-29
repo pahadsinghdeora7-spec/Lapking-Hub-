@@ -1,156 +1,82 @@
-/* ============================
-   CHECKOUT SHIPPING DESIGN
-============================ */
-
-.checkout-container {
-  max-width: 650px;
-  margin: 15px auto 80px;
-  padding: 0 12px;
+.checkout-shipping {
+  padding: 15px;
 }
 
-/* STEP LINE */
-.checkout-steps {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-/* CARD */
-.card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.card h3 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-/* ORDER SUMMARY */
-.summary-row,
-.summary-total {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  margin: 6px 0;
-}
-
-.summary-total {
-  border-top: 1px dashed #ddd;
-  padding-top: 8px;
-  margin-top: 8px;
-  font-weight: 600;
-  color: #0b5ed7;
-}
-
-/* MODEL INPUT */
-.card label {
-  font-size: 14px;
-  font-weight: 600;
-  display: block;
+.checkout-shipping h2 {
   margin-bottom: 6px;
 }
 
-.card input {
-  width: 100%;
-  padding: 11px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  outline: none;
-  font-size: 14px;
-}
-
-.card input:focus {
-  border-color: #0b5ed7;
-}
-
-.card small {
-  font-size: 12px;
-  color: #777;
-  margin-top: 5px;
-  display: block;
-}
-
-/* COURIER TEXT */
-.muted-text {
-  font-size: 12px;
-  color: #777;
+.shipping-subtext {
+  font-size: 13px;
+  color: #666;
   margin-bottom: 10px;
 }
 
-/* COURIER BOX */
-.courier-box {
+.shipping-note {
+  background: #fff7e6;
+  border: 1px solid #ffe0a3;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.courier-option {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+
+  padding: 14px;
   border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+
+  margin-bottom: 12px;
   cursor: pointer;
-  transition: 0.2s;
+
+  transition: 0.2s ease;
   background: #fff;
 }
 
-.courier-box:hover {
-  border-color: #0b5ed7;
+.courier-option:hover {
+  border-color: #0d6efd;
 }
 
-.courier-box.active {
-  border-color: #0b5ed7;
-  background: #eef5ff;
+.courier-option.active {
+  border: 2px solid #0d6efd;
+  background: #f1f7ff;
 }
 
-.courier-box input {
-  margin-right: 10px;
+.courier-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.courier-box div {
-  flex: 1;
-  margin-left: 6px;
-}
-
-.courier-box b {
-  font-size: 14px;
-  display: block;
-}
-
-.courier-box p {
+.courier-days {
   font-size: 12px;
   color: #666;
-  margin-top: 2px;
 }
 
-.courier-box span {
-  font-weight: 600;
-  font-size: 14px;
-  color: #0b5ed7;
+.courier-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0d6efd;
 }
 
-/* SAFE NOTE */
-.safe-note {
-  font-size: 12px;
-  color: #4caf50;
-  margin-top: 8px;
-}
-
-/* BUTTON */
-.primary-btn {
+.continue-btn {
   width: 100%;
-  background: #0b5ed7;
-  color: #fff;
+  padding: 12px;
+  border-radius: 6px;
   border: none;
-  padding: 14px;
+  background: #0d6efd;
+  color: #fff;
   font-size: 15px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
+  margin-top: 10px;
 }
 
-.primary-btn:hover {
-  background: #094db3;
+.shipping-safe {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
 }
