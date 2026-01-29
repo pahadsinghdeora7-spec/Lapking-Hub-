@@ -9,6 +9,7 @@ import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
 import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
 import VerifyOtp from "./pages/VerifyOtp.jsx";
 import About from "./pages/About.jsx";
 import PageView from "./pages/PageView";
@@ -52,6 +53,7 @@ export default function App() {
             {/* ================= USER ================= */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/account" element={<Account />} />
             <Route path="/categories" element={<Categories />} />
