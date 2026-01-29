@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./account.css";
 
 export default function Account() {
-  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
 
   const [form, setForm] = useState({
     full_name: "",
@@ -19,168 +16,145 @@ export default function Account() {
     pincode: ""
   });
 
-  // 🔐 LOAD USER + PROFILE
+  // 🔹 LOAD PROFILE AFTER LOGIN
   useEffect(() => {
-    loadAccount();
+    loadProfile();
   }, []);
 
-  async function loadAccount() {
+  async function loadProfile() {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        alert("Please login first");
-        navigate("/login");
+        alert("Please login again");
         return;
       }
 
       setUser(user);
 
-      // 🔥 PROFILE FETCH
-      let { data: profileData } = await supabase
+      const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      // 🔥 CREATE PROFILE IF NOT EXISTS
-      if (!profileData) {
-        const { data: newProfile, error } = await supabase
-          .from("user_profiles")
-          .insert({
-            user_id: user.id,
-            email: user.email,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        profileData = newProfile;
+      if (error && error.code !== "PGRST116") {
+        alert("Profile load error");
+        return;
       }
 
-      setProfile(profileData);
-      setForm({
-        full_name: profileData.full_name || "",
-        mobile: profileData.mobile || "",
-        address: profileData.address || "",
-        city: profileData.city || "",
-        state: profileData.state || "",
-        pincode: profileData.pincode || "",
+      if (data) {
+        setForm({
+          full_name: data.full_name || "",
+          mobile: data.mobile || "",
+          address: data.address || "",
+          city: data.city || "",
+          state: data.state || "",
+          pincode: data.pincode || ""
+        });
+      }
+
+    } catch (err) {
+      alert("Something went wrong");
+    }
+
+    setLoading(false);
+  }
+
+  // 🔹 SAVE / UPDATE ADDRESS
+  async function saveAddress() {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("user_profiles")
+      .upsert({
+        user_id: user.id,
+        ...form
       });
 
-    } catch (err) {
-      alert("Account load error: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // 💾 SAVE ADDRESS
-  async function saveAddress() {
-    try {
-      const { error } = await supabase
-        .from("user_profiles")
-        .update(form)
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-
+    if (error) {
+      alert("Save failed");
+    } else {
       alert("Address saved successfully ✅");
-      loadAccount();
-
-    } catch (err) {
-      alert("Save error: " + err.message);
     }
-  }
-
-  // 🚪 LOGOUT
-  async function logout() {
-    await supabase.auth.signOut();
-    navigate("/login");
   }
 
   if (loading) {
-    return <div style={{ padding: 20 }}>Loading account...</div>;
+    return <p style={{ padding: 20 }}>Loading account...</p>;
   }
 
   return (
     <div className="account-page">
 
-      {/* PROFILE HEADER */}
       <div className="account-profile">
         <div className="avatar">👤</div>
         <h3>Welcome to LapkingHub</h3>
-        <p>Wholesale Laptop Accessories</p>
-        <small>{profile?.email}</small>
+        <p>{user.email}</p>
       </div>
 
-      {/* TABS */}
-      <div className="account-tabs">
-        <button>📦 My Orders</button>
-        <button>📍 Address</button>
-        <button>🔁 Replacement</button>
-        <button>❤️ Wishlist</button>
-        <button>🎁 Rewards</button>
-        <button>📄 Policies</button>
-        <button>☎ Contact</button>
-        <button onClick={() => navigate("/admin")}>🛠 Admin</button>
-      </div>
+      <h4>📍 Delivery Address</h4>
 
-      {/* ADDRESS */}
-      <div className="address-box">
-        <h4>📍 Delivery Address</h4>
-        <p style={{ fontSize: 13, color: "#666" }}>
-          This address will be used for order delivery and invoices.
-        </p>
-
+      <div className="address-form">
         <input
           placeholder="Full Name"
           value={form.full_name}
-          onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, full_name: e.target.value })
+          }
         />
 
         <input
           placeholder="Mobile Number"
           value={form.mobile}
-          onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, mobile: e.target.value })
+          }
         />
 
         <input
           placeholder="Address"
           value={form.address}
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, address: e.target.value })
+          }
         />
 
         <input
           placeholder="City"
           value={form.city}
-          onChange={(e) => setForm({ ...form, city: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, city: e.target.value })
+          }
         />
 
         <input
           placeholder="State"
           value={form.state}
-          onChange={(e) => setForm({ ...form, state: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, state: e.target.value })
+          }
         />
 
         <input
           placeholder="Pincode"
           value={form.pincode}
-          onChange={(e) => setForm({ ...form, pincode: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, pincode: e.target.value })
+          }
         />
 
-        <button className="save-btn" onClick={saveAddress}>
+        <button onClick={saveAddress}>
           Save Address
         </button>
       </div>
 
-      {/* LOGOUT */}
-      <button className="logout-btn" onClick={logout}>
+      <button
+        className="logout-btn"
+        onClick={() => supabase.auth.signOut()}
+      >
         Logout
       </button>
+
     </div>
   );
 }
