@@ -27,13 +27,13 @@ export default function Account() {
 
       setUser(user);
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      if (data) {
+      if (!error && data) {
         setProfile(data);
       }
 
@@ -62,6 +62,10 @@ export default function Account() {
     );
   }
 
+  // ✅ ADMIN EMAIL (ONLY THIS EMAIL)
+  const isAdmin =
+    user?.email === "pahadsinghdeora23@gmail.com";
+
   // ===============================
   // UI
   // ===============================
@@ -88,23 +92,20 @@ export default function Account() {
           onClick={() => navigate("/orders")}
         >
           📦 Orders
-          <span>Your order history</span>
         </div>
 
         <div
           className="account-item"
           onClick={() => navigate("/checkout/address")}
         >
-          🏠 Delivery Address
-          <span>Manage your delivery details</span>
+          🏠 Address
         </div>
 
         <div
           className="account-item"
           onClick={() => navigate("/replacement")}
         >
-          🔁 Replacement Requests
-          <span>Request replacement for orders</span>
+          🔁 Replacement
         </div>
 
         <div
@@ -112,7 +113,6 @@ export default function Account() {
           onClick={() => navigate("/wishlist")}
         >
           ⭐ Wishlist
-          <span>Your saved products</span>
         </div>
 
         <div
@@ -120,17 +120,15 @@ export default function Account() {
           onClick={() => navigate("/rewards")}
         >
           🎁 Rewards
-          <span>Your reward points</span>
         </div>
 
-        {/* ✅ ADMIN — EMAIL BASED */}
-        {user?.email === "pahadsinghdeora23@gmail.com" && (
+        {/* ✅ ADMIN ONLY FOR THIS EMAIL */}
+        {isAdmin && (
           <div
             className="account-item admin"
             onClick={() => navigate("/admin")}
           >
-            🛠 Admin Panel
-            <span>Store management</span>
+            🛠 Admin
           </div>
         )}
       </div>
