@@ -7,37 +7,51 @@ export default function Account() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ AUTH LISTENER (THIS FIXES EVERYTHING)
+  // ✅ LOAD SESSION SAFELY
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+    const loadUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
+      if (!session?.user) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      setUser(session.user);
+
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (!error) setProfile(data);
+      setLoading(false);
+    };
+
+    loadUser();
+
+    // 🔁 future login/logout listener
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
         if (!session?.user) {
           setUser(null);
-          setLoading(false);
-          return;
+          setProfile(null);
+        } else {
+          setUser(session.user);
         }
-
-        setUser(session.user);
-
-        // fetch profile
-        const { data } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .single();
-
-        setProfile(data || null);
-        setLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
-  // ⏳ WAIT
+  // ⏳ LOADING
   if (loading) {
     return <p style={{ padding: 20 }}>Loading account...</p>;
   }
@@ -49,19 +63,30 @@ export default function Account() {
 
   return (
     <div className="account-page">
-
+      {/* PROFILE */}
       <div className="account-profile">
         <div className="avatar">👤</div>
         <h3>Welcome to LapkingHub</h3>
         <p>{user.email}</p>
       </div>
 
+      {/* DETAILS */}
       <div style={{ padding: 15 }}>
-        <p>✅ Login persistent working</p>
+        <p>✅ Login persistent</p>
         <p>✅ Reload safe</p>
-        <p>✅ Session restore safe</p>
+        <p>✅ Supabase session active</p>
+
+        {profile && (
+          <>
+            <p><b>Name:</b> {profile.full_name}</p>
+            <p><b>Mobile:</b> {profile.mobile}</p>
+            <p><b>City:</b> {profile.city}</p>
+            <p><b>Pincode:</b> {profile.pincode}</p>
+          </>
+        )}
       </div>
 
+      {/* LOGOUT */}
       <button
         className="logout-btn"
         onClick={async () => {
