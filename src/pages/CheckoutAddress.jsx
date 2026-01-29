@@ -1,11 +1,26 @@
 // src/pages/CheckoutAddress.jsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CheckoutAddress.css";
 
 export default function CheckoutAddress() {
   const navigate = useNavigate();
+
+  // ✅ LOGIN CHECK
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user || !user.loggedIn) {
+      // 🔁 after login return here
+      localStorage.setItem(
+        "redirect_after_login",
+        "/checkout/address"
+      );
+
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const [form, setForm] = useState({
     business_name: "",
@@ -52,7 +67,6 @@ export default function CheckoutAddress() {
 
   return (
     <div className="checkout-address">
-
       <div className="address-card">
 
         <h2>📦 Delivery Address</h2>
@@ -60,37 +74,30 @@ export default function CheckoutAddress() {
           Please enter your delivery details
         </p>
 
-        {/* BUSINESS NAME */}
         <label>Business Name *</label>
         <input
           type="text"
           name="business_name"
-          placeholder="Enter business / shop name"
           value={form.business_name}
           onChange={handleChange}
         />
 
-        {/* GST */}
         <label>GST Number (optional)</label>
         <input
           type="text"
           name="gst"
-          placeholder="Enter GST number"
           value={form.gst}
           onChange={handleChange}
         />
 
-        {/* FULL NAME */}
         <label>Full Name *</label>
         <input
           type="text"
           name="name"
-          placeholder="Enter full name"
           value={form.name}
           onChange={handleChange}
         />
 
-        {/* MOBILE */}
         <label>Mobile Number *</label>
         <div className="mobile-box">
           <span>+91</span>
@@ -98,30 +105,25 @@ export default function CheckoutAddress() {
             type="tel"
             name="phone"
             maxLength="10"
-            placeholder="Enter mobile number"
             value={form.phone}
             onChange={handleChange}
           />
         </div>
 
-        {/* ADDRESS */}
         <label>Shop Address *</label>
         <textarea
           name="address"
           rows="3"
-          placeholder="Enter your shop address"
           value={form.address}
           onChange={handleChange}
         />
 
-        {/* CITY + STATE */}
         <div className="row">
           <div>
             <label>City *</label>
             <input
               type="text"
               name="city"
-              placeholder="City"
               value={form.city}
               onChange={handleChange}
             />
@@ -132,24 +134,20 @@ export default function CheckoutAddress() {
             <input
               type="text"
               name="state"
-              placeholder="State"
               value={form.state}
               onChange={handleChange}
             />
           </div>
         </div>
 
-        {/* PINCODE */}
         <label>Pincode *</label>
         <input
           type="number"
           name="pincode"
-          placeholder="6 digit pincode"
           value={form.pincode}
           onChange={handleChange}
         />
 
-        {/* BUTTON */}
         <button
           className="continue-btn"
           onClick={handleContinue}
