@@ -1,139 +1,134 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CheckoutAddress.css";
+import { supabase } from "../supabaseClient";
 
 export default function CheckoutAddress() {
   const navigate = useNavigate();
 
-  // 🔐 LOGIN CHECK
-  useEffect(() => {
-    const userMobile = localStorage.getItem("user_mobile");
-
-    if (!userMobile) {
-      localStorage.setItem(
-        "redirect_after_login",
-        "checkout/address"
-      );
-
-      navigate("/login");
-    }
-  }, [navigate]);
-
   const [form, setForm] = useState({
-    business_name: "",
-    gst: "",
-    name: "",
-    phone: "",
+    full_name: "",
+    mobile: "",
     address: "",
     city: "",
     state: "",
-    pincode: ""
+    pincode: "",
+    business_name: "",
+    gst_number: ""
   });
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
+  useEffect(() => {
+    const loadProfile = async () => {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
 
-  const handleContinue = () => {
-    if (
-      !form.business_name ||
-      !form.name ||
-      !form.phone ||
-      !form.address ||
-      !form.city ||
-      !form.state ||
-      !form.pincode
-    ) {
-      alert("Please fill all required fields");
-      return;
-    }
+      if (!user) {
+        localStorage.setItem(
+          "redirect_after_login",
+          "/checkout/address"
+        );
+        navigate("/login");
+        return;
+      }
 
-    localStorage.setItem(
-      "checkout_address",
-      JSON.stringify(form)
-    );
+      const { data } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (data) setForm(data);
+    };
+
+    loadProfile();
+  }, [navigate]);
+
+  const saveAddress = async () => {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    await supabase
+      .from("user_profiles")
+      .update(form)
+      .eq("user_id", user.id);
 
     navigate("/checkout/shipping");
   };
 
   return (
-    <div className="checkout-address">
-      <div className="address-card">
+    <div className="checkout-box">
+      <h2>Delivery Address</h2>
 
-        <h2>📦 Delivery Address</h2>
+      <input
+        placeholder="Full Name"
+        value={form.full_name || ""}
+        onChange={(e) =>
+          setForm({
+            ...form,
+            full_name: e.target.value
+          })
+        }
+      />
 
-        <label>Business Name *</label>
-        <input
-          name="business_name"
-          value={form.business_name}
-          onChange={handleChange}
-        />
+      <input
+        placeholder="Mobile"
+        value={form.mobile || ""}
+        onChange={(e) =>
+          setForm({
+            ...form,
+            mobile: e.target.value
+          })
+        }
+      />
 
-        <label>GST (optional)</label>
-        <input
-          name="gst"
-          value={form.gst}
-          onChange={handleChange}
-        />
+      <textarea
+        placeholder="Address"
+        value={form.address || ""}
+        onChange={(e) =>
+          setForm({
+            ...form,
+            address: e.target.value
+          })
+        }
+      />
 
-        <label>Full Name *</label>
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-        />
+      <input
+        placeholder="City"
+        value={form.city || ""}
+        onChange={(e) =>
+          setForm({
+            ...form,
+            city: e.target.value
+          })
+        }
+      />
 
-        <label>Mobile *</label>
-        <div className="mobile-box">
-          <span>+91</span>
-          <input
-            name="phone"
-            maxLength="10"
-            value={form.phone}
-            onChange={handleChange}
-          />
-        </div>
+      <input
+        placeholder="State"
+        value={form.state || ""}
+        onChange={(e) =>
+          setForm({
+            ...form,
+            state: e.target.value
+          })
+        }
+      />
 
-        <label>Address *</label>
-        <textarea
-          name="address"
-          value={form.address}
-          onChange={handleChange}
-        />
+      <input
+        placeholder="Pincode"
+        value={form.pincode || ""}
+        onChange={(e) =>
+          setForm({
+            ...form,
+            pincode: e.target.value
+          })
+        }
+      />
 
-        <div className="row">
-          <input
-            name="city"
-            placeholder="City"
-            value={form.city}
-            onChange={handleChange}
-          />
-          <input
-            name="state"
-            placeholder="State"
-            value={form.state}
-            onChange={handleChange}
-          />
-        </div>
-
-        <label>Pincode *</label>
-        <input
-          name="pincode"
-          value={form.pincode}
-          onChange={handleChange}
-        />
-
-        <button
-          className="continue-btn"
-          onClick={handleContinue}
-        >
-          Continue to Shipping →
-        </button>
-
-      </div>
+      <button onClick={saveAddress}>
+        Continue →
+      </button>
     </div>
   );
 }
