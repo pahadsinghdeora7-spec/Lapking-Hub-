@@ -1,95 +1,74 @@
-// src/pages/Account.jsx
+// src/pages/Login.jsx
 
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import "./account.css";
+import "./Login.css";
 
-export default function Account() {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function Login() {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // 🔐 AUTH LISTENER
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!session?.user) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-      setUser(session.user);
+  async function handleLogin() {
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
 
-      // ✅ fetch user profile
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .single();
+    setLoading(true);
 
-      if (error) {
-        alert("Profile load error: " + error.message);
-      } else {
-        setProfile(data);
-      }
-
-      setLoading(false);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    setLoading(false);
 
-  // ⏳ loading
-  if (loading) {
-    return <p style={{ padding: 20 }}>Loading account...</p>;
-  }
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
-  // ❌ NOT LOGGED IN → FORCE LOGIN
-  if (!user) {
-    localStorage.setItem("redirect_after_login", "/account");
-    window.location.href = "/login";
-    return null;
+    // ✅ PERFECT REDIRECT FIX
+    const redirect = localStorage.getItem("redirect_after_login");
+
+    if (redirect) {
+      localStorage.removeItem("redirect_after_login");
+      navigate(redirect);
+    } else {
+      navigate("/account");
+    }
   }
 
   return (
-    <div className="account-page">
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Sign in to LapkingHub</h2>
 
-      {/* PROFILE HEADER */}
-      <div className="account-profile">
-        <div className="avatar">👤</div>
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <h3>Welcome to LapkingHub</h3>
-        <p>{user.email}</p>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button onClick={handleLogin} disabled={loading}>
+          {loading ? "Signing in..." : "Login"}
+        </button>
+
+        <p>
+          New user? <Link to="/signup">Create account</Link>
+        </p>
       </div>
-
-      {/* USER DETAILS */}
-      {profile && (
-        <div style={{ padding: 15 }}>
-          <p>✅ Login persistent</p>
-          <p>✅ Reload safe</p>
-          <p>✅ Supabase session active</p>
-
-          <hr />
-
-          <p><b>Name:</b> {profile.full_name || "-"}</p>
-          <p><b>Mobile:</b> {profile.mobile || "-"}</p>
-          <p><b>City:</b> {profile.city || "-"}</p>
-          <p><b>Pincode:</b> {profile.pincode || "-"}</p>
-        </div>
-      )}
-
-      {/* LOGOUT */}
-      <button
-        className="logout-btn"
-        onClick={async () => {
-          await supabase.auth.signOut();
-          window.location.href = "/";
-        }}
-      >
-        Logout
-      </button>
     </div>
   );
 }
