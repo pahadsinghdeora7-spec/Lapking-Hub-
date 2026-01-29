@@ -69,7 +69,7 @@ export default function Login() {
         />
 
         <button onClick={handleLogin} disabled={loading}>
-          {loading ? "Signing in..." : "Sign In Securely"}
+          {loading ? "Signing in..." : "Log In Now"}
         </button>
 
         <p className="secure-text">
