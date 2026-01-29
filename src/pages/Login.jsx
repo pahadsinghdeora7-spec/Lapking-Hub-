@@ -1,61 +1,84 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Login.css";
 
 export default function Login() {
-  const [mobile, setMobile] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  async function handleContinue() {
-    if (mobile.length !== 10) {
-      alert("Enter valid 10 digit mobile number");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogin() {
+    if (!email || !password) {
+      alert("Please enter email and password");
       return;
     }
 
     setLoading(true);
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    await supabase.from("otp_logins").insert({
-      mobile,
-      otp,
-      verified: false
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
-
-    localStorage.setItem("otp_mobile", mobile);
-    localStorage.setItem("otp_code", otp);
 
     setLoading(false);
 
-    navigate("/verify-otp");
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    // 🔁 AMAZON STYLE REDIRECT
+    const redirect =
+      localStorage.getItem("redirect_after_login") || "/";
+
+    localStorage.removeItem("redirect_after_login");
+
+    navigate(redirect, { replace: true });
   }
 
   return (
-    <div className="auth-container">
-      <h2>Login or Sign up</h2>
+    <div className="auth-wrapper">
+      <div className="auth-box">
 
-      <p className="sub-text">
-        Enter your mobile number to continue
-      </p>
+        <h2>Sign in</h2>
 
-      <div className="mobile-box">
-        <span>+91</span>
+        <label>Email</label>
         <input
-          type="tel"
-          maxLength="10"
-          value={mobile}
-          onChange={(e) =>
-            setMobile(e.target.value.replace(/\D/g, ""))
-          }
-          placeholder="Mobile number"
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-      </div>
 
-      <button onClick={handleContinue} disabled={loading}>
-        {loading ? "Please wait..." : "Continue"}
-      </button>
+        <label>Password</label>
+        <input
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button onClick={handleLogin} disabled={loading}>
+          {loading ? "Signing in..." : "Sign In"}
+        </button>
+
+        <p className="terms">
+          By continuing, you agree to LapkingHub’s <br />
+          Terms & Conditions and Privacy Policy
+        </p>
+
+        <hr />
+
+        <p className="new-text">New to LapkingHub?</p>
+
+        <Link to="/signup" className="create-btn">
+          Create your LapkingHub account
+        </Link>
+
+      </div>
     </div>
   );
 }
