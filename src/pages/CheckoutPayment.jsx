@@ -1,91 +1,118 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
 
-  async function placeOrder() {
-    const address = JSON.parse(
-      localStorage.getItem("checkout_address")
-    );
+  const [cart, setCart] = useState([]);
+  const [address, setAddress] = useState(null);
+  const [courier, setCourier] = useState(null);
 
-    const shipping = JSON.parse(
-      localStorage.getItem("checkout_shipping")
-    );
+  useEffect(() => {
+    const cartData = JSON.parse(localStorage.getItem("cart_items") || "[]");
+    const addressData = JSON.parse(localStorage.getItem("checkout_address"));
+    const courierData = JSON.parse(localStorage.getItem("selected_courier"));
 
-    const cart = JSON.parse(
-      localStorage.getItem("cart_items")
-    );
-
-    if (!address || !shipping || !cart) {
-      alert("Checkout data missing");
+    if (!cartData.length || !addressData || !courierData) {
+      navigate("/");
       return;
     }
 
-    const itemsTotal = cart.reduce(
-      (sum, i) => sum + i.price * i.qty,
-      0
-    );
+    setCart(cartData);
+    setAddress(addressData);
+    setCourier(courierData);
+  }, [navigate]);
 
-    const grandTotal =
-      itemsTotal + Number(shipping.charge || 0);
+  const itemsTotal = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
 
-    // ✅ INSERT ORDER
-    const { data: order, error } = await supabase
-      .from("orders")
-      .insert({
-        customer_name: address.name,
-        phone: address.phone,
-        address: address.address,
-        city: address.city,
-        state: address.state,
-        pincode: address.pincode,
-        gst: address.gst || null,
-        courier: shipping.courier,
-        courier_charge: shipping.charge,
-        total: grandTotal,
-        payment_status: "Pending",
-        status: "New"
-      })
-      .select()
-      .single();
+  const grandTotal = itemsTotal + Number(courier?.price || 0);
 
-    if (error) {
-      console.log(error);
-      alert("Order not placed");
-      return;
-    }
-
-    // ✅ INSERT ITEMS
-    for (let item of cart) {
-      await supabase.from("order_items").insert({
-        order_id: order.id,
-        product_id: item.id,
-        price: item.price,
-        qty: item.qty
-      });
-    }
-
-    // ✅ CLEANUP
-    localStorage.removeItem("cart_items");
-    localStorage.removeItem("checkout_address");
-    localStorage.removeItem("checkout_shipping");
-
+  function confirmOrder() {
+    alert("Order placed successfully ✅");
     navigate("/order/success");
   }
 
   return (
     <div className="checkout-payment">
+
       <h2>Payment</h2>
 
-      <button
-        className="pay-btn"
-        onClick={placeOrder}
-      >
+      {/* ORDER SUMMARY */}
+      <div className="pay-card">
+        <h3>🧾 Order Summary</h3>
+
+        {cart.map((item) => (
+          <div key={item.id} className="summary-row">
+            <img src={item.image} alt="" />
+
+            <div className="summary-info">
+              <div>{item.name}</div>
+              <small>
+                ₹{item.price} × {item.qty}
+              </small>
+            </div>
+
+            <strong>
+              ₹{item.price * item.qty}
+            </strong>
+          </div>
+        ))}
+      </div>
+
+      {/* ADDRESS */}
+      <div className="pay-card">
+        <h3>🏠 Delivery Address</h3>
+        <p><strong>{address.full_name}</strong></p>
+        <p>📞 {address.mobile}</p>
+        <p>
+          {address.address}, {address.city}, {address.state} –{" "}
+          {address.pincode}
+        </p>
+      </div>
+
+      {/* COURIER */}
+      <div className="pay-card">
+        <h3>🚚 Courier Details</h3>
+
+        <p><strong>{courier.name}</strong></p>
+        <p>Delivery in {courier.days}</p>
+        <p>Shipping Charge: ₹{courier.price}</p>
+
+        <small className="note">
+          Delivery charges depend on selected courier company.
+        </small>
+      </div>
+
+      {/* PRICE */}
+      <div className="pay-card">
+        <h3>💰 Price Details</h3>
+
+        <div className="price-row">
+          <span>Items Total</span>
+          <span>₹{itemsTotal}</span>
+        </div>
+
+        <div className="price-row">
+          <span>Delivery Charge</span>
+          <span>₹{courier.price}</span>
+        </div>
+
+        <hr />
+
+        <div className="price-row total">
+          <span>Total Payable</span>
+          <span>₹{grandTotal}</span>
+        </div>
+      </div>
+
+      <button className="confirm-btn" onClick={confirmOrder}>
         Confirm Order
       </button>
+
     </div>
   );
 }
