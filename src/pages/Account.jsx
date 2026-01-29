@@ -1,33 +1,24 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./account.css";
 
 export default function Account() {
-  const navigate = useNavigate();
-
-  const [tab, setTab] = useState("profile");
+  const [tab, setTab] = useState("orders");
   const [profile, setProfile] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
 
-  // TEMP ADMIN (baad me role se kar dena)
   const isAdmin = true;
 
   useEffect(() => {
-    loadAccountData();
+    loadData();
   }, []);
 
-  async function loadAccountData() {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
+  async function loadData() {
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+    if (!user) return;
 
-    // PROFILE
     const { data: profileData } = await supabase
       .from("user_profiles")
       .select("*")
@@ -36,7 +27,6 @@ export default function Account() {
 
     setProfile(profileData);
 
-    // ORDERS
     const { data: orderData } = await supabase
       .from("orders")
       .select("*")
@@ -44,184 +34,141 @@ export default function Account() {
       .order("created_at", { ascending: false });
 
     setOrders(orderData || []);
-  }
 
-  async function updateAddress() {
-    await supabase
-      .from("user_profiles")
-      .update({
-        address: profile.address,
-        city: profile.city,
-        state: profile.state,
-        pincode: profile.pincode
-      })
-      .eq("user_id", profile.user_id);
+    const { data: wishlistData } = await supabase
+      .from("wishlist")
+      .select("*")
+      .eq("user_id", user.id);
 
-    alert("Address updated successfully");
-  }
-
-  async function logout() {
-    await supabase.auth.signOut();
-    navigate("/");
+    setWishlist(wishlistData || []);
   }
 
   return (
-    <div className="account-page">
+    <div className="account-layout">
 
-      {/* PROFILE HEADER */}
-      <div className="account-profile">
-        <div className="avatar">👤</div>
-        <h3>
-          Welcome {profile?.full_name || "to LapkingHub"}
-        </h3>
-        <p>Wholesale Laptop Accessories</p>
+      {/* LEFT MENU */}
+      <div className="account-sidebar">
+
+        <div className="profile-box">
+          👤
+          <h4>{profile?.full_name || "LapkingHub User"}</h4>
+          <p>Wholesale Buyer Account</p>
+        </div>
+
+        <div onClick={() => setTab("orders")} className="menu-item">📦 My Orders</div>
+        <div onClick={() => setTab("address")} className="menu-item">📍 Address</div>
+        <div onClick={() => setTab("replacement")} className="menu-item">🔁 Replacement</div>
+        <div onClick={() => setTab("wishlist")} className="menu-item">⭐ Wishlist</div>
+        <div onClick={() => setTab("policies")} className="menu-item">📄 Policies</div>
+        <div onClick={() => setTab("about")} className="menu-item">ℹ️ About Us</div>
+        <div onClick={() => setTab("contact")} className="menu-item">☎️ Contact Us</div>
+
+        {isAdmin && (
+          <div onClick={() => window.location.href="/admin"} className="menu-item admin">
+            🛠 Admin Panel
+          </div>
+        )}
+
       </div>
 
-      {/* TABS */}
-      <div className="account-tabs">
-        <button onClick={() => setTab("orders")}>My Orders</button>
-        <button onClick={() => setTab("address")}>Address</button>
-        <button onClick={() => setTab("replacement")}>Replacement</button>
-        <button onClick={() => setTab("profile")}>Profile</button>
-      </div>
-
-      {/* CONTENT */}
+      {/* RIGHT CONTENT */}
       <div className="account-content">
 
         {/* ORDERS */}
         {tab === "orders" && (
-          <div className="card">
+          <>
             <h3>My Orders</h3>
+            <p>Track your wholesale orders easily.</p>
 
-            {orders.length === 0 && (
-              <p>No orders placed yet.</p>
-            )}
+            {orders.length === 0 && <p>No orders found.</p>}
 
-            {orders.map((o) => (
-              <div key={o.id} className="order-box">
-                <b>Order ID:</b> #{o.id} <br />
-                <b>Total:</b> ₹{o.total_amount} <br />
+            {orders.map(o => (
+              <div key={o.id} className="card">
+                <b>Order ID:</b> #{o.id}<br/>
+                <b>Total:</b> ₹{o.total_amount}<br/>
                 <b>Status:</b> {o.status}
               </div>
             ))}
-          </div>
+          </>
         )}
 
         {/* ADDRESS */}
         {tab === "address" && profile && (
-          <div className="card">
+          <>
             <h3>Delivery Address</h3>
+            <p>Your saved delivery location.</p>
 
-            <input value={profile.full_name || ""} disabled />
-            <input value={profile.mobile || ""} disabled />
-
-            <textarea
-              placeholder="Full Address"
-              value={profile.address || ""}
-              onChange={(e) =>
-                setProfile({ ...profile, address: e.target.value })
-              }
-            />
-
-            <input
-              placeholder="City"
-              value={profile.city || ""}
-              onChange={(e) =>
-                setProfile({ ...profile, city: e.target.value })
-              }
-            />
-
-            <input
-              placeholder="State"
-              value={profile.state || ""}
-              onChange={(e) =>
-                setProfile({ ...profile, state: e.target.value })
-              }
-            />
-
-            <input
-              placeholder="Pincode"
-              value={profile.pincode || ""}
-              onChange={(e) =>
-                setProfile({ ...profile, pincode: e.target.value })
-              }
-            />
-
-            <button onClick={updateAddress}>
-              Update Address
-            </button>
-          </div>
+            <div className="card">
+              <p><b>Name:</b> {profile.full_name}</p>
+              <p><b>Mobile:</b> {profile.mobile}</p>
+              <p><b>Address:</b> {profile.address}</p>
+              <p><b>City:</b> {profile.city}</p>
+              <p><b>State:</b> {profile.state}</p>
+              <p><b>Pincode:</b> {profile.pincode}</p>
+            </div>
+          </>
         )}
 
         {/* REPLACEMENT */}
         {tab === "replacement" && (
-          <div className="card">
-            <h3>Replacement Request</h3>
+          <>
+            <h3>Replacement Requests</h3>
+            <p>Request replacement for damaged or wrong items.</p>
 
-            {orders.map((o) => (
-              <div key={o.id} className="order-box">
+            {orders.map(o => (
+              <div key={o.id} className="card">
                 Order #{o.id}
-
-                <button
-                  onClick={async () => {
-                    await supabase
-                      .from("replacement_requests")
-                      .insert({
-                        order_id: o.id,
-                        user_id: o.user_id,
-                        status: "pending"
-                      });
-
-                    alert("Replacement request submitted");
-                  }}
-                >
+                <button style={{marginTop:10}}>
                   Request Replacement
                 </button>
               </div>
             ))}
-          </div>
+          </>
         )}
 
-        {/* PROFILE */}
-        {tab === "profile" && profile && (
-          <div className="card">
-            <h3>Account Details</h3>
+        {/* WISHLIST */}
+        {tab === "wishlist" && (
+          <>
+            <h3>Wishlist</h3>
+            <p>Your saved products for future purchase.</p>
 
-            <p><b>Name:</b> {profile.full_name}</p>
-            <p><b>Mobile:</b> {profile.mobile}</p>
-            <p><b>Email:</b> {profile.email}</p>
-
-            {profile.business_name && (
-              <p><b>Business:</b> {profile.business_name}</p>
-            )}
-
-            {profile.gst_number && (
-              <p><b>GST:</b> {profile.gst_number}</p>
-            )}
-          </div>
+            {wishlist.length === 0 && <p>No items in wishlist.</p>}
+          </>
         )}
+
+        {/* POLICIES */}
+        {tab === "policies" && (
+          <>
+            <h3>Policies</h3>
+            <p>Return • Replacement • Shipping • Privacy</p>
+
+            <div className="card">
+              Replacement allowed within 7 days for genuine issues.
+            </div>
+          </>
+        )}
+
+        {/* ABOUT */}
+        {tab === "about" && (
+          <>
+            <h3>About LapkingHub</h3>
+            <p>
+              LapkingHub is a wholesale platform for laptop and computer
+              accessories across India.
+            </p>
+          </>
+        )}
+
+        {/* CONTACT */}
+        {tab === "contact" && (
+          <>
+            <h3>Contact Us</h3>
+            <p>📞 WhatsApp: 9873670361</p>
+            <p>📧 Support: lapkinghub@gmail.com</p>
+          </>
+        )}
+
       </div>
-
-      {/* ADMIN */}
-      {isAdmin && (
-        <div
-          className="account-item"
-          onClick={() => navigate("/admin")}
-          style={{
-            cursor: "pointer",
-            fontWeight: "600",
-            color: "#0d6efd"
-          }}
-        >
-          🛠 Admin Panel
-        </div>
-      )}
-
-      {/* LOGOUT */}
-      <button className="logout-btn" onClick={logout}>
-        Logout
-      </button>
-
     </div>
   );
-        }
+      }
