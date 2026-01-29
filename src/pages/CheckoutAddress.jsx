@@ -1,5 +1,3 @@
-// src/pages/CheckoutAddress.jsx
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CheckoutAddress.css";
@@ -7,12 +5,12 @@ import "./CheckoutAddress.css";
 export default function CheckoutAddress() {
   const navigate = useNavigate();
 
-  // ✅ LOGIN CHECK
+  // ✅ LOGIN CHECK (FINAL FIX)
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const userMobile = localStorage.getItem("user_mobile");
 
-    if (!user || !user.loggedIn) {
-      // 🔁 after login return here
+    if (!userMobile) {
+      // 🔁 login ke baad yahi wapas aana hai
       localStorage.setItem(
         "redirect_after_login",
         "/checkout/address"
@@ -74,6 +72,7 @@ export default function CheckoutAddress() {
           Please enter your delivery details
         </p>
 
+        {/* BUSINESS NAME */}
         <label>Business Name *</label>
         <input
           type="text"
@@ -82,6 +81,7 @@ export default function CheckoutAddress() {
           onChange={handleChange}
         />
 
+        {/* GST */}
         <label>GST Number (optional)</label>
         <input
           type="text"
@@ -90,6 +90,7 @@ export default function CheckoutAddress() {
           onChange={handleChange}
         />
 
+        {/* FULL NAME */}
         <label>Full Name *</label>
         <input
           type="text"
@@ -98,6 +99,7 @@ export default function CheckoutAddress() {
           onChange={handleChange}
         />
 
+        {/* MOBILE */}
         <label>Mobile Number *</label>
         <div className="mobile-box">
           <span>+91</span>
@@ -110,6 +112,7 @@ export default function CheckoutAddress() {
           />
         </div>
 
+        {/* ADDRESS */}
         <label>Shop Address *</label>
         <textarea
           name="address"
@@ -118,6 +121,7 @@ export default function CheckoutAddress() {
           onChange={handleChange}
         />
 
+        {/* CITY + STATE */}
         <div className="row">
           <div>
             <label>City *</label>
@@ -140,6 +144,7 @@ export default function CheckoutAddress() {
           </div>
         </div>
 
+        {/* PINCODE */}
         <label>Pincode *</label>
         <input
           type="number"
@@ -148,6 +153,7 @@ export default function CheckoutAddress() {
           onChange={handleChange}
         />
 
+        {/* BUTTON */}
         <button
           className="continue-btn"
           onClick={handleContinue}
@@ -162,4 +168,4 @@ export default function CheckoutAddress() {
       </div>
     </div>
   );
-}
+      }
