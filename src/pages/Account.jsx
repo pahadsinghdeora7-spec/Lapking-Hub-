@@ -6,18 +6,19 @@ import "./account.css";
 export default function Account() {
   const navigate = useNavigate();
 
-  const [tab, setTab] = useState("orders");
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("orders");
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 🔐 get logged user
+  // 🔐 LOAD USER PROFILE
   useEffect(() => {
-    getProfile();
+    loadProfile();
   }, []);
 
-  async function getProfile() {
+  async function loadProfile() {
     const {
-      data: { user }
+      data: { user },
+      error
     } = await supabase.auth.getUser();
 
     if (!user) {
@@ -25,11 +26,15 @@ export default function Account() {
       return;
     }
 
-    const { data } = await supabase
+    const { data, error: profileError } = await supabase
       .from("user_profiles")
       .select("*")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Profile error:", profileError);
+    }
 
     setProfile(data);
     setLoading(false);
@@ -40,12 +45,14 @@ export default function Account() {
     navigate("/login");
   }
 
-  if (loading) return <p style={{ padding: 20 }}>Loading account...</p>;
+  if (loading) {
+    return <p style={{ padding: 20 }}>Loading your account...</p>;
+  }
 
   return (
     <div className="account-page">
 
-      {/* PROFILE HEADER */}
+      {/* HEADER */}
       <div className="account-profile">
         <div className="avatar">👤</div>
         <h3>Welcome to LapkingHub</h3>
@@ -54,87 +61,76 @@ export default function Account() {
 
       {/* TABS */}
       <div className="account-tabs">
-
-        <button onClick={() => setTab("orders")} className="menu-item">
-          📦 My Orders
-        </button>
-
-        <button onClick={() => setTab("address")} className="menu-item">
-          📍 Address
-        </button>
-
-        <button onClick={() => setTab("replacement")} className="menu-item">
-          🔁 Replacement
-        </button>
-
-        <button onClick={() => setTab("profile")} className="menu-item">
-          👤 Profile
-        </button>
-
+        <button onClick={() => setActiveTab("orders")}>📦 My Orders</button>
+        <button onClick={() => setActiveTab("address")}>📍 Address</button>
+        <button onClick={() => setActiveTab("replacement")}>🔁 Replacement</button>
+        <button onClick={() => setActiveTab("profile")}>👤 Profile</button>
         <button
-          className="menu-item"
           onClick={() => navigate("/admin")}
-          style={{ color: "#0d6efd", fontWeight: "600" }}
+          style={{ color: "#0d6efd", fontWeight: 600 }}
         >
           🛠 Admin Panel
         </button>
-
       </div>
 
       {/* CONTENT */}
       <div className="account-content">
 
         {/* ORDERS */}
-        {tab === "orders" && (
+        {activeTab === "orders" && (
           <>
             <h4>📦 My Orders</h4>
-            <p>Your all orders will appear here.</p>
+            <p>Your orders will appear here after purchase.</p>
           </>
         )}
 
         {/* ADDRESS */}
-        {tab === "address" && (
+        {activeTab === "address" && (
           <>
             <h4>📍 Delivery Address</h4>
 
-            <p style={{ color: "#666", fontSize: 14 }}>
-              This address will be used for all deliveries.
-            </p>
-
-            <div className="address-box">
-              <p><b>Name:</b> {profile.full_name}</p>
-              <p><b>Mobile:</b> {profile.mobile}</p>
-              <p><b>Address:</b> {profile.address}</p>
-              <p><b>City:</b> {profile.city}</p>
-              <p><b>State:</b> {profile.state}</p>
-              <p><b>Pincode:</b> {profile.pincode}</p>
-            </div>
-          </>
-        )}
-
-        {/* REPLACEMENT */}
-        {tab === "replacement" && (
-          <>
-            <h4>🔁 Replacement Requests</h4>
-            <p>
-              If product damaged or wrong item received,
-              you can request replacement here.
-            </p>
+            {!profile ? (
+              <p>No address saved yet.</p>
+            ) : (
+              <div className="address-box">
+                <p><b>Name:</b> {profile.full_name}</p>
+                <p><b>Mobile:</b> {profile.mobile}</p>
+                <p><b>Address:</b> {profile.address}</p>
+                <p><b>City:</b> {profile.city}</p>
+                <p><b>State:</b> {profile.state}</p>
+                <p><b>Pincode:</b> {profile.pincode}</p>
+              </div>
+            )}
           </>
         )}
 
         {/* PROFILE */}
-        {tab === "profile" && (
+        {activeTab === "profile" && (
           <>
             <h4>👤 My Profile</h4>
 
-            <div className="profile-box">
-              <p><b>Full Name:</b> {profile.full_name}</p>
-              <p><b>Email:</b> {profile.email}</p>
-              <p><b>Mobile:</b> {profile.mobile}</p>
-              <p><b>Business:</b> {profile.business_name || "—"}</p>
-              <p><b>GST:</b> {profile.gst_number || "—"}</p>
-            </div>
+            {!profile ? (
+              <p>Profile not completed yet.</p>
+            ) : (
+              <div className="profile-box">
+                <p><b>Full Name:</b> {profile.full_name}</p>
+                <p><b>Email:</b> {profile.email}</p>
+                <p><b>Mobile:</b> {profile.mobile}</p>
+                <p><b>Business:</b> {profile.business_name || "—"}</p>
+                <p><b>GST:</b> {profile.gst_number || "—"}</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* REPLACEMENT */}
+        {activeTab === "replacement" && (
+          <>
+            <h4>🔁 Replacement</h4>
+            <p>
+              If product damaged or wrong item received,
+              you can request replacement from here.
+            </p>
           </>
         )}
 
@@ -147,4 +143,4 @@ export default function Account() {
 
     </div>
   );
-}
+                  }
