@@ -1,80 +1,77 @@
-.auth-container {
-  max-width: 380px;
-  margin: 40px auto;
-  padding: 25px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f6f6f6;
 }
 
-.auth-container h2 {
-  margin-bottom: 8px;
+.auth-box {
+  width: 340px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 6px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+}
+
+.auth-box h2 {
+  margin-bottom: 18px;
   font-size: 22px;
 }
 
-.sub-text {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 18px;
-}
-
-.mobile-box {
-  display: flex;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.mobile-box span {
-  padding: 12px;
-  background: #f5f5f5;
+.auth-box label {
+  font-size: 13px;
   font-weight: 600;
+  display: block;
+  margin-top: 12px;
 }
 
-.mobile-box input {
-  border: none;
-  outline: none;
-  padding: 12px;
-  flex: 1;
-}
-
-button {
+.auth-box input {
   width: 100%;
-  padding: 13px;
-  background: #1976ff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 10px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.auth-box button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 11px;
+  background: #ffd814;
+  border: 1px solid #fcd200;
+  border-radius: 5px;
   font-weight: 600;
   cursor: pointer;
 }
 
+.auth-box button:hover {
+  background: #f7ca00;
+}
+
 .terms {
-  margin-top: 15px;
   font-size: 12px;
-  color: #777;
-  text-align: center;
+  margin-top: 15px;
+  color: #555;
 }
 
-.otp-show {
-  background: #f0f7ff;
+.new-text {
+  text-align: center;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
+.create-btn {
+  display: block;
+  text-align: center;
   padding: 10px;
-  border-radius: 6px;
-  text-align: center;
-  margin-bottom: 15px;
-  color: #1976ff;
-  font-weight: 600;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #111;
+  background: #f3f3f3;
 }
 
-.otp-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 20px;
-  font-size: 18px;
-  text-align: center;
-  letter-spacing: 6px;
+.create-btn:hover {
+  background: #e7e7e7;
 }
