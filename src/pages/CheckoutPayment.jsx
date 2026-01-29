@@ -1,118 +1,88 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CheckoutPayment.css";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
 
-  const [cart, setCart] = useState([]);
-  const [address, setAddress] = useState(null);
-  const [courier, setCourier] = useState(null);
+  const courierRaw = localStorage.getItem("selected_courier");
+  const addressRaw = localStorage.getItem("checkout_address");
+  const cartRaw = localStorage.getItem("cart");
 
-  useEffect(() => {
-    const cartData = JSON.parse(localStorage.getItem("cart_items") || "[]");
-    const addressData = JSON.parse(localStorage.getItem("checkout_address"));
-    const courierData = JSON.parse(localStorage.getItem("selected_courier"));
+  const courier = courierRaw ? JSON.parse(courierRaw) : null;
+  const address = addressRaw ? JSON.parse(addressRaw) : null;
+  const cart = cartRaw ? JSON.parse(cartRaw) : [];
 
-    if (!cartData.length || !addressData || !courierData) {
-      navigate("/");
-      return;
-    }
+  // 🔴 PREVENT BLANK PAGE
+  if (!courier || !address || cart.length === 0) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h3>⚠️ Incomplete checkout data</h3>
+        <p>Please complete checkout steps.</p>
 
-    setCart(cartData);
-    setAddress(addressData);
-    setCourier(courierData);
-  }, [navigate]);
+        <button onClick={() => navigate("/checkout/shipping")}>
+          Go back
+        </button>
+      </div>
+    );
+  }
 
   const itemsTotal = cart.reduce(
-    (sum, item) => sum + item.price * item.qty,
+    (sum, i) => sum + i.price * i.qty,
     0
   );
 
-  const grandTotal = itemsTotal + Number(courier?.price || 0);
-
-  function confirmOrder() {
-    alert("Order placed successfully ✅");
-    navigate("/order/success");
-  }
+  const grandTotal = itemsTotal + Number(courier.price);
 
   return (
-    <div className="checkout-payment">
-
+    <div style={{ padding: 15 }}>
       <h2>Payment</h2>
 
       {/* ORDER SUMMARY */}
-      <div className="pay-card">
-        <h3>🧾 Order Summary</h3>
+      <div className="card">
+        <h4>Order Summary</h4>
 
         {cart.map((item) => (
-          <div key={item.id} className="summary-row">
-            <img src={item.image} alt="" />
-
-            <div className="summary-info">
+          <div key={item.id} style={{ display: "flex", gap: 10 }}>
+            <img
+              src={item.image}
+              width={50}
+              alt=""
+            />
+            <div>
               <div>{item.name}</div>
-              <small>
+              <div>
                 ₹{item.price} × {item.qty}
-              </small>
+              </div>
             </div>
-
-            <strong>
-              ₹{item.price * item.qty}
-            </strong>
           </div>
         ))}
       </div>
 
       {/* ADDRESS */}
-      <div className="pay-card">
-        <h3>🏠 Delivery Address</h3>
-        <p><strong>{address.full_name}</strong></p>
-        <p>📞 {address.mobile}</p>
+      <div className="card">
+        <h4>Delivery Address</h4>
+        <p>{address.full_name}</p>
+        <p>{address.address}</p>
         <p>
-          {address.address}, {address.city}, {address.state} –{" "}
-          {address.pincode}
+          {address.city} - {address.pincode}
         </p>
       </div>
 
       {/* COURIER */}
-      <div className="pay-card">
-        <h3>🚚 Courier Details</h3>
-
-        <p><strong>{courier.name}</strong></p>
-        <p>Delivery in {courier.days}</p>
-        <p>Shipping Charge: ₹{courier.price}</p>
-
-        <small className="note">
-          Delivery charges depend on selected courier company.
-        </small>
+      <div className="card">
+        <h4>Courier</h4>
+        <p>{courier.name}</p>
+        <p>Delivery: {courier.days}</p>
+        <p>Charge: ₹{courier.price}</p>
       </div>
 
-      {/* PRICE */}
-      <div className="pay-card">
-        <h3>💰 Price Details</h3>
-
-        <div className="price-row">
-          <span>Items Total</span>
-          <span>₹{itemsTotal}</span>
-        </div>
-
-        <div className="price-row">
-          <span>Delivery Charge</span>
-          <span>₹{courier.price}</span>
-        </div>
-
-        <hr />
-
-        <div className="price-row total">
-          <span>Total Payable</span>
-          <span>₹{grandTotal}</span>
-        </div>
+      {/* TOTAL */}
+      <div className="card">
+        <h3>Total Payable: ₹{grandTotal}</h3>
       </div>
 
-      <button className="confirm-btn" onClick={confirmOrder}>
+      <button className="confirm-btn">
         Confirm Order
       </button>
-
     </div>
   );
 }
