@@ -15,7 +15,7 @@ export default function CheckoutShipping() {
       const { data, error } = await supabase
         .from("couriers")
         .select("*")
-        .eq("status", true) // ✅ IMPORTANT
+        .eq("status", true)
         .order("price", { ascending: true });
 
       if (!error && data) {
@@ -30,7 +30,7 @@ export default function CheckoutShipping() {
 
   function handleContinue() {
     if (!selected) {
-      alert("Please select courier company");
+      alert("Please select a courier service to continue");
       return;
     }
 
@@ -45,7 +45,7 @@ export default function CheckoutShipping() {
   if (loading) {
     return (
       <p style={{ textAlign: "center" }}>
-        Loading courier options...
+        Loading delivery options...
       </p>
     );
   }
@@ -53,8 +53,21 @@ export default function CheckoutShipping() {
   return (
     <div className="checkout-shipping">
 
-      <h2>Select Courier</h2>
+      {/* HEADER */}
+      <h2>🚚 Choose Delivery Method</h2>
 
+      <p className="shipping-subtext">
+        Select a courier company based on delivery speed and charges.
+      </p>
+
+      {/* IMPORTANT NOTE */}
+      <div className="shipping-note">
+        💡 <b>Delivery charge depends on the selected courier company.</b>
+        <br />
+        Faster delivery may cost more.
+      </div>
+
+      {/* COURIER LIST */}
       {couriers.map((c) => (
         <div
           key={c.id}
@@ -63,25 +76,34 @@ export default function CheckoutShipping() {
           }`}
           onClick={() => setSelected(c)}
         >
-          <div>
-            <strong>{c.name}</strong>
+          <div className="courier-left">
+            <strong>🚚 {c.name}</strong>
+
             {c.days && (
-              <div style={{ fontSize: 12, color: "#666" }}>
-                Delivery in {c.days}
+              <div className="courier-days">
+                ⏱ Estimated delivery: {c.days}
               </div>
             )}
           </div>
 
-          <span>₹{c.price}</span>
+          <div className="courier-price">
+            ₹{c.price}
+          </div>
         </div>
       ))}
 
+      {/* BUTTON */}
       <button
         className="continue-btn"
         onClick={handleContinue}
       >
         Continue to Payment →
       </button>
+
+      {/* TRUST TEXT */}
+      <p className="shipping-safe">
+        🔒 Courier partner details are verified by LapkingHub
+      </p>
     </div>
   );
-}
+    }
