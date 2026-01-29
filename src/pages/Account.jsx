@@ -1,74 +1,173 @@
-// src/pages/Login.jsx
-
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import "./Login.css";
+import "./account.css";
 
-export default function Login() {
+export default function Account() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
 
-  async function handleLogin() {
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
+  // ===============================
+  // LOAD SESSION + PROFILE
+  // ===============================
+  useEffect(() => {
+    async function loadAccount() {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      // ❌ not logged in
+      if (!user) {
+        localStorage.setItem("redirect_after_login", "/account");
+        navigate("/login");
+        return;
+      }
+
+      setUser(user);
+
+      // ✅ fetch profile
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!error && data) {
+        setProfile(data);
+      }
+
+      setLoading(false);
     }
 
-    setLoading(true);
+    loadAccount();
+  }, [navigate]);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    // ✅ PERFECT REDIRECT FIX
-    const redirect = localStorage.getItem("redirect_after_login");
-
-    if (redirect) {
-      localStorage.removeItem("redirect_after_login");
-      navigate(redirect);
-    } else {
-      navigate("/account");
-    }
+  // ===============================
+  // LOGOUT
+  // ===============================
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/");
   }
 
-  return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h2>Sign in to LapkingHub</h2>
-
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button onClick={handleLogin} disabled={loading}>
-          {loading ? "Signing in..." : "Login"}
-        </button>
-
-        <p>
-          New user? <Link to="/signup">Create account</Link>
-        </p>
+  // ===============================
+  // LOADING
+  // ===============================
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        Loading account...
       </div>
+    );
+  }
+
+  // ===============================
+  // UI
+  // ===============================
+  return (
+    <div className="account-page">
+
+      {/* PROFILE HEADER */}
+      <div className="account-profile">
+        <div className="avatar">👤</div>
+
+        <h3>
+          {profile?.full_name || "Customer"}
+        </h3>
+
+        <p>{profile?.email || user.email}</p>
+
+        {profile?.mobile && (
+          <p>📞 +91 {profile.mobile}</p>
+        )}
+      </div>
+
+      {/* MENU */}
+      <div className="account-menu">
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/orders")}
+        >
+          📦 My Orders
+          <span>View your order history</span>
+        </div>
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/checkout/address")}
+        >
+          🏠 Address
+          <span>Edit delivery details</span>
+        </div>
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/replacement")}
+        >
+          🔁 Replacement
+          <span>Request replacement</span>
+        </div>
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/wishlist")}
+        >
+          ⭐ Wishlist
+          <span>Saved products</span>
+        </div>
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/rewards")}
+        >
+          🎁 Rewards
+          <span>Your reward points</span>
+        </div>
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/policies")}
+        >
+          📄 Policies
+          <span>Privacy, refund & warranty</span>
+        </div>
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/about-us")}
+        >
+          ℹ️ About Us
+          <span>Know LapkingHub</span>
+        </div>
+
+        <div
+          className="account-item"
+          onClick={() => navigate("/contact")}
+        >
+          📞 Contact Us
+          <span>Support & help</span>
+        </div>
+
+        {/* ADMIN ACCESS */}
+        {profile?.role === "admin" && (
+          <div
+            className="account-item admin"
+            onClick={() => navigate("/admin")}
+          >
+            🛠 Admin Panel
+            <span>Manage store</span>
+          </div>
+        )}
+      </div>
+
+      {/* LOGOUT */}
+      <button className="logout-btn" onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }
