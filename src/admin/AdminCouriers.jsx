@@ -9,33 +9,74 @@ export default function AdminCouriers() {
     status: true,
   });
   const [editId, setEditId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // 🔐 ONLY ADMIN ACCESS
   useEffect(() => {
-    load();
+    checkAdmin();
   }, []);
 
+  const checkAdmin = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user || user.email !== "pahadsinghdeora23@gmail.com") {
+      alert("Unauthorized access");
+      window.location.href = "/";
+      return;
+    }
+
+    load();
+  };
+
+  // =============================
+  // LOAD COURIERS
+  // =============================
   const load = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("couriers")
       .select("*")
       .order("id", { ascending: false });
 
-    setCouriers(data || []);
+    if (error) {
+      alert(error.message);
+    } else {
+      setCouriers(data || []);
+    }
+
+    setLoading(false);
   };
 
+  // =============================
+  // SAVE
+  // =============================
   const save = async () => {
     if (!form.name || !form.price) {
-      alert("Name & price required");
+      alert("Courier name & price required");
       return;
     }
 
+    const payload = {
+      name: form.name,
+      price: Number(form.price), // ✅ FIX
+      status: form.status,
+    };
+
+    let res;
+
     if (editId) {
-      await supabase
+      res = await supabase
         .from("couriers")
-        .update(form)
+        .update(payload)
         .eq("id", editId);
     } else {
-      await supabase.from("couriers").insert([form]);
+      res = await supabase.from("couriers").insert([payload]);
+    }
+
+    if (res.error) {
+      alert(res.error.message);
+      return;
     }
 
     setForm({ name: "", price: "", status: true });
@@ -43,6 +84,9 @@ export default function AdminCouriers() {
     load();
   };
 
+  // =============================
+  // EDIT
+  // =============================
   const edit = (c) => {
     setEditId(c.id);
     setForm({
@@ -52,16 +96,31 @@ export default function AdminCouriers() {
     });
   };
 
+  // =============================
+  // DELETE
+  // =============================
   const remove = async (id) => {
     if (!window.confirm("Delete courier?")) return;
-    await supabase.from("couriers").delete().eq("id", id);
-    load();
+
+    const { error } = await supabase
+      .from("couriers")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      load();
+    }
   };
+
+  if (loading) return <p style={{ padding: 20 }}>Loading couriers...</p>;
 
   return (
     <div className="admin-page">
-      <h2>Couriers</h2>
+      <h2>🚚 Couriers</h2>
 
+      {/* FORM */}
       <div className="card">
         <h3>{editId ? "Edit Courier" : "Add Courier"}</h3>
 
@@ -74,6 +133,7 @@ export default function AdminCouriers() {
         />
 
         <input
+          type="number"
           placeholder="Price"
           value={form.price}
           onChange={(e) =>
@@ -97,6 +157,7 @@ export default function AdminCouriers() {
         </button>
       </div>
 
+      {/* TABLE */}
       <div className="card">
         <table className="table">
           <thead>
