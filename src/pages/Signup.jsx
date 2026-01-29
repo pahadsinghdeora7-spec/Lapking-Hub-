@@ -1,23 +1,34 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import "./Login.css";
+import "./Auth.css";
 
 export default function Signup() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    mobile: ""
+  });
 
-  async function handleSignup() {
-    if (!email || password.length < 6) {
-      alert("Password must be at least 6 characters");
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSignup = async () => {
+    if (!form.email || !form.password || !form.mobile) {
+      alert("Email, password & mobile required");
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password
+    // 🔐 create auth user
+    const { data, error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password
     });
 
     if (error) {
@@ -25,42 +36,54 @@ export default function Signup() {
       return;
     }
 
-    alert("Account created successfully. Please login.");
-    navigate("/login");
-  }
+    const user = data.user;
+
+    // ✅ create profile
+    await supabase.from("user_profiles").insert({
+      user_id: user.id,
+      email: form.email,
+      mobile: form.mobile
+    });
+
+    // 🔁 redirect logic
+    const redirect =
+      localStorage.getItem("redirect_after_login");
+
+    if (redirect) {
+      localStorage.removeItem("redirect_after_login");
+      navigate(redirect);
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-box">
+    <div className="auth-box">
+      <h2>Create account</h2>
 
-        <h2>Create account</h2>
+      <input
+        placeholder="Email"
+        name="email"
+        onChange={handleChange}
+      />
 
-        <label>Email</label>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <input
+        placeholder="Password"
+        type="password"
+        name="password"
+        onChange={handleChange}
+      />
 
-        <label>Password</label>
-        <input
-          type="password"
-          placeholder="Minimum 6 characters"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <input
+        placeholder="Mobile number"
+        name="mobile"
+        maxLength="10"
+        onChange={handleChange}
+      />
 
-        <button onClick={handleSignup}>
-          Create Account
-        </button>
-
-        <p className="login-link">
-          Already have an account?
-          <Link to="/login"> Sign in</Link>
-        </p>
-
-      </div>
+      <button onClick={handleSignup}>
+        Create Account
+      </button>
     </div>
   );
 }
