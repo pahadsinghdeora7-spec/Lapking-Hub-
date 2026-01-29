@@ -18,15 +18,12 @@ export default function Login() {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await supabase.from("otp_logins").insert([
-      {
-        mobile,
-        otp,
-        verified: false
-      }
-    ]);
+    await supabase.from("otp_logins").insert({
+      mobile,
+      otp,
+      verified: false
+    });
 
-    // ✅ IMPORTANT — NEVER remove redirect_after_login
     localStorage.setItem("otp_mobile", mobile);
     localStorage.setItem("otp_code", otp);
 
@@ -48,23 +45,17 @@ export default function Login() {
         <input
           type="tel"
           maxLength="10"
-          placeholder="Mobile number"
           value={mobile}
           onChange={(e) =>
             setMobile(e.target.value.replace(/\D/g, ""))
           }
+          placeholder="Mobile number"
         />
       </div>
 
       <button onClick={handleContinue} disabled={loading}>
         {loading ? "Please wait..." : "Continue"}
       </button>
-
-      <p className="terms">
-        By continuing, you agree to LapkingHub’s
-        <br />
-        Terms & Conditions and Privacy Policy
-      </p>
     </div>
   );
 }
