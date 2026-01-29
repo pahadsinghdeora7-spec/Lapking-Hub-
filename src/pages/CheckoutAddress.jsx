@@ -5,20 +5,30 @@ import "./CheckoutAddress.css";
 export default function CheckoutAddress() {
   const navigate = useNavigate();
 
-  // ✅ LOGIN CHECK (FINAL FIX)
+  const [checkingLogin, setCheckingLogin] = useState(true);
+
+  // ✅ LOGIN CHECK — SAFE VERSION
   useEffect(() => {
     const userMobile = localStorage.getItem("user_mobile");
 
     if (!userMobile) {
-      // 🔁 login ke baad yahi wapas aana hai
+      // 🔁 login ke baad yahi return kare
       localStorage.setItem(
         "redirect_after_login",
         "/checkout/address"
       );
 
-      navigate("/login");
+      navigate("/login", { replace: true });
+    } else {
+      // ✅ user logged in
+      setCheckingLogin(false);
     }
   }, [navigate]);
+
+  // ⛔ jab tak login check ho raha hai
+  if (checkingLogin) {
+    return null;
+  }
 
   const [form, setForm] = useState({
     business_name: "",
@@ -168,4 +178,4 @@ export default function CheckoutAddress() {
       </div>
     </div>
   );
-      }
+}
