@@ -1,52 +1,85 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import "./CheckoutShipping.css";
 
 export default function CheckoutShipping() {
   const navigate = useNavigate();
+
+  const [couriers, setCouriers] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const couriers = [
-    { name: "DTDC", price: 120 },
-    { name: "Delhivery", price: 150 },
-    { name: "Blue Dart", price: 220 }
-  ];
+  useEffect(() => {
+    async function loadCouriers() {
+      const { data, error } = await supabase
+        .from("couriers")
+        .select("*")
+        .eq("status", true) // ✅ IMPORTANT
+        .order("price", { ascending: true });
 
-  function continueNext() {
+      if (!error && data) {
+        setCouriers(data);
+      }
+
+      setLoading(false);
+    }
+
+    loadCouriers();
+  }, []);
+
+  function handleContinue() {
     if (!selected) {
-      alert("Please select courier");
+      alert("Please select courier company");
       return;
     }
 
-    // ✅ MOST IMPORTANT LINE
     localStorage.setItem(
-      "checkout_shipping",
-      JSON.stringify({
-        courier: selected.name,
-        charge: selected.price
-      })
+      "selected_courier",
+      JSON.stringify(selected)
     );
 
     navigate("/checkout/payment");
   }
 
+  if (loading) {
+    return (
+      <p style={{ textAlign: "center" }}>
+        Loading courier options...
+      </p>
+    );
+  }
+
   return (
-    <div className="shipping-page">
+    <div className="checkout-shipping">
+
       <h2>Select Courier</h2>
 
       {couriers.map((c) => (
         <div
-          key={c.name}
-          className={`courier-box ${
-            selected?.name === c.name ? "active" : ""
+          key={c.id}
+          className={`courier-option ${
+            selected?.id === c.id ? "active" : ""
           }`}
           onClick={() => setSelected(c)}
         >
-          {c.name} — ₹{c.price}
+          <div>
+            <strong>{c.name}</strong>
+            {c.days && (
+              <div style={{ fontSize: 12, color: "#666" }}>
+                Delivery in {c.days}
+              </div>
+            )}
+          </div>
+
+          <span>₹{c.price}</span>
         </div>
       ))}
 
-      <button onClick={continueNext}>
+      <button
+        className="continue-btn"
+        onClick={handleContinue}
+      >
         Continue to Payment →
       </button>
     </div>
