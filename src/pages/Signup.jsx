@@ -1,70 +1,66 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 export default function Signup() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSignup = async () => {
-    if (!email || !password) {
-      alert("Email & password required");
+  async function handleSignup() {
+    if (!email || password.length < 6) {
+      alert("Password must be at least 6 characters");
       return;
     }
 
-    setLoading(true);
-
-    // ✅ create auth user
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
-      password,
+      password
     });
 
     if (error) {
       alert(error.message);
-      setLoading(false);
       return;
     }
 
-    // ✅ auto create profile
-    await supabase.from("user_profiles").insert([
-      {
-        user_id: data.user.id,
-      },
-    ]);
-
-    setLoading(false);
-    alert("Account created successfully");
+    alert("Account created successfully. Please login.");
     navigate("/login");
-  };
+  }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Create Account</h2>
+    <div className="auth-wrapper">
+      <div className="auth-box">
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <h2>Create account</h2>
 
-      <br /><br />
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <label>Password</label>
+        <input
+          type="password"
+          placeholder="Minimum 6 characters"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-      <br /><br />
+        <button onClick={handleSignup}>
+          Create Account
+        </button>
 
-      <button onClick={handleSignup} disabled={loading}>
-        {loading ? "Creating..." : "Signup"}
-      </button>
+        <p className="login-link">
+          Already have an account?
+          <Link to="/login"> Sign in</Link>
+        </p>
+
+      </div>
     </div>
   );
 }
