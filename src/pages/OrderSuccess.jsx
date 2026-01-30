@@ -4,41 +4,40 @@ export default function OrderSuccess() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ padding: 20, textAlign: "center" }}>
-      <div style={{ fontSize: 60 }}>✅</div>
+    <div style={{ padding: 25, textAlign: "center" }}>
+      <div style={{ fontSize: 70 }}>🎉</div>
 
       <h2>Order Placed Successfully</h2>
 
-      <p style={{ color: "#555", marginTop: 8 }}>
-        Thank you for shopping with LapkingHub.
+      <p style={{ marginTop: 8, color: "#555" }}>
+        Thank you for shopping with LapkingHub
       </p>
 
-      <p style={{ fontSize: 13, color: "#777", marginTop: 10 }}>
+      <p style={{ fontSize: 13, color: "#777" }}>
         Your order has been received and is being processed.
       </p>
 
       <div
         style={{
-          marginTop: 20,
-          padding: 15,
           background: "#f6fff8",
-          border: "1px solid #c7efd3",
-          borderRadius: 8
+          border: "1px solid #b7ebc6",
+          padding: 15,
+          borderRadius: 8,
+          marginTop: 20
         }}
       >
-        📦 You will receive order updates via WhatsApp.
+        📦 You will receive delivery updates on WhatsApp
       </div>
 
       <button
         onClick={() => navigate("/orders")}
         style={{
           marginTop: 20,
-          padding: "12px 20px",
           background: "#2874f0",
           color: "#fff",
           border: "none",
-          borderRadius: 6,
-          fontSize: 15
+          padding: "12px 20px",
+          borderRadius: 6
         }}
       >
         View My Orders
@@ -48,7 +47,7 @@ export default function OrderSuccess() {
         <button
           onClick={() => navigate("/")}
           style={{
-            background: "transparent",
+            background: "none",
             border: "none",
             color: "#2874f0"
           }}
