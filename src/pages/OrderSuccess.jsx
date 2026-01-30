@@ -1,72 +1,107 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
-import "./OrderSuccess.css";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderSuccess() {
-  const [params] = useSearchParams();
   const navigate = useNavigate();
 
-  const uuid = params.get("uuid");
-
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    if (uuid) loadOrder();
-  }, [uuid]);
-
-  async function loadOrder() {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("order_uuid", uuid)
-      .single();
-
-    if (!error) {
-      setOrder(data);
-    }
-
-    setLoading(false);
-  }
-
-  if (loading) return <p className="loading">Loading order details...</p>;
-
-  if (!order)
-    return <p className="loading">Order not found</p>;
+    // clear cart after successful order
+    localStorage.removeItem("cart");
+    localStorage.removeItem("selected_courier");
+    localStorage.removeItem("checkout_address");
+  }, []);
 
   return (
-    <div className="order-success-page">
-      <div className="success-card">
-        <div className="success-icon">✅</div>
-
-        <h2>Order Created - Payment Pending</h2>
-
-        <p className="warning-text">
-          Payment is NOT confirmed automatically. Please complete UPI payment
-          and send screenshot on WhatsApp for verification.
-        </p>
-
-        <div className="order-box">
-          <p><strong>Order ID:</strong> {order.order_code}</p>
-          <p><strong>Total:</strong> ₹{order.total}</p>
-          <p><strong>Payment:</strong> {order.payment_status}</p>
-        </div>
-
-        <a
-          href={`https://wa.me/9873670361?text=Order%20ID:%20${order.order_code}%0APayment%20Screenshot`}
-          className="whatsapp-btn"
-        >
-          Send Payment Screenshot on WhatsApp
-        </a>
-
-        <button
-          className="continue-btn"
-          onClick={() => navigate("/")}
-        >
-          Continue Shopping
-        </button>
+    <div
+      style={{
+        padding: 25,
+        textAlign: "center",
+        maxWidth: 500,
+        margin: "0 auto"
+      }}
+    >
+      {/* SUCCESS ICON */}
+      <div
+        style={{
+          fontSize: 70,
+          marginBottom: 10
+        }}
+      >
+        ✅
       </div>
+
+      <h2 style={{ color: "#28a745", marginBottom: 8 }}>
+        Order Placed Successfully!
+      </h2>
+
+      <p style={{ color: "#555", marginBottom: 20 }}>
+        Thank you for your order with <strong>LapkingHub</strong>.
+        <br />
+        Your order has been confirmed and is being processed.
+      </p>
+
+      {/* INFO BOX */}
+      <div
+        style={{
+          background: "#f8f9fa",
+          padding: 15,
+          borderRadius: 10,
+          textAlign: "left",
+          marginBottom: 20
+        }}
+      >
+        <p>📦 <strong>Order Status:</strong> Confirmed</p>
+        <p>🚚 <strong>Shipping:</strong> Courier assigned</p>
+        <p>⏱ <strong>Delivery:</strong> As per selected courier</p>
+        <p>💳 <strong>Payment:</strong> UPI initiated</p>
+      </div>
+
+      {/* TRUST TEXT */}
+      <p style={{ fontSize: 13, color: "#666", marginBottom: 25 }}>
+        🔒 Secure transaction • Verified courier partners • Business support
+      </p>
+
+      {/* BUTTONS */}
+      <button
+        onClick={() => navigate("/orders")}
+        style={{
+          width: "100%",
+          padding: 12,
+          borderRadius: 8,
+          border: "none",
+          background: "#0d6efd",
+          color: "#fff",
+          fontSize: 15,
+          marginBottom: 12
+        }}
+      >
+        📄 View My Orders
+      </button>
+
+      <button
+        onClick={() => navigate("/")}
+        style={{
+          width: "100%",
+          padding: 12,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+          background: "#fff",
+          fontSize: 15
+        }}
+      >
+        🛒 Continue Shopping
+      </button>
+
+      {/* FOOTER NOTE */}
+      <p
+        style={{
+          fontSize: 12,
+          color: "#888",
+          marginTop: 20
+        }}
+      >
+        Need help? Contact LapkingHub support anytime.
+      </p>
     </div>
   );
 }
