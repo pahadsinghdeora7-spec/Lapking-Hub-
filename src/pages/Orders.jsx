@@ -5,7 +5,6 @@ import { supabase } from "../supabaseClient";
 export default function Orders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadOrders();
@@ -16,10 +15,7 @@ export default function Orders() {
       data: { user }
     } = await supabase.auth.getUser();
 
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    if (!user) return;
 
     const { data } = await supabase
       .from("orders")
@@ -28,11 +24,14 @@ export default function Orders() {
       .order("created_at", { ascending: false });
 
     setOrders(data || []);
-    setLoading(false);
   }
 
-  if (loading) {
-    return <div style={{ padding: 20 }}>⏳ Loading orders...</div>;
+  function openDetails(order) {
+    localStorage.setItem(
+      "selectedOrder",
+      JSON.stringify(order)
+    );
+    navigate("/order-details");
   }
 
   return (
@@ -46,27 +45,21 @@ export default function Orders() {
             background: "#fff",
             padding: 15,
             marginBottom: 12,
-            borderRadius: 10,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
+            borderRadius: 10
           }}
         >
           <p><b>Order ID:</b> {o.order_code}</p>
-          <p><b>Date:</b> {new Date(o.created_at).toLocaleString()}</p>
           <p><b>Total:</b> ₹{o.total}</p>
           <p><b>Status:</b> {o.order_status}</p>
 
           <button
-            onClick={() =>
-              navigate("/order-details", { state: { order: o } })
-            }
+            onClick={() => openDetails(o)}
             style={{
-              marginTop: 10,
               padding: "8px 14px",
-              border: "none",
-              borderRadius: 6,
               background: "#1976ff",
               color: "#fff",
-              fontWeight: 600
+              border: "none",
+              borderRadius: 6
             }}
           >
             View Details
