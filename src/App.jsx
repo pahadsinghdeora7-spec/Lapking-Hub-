@@ -28,7 +28,7 @@ import AdminDashboard from "./admin/AdminDashboard.jsx";
 import AdminProducts from "./admin/AdminProducts.jsx";
 import AdminCategories from "./admin/AdminCategories.jsx";
 import AdminOrders from "./admin/AdminOrders.jsx";
-import AdminOrderView from "./admin/AdminOrderView.jsx";
+
 import AdminReplacements from "./admin/AdminReplacements.jsx";
 import AdminCouriers from "./admin/AdminCouriers.jsx";
 import AdminSettings from "./admin/AdminSettings.jsx";
@@ -88,7 +88,7 @@ export default function App() {
               <Route path="products" element={<AdminProducts />} />
               <Route path="categories" element={<AdminCategories />} />
               <Route path="orders" element={<AdminOrders />} />
-              <Route path="orders/:id" element={<AdminOrderView />} />
+              
               <Route path="replacements" element={<AdminReplacements />} />
               <Route path="couriers" element={<AdminCouriers />} />
               <Route path="settings" element={<AdminSettings />} />
