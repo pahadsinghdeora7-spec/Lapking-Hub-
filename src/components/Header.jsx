@@ -1,130 +1,121 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import DrawerMenu from "./DrawerMenu";
+import SearchBar from "./SearchBar";
 
-export default function DrawerMenu({ open, onClose }) {
-  if (!open) return null;
+export default function Header() {
+  const [open, setOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const navigate = useNavigate();
+
+  // ðŸ”¥ cart count live update
+  const updateCartCount = () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const totalQty = cart.reduce(
+      (sum, item) => sum + (item.qty || 1),
+      0
+    );
+    setCartCount(totalQty);
+  };
+
+  useEffect(() => {
+    updateCartCount();
+
+    window.addEventListener("cartUpdated", updateCartCount);
+    window.addEventListener("storage", updateCartCount);
+
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+      window.removeEventListener("storage", updateCartCount);
+    };
+  }, []);
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        background: "rgba(0,0,0,0.4)",
-        zIndex: 200
-      }}
-      onClick={onClose}
-    >
-      <div
+    <>
+      {/* ================= HEADER ================= */}
+      <header
         style={{
-          width: "260px",
-          height: "100%",
-          background: "#fff",
-          padding: "18px",
-          boxShadow: "2px 0 10px rgba(0,0,0,0.2)"
+          height: "72px",
+          background: "#e6f2ff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 16px",
+          borderBottom: "1px solid #cce0ff",
+          position: "sticky",
+          top: 0,
+          zIndex: 100
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        {/* HEADER */}
-        <div
-          style={{
-            fontSize: "18px",
-            fontWeight: "700",
-            marginBottom: "16px"
-          }}
-        >
-          👑 LapkingHub
+        {/* LEFT */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <button
+            onClick={() => setOpen(true)}
+            style={{
+              fontSize: "26px",
+              background: "none",
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            â˜°
+          </button>
+
+          {/* LOGO â†’ HOME */}
+          <span
+            onClick={() => navigate("/")}
+            style={{
+              fontSize: "18px",
+              fontWeight: "700",
+              color: "#0b5ed7",
+              cursor: "pointer"
+            }}
+          >
+            ðŸ‘‘ LapkingHub
+          </span>
         </div>
 
-        {/* MAIN LINKS */}
-        <Link className="drawer-link" to="/" onClick={onClose}>
-          Home
-        </Link>
-
-        <Link className="drawer-link" to="/categories" onClick={onClose}>
-          Categories
-        </Link>
-
-        <Link className="drawer-link" to="/my-orders" onClick={onClose}>
-          My Orders
-        </Link>
-
-        <Link className="drawer-link" to="/wishlist" onClick={onClose}>
-          Wishlist
-        </Link>
-
-        <Link className="drawer-link" to="/rewards" onClick={onClose}>
-          Rewards
-        </Link>
-
-        <Link className="drawer-link" to="/account" onClick={onClose}>
-          My Account
-        </Link>
-
-        <hr />
-
-        {/* POLICIES */}
-        <Link
-          className="drawer-link"
-          to="/page/warranty-policy"
-          onClick={onClose}
+        {/* RIGHT ICONS */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "24px",
+            fontSize: "22px",
+            position: "relative"
+          }}
         >
-          Warranty Policy
-        </Link>
+          {/* CART ICON WITH COUNT */}
+          <Link to="/cart" style={{ position: "relative" }}>
+            ðŸ›’
+            {cartCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-6px",
+                  right: "-10px",
+                  background: "red",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  fontSize: "11px",
+                  padding: "2px 6px",
+                  fontWeight: "600"
+                }}
+              >
+                {cartCount}
+              </span>
+            )}
+          </Link>
 
-        <Link
-          className="drawer-link"
-          to="/page/shipping-policy"
-          onClick={onClose}
-        >
-          Shipping Policy
-        </Link>
+          <Link to="/account">ðŸ‘¤</Link>
+        </div>
+      </header>
 
-        <Link
-          className="drawer-link"
-          to="/page/refund-policy"
-          onClick={onClose}
-        >
-          Refund Policy
-        </Link>
+      {/* ðŸ” SEARCH BAR â€” HEADER KE NICHE */}
+      <SearchBar />
 
-        <Link
-          className="drawer-link"
-          to="/page/terms-conditions"
-          onClick={onClose}
-        >
-          Terms & Conditions
-        </Link>
-
-        <Link
-          className="drawer-link"
-          to="/page/privacy-policy"
-          onClick={onClose}
-        >
-          Privacy Policy
-        </Link>
-
-        <hr />
-
-        {/* ABOUT + CONTACT */}
-        <Link
-          className="drawer-link"
-          to="/page/about-us"
-          onClick={onClose}
-        >
-          About Us
-        </Link>
-
-        {/* ✅ NEW — CONTACT US */}
-        <Link
-          className="drawer-link"
-          to="/page/contact-us"
-          onClick={onClose}
-        >
-          Contact Us
-        </Link>
-      </div>
-    </div>
+      {/* DRAWER */}
+      <DrawerMenu open={open} onClose={() => setOpen(false)} />
+    </>
   );
-}
+}          
