@@ -1,24 +1,69 @@
-.order-card {
-  background: #fff;
+.orders-page {
   padding: 15px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
 
-.view-btn {
-  margin-top: 8px;
+.orders-title {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.order-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-id {
+  font-size: 12px;
+  color: #777;
+  margin: 0;
+}
+
+.order-code {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 2px 0;
+}
+
+.order-status {
+  background: #e6f2ff;
+  color: #1976ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.order-info p {
+  font-size: 14px;
+  margin: 6px 0;
+  color: #444;
+}
+
+.view-details-btn {
+  width: 100%;
+  margin-top: 10px;
   background: #1976ff;
-  color: white;
+  color: #fff;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 11px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,4 +88,9 @@
   display: flex;
   justify-content: space-between;
   margin: 6px 0;
+}
+
+.total-amount {
+  margin-top: 10px;
+  text-align: right;
 }
