@@ -8,7 +8,7 @@ export default function Header() {
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
 
-  // ðŸ”¥ cart count live update
+  // cart count live update
   const updateCartCount = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const totalQty = cart.reduce(
@@ -48,7 +48,8 @@ export default function Header() {
         }}
       >
         {/* LEFT */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* MENU BUTTON */}
           <button
             onClick={() => setOpen(true)}
             style={{
@@ -58,21 +59,39 @@ export default function Header() {
               cursor: "pointer"
             }}
           >
-            â˜°
+            ☰
           </button>
 
-          {/* LOGO â†’ HOME */}
-          <span
+          {/* LOGO */}
+          <div
             onClick={() => navigate("/")}
             style={{
-              fontSize: "18px",
-              fontWeight: "700",
-              color: "#0b5ed7",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
               cursor: "pointer"
             }}
           >
-            ðŸ‘‘ LapkingHub
-          </span>
+            <img
+              src="/logo.png"
+              alt="LapkingHub"
+              style={{
+                width: "32px",
+                height: "32px",
+                objectFit: "contain"
+              }}
+            />
+
+            <span
+              style={{
+                fontSize: "18px",
+                fontWeight: "700",
+                color: "#0b5ed7"
+              }}
+            >
+              LapkingHub
+            </span>
+          </div>
         </div>
 
         {/* RIGHT ICONS */}
@@ -80,14 +99,14 @@ export default function Header() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "24px",
+            gap: "22px",
             fontSize: "22px",
             position: "relative"
           }}
         >
-          {/* CART ICON WITH COUNT */}
-          <Link to="/cart" style={{ position: "relative" }}>
-            ðŸ›’
+          {/* CART */}
+          <Link to="/cart" style={{ position: "relative", color: "#000" }}>
+            🛒
             {cartCount > 0 && (
               <span
                 style={{
@@ -107,15 +126,18 @@ export default function Header() {
             )}
           </Link>
 
-          <Link to="/account">ðŸ‘¤</Link>
+          {/* ACCOUNT */}
+          <Link to="/account" style={{ color: "#000" }}>
+            👤
+          </Link>
         </div>
       </header>
 
-      {/* ðŸ” SEARCH BAR â€” HEADER KE NICHE */}
+      {/* SEARCH BAR */}
       <SearchBar />
 
-      {/* DRAWER */}
+      {/* DRAWER MENU */}
       <DrawerMenu open={open} onClose={() => setOpen(false)} />
     </>
   );
-}          
+            }
