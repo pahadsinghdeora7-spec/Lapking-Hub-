@@ -1,121 +1,58 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import DrawerMenu from "./DrawerMenu";
-import SearchBar from "./SearchBar";
+import { Link } from "react-router-dom";
 
-export default function Header() {
-  const [open, setOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const navigate = useNavigate();
-
-  // 🔥 cart count live update
-  const updateCartCount = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const totalQty = cart.reduce(
-      (sum, item) => sum + (item.qty || 1),
-      0
-    );
-    setCartCount(totalQty);
-  };
-
-  useEffect(() => {
-    updateCartCount();
-
-    window.addEventListener("cartUpdated", updateCartCount);
-    window.addEventListener("storage", updateCartCount);
-
-    return () => {
-      window.removeEventListener("cartUpdated", updateCartCount);
-      window.removeEventListener("storage", updateCartCount);
-    };
-  }, []);
+export default function DrawerMenu({ open, onClose }) {
+  if (!open) return null;
 
   return (
-    <>
-      {/* ================= HEADER ================= */}
-      <header
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        background: "rgba(0,0,0,0.4)",
+        zIndex: 200
+      }}
+      onClick={onClose}
+    >
+      <div
         style={{
-          height: "72px",
-          background: "#e6f2ff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 16px",
-          borderBottom: "1px solid #cce0ff",
-          position: "sticky",
-          top: 0,
-          zIndex: 100
+          width: "260px",
+          height: "100%",
+          background: "#fff",
+          padding: "18px",
+          boxShadow: "2px 0 10px rgba(0,0,0,0.2)"
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* LEFT */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <button
-            onClick={() => setOpen(true)}
-            style={{
-              fontSize: "26px",
-              background: "none",
-              border: "none",
-              cursor: "pointer"
-            }}
-          >
-            ☰
-          </button>
-
-          {/* LOGO → HOME */}
-          <span
-            onClick={() => navigate("/")}
-            style={{
-              fontSize: "18px",
-              fontWeight: "700",
-              color: "#0b5ed7",
-              cursor: "pointer"
-            }}
-          >
-            👑 LapkingHub
-          </span>
+        {/* HEADER */}
+        <div style={{ marginBottom: 20 }}>
+          <strong style={{ fontSize: 18 }}>👑 LapkingHub</strong>
         </div>
 
-        {/* RIGHT ICONS */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "24px",
-            fontSize: "22px",
-            position: "relative"
-          }}
-        >
-          {/* CART ICON WITH COUNT */}
-          <Link to="/cart" style={{ position: "relative" }}>
-            🛒
-            {cartCount > 0 && (
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-6px",
-                  right: "-10px",
-                  background: "red",
-                  color: "#fff",
-                  borderRadius: "50%",
-                  fontSize: "11px",
-                  padding: "2px 6px",
-                  fontWeight: "600"
-                }}
-              >
-                {cartCount}
-              </span>
-            )}
-          </Link>
+        {/* MAIN MENU */}
+        <Link onClick={onClose} to="/">Home</Link><br /><br />
+        <Link onClick={onClose} to="/categories">Categories</Link><br /><br />
+        <Link onClick={onClose} to="/orders">My Orders</Link><br /><br />
+        <Link onClick={onClose} to="/wishlist">Wishlist</Link><br /><br />
+        <Link onClick={onClose} to="/account">My Account</Link>
 
-          <Link to="/account">👤</Link>
-        </div>
-      </header>
+        <hr style={{ margin: "20px 0" }} />
 
-      {/* 🔍 SEARCH BAR — HEADER KE NICHE */}
-      <SearchBar />
+        {/* POLICIES */}
+        <Link onClick={onClose} to="/page/privacy-policy">Privacy Policy</Link><br /><br />
+        <Link onClick={onClose} to="/page/terms-conditions">Terms & Conditions</Link><br /><br />
+        <Link onClick={onClose} to="/page/refund-policy">Refund Policy</Link><br /><br />
+        <Link onClick={onClose} to="/page/shipping-policy">Shipping Policy</Link><br /><br />
+        <Link onClick={onClose} to="/page/warranty-policy">Warranty Policy</Link>
 
-      {/* DRAWER */}
-      <DrawerMenu open={open} onClose={() => setOpen(false)} />
-    </>
+        <hr style={{ margin: "20px 0" }} />
+
+        {/* COMPANY */}
+        <Link onClick={onClose} to="/page/about-us">About Us</Link><br /><br />
+        <Link onClick={onClose} to="/page/contact-us">Contact Us</Link>
+      </div>
+    </div>
   );
-}          
+}
