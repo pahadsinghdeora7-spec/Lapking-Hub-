@@ -32,65 +32,60 @@ export default function Orders() {
   }
 
   if (loading) {
-    return <div style={{ padding: 20 }}>⏳ Loading your orders...</div>;
+    return <div style={{ padding: 20 }}>⏳ Loading orders...</div>;
   }
 
   return (
-    <div className="orders-page">
+    <div style={{ padding: 15 }}>
+      <h2>📦 My Orders</h2>
 
-      <h2 className="orders-title">
-        📦 My Orders
-      </h2>
+      {orders.length === 0 && <p>No orders found.</p>}
 
       {orders.map((order) => (
-        <div key={order.id} className="order-card">
+        <div
+          key={order.id}
+          className="order-card"
+        >
+          <p><b>Order ID:</b> {order.order_code}</p>
+          <p><b>Date:</b> {new Date(order.created_at).toLocaleString()}</p>
+          <p><b>Total:</b> ₹{order.total}</p>
+          <p><b>Payment:</b> {order.payment_status}</p>
+          <p><b>Status:</b> {order.order_status}</p>
 
-          {/* TOP */}
-          <div className="order-top">
-            <div>
-              <p className="order-id">
-                🧾 Order ID
-              </p>
-              <p className="order-code">{order.order_code}</p>
-            </div>
-
-            <span className="order-status">
-              {order.order_status}
-            </span>
-          </div>
-
-          {/* DETAILS */}
-          <div className="order-info">
-            <p>📅 <b>Date:</b> {new Date(order.created_at).toLocaleString()}</p>
-            <p>💳 <b>Payment:</b> {order.payment_status}</p>
-            <p>💰 <b>Total:</b> ₹{order.total}</p>
-          </div>
-
-          {/* BUTTON */}
           <button
-            className="view-details-btn"
+            className="view-btn"
             onClick={() => setSelectedOrder(order)}
           >
-            👁 View Order Details
+            View Details
           </button>
         </div>
       ))}
 
-      {/* ================= POPUP ================= */}
+      {/* ================= ORDER DETAILS POPUP ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
           <div className="modal-box">
 
             <div className="modal-header">
-              <h3>📦 Order Details</h3>
+              <h3>📦 Order #{selectedOrder.order_code}</h3>
               <button onClick={() => setSelectedOrder(null)}>✕</button>
             </div>
 
             <div className="modal-body">
 
-              <p><b>Order ID:</b> {selectedOrder.order_code}</p>
-              <p><b>Name:</b> {selectedOrder.name}</p>
-              <p><b>Phone:</b> {selectedOrder.phone}</p>
+              <h4>👤 Customer</h4>
+              <p>{selectedOrder.name}</p>
+              <p>{selectedOrder.phone}</p>
+
+              <h4>🏠 Address</h4>
+              <p>
+                {typeof selectedOrder.address === "string"
+                  ? selectedOrder.address
+                  : `${selectedOrder.address?.address || ""},
+                     ${selectedOrder.address?.city || ""},
+                     ${selectedOrder.address?.state || ""} -
+                     ${selectedOrder.address?.pincode || ""}`}
+              </p>
 
               <hr />
 
@@ -105,9 +100,9 @@ export default function Orders() {
 
               <hr />
 
-              <h3 className="total-amount">
-                Total: ₹{selectedOrder.total}
-              </h3>
+              <p><b>Shipping:</b> ₹{selectedOrder.shipping_price}</p>
+
+              <h3>Total: ₹{selectedOrder.total}</h3>
 
             </div>
           </div>
@@ -115,4 +110,4 @@ export default function Orders() {
       )}
     </div>
   );
-      }
+}
