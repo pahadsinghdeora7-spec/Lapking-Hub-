@@ -15,11 +15,11 @@ export default function CheckoutPayment() {
   if (!courier || !address || cart.length === 0) {
     return (
       <div style={{ padding: 20 }}>
-        <h3>⚠️ Incomplete checkout data</h3>
-        <p>Please complete checkout steps.</p>
+        <h3>⚠️ Checkout incomplete</h3>
+        <p>Please complete all checkout steps to continue.</p>
 
         <button onClick={() => navigate("/checkout/shipping")}>
-          Go back
+          ← Go Back
         </button>
       </div>
     );
@@ -34,55 +34,143 @@ export default function CheckoutPayment() {
 
   return (
     <div style={{ padding: 15 }}>
+
       <h2>Payment</h2>
 
-      {/* ORDER SUMMARY */}
+      {/* 🔐 TRUST TEXT */}
+      <p style={{ fontSize: 13, color: "#666", marginBottom: 10 }}>
+        🔒 Secure checkout • Verified delivery partners • Business support
+      </p>
+
+      {/* ================= ORDER SUMMARY ================= */}
       <div className="card">
-        <h4>Order Summary</h4>
+        <h4>🧾 Order Summary</h4>
 
         {cart.map((item) => (
-          <div key={item.id} style={{ display: "flex", gap: 10 }}>
-            <img
-              src={item.image}
-              width={50}
-              alt=""
-            />
-            <div>
-              <div>{item.name}</div>
+          <div
+            key={item.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 12
+            }}
+          >
+            <div style={{ display: "flex", gap: 10 }}>
+              <img
+                src={item.image}
+                width={50}
+                height={50}
+                style={{
+                  objectFit: "contain",
+                  border: "1px solid #eee",
+                  borderRadius: 6
+                }}
+                alt=""
+              />
+
               <div>
-                ₹{item.price} × {item.qty}
+                <div style={{ fontWeight: 500 }}>
+                  {item.name}
+                </div>
+                <div style={{ fontSize: 12, color: "#666" }}>
+                  Qty: {item.qty}
+                </div>
               </div>
+            </div>
+
+            <div style={{ fontWeight: 600 }}>
+              ₹{item.price * item.qty}
             </div>
           </div>
         ))}
       </div>
 
-      {/* ADDRESS */}
+      {/* ================= ADDRESS ================= */}
       <div className="card">
-        <h4>Delivery Address</h4>
+        <h4>🏠 Delivery Address</h4>
+
         <p>{address.full_name}</p>
         <p>{address.address}</p>
         <p>
-          {address.city} - {address.pincode}
+          {address.city}, {address.state} - {address.pincode}
+        </p>
+
+        <p style={{ fontSize: 12, color: "#777", marginTop: 5 }}>
+          📦 Order will be delivered to this address
         </p>
       </div>
 
-      {/* COURIER */}
+      {/* ================= COURIER ================= */}
       <div className="card">
-        <h4>Courier</h4>
-        <p>{courier.name}</p>
-        <p>Delivery: {courier.days}</p>
-        <p>Charge: ₹{courier.price}</p>
+        <h4>🚚 Courier Details</h4>
+
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <strong>{courier.name}</strong>
+            <div style={{ fontSize: 12, color: "#666" }}>
+              Estimated delivery: {courier.days}
+            </div>
+          </div>
+
+          <div style={{ fontWeight: 600 }}>
+            ₹{courier.price}
+          </div>
+        </div>
+
+        <p style={{ fontSize: 12, color: "#777", marginTop: 6 }}>
+          💡 Delivery charge depends on selected courier company
+        </p>
       </div>
 
-      {/* TOTAL */}
-      <div className="card">
-        <h3>Total Payable: ₹{grandTotal}</h3>
+      {/* ================= TOTAL ================= */}
+      <div
+        className="card"
+        style={{
+          borderTop: "1px dashed #ddd",
+          fontSize: 16,
+          fontWeight: 600
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between"
+          }}
+        >
+          <span>Total Payable</span>
+          <span>₹{grandTotal}</span>
+        </div>
       </div>
 
-      <button className="confirm-btn">
-        Confirm Order
+      {/* ================= CONFIRM ================= */}
+      <button
+        className="confirm-btn"
+        style={{
+          width: "100%",
+          marginTop: 15,
+          background: "#28a745",
+          color: "#fff",
+          padding: 12,
+          borderRadius: 8,
+          border: "none",
+          fontSize: 15
+        }}
+      >
+        ✅ Confirm Order
       </button>
+
+      <p
+        style={{
+          fontSize: 12,
+          color: "#777",
+          textAlign: "center",
+          marginTop: 10
+        }}
+      >
+        By placing the order, you agree to LapkingHub terms & policies.
+      </p>
+
     </div>
   );
 }
