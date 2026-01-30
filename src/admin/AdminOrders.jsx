@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AdminOrders.css";
+import "./adminOrders.css";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
-  const [viewOrder, setViewOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   async function loadOrders() {
     const { data } = await supabase
@@ -15,12 +19,8 @@ export default function AdminOrders() {
     setOrders(data || []);
   }
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
-
   return (
-    <div className="admin-page">
+    <div style={{ padding: 15 }}>
 
       <h2>📦 Orders</h2>
 
@@ -39,18 +39,18 @@ export default function AdminOrders() {
         </thead>
 
         <tbody>
-          {orders.map((o, i) => (
-            <tr key={o.id}>
-              <td>{i + 1}</td>
-              <td>{o.name}</td>
-              <td>{o.phone}</td>
-              <td>₹{o.total}</td>
-              <td>{o.payment_status}</td>
-              <td>{o.order_status}</td>
+          {orders.map((order, index) => (
+            <tr key={order.id}>
+              <td>{index + 1}</td>
+              <td>{order.name}</td>
+              <td>{order.phone}</td>
+              <td>₹{order.total}</td>
+              <td>{order.payment_status}</td>
+              <td>{order.order_status}</td>
               <td>
                 <button
                   className="view-btn"
-                  onClick={() => setViewOrder(o)}
+                  onClick={() => setSelectedOrder(order)}
                 >
                   View
                 </button>
@@ -61,17 +61,16 @@ export default function AdminOrders() {
       </table>
 
       {/* ================= POPUP ================= */}
-      {viewOrder && (
+      {selectedOrder && (
         <div className="modal-backdrop">
 
           <div className="modal-box">
 
             <div className="modal-header">
-              <h3>📦 Order #{viewOrder.order_code}</h3>
-
+              <h3>📦 Order #{selectedOrder.order_code}</h3>
               <button
                 className="close-btn"
-                onClick={() => setViewOrder(null)}
+                onClick={() => setSelectedOrder(null)}
               >
                 ✕
               </button>
@@ -79,37 +78,41 @@ export default function AdminOrders() {
 
             <div className="modal-body">
 
-              <p><b>Customer:</b> {viewOrder.name}</p>
-              <p><b>Phone:</b> {viewOrder.phone}</p>
-              <p><b>Address:</b> {viewOrder.address}</p>
+              <p><b>Name:</b> {selectedOrder.name}</p>
+              <p><b>Phone:</b> {selectedOrder.phone}</p>
+              <p><b>Address:</b> {selectedOrder.address}</p>
 
               <hr />
 
               <h4>🧾 Order Items</h4>
 
-              {viewOrder.items?.map((it, i) => (
+              {selectedOrder.items?.map((item, i) => (
                 <div key={i} className="item-row">
-                  <span>{it.name}</span>
-                  <span>{it.qty} × ₹{it.price}</span>
+                  <span>{item.name}</span>
+                  <span>
+                    {item.qty} × ₹{item.price}
+                  </span>
                 </div>
               ))}
 
               <hr />
 
-              <p><b>Courier:</b> {viewOrder.shipping_name}</p>
-              <p><b>Delivery Charge:</b> ₹{viewOrder.shipping_price}</p>
-              <p className="total">Total: ₹{viewOrder.total}</p>
+              <p><b>Courier:</b> {selectedOrder.shipping_name}</p>
+              <p><b>Delivery Charge:</b> ₹{selectedOrder.shipping_price}</p>
+              <p className="total">
+                Total: ₹{selectedOrder.total}
+              </p>
 
               <hr />
 
               <div className="status-row">
                 <div>
-                  <label>Payment</label>
+                  <label>Payment Status</label>
                   <select
-                    value={viewOrder.payment_status}
+                    value={selectedOrder.payment_status}
                     onChange={(e) =>
-                      setViewOrder({
-                        ...viewOrder,
+                      setSelectedOrder({
+                        ...selectedOrder,
                         payment_status: e.target.value
                       })
                     }
@@ -123,10 +126,10 @@ export default function AdminOrders() {
                 <div>
                   <label>Order Status</label>
                   <select
-                    value={viewOrder.order_status}
+                    value={selectedOrder.order_status}
                     onChange={(e) =>
-                      setViewOrder({
-                        ...viewOrder,
+                      setSelectedOrder({
+                        ...selectedOrder,
                         order_status: e.target.value
                       })
                     }
@@ -146,13 +149,13 @@ export default function AdminOrders() {
                   await supabase
                     .from("orders")
                     .update({
-                      payment_status: viewOrder.payment_status,
-                      order_status: viewOrder.order_status
+                      payment_status: selectedOrder.payment_status,
+                      order_status: selectedOrder.order_status
                     })
-                    .eq("id", viewOrder.id);
+                    .eq("id", selectedOrder.id);
 
-                  alert("Order updated");
-                  setViewOrder(null);
+                  alert("Order updated successfully");
+                  setSelectedOrder(null);
                   loadOrders();
                 }}
               >
@@ -161,10 +164,8 @@ export default function AdminOrders() {
 
             </div>
           </div>
-
         </div>
       )}
-
     </div>
   );
-      }
+}
