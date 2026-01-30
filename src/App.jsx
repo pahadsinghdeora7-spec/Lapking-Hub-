@@ -8,6 +8,8 @@ import CategoryProducts from "./pages/CategoryProducts.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
+import OrderDetails from "./pages/OrderDetails";
+
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import VerifyOtp from "./pages/VerifyOtp.jsx";
@@ -61,6 +63,8 @@ export default function App() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/orders/:id" element={<OrderDetails />} />
+            
 
             {/* ✅ ALL POLICIES + CMS PAGES */}
             <Route path="/page/:slug" element={<PageView />} />
