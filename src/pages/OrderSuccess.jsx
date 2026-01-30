@@ -4,52 +4,58 @@ export default function OrderSuccess() {
   const navigate = useNavigate();
 
   return (
-    <div
-      style={{
-        padding: 30,
-        textAlign: "center"
-      }}
-    >
+    <div style={{ padding: 20, textAlign: "center" }}>
       <div style={{ fontSize: 60 }}>✅</div>
 
-      <h2 style={{ marginTop: 10 }}>
-        Order Placed Successfully
-      </h2>
+      <h2>Order Placed Successfully</h2>
 
       <p style={{ color: "#555", marginTop: 8 }}>
         Thank you for shopping with LapkingHub.
       </p>
 
       <p style={{ fontSize: 13, color: "#777", marginTop: 10 }}>
-        Your order has been received and will be processed shortly.
+        Your order has been received and is being processed.
       </p>
 
       <div
         style={{
-          background: "#f8f9fa",
-          padding: 15,
-          borderRadius: 8,
           marginTop: 20,
-          fontSize: 14
+          padding: 15,
+          background: "#f6fff8",
+          border: "1px solid #c7efd3",
+          borderRadius: 8
         }}
       >
-        📦 You will receive order confirmation on your registered email / WhatsApp.
+        📦 You will receive order updates via WhatsApp.
       </div>
 
       <button
+        onClick={() => navigate("/orders")}
         style={{
-          marginTop: 25,
-          padding: "12px 25px",
-          background: "#007bff",
+          marginTop: 20,
+          padding: "12px 20px",
+          background: "#2874f0",
           color: "#fff",
           border: "none",
-          borderRadius: 8,
+          borderRadius: 6,
           fontSize: 15
         }}
-        onClick={() => navigate("/")}
       >
-        Continue Shopping
+        View My Orders
       </button>
+
+      <div style={{ marginTop: 12 }}>
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "#2874f0"
+          }}
+        >
+          Continue Shopping →
+        </button>
+      </div>
     </div>
   );
 }
