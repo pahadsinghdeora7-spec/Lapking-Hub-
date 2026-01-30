@@ -30,80 +30,75 @@ export default function AdminOrderView({ order, onClose, onUpdated }) {
     onClose();
   }
 
-  const addr = order.address || {};
-
   return (
-    <div className="admin-modal-backdrop">
-      <div className="admin-modal">
+    <div className="modal-backdrop">
+      <div className="modal-box">
 
         {/* HEADER */}
         <div className="modal-header">
           <h3>📦 Order #{order.order_code}</h3>
-          <button className="close-btn" onClick={onClose}>✖</button>
+          <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
         {/* CUSTOMER */}
-        <section>
-          <h4>👤 Customer Details</h4>
-          <p><b>Name:</b> {order.name}</p>
-          <p><b>Phone:</b> {order.phone}</p>
-          <p><b>User ID:</b> {order.user_id}</p>
-          <p><b>Date:</b> {new Date(order.created_at).toLocaleDateString()}</p>
-        </section>
+        <h4>👤 Customer Details</h4>
+        <p><strong>Name:</strong> {order.name}</p>
+        <p><strong>Phone:</strong> {order.phone}</p>
+        <p><strong>User ID:</strong> {order.user_id}</p>
+        <p><strong>Date:</strong> {new Date(order.created_at).toLocaleDateString()}</p>
+
+        <hr />
 
         {/* ADDRESS */}
-        <section>
-          <h4>🏠 Delivery Address</h4>
-          <p>
-            {addr.address}, {addr.city}, {addr.state} - {addr.pincode}
-          </p>
-        </section>
+        <h4>🏠 Delivery Address</h4>
+        <p>{order.address}</p>
+
+        <hr />
 
         {/* ITEMS */}
-        <section>
-          <h4>🧾 Order Items</h4>
+        <h4>🧾 Order Items</h4>
 
-          <table className="order-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Qty</th>
-                <th>Total</th>
+        <table width="100%" border="1" cellPadding="6">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.items?.map((item, i) => (
+              <tr key={i}>
+                <td>{item.name}</td>
+                <td>₹{item.price}</td>
+                <td>{item.qty}</td>
+                <td>₹{item.price * item.qty}</td>
               </tr>
-            </thead>
-            <tbody>
-              {order.items?.map((item, i) => (
-                <tr key={i}>
-                  <td>{item.name}</td>
-                  <td>₹{item.price}</td>
-                  <td>{item.qty}</td>
-                  <td>₹{item.price * item.qty}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+            ))}
+          </tbody>
+        </table>
+
+        <hr />
 
         {/* COURIER */}
-        <section>
-          <h4>🚚 Courier Details</h4>
-          <p><b>Courier:</b> {order.shipping_name}</p>
-          <p><b>Charge:</b> ₹{order.shipping_price}</p>
-        </section>
+        <h4>🚚 Courier Details</h4>
+        <p><strong>Courier:</strong> {order.shipping_name}</p>
+        <p><strong>Charge:</strong> ₹{order.shipping_price}</p>
+
+        <hr />
 
         {/* TOTAL */}
-        <section>
-          <h4>💰 Total Amount</h4>
-          <strong>₹{order.total}</strong>
-        </section>
+        <h3>💰 Total Amount: ₹{order.total}</h3>
+
+        <hr />
 
         {/* CONTROL */}
-        <section>
-          <h4>⚙ Order Control</h4>
+        <h4>⚙️ Order Control</h4>
 
-          <div className="control-row">
-            <label>Payment Status</label>
+        <div style={{ display: "flex", gap: 20, marginTop: 10 }}>
+          <div>
+            <label>Payment Status</label><br />
             <select
               value={paymentStatus}
               onChange={(e) => setPaymentStatus(e.target.value)}
@@ -114,8 +109,8 @@ export default function AdminOrderView({ order, onClose, onUpdated }) {
             </select>
           </div>
 
-          <div className="control-row">
-            <label>Order Status</label>
+          <div>
+            <label>Order Status</label><br />
             <select
               value={orderStatus}
               onChange={(e) => setOrderStatus(e.target.value)}
@@ -127,19 +122,15 @@ export default function AdminOrderView({ order, onClose, onUpdated }) {
               <option>Cancelled</option>
             </select>
           </div>
-        </section>
+        </div>
 
-        {/* FOOTER */}
-        <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>
+        {/* BUTTONS */}
+        <div style={{ marginTop: 20, textAlign: "right" }}>
+          <button onClick={onClose} style={{ marginRight: 10 }}>
             Close
           </button>
 
-          <button
-            className="btn-save"
-            onClick={updateOrder}
-            disabled={loading}
-          >
+          <button onClick={updateOrder} disabled={loading}>
             {loading ? "Saving..." : "Save Update"}
           </button>
         </div>
