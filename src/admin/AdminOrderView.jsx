@@ -1,157 +1,205 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
-export default function AdminOrderView({ order, onClose, onUpdated }) {
-  const [paymentStatus, setPaymentStatus] = useState(order.payment_status);
-  const [orderStatus, setOrderStatus] = useState(order.order_status);
-  const [loading, setLoading] = useState(false);
+export default function AdminOrders() {
+  const [orders, setOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [orderStatus, setOrderStatus] = useState("");
 
+  // ===========================
+  // LOAD ORDERS
+  // ===========================
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  async function loadOrders() {
+    const { data } = await supabase
+      .from("orders")
+      .select("*")
+      .order("id", { ascending: false });
+
+    setOrders(data || []);
+  }
+
+  // ===========================
+  // OPEN MODAL
+  // ===========================
+  function openOrder(order) {
+    setSelectedOrder(order);
+    setPaymentStatus(order.payment_status);
+    setOrderStatus(order.order_status);
+  }
+
+  // ===========================
+  // UPDATE ORDER
+  // ===========================
   async function updateOrder() {
-    setLoading(true);
-
     await supabase
       .from("orders")
       .update({
         payment_status: paymentStatus,
         order_status: orderStatus
       })
-      .eq("id", order.id);
+      .eq("id", selectedOrder.id);
 
-    setLoading(false);
-
-    alert("Order updated successfully ✅");
-
-    onUpdated();
-    onClose();
+    setSelectedOrder(null);
+    loadOrders();
   }
 
   return (
-    <div className="modal-backdrop">
+    <div style={{ padding: 20 }}>
 
-      <div className="modal-box">
+      <h3>📦 Orders</h3>
 
-        {/* HEADER */}
-        <div className="modal-header">
-          <h3>📦 Order #{order.order_code}</h3>
-          <button onClick={onClose}>✖</button>
-        </div>
+      {/* ================= ORDERS LIST ================= */}
+      <table width="100%" style={{ marginTop: 15 }}>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
-        {/* CUSTOMER */}
-        <div className="section">
-          <h4>👤 Customer Details</h4>
-          <p><b>Name:</b> {order.name}</p>
-          <p><b>Phone:</b> {order.phone}</p>
-          <p><b>User ID:</b> {order.user_id}</p>
-          <p><b>Date:</b> {new Date(order.created_at).toLocaleDateString()}</p>
-        </div>
+        <tbody>
+          {orders.map((o, i) => (
+            <tr key={o.id}>
+              <td>{i + 1}</td>
+              <td>{o.name}</td>
+              <td>{o.phone}</td>
+              <td>₹{o.total}</td>
+              <td>{o.payment_status}</td>
+              <td>{o.order_status}</td>
+              <td>
+                <button onClick={() => openOrder(o)}>
+                  View
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-        {/* ADDRESS */}
-        <div className="section">
-          <h4>🏠 Delivery Address</h4>
-          <p>{order.address?.full_name}</p>
-          <p>{order.address?.address}</p>
-          <p>
-            {order.address?.city}, {order.address?.state} -{" "}
-            {order.address?.pincode}
-          </p>
-        </div>
+      {/* ================= MODAL ================= */}
+      {selectedOrder && (
+        <div className="modal-backdrop">
 
-        {/* ITEMS */}
-        <div className="section">
-          <h4>🧾 Order Items</h4>
+          <div className="modal-box">
 
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Qty</th>
-                <th>Total</th>
-              </tr>
-            </thead>
+            <div className="modal-header">
+              <h4>📦 Order #{selectedOrder.order_code}</h4>
+              <button onClick={() => setSelectedOrder(null)}>✕</button>
+            </div>
 
-            <tbody>
-              {order.items?.map((item, index) => (
-                <tr key={index}>
-                  <td style={{ display: "flex", gap: 10 }}>
-                    <img
-                      src={item.image}
-                      alt=""
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "contain" }}
-                    />
-                    {item.name}
-                  </td>
-                  <td>₹{item.price}</td>
-                  <td>{item.qty}</td>
-                  <td>₹{item.price * item.qty}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            {/* CUSTOMER */}
+            <div className="section">
+              <h4>👤 Customer Details</h4>
+              <p><b>Name:</b> {selectedOrder.name}</p>
+              <p><b>Phone:</b> {selectedOrder.phone}</p>
+              <p><b>User ID:</b> {selectedOrder.user_id}</p>
+              <p><b>Date:</b> {new Date(selectedOrder.created_at).toLocaleDateString()}</p>
+            </div>
 
-        {/* SHIPPING */}
-        <div className="section">
-          <h4>🚚 Courier Details</h4>
-          <p><b>Courier:</b> {order.shipping_name}</p>
-          <p><b>Delivery:</b> {order.courier?.days}</p>
-          <p><b>Charge:</b> ₹{order.shipping_price}</p>
-        </div>
+            {/* ADDRESS FIXED */}
+            <div className="section">
+              <h4>🏠 Delivery Address</h4>
 
-        {/* TOTAL */}
-        <div className="section total">
-          <h3>Total Amount: ₹{order.total}</h3>
-        </div>
+              {selectedOrder.address ? (
+                <>
+                  <p><b>Name:</b> {selectedOrder.address.full_name}</p>
+                  <p><b>Phone:</b> {selectedOrder.address.phone}</p>
+                  <p><b>Address:</b> {selectedOrder.address.address}</p>
+                  <p>
+                    {selectedOrder.address.city}, {selectedOrder.address.state} – {selectedOrder.address.pincode}
+                  </p>
+                </>
+              ) : (
+                <p style={{ color: "red" }}>
+                  Address not available
+                </p>
+              )}
+            </div>
 
-        {/* STATUS CONTROLS */}
-        <div className="section">
-          <h4>⚙ Order Control</h4>
+            {/* ITEMS */}
+            <div className="section">
+              <h4>🧾 Order Items</h4>
 
-          <div className="row">
-            <label>Payment Status</label>
-            <select
-              value={paymentStatus}
-              onChange={(e) => setPaymentStatus(e.target.value)}
-            >
-              <option value="Pending">Pending</option>
-              <option value="Paid">Paid</option>
-              <option value="Failed">Failed</option>
-            </select>
+              <table width="100%">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {selectedOrder.items?.map((item, i) => (
+                    <tr key={i}>
+                      <td>{item.name}</td>
+                      <td>₹{item.price}</td>
+                      <td>{item.qty}</td>
+                      <td>₹{item.price * item.qty}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ORDER CONTROL */}
+            <div className="section">
+              <h4>⚙ Order Control</h4>
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <div>
+                  <p>Payment Status</p>
+                  <select
+                    value={paymentStatus}
+                    onChange={(e) => setPaymentStatus(e.target.value)}
+                  >
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Failed</option>
+                  </select>
+                </div>
+
+                <div>
+                  <p>Order Status</p>
+                  <select
+                    value={orderStatus}
+                    onChange={(e) => setOrderStatus(e.target.value)}
+                  >
+                    <option>New</option>
+                    <option>Packed</option>
+                    <option>Shipped</option>
+                    <option>Delivered</option>
+                    <option>Cancelled</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-gray" onClick={() => setSelectedOrder(null)}>
+                Close
+              </button>
+
+              <button className="btn-primary" onClick={updateOrder}>
+                Save Update
+              </button>
+            </div>
+
           </div>
-
-          <div className="row">
-            <label>Order Status</label>
-            <select
-              value={orderStatus}
-              onChange={(e) => setOrderStatus(e.target.value)}
-            >
-              <option value="New">New</option>
-              <option value="Packed">Packed</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Delivered">Delivered</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
         </div>
+      )}
 
-        {/* ACTION */}
-        <div className="modal-footer">
-          <button className="btn-gray" onClick={onClose}>
-            Close
-          </button>
-
-          <button
-            className="btn-primary"
-            onClick={updateOrder}
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save Update"}
-          </button>
-        </div>
-
-      </div>
     </div>
   );
-}
+              }
