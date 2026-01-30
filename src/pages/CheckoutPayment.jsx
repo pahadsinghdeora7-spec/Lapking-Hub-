@@ -50,6 +50,16 @@ export default function CheckoutPayment() {
     const orderCode =
       "LKH" + Math.floor(100000 + Math.random() * 900000);
 
+    // ✅ ADDRESS JSON FORMAT
+    const addressJSON = {
+      name: address.full_name || "",
+      phone: address.mobile || "",
+      address: address.address || "",
+      city: address.city || "",
+      state: address.state || "",
+      pincode: address.pincode || ""
+    };
+
     const { error } = await supabase.from("orders").insert([
       {
         user_id: user.id,
@@ -57,7 +67,7 @@ export default function CheckoutPayment() {
         name: address.full_name || "",
         phone: address.mobile || "",
 
-        address: `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`,
+        address: addressJSON, // ✅ JSON
 
         shipping_name: courier.name,
         shipping_price: courier.price,
@@ -70,7 +80,7 @@ export default function CheckoutPayment() {
 
         order_code: orderCode,
 
-        items: cart
+        items: cart // ✅ JSON
       }
     ]);
 
