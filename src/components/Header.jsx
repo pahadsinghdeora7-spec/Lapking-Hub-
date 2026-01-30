@@ -27,31 +27,103 @@ export default function DrawerMenu({ open, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* HEADER */}
-        <div style={{ marginBottom: 20 }}>
-          <strong style={{ fontSize: 18 }}>👑 LapkingHub</strong>
+        <div
+          style={{
+            fontSize: "18px",
+            fontWeight: "700",
+            marginBottom: "16px"
+          }}
+        >
+          👑 LapkingHub
         </div>
 
-        {/* MAIN MENU */}
-        <Link onClick={onClose} to="/">Home</Link><br /><br />
-        <Link onClick={onClose} to="/categories">Categories</Link><br /><br />
-        <Link onClick={onClose} to="/orders">My Orders</Link><br /><br />
-        <Link onClick={onClose} to="/wishlist">Wishlist</Link><br /><br />
-        <Link onClick={onClose} to="/account">My Account</Link>
+        {/* MAIN LINKS */}
+        <Link className="drawer-link" to="/" onClick={onClose}>
+          Home
+        </Link>
 
-        <hr style={{ margin: "20px 0" }} />
+        <Link className="drawer-link" to="/categories" onClick={onClose}>
+          Categories
+        </Link>
+
+        <Link className="drawer-link" to="/my-orders" onClick={onClose}>
+          My Orders
+        </Link>
+
+        <Link className="drawer-link" to="/wishlist" onClick={onClose}>
+          Wishlist
+        </Link>
+
+        <Link className="drawer-link" to="/rewards" onClick={onClose}>
+          Rewards
+        </Link>
+
+        <Link className="drawer-link" to="/account" onClick={onClose}>
+          My Account
+        </Link>
+
+        <hr />
 
         {/* POLICIES */}
-        <Link onClick={onClose} to="/page/privacy-policy">Privacy Policy</Link><br /><br />
-        <Link onClick={onClose} to="/page/terms-conditions">Terms & Conditions</Link><br /><br />
-        <Link onClick={onClose} to="/page/refund-policy">Refund Policy</Link><br /><br />
-        <Link onClick={onClose} to="/page/shipping-policy">Shipping Policy</Link><br /><br />
-        <Link onClick={onClose} to="/page/warranty-policy">Warranty Policy</Link>
+        <Link
+          className="drawer-link"
+          to="/page/warranty-policy"
+          onClick={onClose}
+        >
+          Warranty Policy
+        </Link>
 
-        <hr style={{ margin: "20px 0" }} />
+        <Link
+          className="drawer-link"
+          to="/page/shipping-policy"
+          onClick={onClose}
+        >
+          Shipping Policy
+        </Link>
 
-        {/* COMPANY */}
-        <Link onClick={onClose} to="/page/about-us">About Us</Link><br /><br />
-        <Link onClick={onClose} to="/page/contact-us">Contact Us</Link>
+        <Link
+          className="drawer-link"
+          to="/page/refund-policy"
+          onClick={onClose}
+        >
+          Refund Policy
+        </Link>
+
+        <Link
+          className="drawer-link"
+          to="/page/terms-conditions"
+          onClick={onClose}
+        >
+          Terms & Conditions
+        </Link>
+
+        <Link
+          className="drawer-link"
+          to="/page/privacy-policy"
+          onClick={onClose}
+        >
+          Privacy Policy
+        </Link>
+
+        <hr />
+
+        {/* ABOUT + CONTACT */}
+        <Link
+          className="drawer-link"
+          to="/page/about-us"
+          onClick={onClose}
+        >
+          About Us
+        </Link>
+
+        {/* ✅ NEW — CONTACT US */}
+        <Link
+          className="drawer-link"
+          to="/page/contact-us"
+          onClick={onClose}
+        >
+          Contact Us
+        </Link>
       </div>
     </div>
   );
