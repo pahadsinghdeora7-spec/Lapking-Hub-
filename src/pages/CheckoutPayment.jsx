@@ -11,7 +11,9 @@ export default function CheckoutPayment() {
   const address = addressRaw ? JSON.parse(addressRaw) : null;
   const cart = cartRaw ? JSON.parse(cartRaw) : [];
 
-  // 🔴 SAFETY CHECK
+  // ===============================
+  // SAFETY CHECK
+  // ===============================
   if (!courier || !address || cart.length === 0) {
     return (
       <div style={{ padding: 20 }}>
@@ -32,25 +34,27 @@ export default function CheckoutPayment() {
 
   const grandTotal = itemsTotal + Number(courier.price);
 
-  // ✅ FINAL UPI PAYMENT FLOW (WORKING 100%)
+  // ===============================
+  // ✅ UPI PAYMENT (HASH ROUTER SAFE)
+  // ===============================
   function handleUPIPayment() {
-    const upiId = "9873670361@jio";
-    const name = "LapkingHub";
-    const amount = grandTotal;
-
-    const upiURL =
-      `upi://pay?pa=${upiId}` +
-      `&pn=${encodeURIComponent(name)}` +
-      `&am=${amount}` +
-      `&cu=INR`;
-
-    // ✅ FIRST show order success page
-    navigate("/order-success");
+    // ✅ FIRST show success page
+    navigate("/order/success");
 
     // ✅ THEN open UPI app
     setTimeout(() => {
+      const upiId = "9873670361@jio";
+      const name = "LapkingHub";
+      const amount = grandTotal;
+
+      const upiURL =
+        `upi://pay?pa=${upiId}` +
+        `&pn=${encodeURIComponent(name)}` +
+        `&am=${amount}` +
+        `&cu=INR`;
+
       window.location.href = upiURL;
-    }, 300);
+    }, 400);
   }
 
   return (
@@ -81,12 +85,12 @@ export default function CheckoutPayment() {
                 src={item.image}
                 width={50}
                 height={50}
+                alt=""
                 style={{
                   objectFit: "contain",
                   border: "1px solid #eee",
                   borderRadius: 6
                 }}
-                alt=""
               />
 
               <div>
@@ -189,4 +193,4 @@ export default function CheckoutPayment() {
 
     </div>
   );
-      }
+}
