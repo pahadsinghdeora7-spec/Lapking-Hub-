@@ -11,12 +11,12 @@ export default function CheckoutPayment() {
   const address = addressRaw ? JSON.parse(addressRaw) : null;
   const cart = cartRaw ? JSON.parse(cartRaw) : [];
 
-  // 🔴 PREVENT BLANK PAGE
+  // 🔴 SAFETY CHECK
   if (!courier || !address || cart.length === 0) {
     return (
       <div style={{ padding: 20 }}>
         <h3>⚠️ Checkout incomplete</h3>
-        <p>Please complete all checkout steps to continue.</p>
+        <p>Please complete checkout steps.</p>
 
         <button onClick={() => navigate("/checkout/shipping")}>
           ← Go Back
@@ -32,24 +32,25 @@ export default function CheckoutPayment() {
 
   const grandTotal = itemsTotal + Number(courier.price);
 
-  // ✅ OPEN UPI
-  function openUPI() {
-    const upiId = "lapkinghub@upi"; // change later
+  // ✅ UPI PAYMENT FUNCTION
+  function handleUPIPayment() {
+    const upiId = "9873670361@jio";
     const name = "LapkingHub";
     const amount = grandTotal;
 
-    const url =
+    const upiURL =
       `upi://pay?pa=${upiId}` +
       `&pn=${encodeURIComponent(name)}` +
       `&am=${amount}` +
       `&cu=INR`;
 
-    window.location.href = url;
-  }
+    // open UPI apps
+    window.location.href = upiURL;
 
-  function handlePay() {
-    openUPI();
-    navigate("/order-success");
+    // show success page (professional flow)
+    setTimeout(() => {
+      navigate("/order-success");
+    }, 1200);
   }
 
   return (
@@ -57,9 +58,8 @@ export default function CheckoutPayment() {
 
       <h2>Payment</h2>
 
-      {/* 🔐 TRUST TEXT */}
-      <p style={{ fontSize: 13, color: "#666", marginBottom: 10 }}>
-        🔒 Secure checkout • Verified delivery partners • Business support
+      <p style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>
+        🔒 Secure checkout • Verified courier partners • Business support
       </p>
 
       {/* ================= ORDER SUMMARY ================= */}
@@ -116,7 +116,7 @@ export default function CheckoutPayment() {
           {address.city}, {address.state} - {address.pincode}
         </p>
 
-        <p style={{ fontSize: 12, color: "#777", marginTop: 5 }}>
+        <p style={{ fontSize: 12, color: "#777" }}>
           📦 Order will be delivered to this address
         </p>
       </div>
@@ -152,33 +152,28 @@ export default function CheckoutPayment() {
           fontWeight: 600
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between"
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>Total Payable</span>
           <span>₹{grandTotal}</span>
         </div>
       </div>
 
-      {/* ================= CONFIRM ================= */}
+      {/* ================= PAY BUTTON ================= */}
       <button
-        className="confirm-btn"
-        onClick={handlePay}
+        onClick={handleUPIPayment}
         style={{
           width: "100%",
           marginTop: 15,
           background: "#28a745",
           color: "#fff",
-          padding: 12,
+          padding: 13,
           borderRadius: 8,
           border: "none",
-          fontSize: 15
+          fontSize: 16,
+          fontWeight: 600
         }}
       >
-        ✅ Confirm & Pay Now
+        💳 Confirm & Pay Now
       </button>
 
       <p
