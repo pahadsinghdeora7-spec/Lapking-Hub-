@@ -1,290 +1,53 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import "./ProductDetails.css";
-import { supabase } from "../supabaseClient";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const ProductDetails = () => {
-  const { id } = useParams();
+export default function OrderDetails() {
   const navigate = useNavigate();
-
-  const [product, setProduct] = useState(null);
-  const [related, setRelated] = useState([]);
-  const [activeTab, setActiveTab] = useState("description");
-
-  // images
-  const [images, setImages] = useState([]);
-  const [activeImage, setActiveImage] = useState(0);
-
-  // quantity
-  const [quantity, setQuantity] = useState(1);
-
-  // fullscreen preview
-  const [showPreview, setShowPreview] = useState(false);
-
-  // cart popup
-  const [cartToast, setCartToast] = useState(false);
-
-  // swipe
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
+  const [order, setOrder] = useState(null);
 
   useEffect(() => {
-    fetchProduct();
-    window.scrollTo(0, 0);
-  }, [id]);
+    const saved = localStorage.getItem("selectedOrder");
 
-  const fetchProduct = async () => {
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    setProduct(data);
-
-    const imgs = [];
-    if (data?.image) imgs.push(data.image);
-    if (data?.image1) imgs.push(data.image1);
-    if (data?.image2) imgs.push(data.image2);
-    setImages(imgs);
-
-    if (data?.category_slug) {
-      const { data: rel } = await supabase
-        .from("products")
-        .select("*")
-        .eq("category_slug", data.category_slug)
-        .neq("id", id)
-        .limit(10);
-
-      setRelated(rel || []);
+    if (saved) {
+      setOrder(JSON.parse(saved));
     }
-  };
+  }, []);
 
-  if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
+  if (!order) {
+    return (
+      <div style={{ padding: 20 }}>
+        ❌ Order not found
+        <br /><br />
+        <button onClick={() => navigate("/orders")}>
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="product-details-page">
-      <div className="product-box">
+    <div style={{ padding: 15 }}>
+      <h2>📦 Order #{order.order_code}</h2>
 
-        {/* IMAGE */}
-        {images.length > 0 && (
-          <div className="pd-image-box">
-            <img
-              src={images[activeImage]}
-              alt={product.name}
-              className="pd-image"
-              onClick={() => setShowPreview(true)}
-              onTouchStart={(e) =>
-                setTouchStart(e.targetTouches[0].clientX)
-              }
-              onTouchMove={(e) =>
-                setTouchEnd(e.targetTouches[0].clientX)
-              }
-              onTouchEnd={() => {
-                if (!touchStart || !touchEnd) return;
+      <p><b>Name:</b> {order.name}</p>
+      <p><b>Phone:</b> {order.phone}</p>
 
-                const distance = touchStart - touchEnd;
+      <h3>📍 Address</h3>
+      <pre>{JSON.stringify(order.address, null, 2)}</pre>
 
-                if (distance > 50) {
-                  setActiveImage((prev) =>
-                    prev === images.length - 1 ? 0 : prev + 1
-                  );
-                }
-
-                if (distance < -50) {
-                  setActiveImage((prev) =>
-                    prev === 0 ? images.length - 1 : prev - 1
-                  );
-                }
-
-                setTouchStart(null);
-                setTouchEnd(null);
-              }}
-              onError={(e) => {
-                e.target.src = "/no-image.png";
-              }}
-            />
-
-            {images.length > 1 && (
-              <div className="image-dots">
-                {images.map((_, i) => (
-                  <span
-                    key={i}
-                    className={activeImage === i ? "dot active" : "dot"}
-                    onClick={() => setActiveImage(i)}
-                  />
-                ))}
-              </div>
-            )}
-
-            {images.length > 1 && (
-              <div className="thumb-row">
-                {images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    className={activeImage === i ? "thumb active" : "thumb"}
-                    onClick={() => setActiveImage(i)}
-                    alt=""
-                  />
-                ))}
-              </div>
-            )}
+      <h3>🛒 Items</h3>
+      {Array.isArray(order.items) &&
+        order.items.map((i, idx) => (
+          <div key={idx}>
+            {i.name} × {i.qty} — ₹{i.price}
           </div>
-        )}
+        ))}
 
-        {/* TITLE */}
-        <h2 className="pd-title">{product.name}</h2>
+      <hr />
 
-        {/* INFO */}
-        <div className="pd-row triple">
-          <span>Brand: {product.brand}</span>
-          <span className="center">
-            {product.category_slug?.replace("-", " ").toUpperCase()}
-          </span>
-          <span>Part No: {product.part_number}</span>
-        </div>
-
-        <div className="pd-row double">
-          <div />
-          <div className={product.stock > 0 ? "stock-in" : "stock-out"}>
-            {product.stock > 0 ? "In Stock" : "Out of Stock"}
-          </div>
-        </div>
-
-        {/* PRICE */}
-        <div className="pd-price">₹{product.price}</div>
-
-        {/* QUANTITY */}
-        <div className="qty-box">
-          <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
-          <input
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(Number(e.target.value) || 1)
-            }
-          />
-          <button onClick={() => setQuantity(q => q + 1)}>+</button>
-        </div>
-
-        {/* BUTTONS */}
-        <div className="pd-buttons">
-          <button
-            className="whatsapp"
-            onClick={() =>
-              window.open(
-                `https://wa.me/919873670361?text=${encodeURIComponent(
-                  `Order: ${product.name} | Qty: ${quantity} | Price: ₹${product.price}`
-                )}`,
-                "_blank"
-              )
-            }
-          >
-            Order on WhatsApp
-          </button>
-
-          <button
-            className="cart"
-            onClick={() => {
-              const cart = JSON.parse(localStorage.getItem("cart")) || [];
-              const exist = cart.find(i => i.id === product.id);
-
-              if (exist) {
-                exist.qty += quantity;
-              } else {
-                cart.push({ ...product, qty: quantity });
-              }
-
-              localStorage.setItem("cart", JSON.stringify(cart));
-              window.dispatchEvent(new Event("cartUpdated"));
-
-              setCartToast(true);
-              setTimeout(() => setCartToast(false), 2000);
-            }}
-          >
-            Add to Cart
-          </button>
-        </div>
-
-        <button
-          className="buy-now"
-          onClick={() =>
-            window.open(
-              `https://wa.me/919873670361?text=${encodeURIComponent(
-                `Buy Now: ${product.name} | Qty: ${quantity}`
-              )}`,
-              "_blank"
-            )
-          }
-        >
-          Buy Now
-        </button>
-
-        {/* TABS */}
-        <div className="tabs">
-          <button
-            className={activeTab === "description" ? "active" : ""}
-            onClick={() => setActiveTab("description")}
-          >
-            Description
-          </button>
-
-          <button
-            className={activeTab === "models" ? "active" : ""}
-            onClick={() => setActiveTab("models")}
-          >
-            Compatible Models
-          </button>
-        </div>
-
-        <div className="tab-content">
-          {activeTab === "description" && (
-            <p>{product.description || "No description available."}</p>
-          )}
-          {activeTab === "models" && (
-            <p>{product.compatible_model || "No models available."}</p>
-          )}
-        </div>
-      </div>
-
-      {/* FULL IMAGE PREVIEW */}
-      {showPreview && (
-        <div
-          className="image-preview"
-          onClick={() => setShowPreview(false)}
-        >
-          <img src={images[activeImage]} alt="preview" />
-        </div>
-      )}
-
-      {/* CART POPUP */}
-      {cartToast && (
-        <div className="cart-toast">
-          ✅ Added to cart
-        </div>
-      )}
-
-      {/* RELATED */}
-      <div className="related-section">
-        <h3>More Products</h3>
-        <div className="related-list">
-          {related.map((item) => (
-            <div
-              key={item.id}
-              className="related-card"
-              onClick={() => navigate(`/product/${item.id}`)}
-            >
-              <img src={item.image} alt={item.name} />
-              <div className="rp-name">{item.name}</div>
-              <div className="rp-price">₹{item.price}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <p><b>Total:</b> ₹{order.total}</p>
+      <p><b>Payment:</b> {order.payment_status}</p>
+      <p><b>Status:</b> {order.order_status}</p>
     </div>
   );
-};
-
-export default ProductDetails;
+}
