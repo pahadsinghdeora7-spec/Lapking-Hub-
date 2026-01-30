@@ -11,12 +11,12 @@ export default function AdminOrders() {
   }, []);
 
   async function loadOrders() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("orders")
       .select("*")
       .order("id", { ascending: false });
 
-    setOrders(data || []);
+    if (!error) setOrders(data || []);
   }
 
   return (
@@ -24,7 +24,7 @@ export default function AdminOrders() {
 
       <h2>📦 Orders</h2>
 
-      {/* ================= TABLE ================= */}
+      {/* ================= ORDERS TABLE ================= */}
       <table className="orders-table">
         <thead>
           <tr>
@@ -60,12 +60,13 @@ export default function AdminOrders() {
         </tbody>
       </table>
 
-      {/* ================= POPUP ================= */}
+      {/* ================= ORDER POPUP ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
 
           <div className="modal-box">
 
+            {/* HEADER */}
             <div className="modal-header">
               <h3>📦 Order #{selectedOrder.order_code}</h3>
               <button
@@ -76,35 +77,50 @@ export default function AdminOrders() {
               </button>
             </div>
 
+            {/* BODY */}
             <div className="modal-body">
 
+              <h4>👤 Customer Details</h4>
               <p><b>Name:</b> {selectedOrder.name}</p>
               <p><b>Phone:</b> {selectedOrder.phone}</p>
-              <p><b>Address:</b> {selectedOrder.address}</p>
+
+              <h4 style={{ marginTop: 10 }}>🏠 Delivery Address</h4>
+              <p>
+                {typeof selectedOrder.address === "string"
+                  ? selectedOrder.address
+                  : `${selectedOrder.address?.address || ""}, 
+                     ${selectedOrder.address?.city || ""}, 
+                     ${selectedOrder.address?.state || ""} - 
+                     ${selectedOrder.address?.pincode || ""}`}
+              </p>
 
               <hr />
 
               <h4>🧾 Order Items</h4>
 
-              {selectedOrder.items?.map((item, i) => (
-                <div key={i} className="item-row">
-                  <span>{item.name}</span>
-                  <span>
-                    {item.qty} × ₹{item.price}
-                  </span>
-                </div>
-              ))}
+              {Array.isArray(selectedOrder.items) &&
+                selectedOrder.items.map((item, i) => (
+                  <div key={i} className="item-row">
+                    <span>{item.name}</span>
+                    <span>
+                      {item.qty} × ₹{item.price}
+                    </span>
+                  </div>
+                ))}
 
               <hr />
 
+              <h4>🚚 Courier Details</h4>
               <p><b>Courier:</b> {selectedOrder.shipping_name}</p>
-              <p><b>Delivery Charge:</b> ₹{selectedOrder.shipping_price}</p>
-              <p className="total">
-                Total: ₹{selectedOrder.total}
-              </p>
+              <p><b>Charge:</b> ₹{selectedOrder.shipping_price}</p>
+
+              <h3 className="total">
+                Total Amount: ₹{selectedOrder.total}
+              </h3>
 
               <hr />
 
+              {/* STATUS CONTROL */}
               <div className="status-row">
                 <div>
                   <label>Payment Status</label>
@@ -143,6 +159,7 @@ export default function AdminOrders() {
                 </div>
               </div>
 
+              {/* SAVE */}
               <button
                 className="save-btn"
                 onClick={async () => {
@@ -154,7 +171,7 @@ export default function AdminOrders() {
                     })
                     .eq("id", selectedOrder.id);
 
-                  alert("Order updated successfully");
+                  alert("✅ Order updated successfully");
                   setSelectedOrder(null);
                   loadOrders();
                 }}
