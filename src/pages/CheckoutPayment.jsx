@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 export default function CheckoutPayment() {
   const navigate = useNavigate();
@@ -27,6 +28,9 @@ export default function CheckoutPayment() {
     );
   }
 
+  // ===============================
+  // TOTAL CALCULATION
+  // ===============================
   const itemsTotal = cart.reduce(
     (sum, i) => sum + i.price * i.qty,
     0
@@ -35,13 +39,36 @@ export default function CheckoutPayment() {
   const grandTotal = itemsTotal + Number(courier.price);
 
   // ===============================
-  // ✅ UPI PAYMENT (HASH ROUTER SAFE)
+  // CONFIRM & PAY
   // ===============================
-  function handleUPIPayment() {
-    // ✅ FIRST show success page
+  async function handleUPIPayment() {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("Please login first");
+      return;
+    }
+
+    // ✅ SAVE ORDER TO DATABASE
+    await supabase.from("orders").insert([
+      {
+        user_id: user.id,
+        items: cart,
+        address: address,
+        courier: courier,
+        total_amount: grandTotal,
+        payment_mode: "UPI",
+        payment_status: "Pending",
+        order_status: "Order Placed"
+      }
+    ]);
+
+    // ✅ GO TO SUCCESS PAGE FIRST
     navigate("/order/success");
 
-    // ✅ THEN open UPI app
+    // ✅ OPEN UPI APP
     setTimeout(() => {
       const upiId = "9873670361@jio";
       const name = "LapkingHub";
@@ -57,6 +84,9 @@ export default function CheckoutPayment() {
     }, 400);
   }
 
+  // ===============================
+  // UI
+  // ===============================
   return (
     <div style={{ padding: 15 }}>
 
@@ -66,7 +96,7 @@ export default function CheckoutPayment() {
         🔒 Secure checkout • Verified courier partners • Business support
       </p>
 
-      {/* ================= ORDER SUMMARY ================= */}
+      {/* ORDER SUMMARY */}
       <div className="card">
         <h4>🧾 Order Summary</h4>
 
@@ -85,12 +115,12 @@ export default function CheckoutPayment() {
                 src={item.image}
                 width={50}
                 height={50}
-                alt=""
                 style={{
                   objectFit: "contain",
                   border: "1px solid #eee",
                   borderRadius: 6
                 }}
+                alt=""
               />
 
               <div>
@@ -110,7 +140,7 @@ export default function CheckoutPayment() {
         ))}
       </div>
 
-      {/* ================= ADDRESS ================= */}
+      {/* DELIVERY ADDRESS */}
       <div className="card">
         <h4>🏠 Delivery Address</h4>
 
@@ -125,7 +155,7 @@ export default function CheckoutPayment() {
         </p>
       </div>
 
-      {/* ================= COURIER ================= */}
+      {/* COURIER */}
       <div className="card">
         <h4>🚚 Courier Details</h4>
 
@@ -147,7 +177,7 @@ export default function CheckoutPayment() {
         </p>
       </div>
 
-      {/* ================= TOTAL ================= */}
+      {/* TOTAL */}
       <div
         className="card"
         style={{
@@ -162,7 +192,7 @@ export default function CheckoutPayment() {
         </div>
       </div>
 
-      {/* ================= PAY BUTTON ================= */}
+      {/* PAY BUTTON */}
       <button
         onClick={handleUPIPayment}
         style={{
