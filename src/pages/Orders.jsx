@@ -6,35 +6,50 @@ export default function Orders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadOrders() {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
+    setLoading(true);
+    setError(null);
 
-    if (!user) {
+    try {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Supabase error:", error);
+        setError("Unable to load orders. Try again.");
+        setOrders([]);
+      } else if (!Array.isArray(data)) {
+        setOrders([]);
+      } else {
+        setOrders(data);
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Unexpected error. Try again.");
       setOrders([]);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (error || !Array.isArray(data)) {
-      setOrders([]);
-    } else {
-      setOrders(data);
-    }
-
-    setLoading(false);
   }
 
   if (loading) {
@@ -47,45 +62,112 @@ export default function Orders() {
 
   return (
     <div style={{ padding: 15 }}>
-      <h2>📦 My Orders</h2>
+      <h2 style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <span role="img" aria-label="orders">📦</span>
+        My Orders
+      </h2>
 
-      {orders.length === 0 && (
-        <p>No orders found.</p>
+      {error && (
+        <div style={{ margin: "12px 0", color: "crimson" }}>{error}</div>
       )}
 
-      {orders.map((o) => (
-        <div
-          key={o.id}
-          style={{
-            background: "#fff",
-            padding: 15,
-            marginBottom: 12,
-            borderRadius: 10,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
-          }}
-        >
-          <p><b>Order ID:</b> {o.order_code}</p>
-          <p><b>Date:</b> {new Date(o.created_at).toLocaleDateString()}</p>
-          <p><b>Total:</b> ₹{o.total}</p>
-          <p><b>Payment:</b> {o.payment_status}</p>
-          <p><b>Status:</b> {o.order_status}</p>
+      {orders.length === 0 && (
+        <div style={{
+          background: "#fff",
+          padding: 18,
+          borderRadius: 10,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.06)"
+        }}>
+          <p style={{ margin: 0, fontWeight: 600 }}>No orders found</p>
+          <p style={{ marginTop: 6, color: "#555" }}>
+            Your orders will appear here. Place an order to see it listed.
+          </p>
+        </div>
+      )}
 
-          <button
-            onClick={() => navigate(`/orders/${o.id}`)}
+      {orders.map((o) => {
+        const dateStr = o.created_at ? new Date(o.created_at).toLocaleString() : "-";
+        return (
+          <div
+            key={o.id}
             style={{
-              marginTop: 10,
-              padding: "8px 14px",
-              border: "none",
-              borderRadius: 6,
-              background: "#1976ff",
-              color: "#fff",
-              fontWeight: 600
+              background: "#fff",
+              padding: 15,
+              marginBottom: 12,
+              borderRadius: 10,
+              boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8
             }}
           >
-            View Details
-          </button>
-        </div>
-      ))}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 14, color: "#444" }}>
+                  <strong>Order ID:</strong> {o.order_code || `#${o.id}`}
+                </div>
+                <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                  <strong>Date:</strong> {dateStr}
+                </div>
+              </div>
+
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontWeight: 700, fontSize: 18 }}>₹{o.total || 0}</div>
+                <div style={{ marginTop: 6 }}>
+                  <span style={{
+                    padding: "6px 10px",
+                    borderRadius: 18,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: o.payment_status === "Paid" ? "#e6ffef" : "#fff8e6",
+                    color: o.payment_status === "Paid" ? "#1a7f3a" : "#9a6a00",
+                    border: "1px solid rgba(0,0,0,0.06)"
+                  }}>
+                    {o.payment_status || "Pending"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ fontSize: 13, color: "#666" }}><strong>Status:</strong> {o.order_status || "Order Placed"}</div>
+              <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => navigate(`/order/${o.id}`)}
+                  style={{
+                    padding: "8px 14px",
+                    border: "none",
+                    borderRadius: 8,
+                    background: "#1976ff",
+                    color: "#fff",
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  View Details
+                </button>
+
+                <button
+                  onClick={() => {
+                    // open replace/return page (if exists)
+                    navigate(`/replacement/order/${o.id}`);
+                  }}
+                  style={{
+                    padding: "8px 14px",
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    background: "#fff",
+                    color: "#333",
+                    cursor: "pointer"
+                  }}
+                >
+                  Replacement
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
-}
+            }
