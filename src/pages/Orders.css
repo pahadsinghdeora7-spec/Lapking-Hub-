@@ -1,70 +1,46 @@
-.orders-page {
-  padding: 15px;
-}
-
-.orders-page h2 {
-  margin-bottom: 15px;
-}
-
 .order-card {
   background: #fff;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+.view-btn {
+  margin-top: 8px;
+  background: #1976ff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-box {
+  background: #fff;
+  width: 92%;
+  max-width: 420px;
   border-radius: 12px;
   padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
 }
 
-.row {
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-
-.badge {
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  margin-left: 6px;
-  text-transform: capitalize;
-}
-
-.badge.pending {
-  background: #fff3cd;
-}
-
-.badge.paid {
-  background: #d1f7d6;
-}
-
-.status {
-  margin-left: 6px;
-  text-transform: capitalize;
-}
-
-.btn-row {
+.modal-header {
   display: flex;
-  gap: 10px;
-  margin-top: 12px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 13px;
-  color: #fff;
-}
-
-.btn.blue {
-  background: #0d6efd;
-}
-
-.btn.green {
-  background: #25d366;
-}
-
-.empty {
-  text-align: center;
-  color: #777;
-  margin-top: 30px;
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
 }
