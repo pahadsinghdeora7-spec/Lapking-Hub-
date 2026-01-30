@@ -4,57 +4,82 @@ export default function OrderSuccess() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ padding: 25, textAlign: "center" }}>
-      <div style={{ fontSize: 70 }}>🎉</div>
+    <div style={{ padding: 20, textAlign: "center" }}>
 
-      <h2>Order Placed Successfully</h2>
+      {/* ICON */}
+      <div style={{ fontSize: 60 }}>🟡</div>
 
-      <p style={{ marginTop: 8, color: "#555" }}>
-        Thank you for shopping with LapkingHub
+      <h2 style={{ marginTop: 10 }}>
+        Payment Pending
+      </h2>
+
+      <p style={{ color: "#555", marginTop: 8 }}>
+        Your order has been placed successfully.
       </p>
 
-      <p style={{ fontSize: 13, color: "#777" }}>
-        Your order has been received and is being processed.
+      <p style={{ fontSize: 13, color: "#777", marginTop: 5 }}>
+        Payment confirmation is awaited from your UPI app.
       </p>
 
+      {/* STATUS CARD */}
       <div
         style={{
-          background: "#f6fff8",
-          border: "1px solid #b7ebc6",
-          padding: 15,
+          marginTop: 20,
+          background: "#fffbe6",
+          border: "1px solid #ffe58f",
           borderRadius: 8,
-          marginTop: 20
+          padding: 15,
+          textAlign: "left"
         }}
       >
-        📦 You will receive delivery updates on WhatsApp
+        <p>✅ Order received</p>
+        <p>🟡 Payment pending</p>
+        <p>📦 Processing after confirmation</p>
+        <p>🚚 Courier assignment next</p>
       </div>
 
-      <button
-        onClick={() => navigate("/orders")}
-        style={{
-          marginTop: 20,
-          background: "#2874f0",
-          color: "#fff",
-          border: "none",
-          padding: "12px 20px",
-          borderRadius: 6
-        }}
-      >
-        View My Orders
-      </button>
+      {/* INFO */}
+      <p style={{ fontSize: 12, color: "#777", marginTop: 15 }}>
+        If payment is deducted but status does not update,
+        our team will verify and confirm manually.
+      </p>
 
-      <div style={{ marginTop: 12 }}>
+      {/* BUTTONS */}
+      <div style={{ marginTop: 20 }}>
+        <button
+          onClick={() => navigate("/orders")}
+          style={{
+            background: "#0d6efd",
+            color: "#fff",
+            padding: "10px 20px",
+            border: "none",
+            borderRadius: 6,
+            marginRight: 10
+          }}
+        >
+          📦 View My Orders
+        </button>
+
+        <br /><br />
+
         <button
           onClick={() => navigate("/")}
           style={{
-            background: "none",
+            background: "transparent",
             border: "none",
-            color: "#2874f0"
+            color: "#0d6efd",
+            fontSize: 14
           }}
         >
           Continue Shopping →
         </button>
       </div>
+
+      {/* TRUST */}
+      <p style={{ fontSize: 11, color: "#999", marginTop: 25 }}>
+        Secure checkout • Verified sellers • LapkingHub support
+      </p>
+
     </div>
   );
-}
+            }
