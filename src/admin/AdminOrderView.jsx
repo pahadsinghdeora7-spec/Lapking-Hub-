@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../../supabaseClient";
+import { supabase } from "../supabaseClient";
 
 export default function AdminOrderView({ order, onClose, onUpdated }) {
   const [paymentStatus, setPaymentStatus] = useState(order.payment_status);
@@ -34,28 +34,24 @@ export default function AdminOrderView({ order, onClose, onUpdated }) {
     <div className="modal-backdrop">
       <div className="modal-box">
 
-        {/* HEADER */}
         <div className="modal-header">
           <h3>📦 Order #{order.order_code}</h3>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button onClick={onClose}>✕</button>
         </div>
 
-        {/* CUSTOMER */}
         <h4>👤 Customer Details</h4>
-        <p><strong>Name:</strong> {order.name}</p>
-        <p><strong>Phone:</strong> {order.phone}</p>
-        <p><strong>User ID:</strong> {order.user_id}</p>
-        <p><strong>Date:</strong> {new Date(order.created_at).toLocaleDateString()}</p>
+        <p><b>Name:</b> {order.name}</p>
+        <p><b>Phone:</b> {order.phone}</p>
+        <p><b>User ID:</b> {order.user_id}</p>
+        <p><b>Date:</b> {new Date(order.created_at).toLocaleDateString()}</p>
 
         <hr />
 
-        {/* ADDRESS */}
         <h4>🏠 Delivery Address</h4>
         <p>{order.address}</p>
 
         <hr />
 
-        {/* ITEMS */}
         <h4>🧾 Order Items</h4>
 
         <table width="100%" border="1" cellPadding="6">
@@ -81,56 +77,40 @@ export default function AdminOrderView({ order, onClose, onUpdated }) {
 
         <hr />
 
-        {/* COURIER */}
-        <h4>🚚 Courier Details</h4>
-        <p><strong>Courier:</strong> {order.shipping_name}</p>
-        <p><strong>Charge:</strong> ₹{order.shipping_price}</p>
+        <h4>🚚 Courier</h4>
+        <p>{order.shipping_name}</p>
+        <p>Charge: ₹{order.shipping_price}</p>
+
+        <h3>💰 Total: ₹{order.total}</h3>
 
         <hr />
 
-        {/* TOTAL */}
-        <h3>💰 Total Amount: ₹{order.total}</h3>
-
-        <hr />
-
-        {/* CONTROL */}
         <h4>⚙️ Order Control</h4>
 
-        <div style={{ display: "flex", gap: 20, marginTop: 10 }}>
-          <div>
-            <label>Payment Status</label><br />
-            <select
-              value={paymentStatus}
-              onChange={(e) => setPaymentStatus(e.target.value)}
-            >
-              <option>Pending</option>
-              <option>Paid</option>
-              <option>Failed</option>
-            </select>
-          </div>
+        <select
+          value={paymentStatus}
+          onChange={(e) => setPaymentStatus(e.target.value)}
+        >
+          <option>Pending</option>
+          <option>Paid</option>
+          <option>Failed</option>
+        </select>
 
-          <div>
-            <label>Order Status</label><br />
-            <select
-              value={orderStatus}
-              onChange={(e) => setOrderStatus(e.target.value)}
-            >
-              <option>Order Placed</option>
-              <option>Processing</option>
-              <option>Shipped</option>
-              <option>Delivered</option>
-              <option>Cancelled</option>
-            </select>
-          </div>
-        </div>
+        <select
+          value={orderStatus}
+          onChange={(e) => setOrderStatus(e.target.value)}
+          style={{ marginLeft: 10 }}
+        >
+          <option>Order Placed</option>
+          <option>Processing</option>
+          <option>Shipped</option>
+          <option>Delivered</option>
+          <option>Cancelled</option>
+        </select>
 
-        {/* BUTTONS */}
-        <div style={{ marginTop: 20, textAlign: "right" }}>
-          <button onClick={onClose} style={{ marginRight: 10 }}>
-            Close
-          </button>
-
-          <button onClick={updateOrder} disabled={loading}>
+        <div style={{ marginTop: 15 }}>
+          <button onClick={onClose}>Close</button>
+          <button onClick={updateOrder} disabled={loading} style={{ marginLeft: 10 }}>
             {loading ? "Saving..." : "Save Update"}
           </button>
         </div>
