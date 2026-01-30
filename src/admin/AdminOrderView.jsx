@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AdminOrders.css";
+
 
 export default function AdminOrderView({ order, onClose, onSaved }) {
   const [paymentStatus, setPaymentStatus] = useState(order.payment_status);
