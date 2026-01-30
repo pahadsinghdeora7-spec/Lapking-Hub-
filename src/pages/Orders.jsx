@@ -3,7 +3,7 @@ import { supabase } from "../supabaseClient";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
-  const [viewOrder, setViewOrder] = useState(null);
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => {
     loadOrders();
@@ -29,66 +29,106 @@ export default function Orders() {
     <div style={{ padding: 15 }}>
       <h2>📦 My Orders</h2>
 
+      {orders.length === 0 && <p>No orders found</p>}
+
       {orders.map((o) => (
-        <div key={o.id} className="card" style={{ marginBottom: 15 }}>
+        <div key={o.id} className="card" style={card}>
           <p><b>Order ID:</b> {o.order_code}</p>
           <p><b>Date:</b> {new Date(o.created_at).toLocaleDateString()}</p>
           <p><b>Total:</b> ₹{o.total}</p>
           <p><b>Status:</b> {o.order_status}</p>
 
-          {/* ✅ THIS FIX */}
-          <button
-            style={{ marginTop: 8 }}
-            onClick={() => setViewOrder(o)}
-          >
+          <button style={btn} onClick={() => setSelected(o)}>
             View Details
           </button>
         </div>
       ))}
 
-      {/* ================= POPUP ================= */}
-      {viewOrder && (
-        <div className="modal-backdrop">
-          <div className="modal-box">
+      {/* ================= MODAL ================= */}
+      {selected && (
+        <div style={backdrop}>
+          <div style={modal}>
+            <h3>📦 Order Details</h3>
 
-            <h3>📦 Order #{viewOrder.order_code}</h3>
-
-            <p><b>Name:</b> {viewOrder.name}</p>
-            <p><b>Phone:</b> {viewOrder.phone}</p>
-            <p><b>Address:</b> {viewOrder.address}</p>
+            <p><b>Order:</b> {selected.order_code}</p>
+            <p><b>Payment:</b> {selected.payment_status}</p>
+            <p><b>Status:</b> {selected.order_status}</p>
 
             <hr />
 
-            <h4>🧾 Items</h4>
-
-            {(Array.isArray(viewOrder.items)
-              ? viewOrder.items
-              : []
-            ).map((item, i) => (
-              <div key={i}>
-                {item.name} × {item.qty} — ₹{item.price}
-              </div>
+            <h4>Items</h4>
+            {selected.items?.map((i, idx) => (
+              <p key={idx}>
+                {i.name} × {i.qty} — ₹{i.price}
+              </p>
             ))}
 
             <hr />
 
-            <p><b>Total:</b> ₹{viewOrder.total}</p>
+            <p><b>Delivery Address:</b></p>
+            <p>{selected.address}</p>
+
+            <hr />
 
             <p style={{ fontSize: 13, color: "#555" }}>
-              🔁 Replacement available within 7 days  
-              (Contact WhatsApp support)
+              🔁 Replacement available as per Warranty Policy.
+              If product is damaged or faulty, request replacement
+              within 7 days from delivery.
             </p>
 
-            <button
-              style={{ marginTop: 10 }}
-              onClick={() => setViewOrder(null)}
-            >
+            <button style={closeBtn} onClick={() => setSelected(null)}>
               Close
             </button>
-
           </div>
         </div>
       )}
     </div>
   );
 }
+
+/* ===== styles ===== */
+
+const card = {
+  background: "#fff",
+  padding: 15,
+  borderRadius: 10,
+  marginBottom: 12,
+  boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+};
+
+const btn = {
+  marginTop: 8,
+  padding: "8px 14px",
+  border: "none",
+  background: "#1976ff",
+  color: "#fff",
+  borderRadius: 6
+};
+
+const backdrop = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.45)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 999
+};
+
+const modal = {
+  background: "#fff",
+  padding: 20,
+  borderRadius: 12,
+  width: "90%",
+  maxWidth: 400
+};
+
+const closeBtn = {
+  marginTop: 15,
+  width: "100%",
+  padding: 10,
+  border: "none",
+  background: "#000",
+  color: "#fff",
+  borderRadius: 8
+};
