@@ -29,10 +29,6 @@ export default function Orders() {
     <div style={{ padding: 15 }}>
       <h2>📦 My Orders</h2>
 
-      {orders.length === 0 && (
-        <p>No orders found</p>
-      )}
-
       {orders.map((o) => (
         <div key={o.id} className="card" style={{ marginBottom: 15 }}>
           <p><b>Order ID:</b> {o.order_code}</p>
@@ -40,8 +36,9 @@ export default function Orders() {
           <p><b>Total:</b> ₹{o.total}</p>
           <p><b>Status:</b> {o.order_status}</p>
 
+          {/* ✅ THIS FIX */}
           <button
-            style={{ marginTop: 10 }}
+            style={{ marginTop: 8 }}
             onClick={() => setViewOrder(o)}
           >
             View Details
@@ -49,7 +46,7 @@ export default function Orders() {
         </div>
       ))}
 
-      {/* ================= ORDER POPUP ================= */}
+      {/* ================= POPUP ================= */}
       {viewOrder && (
         <div className="modal-backdrop">
           <div className="modal-box">
@@ -62,36 +59,24 @@ export default function Orders() {
 
             <hr />
 
-            <h4>🧾 Order Items</h4>
+            <h4>🧾 Items</h4>
 
-            {(
-              Array.isArray(viewOrder.items)
-                ? viewOrder.items
-                : []
+            {(Array.isArray(viewOrder.items)
+              ? viewOrder.items
+              : []
             ).map((item, i) => (
-              <div key={i} style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 8
-              }}>
-                <span>{item.name}</span>
-                <span>{item.qty} × ₹{item.price}</span>
+              <div key={i}>
+                {item.name} × {item.qty} — ₹{item.price}
               </div>
             ))}
 
             <hr />
 
-            <p><b>Courier:</b> {viewOrder.shipping_name}</p>
-            <p><b>Delivery:</b> ₹{viewOrder.shipping_price}</p>
             <p><b>Total:</b> ₹{viewOrder.total}</p>
 
-            <hr />
-
             <p style={{ fontSize: 13, color: "#555" }}>
-              🔁 Replacement / Warranty  
-              <br />
-              Agar product me koi issue aaye to 7 days ke andar
-              support team se WhatsApp par contact kare.
+              🔁 Replacement available within 7 days  
+              (Contact WhatsApp support)
             </p>
 
             <button
@@ -100,6 +85,7 @@ export default function Orders() {
             >
               Close
             </button>
+
           </div>
         </div>
       )}
