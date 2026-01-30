@@ -48,13 +48,13 @@ export default function DrawerMenu({ open, onClose }) {
           </button>
 
           <strong style={{ fontSize: "18px", color: "#1976ff" }}>
-            👑 LapkingHub
+            LapkingHub
           </strong>
         </div>
 
         <hr style={{ margin: "15px 0" }} />
 
-        {/* MENU */}
+        {/* MAIN MENU */}
         <div style={{ flex: 1 }}>
           <MenuItem to="/" text="Home" onClose={onClose} />
           <MenuItem to="/categories" text="Categories" onClose={onClose} />
@@ -65,7 +65,7 @@ export default function DrawerMenu({ open, onClose }) {
 
           <hr style={{ margin: "15px 0" }} />
 
-          {/* ✅ POLICIES (CMS BASED) */}
+          {/* POLICIES */}
           <MenuItem
             to="/page/privacy-policy"
             text="Privacy Policy"
@@ -86,11 +86,17 @@ export default function DrawerMenu({ open, onClose }) {
             text="Shipping Policy"
             onClose={onClose}
           />
+          <MenuItem
+            to="/page/warranty-policy"
+            text="Warranty Policy"
+            onClose={onClose}
+          />
 
           <hr style={{ margin: "15px 0" }} />
 
           {/* ABOUT */}
           <MenuItem to="/page/about-us" text="About Us" onClose={onClose} />
+          <MenuItem to="/page/contact-us" text="Contact Us" onClose={onClose} />
         </div>
 
         {/* LOGOUT */}
@@ -143,4 +149,4 @@ function MenuItem({ to, text, onClose }) {
       {text}
     </Link>
   );
-}
+            }
