@@ -32,7 +32,7 @@ export default function CheckoutPayment() {
 
   const grandTotal = itemsTotal + Number(courier.price);
 
-  // ✅ UPI PAYMENT FUNCTION
+  // ✅ FINAL UPI PAYMENT FLOW
   function handleUPIPayment() {
     const upiId = "9873670361@jio";
     const name = "LapkingHub";
@@ -44,13 +44,13 @@ export default function CheckoutPayment() {
       `&am=${amount}` +
       `&cu=INR`;
 
-    // open UPI apps
-    window.location.href = upiURL;
+    // ✅ FIRST: OPEN SUCCESS PAGE
+    navigate("/order-success");
 
-    // show success page (professional flow)
+    // ✅ SECOND: OPEN UPI APP
     setTimeout(() => {
-      navigate("/order-success");
-    }, 1200);
+      window.location.href = upiURL;
+    }, 300);
   }
 
   return (
