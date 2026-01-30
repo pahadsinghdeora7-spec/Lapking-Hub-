@@ -76,53 +76,65 @@ export default function DrawerMenu({ open, onClose }) {
           <MenuItem to="/page/contact-us" text="Contact Us" onClose={onClose} />
         </div>
 
-        {/* SOCIAL */}
-        <div style={{ marginTop: 10 }}>
-          <div
-            style={{
-              fontSize: 13,
-              color: "#555",
-              marginBottom: 8
-            }}
+        {/* SOCIAL ICONS */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "18px",
+            marginTop: "10px"
+          }}
+        >
+          <a
+            href="https://www.facebook.com/share/1DcvZTzkiW/"
+            target="_blank"
+            rel="noreferrer"
           >
-            Connect with us
-          </div>
+            <img
+              src="/icons/facebook.png"
+              width="30"
+              height="30"
+              alt="Facebook"
+            />
+          </a>
 
-          <div style={{ display: "flex", gap: 14 }}>
-            <a
-              href="https://www.facebook.com/share/1DcvZTzkiW/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img src="/icons/facebook.png" width="26" alt="Facebook" />
-            </a>
-
-            <a
-              href="https://www.instagram.com/lapkinghub"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img src="/icons/instagram.png" width="26" alt="Instagram" />
-            </a>
-
-            <a
-              href="https://wa.me/918306939006"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img src="/icons/whatsapp.png" width="26" alt="WhatsApp" />
-            </a>
-          </div>
-
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 12,
-              color: "#888"
-            }}
+          <a
+            href="https://www.instagram.com/lapkinghub"
+            target="_blank"
+            rel="noreferrer"
           >
-            © 2026 LapkingHub
-          </div>
+            <img
+              src="/icons/instagram.png"
+              width="30"
+              height="30"
+              alt="Instagram"
+            />
+          </a>
+
+          <a
+            href="https://wa.me/918306939006"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img
+              src="/icons/whatsapp.png"
+              width="30"
+              height="30"
+              alt="WhatsApp"
+            />
+          </a>
+        </div>
+
+        {/* FOOTER */}
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: "10px",
+            fontSize: "12px",
+            color: "#888"
+          }}
+        >
+          © 2026 LapkingHub
         </div>
       </div>
     </>
