@@ -66,31 +66,11 @@ export default function DrawerMenu({ open, onClose }) {
           <hr style={{ margin: "15px 0" }} />
 
           {/* POLICIES */}
-          <MenuItem
-            to="/page/privacy-policy"
-            text="Privacy Policy"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/terms-conditions"
-            text="Terms & Conditions"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/refund-policy"
-            text="Refund Policy"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/shipping-policy"
-            text="Shipping Policy"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/warranty-policy"
-            text="Warranty Policy"
-            onClose={onClose}
-          />
+          <MenuItem to="/page/privacy-policy" text="Privacy Policy" onClose={onClose} />
+          <MenuItem to="/page/terms-conditions" text="Terms & Conditions" onClose={onClose} />
+          <MenuItem to="/page/refund-policy" text="Refund Policy" onClose={onClose} />
+          <MenuItem to="/page/shipping-policy" text="Shipping Policy" onClose={onClose} />
+          <MenuItem to="/page/warranty-policy" text="Warranty Policy" onClose={onClose} />
 
           <hr style={{ margin: "15px 0" }} />
 
@@ -99,23 +79,61 @@ export default function DrawerMenu({ open, onClose }) {
           <MenuItem to="/page/contact-us" text="Contact Us" onClose={onClose} />
         </div>
 
-        {/* LOGOUT */}
-        <button
-          style={{
-            marginTop: "10px",
-            width: "100%",
-            padding: "12px",
-            background: "#ff3b3b",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "15px",
-            fontWeight: "600",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
+        {/* ================= SOCIAL ICONS ================= */}
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <p style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
+            Connect with us
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "22px",
+              fontSize: "22px",
+            }}
+          >
+            {/* WhatsApp */}
+            <a
+              href="https://wa.me/918306939006"
+              target="_blank"
+              rel="noreferrer"
+              title="WhatsApp"
+            >
+              🟢
+            </a>
+
+            {/* Instagram */}
+            <a
+              href="https://www.instagram.com/lapkinghub?igsh=MXJucWhiZmo0aTcxeA=="
+              target="_blank"
+              rel="noreferrer"
+              title="Instagram"
+            >
+              🟣
+            </a>
+
+            {/* Facebook */}
+            <a
+              href="https://www.facebook.com/share/1DcvZTzkiW/"
+              target="_blank"
+              rel="noreferrer"
+              title="Facebook"
+            >
+              🔵
+            </a>
+          </div>
+
+          <p
+            style={{
+              fontSize: "11px",
+              color: "#888",
+              marginTop: 10,
+            }}
+          >
+            © {new Date().getFullYear()} LapkingHub
+          </p>
+        </div>
       </div>
 
       <style>
@@ -149,4 +167,4 @@ function MenuItem({ to, text, onClose }) {
       {text}
     </Link>
   );
-            }
+}
