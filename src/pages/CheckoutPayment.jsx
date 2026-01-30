@@ -32,6 +32,26 @@ export default function CheckoutPayment() {
 
   const grandTotal = itemsTotal + Number(courier.price);
 
+  // ✅ OPEN UPI
+  function openUPI() {
+    const upiId = "lapkinghub@upi"; // change later
+    const name = "LapkingHub";
+    const amount = grandTotal;
+
+    const url =
+      `upi://pay?pa=${upiId}` +
+      `&pn=${encodeURIComponent(name)}` +
+      `&am=${amount}` +
+      `&cu=INR`;
+
+    window.location.href = url;
+  }
+
+  function handlePay() {
+    openUPI();
+    navigate("/order-success");
+  }
+
   return (
     <div style={{ padding: 15 }}>
 
@@ -146,6 +166,7 @@ export default function CheckoutPayment() {
       {/* ================= CONFIRM ================= */}
       <button
         className="confirm-btn"
+        onClick={handlePay}
         style={{
           width: "100%",
           marginTop: 15,
@@ -157,7 +178,7 @@ export default function CheckoutPayment() {
           fontSize: 15
         }}
       >
-        ✅ Confirm Order
+        ✅ Confirm & Pay Now
       </button>
 
       <p
