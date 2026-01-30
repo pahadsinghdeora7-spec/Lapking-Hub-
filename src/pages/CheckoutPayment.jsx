@@ -4,13 +4,9 @@ import { supabase } from "../supabaseClient";
 export default function CheckoutPayment() {
   const navigate = useNavigate();
 
-  const courierRaw = localStorage.getItem("selected_courier");
-  const addressRaw = localStorage.getItem("checkout_address");
-  const cartRaw = localStorage.getItem("cart");
-
-  const courier = courierRaw ? JSON.parse(courierRaw) : null;
-  const address = addressRaw ? JSON.parse(addressRaw) : null;
-  const cart = cartRaw ? JSON.parse(cartRaw) : [];
+  const courier = JSON.parse(localStorage.getItem("selected_courier"));
+  const address = JSON.parse(localStorage.getItem("checkout_address"));
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   // ===============================
   // SAFETY CHECK
@@ -29,7 +25,7 @@ export default function CheckoutPayment() {
   }
 
   // ===============================
-  // TOTAL CALCULATION
+  // TOTAL
   // ===============================
   const itemsTotal = cart.reduce(
     (sum, i) => sum + i.price * i.qty,
@@ -51,33 +47,48 @@ export default function CheckoutPayment() {
       return;
     }
 
-    // ✅ SAVE ORDER TO DATABASE
-    await supabase.from("orders").insert([
+    const orderCode =
+      "LKH" + Math.floor(100000 + Math.random() * 900000);
+
+    const { error } = await supabase.from("orders").insert([
       {
         user_id: user.id,
-        items: cart,
-        address: address,
-        courier: courier,
-        total_amount: grandTotal,
-        payment_mode: "UPI",
+
+        name: address.full_name || "",
+        phone: address.mobile || "",
+
+        address: `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`,
+
+        shipping_name: courier.name,
+        shipping_price: courier.price,
+
+        total: grandTotal,
+
+        payment_method: "UPI",
         payment_status: "Pending",
-        order_status: "Order Placed"
+        order_status: "Order Placed",
+
+        order_code: orderCode,
+
+        items: cart
       }
     ]);
 
-    // ✅ GO TO SUCCESS PAGE FIRST
+    if (error) {
+      alert("Order save failed");
+      console.log(error);
+      return;
+    }
+
+    // ✅ success page
     navigate("/order/success");
 
-    // ✅ OPEN UPI APP
+    // ✅ open UPI app
     setTimeout(() => {
-      const upiId = "9873670361@jio";
-      const name = "LapkingHub";
-      const amount = grandTotal;
-
       const upiURL =
-        `upi://pay?pa=${upiId}` +
-        `&pn=${encodeURIComponent(name)}` +
-        `&am=${amount}` +
+        `upi://pay?pa=9873670361@jio` +
+        `&pn=LapkingHub` +
+        `&am=${grandTotal}` +
         `&cu=INR`;
 
       window.location.href = upiURL;
@@ -89,7 +100,6 @@ export default function CheckoutPayment() {
   // ===============================
   return (
     <div style={{ padding: 15 }}>
-
       <h2>Payment</h2>
 
       <p style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>
@@ -106,7 +116,6 @@ export default function CheckoutPayment() {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
               marginBottom: 12
             }}
           >
@@ -122,11 +131,8 @@ export default function CheckoutPayment() {
                 }}
                 alt=""
               />
-
               <div>
-                <div style={{ fontWeight: 500 }}>
-                  {item.name}
-                </div>
+                <div style={{ fontWeight: 500 }}>{item.name}</div>
                 <div style={{ fontSize: 12, color: "#666" }}>
                   Qty: {item.qty}
                 </div>
@@ -140,40 +146,27 @@ export default function CheckoutPayment() {
         ))}
       </div>
 
-      {/* DELIVERY ADDRESS */}
+      {/* ADDRESS */}
       <div className="card">
         <h4>🏠 Delivery Address</h4>
-
         <p>{address.full_name}</p>
         <p>{address.address}</p>
         <p>
           {address.city}, {address.state} - {address.pincode}
         </p>
-
-        <p style={{ fontSize: 12, color: "#777" }}>
-          📦 Order will be delivered to this address
-        </p>
       </div>
 
       {/* COURIER */}
       <div className="card">
-        <h4>🚚 Courier Details</h4>
+        <h4>🚚 Courier</h4>
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div>
-            <strong>{courier.name}</strong>
-            <div style={{ fontSize: 12, color: "#666" }}>
-              Estimated delivery: {courier.days}
-            </div>
-          </div>
-
-          <div style={{ fontWeight: 600 }}>
-            ₹{courier.price}
-          </div>
+          <span>{courier.name}</span>
+          <strong>₹{courier.price}</strong>
         </div>
 
-        <p style={{ fontSize: 12, color: "#777", marginTop: 6 }}>
-          💡 Delivery charge depends on selected courier company
+        <p style={{ fontSize: 12, color: "#777" }}>
+          Delivery charge depends on courier company
         </p>
       </div>
 
@@ -181,9 +174,9 @@ export default function CheckoutPayment() {
       <div
         className="card"
         style={{
-          borderTop: "1px dashed #ddd",
           fontSize: 16,
-          fontWeight: 600
+          fontWeight: 600,
+          borderTop: "1px dashed #ddd"
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -192,7 +185,6 @@ export default function CheckoutPayment() {
         </div>
       </div>
 
-      {/* PAY BUTTON */}
       <button
         onClick={handleUPIPayment}
         style={{
@@ -200,7 +192,7 @@ export default function CheckoutPayment() {
           marginTop: 15,
           background: "#28a745",
           color: "#fff",
-          padding: 13,
+          padding: 14,
           borderRadius: 8,
           border: "none",
           fontSize: 16,
@@ -218,9 +210,8 @@ export default function CheckoutPayment() {
           marginTop: 10
         }}
       >
-        By placing the order, you agree to LapkingHub terms & policies.
+        By placing order, you agree to LapkingHub terms & policies.
       </p>
-
     </div>
   );
 }
