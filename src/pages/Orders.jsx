@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import ReplacementRequest from "./ReplacementRequest";
 import "./Orders.css";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [replaceItem, setReplaceItem] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,31 +31,6 @@ export default function Orders() {
 
     setOrders(data || []);
     setLoading(false);
-  }
-
-  // ✅ REPLACEMENT REQUEST (FINAL)
-  async function requestReplacement(item) {
-    const reason = prompt(
-      "Reason for replacement?\n(Damaged / Wrong item / Not working)"
-    );
-
-    if (!reason) return;
-
-    const { error } = await supabase.from("replacements").insert({
-      order_id: selectedOrder.id,
-      product_id: item.product_id || null,
-      customer_name: selectedOrder.name,
-      phone: selectedOrder.phone,
-      reason: reason,
-      status: "pending"
-    });
-
-    if (error) {
-      alert("❌ Replacement request failed");
-      console.error(error);
-    } else {
-      alert("✅ Replacement request submitted successfully");
-    }
   }
 
   if (loading) {
@@ -83,7 +60,7 @@ export default function Orders() {
         </div>
       ))}
 
-      {/* ================= ORDER DETAILS POPUP ================= */}
+      {/* ================= ORDER DETAILS ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
           <div className="modal-box">
@@ -135,7 +112,7 @@ export default function Orders() {
                         fontSize: 13,
                         cursor: "pointer"
                       }}
-                      onClick={() => requestReplacement(item)}
+                      onClick={() => setReplaceItem(item)}
                     >
                       🔁 Request Replacement
                     </button>
@@ -156,6 +133,15 @@ export default function Orders() {
           </div>
         </div>
       )}
+
+      {/* ================= REPLACEMENT POPUP ================= */}
+      {replaceItem && (
+        <ReplacementRequest
+          order={selectedOrder}
+          item={replaceItem}
+          onClose={() => setReplaceItem(null)}
+        />
+      )}
     </div>
   );
-                    }
+}
