@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
-import "./SearchBar.css";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -13,64 +12,54 @@ export default function Search() {
 
   useEffect(() => {
     if (query) {
-      searchProducts(query);
+      loadSearch();
     }
   }, [query]);
 
-  // ===============================
-  // SMART SEARCH (NAME + BRAND + PART NO)
-  // ===============================
-  async function searchProducts(text) {
+  async function loadSearch() {
     setLoading(true);
 
-    const keyword = text
+    const text = query
       .toLowerCase()
       .replace(/[^a-z0-9]/gi, " ")
       .trim();
 
-    const { data, error } = await supabase
-      .from("products")
-      .select("*");
+    const { data } = await supabase.from("products").select("*");
 
-    if (!error && data) {
-      const filtered = data.filter((p) => {
-        const combined =
-          `${p.name || ""} ${p.brand || ""} ${p.part_no || ""} ${p.model || ""}`
-            .toLowerCase()
-            .replace(/[^a-z0-9]/gi, " ");
+    const filtered =
+      data?.filter((p) => {
+        const fullText = `
+          ${p.name || ""}
+          ${p.brand || ""}
+          ${p.part_no || ""}
+          ${p.model || ""}
+        `
+          .toLowerCase()
+          .replace(/[^a-z0-9]/gi, " ");
 
-        return combined.includes(keyword);
-      });
+        return fullText.includes(text);
+      }) || [];
 
-      setProducts(filtered);
-    }
-
+    setProducts(filtered);
     setLoading(false);
   }
 
   return (
-    <div className="search-page">
+    <div style={{ padding: 15 }}>
 
-      {/* HEADER */}
-      <div className="search-title">
+      <h3 style={{ marginBottom: 12 }}>
         🔍 Search results for: <b>{query}</b>
-      </div>
+      </h3>
 
-      {/* LOADING */}
-      {loading && <p className="search-loading">Searching products...</p>}
+      {loading && <p>Searching products...</p>}
 
-      {/* NO RESULT */}
       {!loading && products.length === 0 && (
-        <div className="search-empty">
-          <p>No products found</p>
-          <span>
-            Try searching by product name, brand, part number or model
-          </span>
-        </div>
+        <p style={{ color: "#777" }}>
+          No products found
+        </p>
       )}
 
-      {/* RESULTS */}
-      <div className="search-grid">
+      <div className="product-grid">
         {products.map((item) => (
           <ProductCard key={item.id} product={item} />
         ))}
