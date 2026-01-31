@@ -39,7 +39,7 @@
   object-fit: contain;
   border-radius: 8px;
   border: 2px solid #eee;
-  background: #fff;
+  background: #fff; 
   cursor: pointer;
 }
 
@@ -193,5 +193,26 @@
   .pd-container {
     max-width: 700px;
     margin: auto;
+  }
+}
+
+/* ===============================
+   DESKTOP FULL WIDTH FIX
+   =============================== */
+
+@media (min-width: 1024px) {
+  .pd-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .pd-image-box {
+    max-width: 100%;
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
