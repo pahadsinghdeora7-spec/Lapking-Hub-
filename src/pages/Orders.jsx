@@ -42,9 +42,7 @@ export default function Orders() {
 
       <h2 style={{ marginBottom: 12 }}>📦 My Orders</h2>
 
-      {orders.length === 0 && (
-        <p>No orders found.</p>
-      )}
+      {orders.length === 0 && <p>No orders found.</p>}
 
       {/* ================= ORDER LIST ================= */}
       {orders.map((order) => (
@@ -131,21 +129,35 @@ export default function Orders() {
                       </span>
                     </div>
 
-                    <button
-                      style={{
-                        marginTop: 6,
-                        background: "#fff",
-                        border: "1px solid #1976ff",
-                        color: "#1976ff",
-                        padding: "6px 12px",
-                        borderRadius: 6,
-                        fontSize: 13,
-                        cursor: "pointer"
-                      }}
-                      onClick={() => setReplaceItem(item)}
-                    >
-                      🔁 Request Replacement
-                    </button>
+                    {/* ✅ REPLACEMENT ONLY AFTER DELIVERY */}
+                    {selectedOrder.order_status === "Delivered" ? (
+                      <button
+                        style={{
+                          marginTop: 6,
+                          background: "#fff",
+                          border: "1px solid #1976ff",
+                          color: "#1976ff",
+                          padding: "6px 12px",
+                          borderRadius: 6,
+                          fontSize: 13,
+                          cursor: "pointer"
+                        }}
+                        onClick={() => setReplaceItem(item)}
+                      >
+                        🔁 Request Replacement
+                      </button>
+                    ) : (
+                      <p
+                        style={{
+                          marginTop: 6,
+                          fontSize: 12,
+                          color: "#999"
+                        }}
+                      >
+                        Replacement available after delivery
+                      </p>
+                    )}
+
                   </div>
                 ))}
 
@@ -175,4 +187,4 @@ export default function Orders() {
 
     </div>
   );
-                }
+      }
