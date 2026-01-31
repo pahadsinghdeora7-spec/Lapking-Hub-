@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
-import "./ProductDetails.css";
+import "../styles/ProductDetails.css";
 
 export default function ProductDetails() {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
+  const [tab, setTab] = useState("description");
 
   useEffect(() => {
     loadProduct();
@@ -23,74 +24,94 @@ export default function ProductDetails() {
 
     if (data) {
       setProduct(data);
-      loadRelated(data.category);
+
+      const { data: rel } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", data.category)
+        .neq("id", data.id)
+        .limit(20);
+
+      setRelated(rel || []);
     }
   }
 
-  async function loadRelated(category) {
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .eq("category", category)
-      .neq("id", id)
-      .limit(10);
-
-    setRelated(data || []);
-  }
-
-  if (!product) {
-    return <div style={{ padding: 20 }}>Loading product...</div>;
-  }
+  if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
 
   return (
-    <div className="product-details-page">
+    <div className="pd-page">
 
-      {/* ================= MAIN PRODUCT ================= */}
-      <div className="product-main">
+      {/* ================= IMAGE ================= */}
+      <img
+        src={product.image}
+        className="pd-image"
+        alt={product.name}
+      />
 
-        <img
-          src={product.image || "/no-image.png"}
-          alt={product.name}
-          className="product-image"
-        />
+      {/* ================= INFO ================= */}
+      <h2 className="pd-title">{product.name}</h2>
 
-        <div className="product-info">
-          <h2>{product.name}</h2>
+      <div className="pd-meta">
+        <span><b>Brand:</b> {product.brand}</span>
+        <span><b>Part No:</b> {product.part_no}</span>
+        <span className="stock">
+          {product.stock > 0 ? "In Stock" : "Out of Stock"}
+        </span>
+      </div>
 
-          <p><b>Brand:</b> {product.brand}</p>
-          <p><b>Part No:</b> {product.part_no}</p>
-          <p><b>Category:</b> {product.category}</p>
+      <h3 className="pd-price">₹{product.price}</h3>
 
-          <h3>₹{product.price}</h3>
+      {/* ================= BUTTONS ================= */}
+      <div className="pd-btns">
+        <a
+          className="whatsapp-btn"
+          href={`https://wa.me/919873670361?text=I want ${product.name}`}
+          target="_blank"
+        >
+          Order on WhatsApp
+        </a>
 
-          <p className="stock">
-            {product.stock > 0 ? "In Stock" : "Out of Stock"}
-          </p>
+        <button className="cart-btn">Add to Cart</button>
+      </div>
 
-          <button className="add-cart-btn">
-            Add to Cart
-          </button>
-        </div>
+      <button className="buy-btn">Buy Now</button>
+
+      {/* ================= TABS ================= */}
+      <div className="pd-tabs">
+        <button
+          className={tab === "description" ? "active" : ""}
+          onClick={() => setTab("description")}
+        >
+          Description
+        </button>
+
+        <button
+          className={tab === "models" ? "active" : ""}
+          onClick={() => setTab("models")}
+        >
+          Compatible Models
+        </button>
+      </div>
+
+      <div className="pd-tab-content">
+        {tab === "description" && (
+          <p>{product.description || "No description available."}</p>
+        )}
+
+        {tab === "models" && (
+          <p>{product.compatible_models || "Not specified."}</p>
+        )}
       </div>
 
       {/* ================= RELATED ================= */}
-      {related.length > 0 && (
-        <>
-          <h3 className="related-title">
-            Related Products
-          </h3>
+      <h3 className="related-title">More Products</h3>
 
-          <div className="related-scroll">
-            {related.map((item) => (
-              <ProductCard
-                key={item.id}
-                product={item}
-              />
-            ))}
-          </div>
-        </>
-      )}
+      <div className="related-grid">
+        {related.map((item) => (
+          <ProductCard key={item.id} product={item} />
+        ))}
+      </div>
 
     </div>
   );
-                }
+}
