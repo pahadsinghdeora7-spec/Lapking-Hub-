@@ -1,131 +1,146 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./ReplacementRequest.css";
+import "./AdminReplacements.css";
 
-export default function ReplacementRequest({ order, item, onClose }) {
-  const [reason, setReason] = useState("");
-  const [message, setMessage] = useState("");
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+export default function AdminReplacements() {
+  const [requests, setRequests] = useState([]);
+  const [selected, setSelected] = useState(null);
 
-  async function submitRequest() {
-    if (!reason) {
-      alert("Please select replacement reason");
-      return;
-    }
+  useEffect(() => {
+    loadRequests();
+  }, []);
 
-    setLoading(true);
+  async function loadRequests() {
+    const { data, error } = await supabase
+      .from("replacement_requests")
+      .select("*")
+      .order("id", { ascending: false });
 
-    let imageUrls = [];
+    if (!error) setRequests(data || []);
+  }
 
-    // 📸 Upload images
-    for (let file of images) {
-      const fileName = `replace-${Date.now()}-${file.name}`;
+  async function updateStatus(id, status) {
+    await supabase
+      .from("replacement_requests")
+      .update({ status })
+      .eq("id", id);
 
-      const { error } = await supabase.storage
-        .from("replacements")
-        .upload(fileName, file);
-
-      if (!error) {
-        const { data } = supabase.storage
-          .from("replacements")
-          .getPublicUrl(fileName);
-
-        imageUrls.push(data.publicUrl);
-      }
-    }
-
-    // ✅ INSERT FULL DATA
-    const { error } = await supabase.from("replacement_requests").insert({
-      order_id: order.id,
-      product_id: item.product_id || null,
-      product_name: item.name,
-      customer_name: order.name,
-      phone: order.phone,
-      reason: reason,
-      message: message,
-      images: imageUrls.join(","),
-      status: "pending",
-      user_id: order.user_id
-    });
-
-    setLoading(false);
-
-    if (error) {
-      console.error(error);
-      alert("❌ Replacement request failed");
-    } else {
-      alert("✅ Replacement request submitted");
-      onClose();
-    }
+    loadRequests();
+    setSelected(null);
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-box">
+    <div className="admin-replacement-page">
 
-        <h3>🔁 Replacement Request</h3>
+      <h2>🔁 Replacement Requests</h2>
 
-        {/* Reason */}
-        <label>Reason</label>
-        <select value={reason} onChange={(e) => setReason(e.target.value)}>
-          <option value="">Select reason</option>
-          <option value="Damaged product">Damaged product</option>
-          <option value="Wrong product">Wrong product received</option>
-          <option value="Quantity issue">Quantity issue</option>
-          <option value="Product not working">Product not working</option>
-          <option value="Missing item">Missing item</option>
-          <option value="Other">Other</option>
-        </select>
+      <div className="admin-replacement-card">
 
-        {/* Message */}
-        <label style={{ marginTop: 10 }}>Message</label>
-        <textarea
-          placeholder="Explain your issue..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
+        <table className="admin-replacement-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Product</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-        {/* Images */}
-        <label style={{ marginTop: 10 }}>Upload images (optional)</label>
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) => setImages([...e.target.files])}
-        />
+          <tbody>
+            {requests.length === 0 ? (
+              <tr>
+                <td colSpan="8" style={{ textAlign: "center" }}>
+                  No replacement requests
+                </td>
+              </tr>
+            ) : (
+              requests.map((r, i) => (
+                <tr key={r.id}>
+                  <td>{i + 1}</td>
+                  <td>#{r.order_id}</td>
+                  <td>{r.customer_name}</td>
+                  <td>{r.phone}</td>
+                  <td>{r.product_name}</td>
+                  <td>{r.reason}</td>
 
-        <button
-          onClick={submitRequest}
-          disabled={loading}
-          style={{
-            marginTop: 15,
-            width: "100%",
-            background: "#1976ff",
-            color: "#fff",
-            padding: 12,
-            borderRadius: 8,
-            border: "none"
-          }}
-        >
-          {loading ? "Submitting..." : "Submit Request"}
-        </button>
+                  <td>
+                    <span className={`status-badge status-${r.status}`}>
+                      {r.status}
+                    </span>
+                  </td>
 
-        <button
-          onClick={onClose}
-          style={{
-            marginTop: 8,
-            width: "100%",
-            background: "#eee",
-            padding: 10,
-            borderRadius: 8,
-            border: "none"
-          }}
-        >
-          Cancel
-        </button>
+                  <td>
+                    <button
+                      className="admin-action-btn btn-view"
+                      onClick={() => setSelected(r)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
 
       </div>
+
+      {/* ================= POPUP ================= */}
+      {selected && (
+        <div className="modal-backdrop">
+          <div className="modal-box">
+
+            <h3>📦 Replacement Details</h3>
+
+            <p><b>Order ID:</b> #{selected.order_id}</p>
+            <p><b>Customer:</b> {selected.customer_name}</p>
+            <p><b>Phone:</b> {selected.phone}</p>
+            <p><b>Product:</b> {selected.product_name}</p>
+            <p><b>Reason:</b> {selected.reason}</p>
+            <p><b>Message:</b> {selected.message || "-"}</p>
+
+            {selected.images && (
+              <div style={{ marginTop: 10 }}>
+                <b>Photos:</b>
+                <div className="admin-images">
+                  {selected.images.split(",").map((img, i) => (
+                    <img key={i} src={img} alt="proof" />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ marginTop: 15 }}>
+              <button
+                className="admin-action-btn btn-approve"
+                onClick={() => updateStatus(selected.id, "approved")}
+              >
+                ✅ Approve
+              </button>
+
+              <button
+                className="admin-action-btn btn-reject"
+                onClick={() => updateStatus(selected.id, "rejected")}
+              >
+                ❌ Reject
+              </button>
+
+              <button
+                className="admin-action-btn"
+                onClick={() => setSelected(null)}
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
-          }
+                  }
