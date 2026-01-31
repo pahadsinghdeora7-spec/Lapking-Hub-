@@ -13,7 +13,7 @@ export default function ProductDetails() {
   const [related, setRelated] = useState([]);
   const [tab, setTab] = useState("description");
   const [qty, setQty] = useState(1);
-  const [preview, setPreview] = useState(false);
+  const [activeImage, setActiveImage] = useState("");
 
   useEffect(() => {
     loadProduct();
@@ -28,6 +28,7 @@ export default function ProductDetails() {
 
     if (data) {
       setProduct(data);
+      setActiveImage(data.image);
 
       const { data: rel } = await supabase
         .from("products")
@@ -55,46 +56,60 @@ export default function ProductDetails() {
     updateCartCount();
   };
 
+  const images = [
+    product?.image,
+    product?.image1,
+    product?.image2
+  ].filter(Boolean);
+
   if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
 
   return (
     <div className="pd-page">
 
-      {/* IMAGE */}
-      <div className="pd-image-box" onClick={() => setPreview(true)}>
-        <img src={product.image} alt={product.name} />
+      {/* MAIN IMAGE */}
+      <div className="pd-image-box">
+        <img src={activeImage} alt={product.name} />
       </div>
 
-      {/* FULL IMAGE PREVIEW */}
-      {preview && (
-        <div className="pd-preview" onClick={() => setPreview(false)}>
-          <img src={product.image} alt="preview" />
+      {/* THUMBNAILS */}
+      {images.length > 1 && (
+        <div className="pd-thumbs">
+          {images.map((img, i) => (
+            <img
+              key={i}
+              src={img}
+              onClick={() => setActiveImage(img)}
+              className={activeImage === img ? "active" : ""}
+            />
+          ))}
         </div>
       )}
 
-      {/* TITLE */}
       <h2 className="pd-title">{product.name}</h2>
 
-      {/* META */}
       <div className="pd-meta">
-        <span>🏷 Brand: {product.brand || "N/A"}</span>
-        <span>🔢 Part No: {product.part_number || "N/A"}</span>
-        <span className="stock">
-          {product.stock > 0 ? "✅ In Stock" : "❌ Out of Stock"}
-        </span>
+        <span>🏷 Brand: {product.brand}</span>
+        <span className="partno">🔢 Part No: {product.part_number}</span>
+        <span className="stock">✅ In Stock</span>
       </div>
 
-      {/* PRICE */}
       <h3 className="pd-price">₹{product.price}</h3>
 
-      {/* QTY */}
+      {/* QTY FIXED */}
       <div className="pd-qty">
-        <button onClick={() => qty > 1 && setQty(qty - 1)}>-</button>
+        <button onClick={() => setQty(q => Math.max(1, q - 1))}>-</button>
+
         <input
+          type="number"
+          min="1"
           value={qty}
-          onChange={(e) => setQty(Number(e.target.value) || 1)}
+          onChange={(e) =>
+            setQty(Math.max(1, Number(e.target.value)))
+          }
         />
-        <button onClick={() => setQty(qty + 1)}>+</button>
+
+        <button onClick={() => setQty(q => q + 1)}>+</button>
       </div>
 
       {/* BUTTONS */}
@@ -134,15 +149,14 @@ export default function ProductDetails() {
 
       <div className="pd-tab-content">
         {tab === "description" && (
-          <p>{product.description || "No description available."}</p>
+          <p>{product.description}</p>
         )}
 
         {tab === "models" && (
-          <p>{product.compatible_model || "Not specified."}</p>
+          <p>{product.compatible_model}</p>
         )}
       </div>
 
-      {/* RELATED */}
       {related.length > 0 && (
         <>
           <h3 className="related-title">More Products</h3>
