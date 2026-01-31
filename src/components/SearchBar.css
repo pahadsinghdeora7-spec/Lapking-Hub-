@@ -1,111 +1,53 @@
-/* ===============================
-   SEARCH PAGE STYLES
-================================= */
-
-.home {
-  padding: 12px;
+.search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin: 8px 0 12px 0;
 }
 
-/* ===============================
-   SEARCH TITLE
-================================= */
-
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 10px 0 15px;
-  color: #222;
-}
-
-/* ===============================
-   EMPTY RESULT
-================================= */
-
-.home p {
-  margin-top: 8px;
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
   font-size: 14px;
-  color: #666;
-}
-
-/* ===============================
-   PRODUCT GRID
-================================= */
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-/* ===============================
-   MOBILE FIRST
-================================= */
-
-@media (min-width: 600px) {
-  .product-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 900px) {
-  .product-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* ===============================
-   SEARCH LOADING
-================================= */
-
-.search-loading {
-  text-align: center;
-  padding: 25px;
-  font-size: 14px;
-  color: #1976ff;
-}
-
-/* ===============================
-   SEARCH EMPTY BOX
-================================= */
-
-.search-empty {
-  text-align: center;
-  padding: 25px;
-  border-radius: 10px;
-  background: #f7f9fc;
-  border: 1px dashed #cfd8dc;
-  margin-top: 15px;
-}
-
-.search-empty p:first-child {
-  font-weight: 600;
+  padding: 8px;
   color: #333;
 }
 
-.search-empty p:last-child {
-  font-size: 13px;
-  color: #777;
+.search-bar input::placeholder {
+  color: #999;
 }
 
-/* ===============================
-   PRODUCT CARD FIX
-================================= */
-
-.product-grid .product-card {
-  border-radius: 12px;
-  overflow: hidden;
-  transition: 0.25s;
+.search-bar button {
+  background: #1a73e8;
+  border: none;
+  color: #fff;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.product-grid .product-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+.search-bar button:active {
+  transform: scale(0.96);
 }
 
-/* ===============================
-   AMAZON FEEL
-================================= */
+/* Mobile polish */
+@media (max-width: 480px) {
+  .search-bar {
+    padding: 6px;
+  }
 
-.section-title span {
-  color: #1976ff;
+  .search-bar input {
+    font-size: 13px;
+  }
+
+  .search-bar button {
+    padding: 6px 12px;
+  }
 }
