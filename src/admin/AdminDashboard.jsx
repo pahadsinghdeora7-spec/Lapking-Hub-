@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
@@ -155,6 +154,15 @@ export default function AdminDashboard() {
           <p>Bulk Delete</p>
         </div>
 
+        {/* 🔁 REPLACEMENT REQUESTS CARD (NEW) */}
+        <div
+          className="stat-card purple clickable"
+          onClick={() => navigate("/admin/replacements")}
+        >
+          <h4>🔁</h4>
+          <p>Replacement Requests</p>
+        </div>
+
       </div>
 
       {/* ================= LOW STOCK ================= */}
@@ -224,4 +232,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-      }
+                                }
