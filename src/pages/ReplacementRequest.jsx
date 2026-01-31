@@ -1,122 +1,214 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./ReplacementRequest.css";
+import ReplacementRequest from "./ReplacementRequest";
+import "./Orders.css";
 
-export default function ReplacementRequest({ order, item, onClose }) {
-  const [reason, setReason] = useState("");
-  const [message, setMessage] = useState("");
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+export default function Orders() {
+  const [orders, setOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [replaceItem, setReplaceItem] = useState(null);
+  const [replacements, setReplacements] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  async function submitReplacement() {
-    if (!reason) {
-      alert("Please select replacement reason");
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  async function loadOrders() {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
+    const { data: orderData } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("id", { ascending: false });
 
-    let imageUrls = [];
+    const { data: repData } = await supabase
+      .from("replacement_requests")
+      .select("*")
+      .eq("user_id", user.id);
 
-    // upload images
-    for (let file of images) {
-      const fileName = `replace-${Date.now()}-${file.name}`;
-
-      const { error } = await supabase.storage
-        .from("replacements")
-        .upload(fileName, file);
-
-      if (!error) {
-        const { data } = supabase.storage
-          .from("replacements")
-          .getPublicUrl(fileName);
-
-        imageUrls.push(data.publicUrl);
-      }
-    }
-
-    const { error } = await supabase.from("replacement_requests").insert({
-      order_id: order.id,
-      product_id: item.product_id || null,
-
-      product_name: item.name,
-      customer_name: order.name || "Customer",
-      phone: order.phone || "",
-
-      reason,
-      message,
-      images: imageUrls.join(","),
-
-      status: "pending",
-      user_id: order.user_id
-    });
-
+    setOrders(orderData || []);
+    setReplacements(repData || []);
     setLoading(false);
+  }
 
-    if (error) {
-      console.error(error);
-      alert("❌ Replacement request failed");
-    } else {
-      alert("✅ Replacement request submitted");
-      onClose();
-    }
+  if (loading) {
+    return <div style={{ padding: 20 }}>⏳ Loading orders...</div>;
   }
 
   return (
-    <div className="rep-backdrop">
-      <div className="rep-box">
+    <div style={{ padding: 15 }}>
+      <h2 style={{ marginBottom: 12 }}>📦 My Orders</h2>
 
-        <div className="rep-header">
-          <h3>🔁 Replacement Request</h3>
-          <button onClick={onClose}>✕</button>
+      {orders.length === 0 && <p>No orders found.</p>}
+
+      {/* ================= ORDER LIST ================= */}
+      {orders.map((order) => (
+        <div key={order.id} className="order-card">
+
+          <div className="order-row">
+
+            <div className="order-left">
+              <p className="order-id">
+                <b>Order ID:</b> {order.order_code}
+              </p>
+
+              <p className="order-date">
+                📅 {new Date(order.created_at).toLocaleDateString()}
+              </p>
+
+              <p className="order-payment">
+                💳 {order.payment_status}
+              </p>
+            </div>
+
+            <div className="order-right">
+              <div className="order-total">₹{order.total}</div>
+              <div className="order-status">{order.order_status}</div>
+            </div>
+
+          </div>
+
+          <button
+            className="view-btn"
+            onClick={() => setSelectedOrder(order)}
+          >
+            View Details
+          </button>
+
         </div>
+      ))}
 
-        <p className="rep-product">
-          <b>Product:</b> {item.name}
-        </p>
+      {/* ================= ORDER DETAILS ================= */}
+      {selectedOrder && (
+        <div className="modal-backdrop">
+          <div className="modal-box">
 
-        <label>Reason</label>
-        <select value={reason} onChange={(e) => setReason(e.target.value)}>
-          <option value="">Select reason</option>
-          <option>Damaged product</option>
-          <option>Wrong product received</option>
-          <option>Quantity issue</option>
-          <option>Product not working</option>
-          <option>Missing item</option>
-          <option>Other</option>
-        </select>
+            <div className="modal-header">
+              <h3>📦 Order #{selectedOrder.order_code}</h3>
+              <button onClick={() => setSelectedOrder(null)}>✕</button>
+            </div>
 
-        <label>Message</label>
-        <textarea
-          placeholder="Explain your issue..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+            <div className="modal-body">
+
+              <h4>👤 Customer</h4>
+              <p>{selectedOrder.name}</p>
+              <p>{selectedOrder.phone}</p>
+
+              <h4>🏠 Delivery Address</h4>
+              <p>
+                {typeof selectedOrder.address === "string"
+                  ? selectedOrder.address
+                  : `${selectedOrder.address?.address || ""},
+                     ${selectedOrder.address?.city || ""},
+                     ${selectedOrder.address?.state || ""} -
+                     ${selectedOrder.address?.pincode || ""}`}
+              </p>
+
+              <hr />
+
+              <h4>🧾 Ordered Items</h4>
+
+              {Array.isArray(selectedOrder.items) &&
+                selectedOrder.items.map((item, i) => {
+
+                  const existing = replacements.find(
+                    r =>
+                      r.order_id === selectedOrder.id &&
+                      r.product_name === item.name
+                  );
+
+                  return (
+                    <div key={i} style={{ marginBottom: 14 }}>
+
+                      <div className="item-row">
+                        <span>{item.name}</span>
+                        <span>{item.qty} × ₹{item.price}</span>
+                      </div>
+
+                      {selectedOrder.order_status === "Delivered" ? (
+                        existing ? (
+                          <p
+                            style={{
+                              marginTop: 6,
+                              fontSize: 13,
+                              fontWeight: 500,
+                              color:
+                                existing.status === "approved"
+                                  ? "green"
+                                  : existing.status === "rejected"
+                                  ? "red"
+                                  : "#ff9800"
+                            }}
+                          >
+                            {existing.status === "pending" && "⏳ Replacement under review"}
+                            {existing.status === "approved" && "✅ Replacement approved"}
+                            {existing.status === "rejected" && "❌ Replacement rejected"}
+                          </p>
+                        ) : (
+                          <button
+                            style={{
+                              marginTop: 6,
+                              background: "#fff",
+                              border: "1px solid #1976ff",
+                              color: "#1976ff",
+                              padding: "6px 12px",
+                              borderRadius: 6,
+                              fontSize: 13,
+                              cursor: "pointer"
+                            }}
+                            onClick={() => setReplaceItem(item)}
+                          >
+                            🔁 Request Replacement
+                          </button>
+                        )
+                      ) : (
+                        <p
+                          style={{
+                            marginTop: 6,
+                            fontSize: 12,
+                            color: "#999"
+                          }}
+                        >
+                          Replacement available after delivery
+                        </p>
+                      )}
+
+                    </div>
+                  );
+                })}
+
+              <hr />
+
+              <p><b>Shipping:</b> ₹{selectedOrder.shipping_price}</p>
+              <h3>Total: ₹{selectedOrder.total}</h3>
+
+              <p style={{ fontSize: 12, color: "#777", marginTop: 6 }}>
+                Replacement requests are reviewed within 24–48 hours.
+              </p>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= REPLACEMENT POPUP ================= */}
+      {replaceItem && (
+        <ReplacementRequest
+          order={selectedOrder}
+          item={replaceItem}
+          onClose={() => setReplaceItem(null)}
         />
+      )}
 
-        <label>Upload images (optional)</label>
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) => setImages([...e.target.files])}
-        />
-
-        <button
-          className="rep-submit"
-          onClick={submitReplacement}
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Submit Request"}
-        </button>
-
-        <button className="rep-cancel" onClick={onClose}>
-          Cancel
-        </button>
-
-        <p className="rep-note">
-          Replacement requests are reviewed within 24–48 hours.
-        </p>
-      </div>
     </div>
   );
-}
+                      }
