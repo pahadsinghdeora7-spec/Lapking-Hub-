@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
-import { useCart } from "../context/CartContext";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const { updateCartCount } = useCart();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -44,7 +42,7 @@ export default function ProductDetails() {
   const addToCart = () => {
     let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const exist = cart.find((i) => i.id === product.id);
+    const exist = cart.find(i => i.id === product.id);
 
     if (exist) {
       exist.qty += qty;
@@ -53,26 +51,25 @@ export default function ProductDetails() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
   };
 
-  const images = [
-    product?.image,
-    product?.image1,
-    product?.image2
-  ].filter(Boolean);
-
   if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
+
+  const images = [
+    product.image,
+    product.image1,
+    product.image2
+  ].filter(Boolean);
 
   return (
     <div className="pd-page">
 
-      {/* MAIN IMAGE */}
+      {/* IMAGE */}
       <div className="pd-image-box">
         <img src={activeImage} alt={product.name} />
       </div>
 
-      {/* THUMBNAILS */}
+      {/* THUMB */}
       {images.length > 1 && (
         <div className="pd-thumbs">
           {images.map((img, i) => (
@@ -89,14 +86,14 @@ export default function ProductDetails() {
       <h2 className="pd-title">{product.name}</h2>
 
       <div className="pd-meta">
-        <span>🏷 Brand: {product.brand}</span>
-        <span className="partno">🔢 Part No: {product.part_number}</span>
+        <span>Brand: {product.brand}</span>
+        <span className="partno">Part No: {product.part_number}</span>
         <span className="stock">✅ In Stock</span>
       </div>
 
       <h3 className="pd-price">₹{product.price}</h3>
 
-      {/* QTY FIXED */}
+      {/* QTY */}
       <div className="pd-qty">
         <button onClick={() => setQty(q => Math.max(1, q - 1))}>-</button>
 
@@ -116,7 +113,7 @@ export default function ProductDetails() {
       <div className="pd-btns">
         <a
           className="whatsapp-btn"
-          href={`https://wa.me/919873670361?text=I want ${product.name}`}
+          href={`https://wa.me/919873670361?text=I want ${product.name} qty ${qty}`}
           target="_blank"
           rel="noreferrer"
         >
@@ -136,25 +133,20 @@ export default function ProductDetails() {
           className={tab === "description" ? "active" : ""}
           onClick={() => setTab("description")}
         >
-          📄 Description
+          Description
         </button>
 
         <button
           className={tab === "models" ? "active" : ""}
           onClick={() => setTab("models")}
         >
-          💻 Compatible Models
+          Compatible Models
         </button>
       </div>
 
       <div className="pd-tab-content">
-        {tab === "description" && (
-          <p>{product.description}</p>
-        )}
-
-        {tab === "models" && (
-          <p>{product.compatible_model}</p>
-        )}
+        {tab === "description" && <p>{product.description}</p>}
+        {tab === "models" && <p>{product.compatible_model}</p>}
       </div>
 
       {related.length > 0 && (
@@ -167,6 +159,7 @@ export default function ProductDetails() {
           </div>
         </>
       )}
+
     </div>
   );
 }
