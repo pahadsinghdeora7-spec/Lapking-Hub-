@@ -30,14 +30,36 @@ export default function Orders() {
       .eq("user_id", user.id)
       .order("id", { ascending: false });
 
-    const { data: repData } = await supabase
+    // ✅ remove duplicate orders
+    const unique = [];
+    const seen = new Set();
+
+    (orderData || []).forEach(o => {
+      if (!seen.has(o.order_code)) {
+        seen.add(o.order_code);
+        unique.push(o);
+      }
+    });
+
+    setOrders(unique);
+
+    // ✅ load replacement requests
+    const { data: rep } = await supabase
       .from("replacement_requests")
       .select("*")
       .eq("user_id", user.id);
 
-    setOrders(orderData || []);
-    setReplacements(repData || []);
+    setReplacements(rep || []);
     setLoading(false);
+  }
+
+  // 🔎 find replacement for item
+  function getReplacement(orderId, productName) {
+    return replacements.find(
+      r =>
+        r.order_id === orderId &&
+        r.product_name === productName
+    );
   }
 
   if (loading) {
@@ -50,31 +72,19 @@ export default function Orders() {
 
       {orders.length === 0 && <p>No orders found.</p>}
 
-      {/* ================= ORDER LIST ================= */}
-      {orders.map((order) => (
+      {orders.map(order => (
         <div key={order.id} className="order-card">
-
           <div className="order-row">
-
             <div className="order-left">
-              <p className="order-id">
-                <b>Order ID:</b> {order.order_code}
-              </p>
-
-              <p className="order-date">
-                📅 {new Date(order.created_at).toLocaleDateString()}
-              </p>
-
-              <p className="order-payment">
-                💳 {order.payment_status}
-              </p>
+              <p><b>Order ID:</b> {order.order_code}</p>
+              <p>📅 {new Date(order.created_at).toLocaleDateString()}</p>
+              <p>💳 {order.payment_status}</p>
             </div>
 
             <div className="order-right">
               <div className="order-total">₹{order.total}</div>
               <div className="order-status">{order.order_status}</div>
             </div>
-
           </div>
 
           <button
@@ -83,11 +93,10 @@ export default function Orders() {
           >
             View Details
           </button>
-
         </div>
       ))}
 
-      {/* ================= ORDER DETAILS ================= */}
+      {/* ================= POPUP ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
           <div className="modal-box">
@@ -117,77 +126,64 @@ export default function Orders() {
 
               <h4>🧾 Ordered Items</h4>
 
-              {Array.isArray(selectedOrder.items) &&
-                selectedOrder.items.map((item, i) => {
+              {selectedOrder.items?.map((item, i) => {
+                const existing = getReplacement(
+                  selectedOrder.id,
+                  item.name
+                );
 
-                  const existing = replacements.find(
-                    r =>
-                      r.order_id === selectedOrder.id &&
-                      r.product_name === item.name
-                  );
-
-                  return (
-                    <div key={i} style={{ marginBottom: 14 }}>
-
-                      <div className="item-row">
-                        <span>{item.name}</span>
-                        <span>{item.qty} × ₹{item.price}</span>
-                      </div>
-
-                      {selectedOrder.order_status === "Delivered" ? (
-                        existing ? (
-                          <p
-                            style={{
-                              marginTop: 6,
-                              fontSize: 13,
-                              fontWeight: 500,
-                              color:
-                                existing.status === "approved"
-                                  ? "green"
-                                  : existing.status === "rejected"
-                                  ? "red"
-                                  : "#ff9800"
-                            }}
-                          >
-                            {existing.status === "pending" && "⏳ Replacement under review"}
-                            {existing.status === "approved" && "✅ Replacement approved"}
-                            {existing.status === "rejected" && "❌ Replacement rejected"}
-                          </p>
-                        ) : (
-                          <button
-                            style={{
-                              marginTop: 6,
-                              background: "#fff",
-                              border: "1px solid #1976ff",
-                              color: "#1976ff",
-                              padding: "6px 12px",
-                              borderRadius: 6,
-                              fontSize: 13,
-                              cursor: "pointer"
-                            }}
-                            onClick={() => setReplaceItem(item)}
-                          >
-                            🔁 Request Replacement
-                          </button>
-                        )
-                      ) : (
-                        <p
-                          style={{
-                            marginTop: 6,
-                            fontSize: 12,
-                            color: "#999"
-                          }}
-                        >
-                          Replacement available after delivery
-                        </p>
-                      )}
-
+                return (
+                  <div key={i} style={{ marginBottom: 14 }}>
+                    <div className="item-row">
+                      <span>{item.name}</span>
+                      <span>{item.qty} × ₹{item.price}</span>
                     </div>
-                  );
-                })}
+
+                    {/* ✅ STATUS DISPLAY */}
+                    {existing ? (
+                      <p
+                        style={{
+                          marginTop: 6,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color:
+                            existing.status === "approved"
+                              ? "green"
+                              : existing.status === "rejected"
+                              ? "red"
+                              : "#ff9800"
+                        }}
+                      >
+                        {existing.status === "pending" && "⏳ Replacement under review"}
+                        {existing.status === "approved" && "✅ Replacement approved"}
+                        {existing.status === "rejected" && "❌ Replacement rejected"}
+                      </p>
+                    ) : selectedOrder.order_status === "Delivered" ? (
+                      <button
+                        style={{
+                          marginTop: 6,
+                          background: "#fff",
+                          border: "1px solid #1976ff",
+                          color: "#1976ff",
+                          padding: "6px 12px",
+                          borderRadius: 6,
+                          fontSize: 13,
+                          cursor: "pointer"
+                        }}
+                        onClick={() => setReplaceItem(item)}
+                      >
+                        🔁 Request Replacement
+                      </button>
+                    ) : (
+                      <p style={{ fontSize: 12, color: "#999" }}>
+                        Replacement available after delivery
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
 
               <hr />
-
               <p><b>Shipping:</b> ₹{selectedOrder.shipping_price}</p>
               <h3>Total: ₹{selectedOrder.total}</h3>
 
@@ -200,15 +196,17 @@ export default function Orders() {
         </div>
       )}
 
-      {/* ================= REPLACEMENT POPUP ================= */}
+      {/* ================= REQUEST POPUP ================= */}
       {replaceItem && (
         <ReplacementRequest
           order={selectedOrder}
           item={replaceItem}
-          onClose={() => setReplaceItem(null)}
+          onClose={() => {
+            setReplaceItem(null);
+            loadOrders(); // 🔥 refresh after submit
+          }}
         />
       )}
-
     </div>
   );
-                      }
+            }
