@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
-import "../styles/ProductDetails.css";
+import "./ProductDetails.css";
 
 export default function ProductDetails() {
   const { id } = useParams();
