@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
-import "./Search.css";
+import "./SearchBar.css";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
