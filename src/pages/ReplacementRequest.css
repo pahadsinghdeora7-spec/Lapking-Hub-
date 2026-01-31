@@ -1,42 +1,63 @@
-.replacement-box {
-  max-width: 500px;
-  margin: 20px auto;
+.replace-box {
   background: #fff;
-  padding: 20px;
+  padding: 18px;
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 420px;
+  margin: auto;
 }
 
-.replacement-box h2 {
+.replace-box h2 {
   margin-bottom: 15px;
+  font-size: 20px;
 }
 
-.replacement-box label {
+.replace-info {
+  background: #f6f8ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.replace-box label {
   font-weight: 600;
-  display: block;
   margin-top: 10px;
+  display: block;
 }
 
-.replacement-box select,
-.replacement-box textarea,
-.replacement-box input {
+.replace-box select,
+.replace-box textarea {
   width: 100%;
-  padding: 8px;
   margin-top: 6px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   border: 1px solid #ddd;
+  font-size: 14px;
 }
 
-.replacement-box textarea {
+.replace-box textarea {
   min-height: 80px;
 }
 
-.replacement-box button {
+.replace-btn {
   width: 100%;
   margin-top: 15px;
-  background: #0d6efd;
-  color: #fff;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   border: none;
+  background: #1976ff;
+  color: white;
+  font-size: 15px;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.replace-success {
+  background: #e9fff0;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #0a7a3d;
 }
