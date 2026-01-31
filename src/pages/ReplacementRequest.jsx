@@ -20,7 +20,7 @@ export default function ReplacementRequest({ order, item, onClose }) {
 
     // 📸 upload images (optional)
     for (let file of images) {
-      const fileName = `${Date.now()}-${file.name}`;
+      const fileName = `replace-${Date.now()}-${file.name}`;
 
       const { error } = await supabase.storage
         .from("replacements")
@@ -35,25 +35,33 @@ export default function ReplacementRequest({ order, item, onClose }) {
       }
     }
 
-    // 💾 save replacement request
-    const { error } = await supabase.from("replacement_requests").insert({
-      order_id: order.id,
-      product_id: item.product_id || null,
-      user_id: order.user_id,
-      reason: reason,
-      message: message,
-      images: imageUrls,
-      status: "pending"
-    });
+    // 💾 SAVE REPLACEMENT REQUEST
+    const { error } = await supabase
+      .from("replacement_requests")
+      .insert({
+        order_id: order.id,
+        product_id: item.product_id || null,
+        product_name: item.name,
+
+        customer_name: order.name || "Customer",
+        phone: order.phone || "",
+
+        user_id: order.user_id,
+        reason: reason,
+        message: message,
+        images: imageUrls.join(","), // important
+        status: "pending"
+      });
+
+    setLoading(false);
 
     if (error) {
-      alert("Something went wrong");
+      console.error(error);
+      alert("❌ Something went wrong");
     } else {
       alert("✅ Replacement request submitted");
       onClose();
     }
-
-    setLoading(false);
   }
 
   return (
