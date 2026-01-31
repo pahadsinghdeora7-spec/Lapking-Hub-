@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
+import { useCart } from "../context/CartContext";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const { updateCartCount } = useCart();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
-  const [qty, setQty] = useState(1);
   const [tab, setTab] = useState("description");
-
-  const [preview, setPreview] = useState(null);
+  const [qty, setQty] = useState(1);
+  const [preview, setPreview] = useState(false);
 
   useEffect(() => {
     loadProduct();
@@ -39,9 +40,8 @@ export default function ProductDetails() {
     }
   }
 
-  /* ================= ADD TO CART ================= */
   const addToCart = () => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
     const exist = cart.find((i) => i.id === product.id);
 
@@ -52,71 +52,58 @@ export default function ProductDetails() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Added to cart");
+    updateCartCount();
   };
 
   if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
 
-  const images = [
-    product.image,
-    product.image1,
-    product.image2
-  ].filter(Boolean);
-
   return (
-    <div className="pd-container">
+    <div className="pd-page">
 
-      {/* ================= IMAGE ================= */}
-      <div className="pd-image-box">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="pd-main-img"
-          onClick={() => setPreview(product.image)}
-        />
+      {/* IMAGE */}
+      <div className="pd-image-box" onClick={() => setPreview(true)}>
+        <img src={product.image} alt={product.name} />
       </div>
 
-      {/* ================= FULL IMAGE PREVIEW ================= */}
+      {/* FULL IMAGE PREVIEW */}
       {preview && (
-        <div className="img-preview" onClick={() => setPreview(null)}>
-          <img src={preview} alt="preview" />
-          <span className="close">✕</span>
+        <div className="pd-preview" onClick={() => setPreview(false)}>
+          <img src={product.image} alt="preview" />
         </div>
       )}
 
-      {/* ================= TITLE ================= */}
-      <h1 className="pd-title">{product.name}</h1>
+      {/* TITLE */}
+      <h2 className="pd-title">{product.name}</h2>
 
+      {/* META */}
       <div className="pd-meta">
-        <span>Brand: <b>{product.brand}</b></span>
-        <span>Part No: <b>{product.part_number || "N/A"}</b></span>
-      </div>
-
-      <div className="pd-price">₹{product.price}</div>
-
-      {/* ================= QTY + STOCK ================= */}
-      <div className="pd-qty-row">
-        <div className="pd-qty">
-          <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
-          <input
-            value={qty}
-            type="number"
-            onChange={(e) => setQty(Number(e.target.value) || 1)}
-          />
-          <button onClick={() => setQty(qty + 1)}>+</button>
-        </div>
-
+        <span>🏷 Brand: {product.brand || "N/A"}</span>
+        <span>🔢 Part No: {product.part_number || "N/A"}</span>
         <span className="stock">
           {product.stock > 0 ? "✅ In Stock" : "❌ Out of Stock"}
         </span>
       </div>
 
-      {/* ================= BUTTONS ================= */}
-      <div className="pd-buttons">
+      {/* PRICE */}
+      <h3 className="pd-price">₹{product.price}</h3>
+
+      {/* QTY */}
+      <div className="pd-qty">
+        <button onClick={() => qty > 1 && setQty(qty - 1)}>-</button>
+        <input
+          value={qty}
+          onChange={(e) => setQty(Number(e.target.value) || 1)}
+        />
+        <button onClick={() => setQty(qty + 1)}>+</button>
+      </div>
+
+      {/* BUTTONS */}
+      <div className="pd-btns">
         <a
-          href={`https://wa.me/919873670361?text=I want ${product.name} Qty:${qty}`}
-          className="wa-btn"
+          className="whatsapp-btn"
+          href={`https://wa.me/919873670361?text=I want ${product.name}`}
           target="_blank"
+          rel="noreferrer"
         >
           💬 Order on WhatsApp
         </a>
@@ -128,7 +115,7 @@ export default function ProductDetails() {
 
       <button className="buy-btn">⚡ Buy Now</button>
 
-      {/* ================= TABS ================= */}
+      {/* TABS */}
       <div className="pd-tabs">
         <button
           className={tab === "description" ? "active" : ""}
@@ -145,7 +132,7 @@ export default function ProductDetails() {
         </button>
       </div>
 
-      <div className="pd-content">
+      <div className="pd-tab-content">
         {tab === "description" && (
           <p>{product.description || "No description available."}</p>
         )}
@@ -155,12 +142,11 @@ export default function ProductDetails() {
         )}
       </div>
 
-      {/* ================= RELATED ================= */}
+      {/* RELATED */}
       {related.length > 0 && (
         <>
-          <h3 className="pd-related-title">More Products</h3>
-
-          <div className="pd-related-grid">
+          <h3 className="related-title">More Products</h3>
+          <div className="related-grid">
             {related.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}
@@ -169,4 +155,4 @@ export default function ProductDetails() {
       )}
     </div>
   );
-      }
+}
