@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
-import "../Search.css";
+import "../SearchBar.css";
 
 /* ===============================
    SEARCH NORMALIZER
