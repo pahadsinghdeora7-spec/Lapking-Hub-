@@ -16,6 +16,7 @@ export default function AdminDashboard() {
 
   const [recentOrders, setRecentOrders] = useState([]);
   const [lowStock, setLowStock] = useState([]);
+  const [pendingReplacements, setPendingReplacements] = useState(0);
 
   useEffect(() => {
     loadDashboard();
@@ -24,6 +25,17 @@ export default function AdminDashboard() {
   const loadDashboard = async () => {
     const { data: orders = [] } = await supabase.from("orders").select("*");
     const { data: products = [] } = await supabase.from("products").select("*");
+
+    // 🔁 replacement requests
+    const { data: replacements = [] } = await supabase
+      .from("replacement_requests")
+      .select("id, status");
+
+    const pending = replacements.filter(
+      r => r.status === "pending"
+    );
+
+    setPendingReplacements(pending.length);
 
     const now = new Date();
     const month = now.getMonth();
@@ -127,40 +139,13 @@ export default function AdminDashboard() {
           <p>Total Customers</p>
         </div>
 
-        {/* ➕ ADD PRODUCT */}
-        <div
-          className="stat-card add-product clickable"
-          onClick={() => navigate("/admin/products/add")}
-        >
-          <h4>+</h4>
-          <p>Add Product</p>
-        </div>
-
-        {/* 📄 BULK UPLOAD */}
-        <div
-          className="stat-card blue clickable"
-          onClick={() => navigate("/admin/products/bulk-upload")}
-        >
-          <h4>📄</h4>
-          <p>Bulk Upload</p>
-        </div>
-
-        {/* 🗑️ BULK DELETE */}
-        <div
-          className="stat-card red clickable"
-          onClick={() => navigate("/admin/products/bulk-delete")}
-        >
-          <h4>🗑️</h4>
-          <p>Bulk Delete</p>
-        </div>
-
-        {/* 🔁 REPLACEMENT REQUESTS CARD (NEW) */}
+        {/* 🔁 REPLACEMENT REQUESTS */}
         <div
           className="stat-card purple clickable"
           onClick={() => navigate("/admin/replacements")}
         >
-          <h4>🔁</h4>
-          <p>Replacement Requests</p>
+          <h4>{pendingReplacements}</h4>
+          <p>Pending Replacement Requests</p>
         </div>
 
       </div>
@@ -232,4 +217,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-                                }
+           }
