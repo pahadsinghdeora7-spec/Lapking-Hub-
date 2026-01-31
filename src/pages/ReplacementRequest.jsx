@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./Replacement.css";
+import "./ReplacementRequest.css";
 
 export default function ReplacementRequest({ order, product }) {
   const [reason, setReason] = useState("");
