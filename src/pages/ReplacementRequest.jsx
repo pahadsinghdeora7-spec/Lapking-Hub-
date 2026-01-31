@@ -18,7 +18,7 @@ export default function ReplacementRequest({ order, item, onClose }) {
 
     let imageUrls = [];
 
-    // 📸 upload images (optional)
+    // upload images
     for (let file of images) {
       const fileName = `replace-${Date.now()}-${file.name}`;
 
@@ -35,29 +35,27 @@ export default function ReplacementRequest({ order, item, onClose }) {
       }
     }
 
-    // 💾 SAVE REPLACEMENT REQUEST
-    const { error } = await supabase
-      .from("replacement_requests")
-      .insert({
-        order_id: order.id,
-        product_id: item.product_id || null,
-        product_name: item.name,
+    const { error } = await supabase.from("replacement_requests").insert({
+      order_id: order.id,
+      product_id: item.product_id || null,
 
-        customer_name: order.name || "Customer",
-        phone: order.phone || "",
+      product_name: item.name,
+      customer_name: order.name || "Customer",
+      phone: order.phone || "",
 
-        user_id: order.user_id,
-        reason: reason,
-        message: message,
-        images: imageUrls.join(","), // important
-        status: "pending"
-      });
+      reason,
+      message,
+      images: imageUrls.join(","),
+
+      status: "pending",
+      user_id: order.user_id
+    });
 
     setLoading(false);
 
     if (error) {
       console.error(error);
-      alert("❌ Something went wrong");
+      alert("❌ Replacement request failed");
     } else {
       alert("✅ Replacement request submitted");
       onClose();
@@ -68,42 +66,34 @@ export default function ReplacementRequest({ order, item, onClose }) {
     <div className="rep-backdrop">
       <div className="rep-box">
 
-        {/* HEADER */}
         <div className="rep-header">
           <h3>🔁 Replacement Request</h3>
           <button onClick={onClose}>✕</button>
         </div>
 
-        {/* PRODUCT */}
-        <div className="rep-product">
+        <p className="rep-product">
           <b>Product:</b> {item.name}
-        </div>
+        </p>
 
-        {/* REASON */}
         <label>Reason</label>
-        <select
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-        >
+        <select value={reason} onChange={(e) => setReason(e.target.value)}>
           <option value="">Select reason</option>
           <option>Damaged product</option>
           <option>Wrong product received</option>
-          <option>Quantity issue (less / more)</option>
+          <option>Quantity issue</option>
           <option>Product not working</option>
           <option>Missing item</option>
           <option>Other</option>
         </select>
 
-        {/* MESSAGE */}
-        <label style={{ marginTop: 10 }}>Message</label>
+        <label>Message</label>
         <textarea
           placeholder="Explain your issue..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
 
-        {/* IMAGES */}
-        <label style={{ marginTop: 10 }}>Upload images (optional)</label>
+        <label>Upload images (optional)</label>
         <input
           type="file"
           multiple
@@ -111,13 +101,12 @@ export default function ReplacementRequest({ order, item, onClose }) {
           onChange={(e) => setImages([...e.target.files])}
         />
 
-        {/* BUTTONS */}
         <button
           className="rep-submit"
-          disabled={loading}
           onClick={submitReplacement}
+          disabled={loading}
         >
-          {loading ? "Submitting..." : "Submit Replacement Request"}
+          {loading ? "Submitting..." : "Submit Request"}
         </button>
 
         <button className="rep-cancel" onClick={onClose}>
@@ -127,7 +116,6 @@ export default function ReplacementRequest({ order, item, onClose }) {
         <p className="rep-note">
           Replacement requests are reviewed within 24–48 hours.
         </p>
-
       </div>
     </div>
   );
