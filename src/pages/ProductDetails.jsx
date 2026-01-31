@@ -159,15 +159,20 @@ export default function ProductDetails() {
       </div>
 
       {/* ================= TAB CONTENT ================= */}
-      <div className="pd-desc">
-        {tab === "description" && (
-          <p>{product.description || "No description available."}</p>
-        )}
+      {/* ============== TAB CONTENT ============== */}
+<div className="pd-full-section">
 
-        {tab === "models" && (
-          <p>{product.compatible_model || "Not specified."}</p>
-        )}
-      </div>
+  <div className="pd-desc">
+    {tab === "description" && (
+      <p>{product.description || "No description available."}</p>
+    )}
+
+    {tab === "models" && (
+      <p>{product.compatible_model || "Not specified."}</p>
+    )}
+  </div>
+
+</div>
 
       {/* ================= RELATED ================= */}
       {related.length > 0 && (
