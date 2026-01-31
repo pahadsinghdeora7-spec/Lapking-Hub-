@@ -1,46 +1,97 @@
-.product-details-page {
+.pd-page {
   padding: 15px;
 }
 
-.product-main {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-.product-image {
-  width: 45%;
+.pd-image {
+  width: 100%;
   border-radius: 10px;
+  margin-bottom: 10px;
 }
 
-.product-info {
-  width: 55%;
-}
-
-.product-info h2 {
+.pd-title {
+  font-size: 18px;
   margin-bottom: 6px;
 }
 
-.product-info p {
-  margin: 4px 0;
+.pd-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555;
 }
 
-.add-cart-btn {
+.stock {
+  color: green;
+  font-weight: bold;
+}
+
+.pd-price {
+  margin: 10px 0;
+  font-size: 20px;
+}
+
+.pd-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.whatsapp-btn {
+  flex: 1;
+  background: #25d366;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.cart-btn {
+  flex: 1;
+  background: #eee;
+  border: none;
+  border-radius: 6px;
+}
+
+.buy-btn {
+  width: 100%;
   margin-top: 10px;
   background: #1976ff;
-  color: white;
-  padding: 10px;
+  color: #fff;
+  padding: 12px;
   border-radius: 8px;
   border: none;
-  width: 100%;
+}
+
+.pd-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.pd-tabs button {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.pd-tabs .active {
+  background: #1976ff;
+  color: white;
+}
+
+.pd-tab-content {
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 .related-title {
-  margin: 10px 0;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 
-.related-scroll {
-  display: flex;
-  flex-direction: column;
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
