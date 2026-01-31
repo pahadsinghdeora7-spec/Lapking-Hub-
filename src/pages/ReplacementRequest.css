@@ -1,63 +1,94 @@
-.replace-box {
-  background: #fff;
-  padding: 18px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+.rep-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.rep-box {
+  width: 92%;
   max-width: 420px;
-  margin: auto;
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  animation: fadeIn 0.2s ease;
 }
 
-.replace-box h2 {
-  margin-bottom: 15px;
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.rep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rep-header button {
+  border: none;
+  background: none;
   font-size: 20px;
+  cursor: pointer;
 }
 
-.replace-info {
-  background: #f6f8ff;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+.rep-product {
+  margin: 10px 0;
   font-size: 14px;
+  color: #444;
 }
 
-.replace-box label {
+.rep-box label {
+  font-size: 13px;
   font-weight: 600;
   margin-top: 10px;
   display: block;
 }
 
-.replace-box select,
-.replace-box textarea {
+.rep-box select,
+.rep-box textarea,
+.rep-box input {
   width: 100%;
   margin-top: 6px;
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   font-size: 14px;
 }
 
-.replace-box textarea {
+.rep-box textarea {
   min-height: 80px;
+  resize: none;
 }
 
-.replace-btn {
+.rep-submit {
   width: 100%;
-  margin-top: 15px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
   background: #1976ff;
-  color: white;
-  font-size: 15px;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.replace-success {
-  background: #e9fff0;
-  padding: 20px;
-  border-radius: 12px;
+.rep-cancel {
+  width: 100%;
+  background: #eee;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.rep-note {
+  font-size: 12px;
+  color: #777;
+  margin-top: 8px;
   text-align: center;
-  font-weight: 600;
-  color: #0a7a3d;
 }
