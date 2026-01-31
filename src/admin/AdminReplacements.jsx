@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./admin.css";
+import "./ReplacementRequest.css";
 
-export default function AdminReplacements() {
+export default function ReplacementRequests() {
   const [requests, setRequests] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadRequests();
@@ -16,7 +17,10 @@ export default function AdminReplacements() {
       .select("*")
       .order("id", { ascending: false });
 
-    if (!error) setRequests(data || []);
+    if (!error) {
+      setRequests(data || []);
+    }
+    setLoading(false);
   }
 
   async function updateStatus(id, status) {
@@ -25,18 +29,21 @@ export default function AdminReplacements() {
       .update({ status })
       .eq("id", id);
 
-    loadRequests();
     setSelected(null);
+    loadRequests();
+  }
+
+  if (loading) {
+    return <div style={{ padding: 20 }}>Loading...</div>;
   }
 
   return (
-    <div className="admin-replacement-page">
+    <div className="dashboard">
 
-      <h2>🔁 Replacement Requests</h2>
+      <h2 style={{ marginBottom: 15 }}>🔁 Replacement Requests</h2>
 
-      <div className="admin-replacement-card">
-
-        <table className="admin-replacement-table">
+      <div className="card">
+        <table className="table">
           <thead>
             <tr>
               <th>#</th>
@@ -62,20 +69,18 @@ export default function AdminReplacements() {
                 <tr key={r.id}>
                   <td>{i + 1}</td>
                   <td>#{r.order_id}</td>
-                  <td>{r.customer_name}</td>
-                  <td>{r.phone}</td>
-                  <td>{r.product_name}</td>
+                  <td>{r.customer_name || "Customer"}</td>
+                  <td>{r.phone || "-"}</td>
+                  <td>{r.product_name || "-"}</td>
                   <td>{r.reason}</td>
-
                   <td>
-                    <span className={`status-badge status-${r.status}`}>
+                    <span className={`status ${r.status}`}>
                       {r.status}
                     </span>
                   </td>
-
                   <td>
                     <button
-                      className="admin-action-btn btn-view"
+                      className="view-btn"
                       onClick={() => setSelected(r)}
                     >
                       View
@@ -86,55 +91,96 @@ export default function AdminReplacements() {
             )}
           </tbody>
         </table>
-
       </div>
 
       {/* ================= POPUP ================= */}
       {selected && (
         <div className="modal-backdrop">
-          <div className="modal-box">
+          <div className="admin-replace-modal">
 
-            <h3>📦 Replacement Details</h3>
+            {/* HEADER */}
+            <div className="admin-modal-header">
+              📦 Replacement Details
+              <button onClick={() => setSelected(null)}>✕</button>
+            </div>
 
-            <p><b>Order ID:</b> #{selected.order_id}</p>
-            <p><b>Customer:</b> {selected.customer_name}</p>
-            <p><b>Phone:</b> {selected.phone}</p>
-            <p><b>Product:</b> {selected.product_name}</p>
-            <p><b>Reason:</b> {selected.reason}</p>
-            <p><b>Message:</b> {selected.message || "-"}</p>
+            {/* BODY */}
+            <div className="admin-modal-body">
 
-            {selected.images && (
-              <div style={{ marginTop: 10 }}>
-                <b>Photos:</b>
-                <div className="admin-images">
-                  {selected.images.split(",").map((img, i) => (
-                    <img key={i} src={img} alt="proof" />
-                  ))}
+              <div className="detail-row">
+                <span>Order ID</span>
+                <b>#{selected.order_id}</b>
+              </div>
+
+              <div className="detail-row">
+                <span>Customer</span>
+                <b>{selected.customer_name || "—"}</b>
+              </div>
+
+              <div className="detail-row">
+                <span>Phone</span>
+                <b>{selected.phone || "—"}</b>
+              </div>
+
+              <div className="detail-row">
+                <span>Product</span>
+                <b>{selected.product_name || "—"}</b>
+              </div>
+
+              <div className="detail-row">
+                <span>Reason</span>
+                <b>{selected.reason}</b>
+              </div>
+
+              <div className="detail-row">
+                <span>Message</span>
+                <div className="message-box">
+                  {selected.message || "No message provided"}
                 </div>
               </div>
-            )}
 
-            <div style={{ marginTop: 15 }}>
+              <div className="detail-row">
+                <span>Photos</span>
+
+                {selected.images ? (
+                  <div className="admin-images">
+                    {selected.images.split(",").map((img, i) => (
+                      <img key={i} src={img} alt="proof" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-image">
+                    📷 Image not uploaded
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* FOOTER */}
+            <div className="admin-modal-footer">
+
               <button
-                className="admin-action-btn btn-approve"
+                className="btn-approve"
                 onClick={() => updateStatus(selected.id, "approved")}
               >
                 ✅ Approve
               </button>
 
               <button
-                className="admin-action-btn btn-reject"
+                className="btn-reject"
                 onClick={() => updateStatus(selected.id, "rejected")}
               >
                 ❌ Reject
               </button>
 
               <button
-                className="admin-action-btn"
+                className="btn-close"
                 onClick={() => setSelected(null)}
               >
                 Close
               </button>
+
             </div>
 
           </div>
@@ -143,4 +189,4 @@ export default function AdminReplacements() {
 
     </div>
   );
-                  }
+      }
