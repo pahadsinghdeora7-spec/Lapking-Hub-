@@ -1,165 +1,131 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./admin.css";
+import "./ReplacementRequest.css";
 
-export default function AdminReplacementRequests() {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function ReplacementRequest({ order, item, onClose }) {
+  const [reason, setReason] = useState("");
+  const [message, setMessage] = useState("");
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadRequests();
-  }, []);
+  async function submitRequest() {
+    if (!reason) {
+      alert("Please select replacement reason");
+      return;
+    }
 
-  async function loadRequests() {
-    const { data } = await supabase
-      .from("replacement_requests")
-      .select("*")
-      .order("id", { ascending: false });
+    setLoading(true);
 
-    setRequests(data || []);
+    let imageUrls = [];
+
+    // 📸 Upload images
+    for (let file of images) {
+      const fileName = `replace-${Date.now()}-${file.name}`;
+
+      const { error } = await supabase.storage
+        .from("replacements")
+        .upload(fileName, file);
+
+      if (!error) {
+        const { data } = supabase.storage
+          .from("replacements")
+          .getPublicUrl(fileName);
+
+        imageUrls.push(data.publicUrl);
+      }
+    }
+
+    // ✅ INSERT FULL DATA
+    const { error } = await supabase.from("replacement_requests").insert({
+      order_id: order.id,
+      product_id: item.product_id || null,
+      product_name: item.name,
+      customer_name: order.name,
+      phone: order.phone,
+      reason: reason,
+      message: message,
+      images: imageUrls.join(","),
+      status: "pending",
+      user_id: order.user_id
+    });
+
     setLoading(false);
-  }
 
-  async function updateStatus(id, status) {
-    await supabase
-      .from("replacement_requests")
-      .update({ status })
-      .eq("id", id);
-
-    loadRequests();
-  }
-
-  if (loading) {
-    return <div style={{ padding: 20 }}>Loading replacement requests...</div>;
+    if (error) {
+      console.error(error);
+      alert("❌ Replacement request failed");
+    } else {
+      alert("✅ Replacement request submitted");
+      onClose();
+    }
   }
 
   return (
-    <div className="card">
+    <div className="modal-backdrop">
+      <div className="modal-box">
 
-      <h3 style={{ marginBottom: 15 }}>🔁 Replacement Requests</h3>
+        <h3>🔁 Replacement Request</h3>
 
-      <div style={{ overflowX: "auto" }}>
-        <table className="table">
+        {/* Reason */}
+        <label>Reason</label>
+        <select value={reason} onChange={(e) => setReason(e.target.value)}>
+          <option value="">Select reason</option>
+          <option value="Damaged product">Damaged product</option>
+          <option value="Wrong product">Wrong product received</option>
+          <option value="Quantity issue">Quantity issue</option>
+          <option value="Product not working">Product not working</option>
+          <option value="Missing item">Missing item</option>
+          <option value="Other">Other</option>
+        </select>
 
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Order</th>
-              <th>Customer</th>
-              <th>Phone</th>
-              <th>Product</th>
-              <th>Reason</th>
-              <th>Message</th>
-              <th>Photos</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+        {/* Message */}
+        <label style={{ marginTop: 10 }}>Message</label>
+        <textarea
+          placeholder="Explain your issue..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
 
-          <tbody>
-            {requests.length === 0 ? (
-              <tr>
-                <td colSpan="10" style={{ textAlign: "center" }}>
-                  No replacement requests
-                </td>
-              </tr>
-            ) : (
-              requests.map((r, i) => (
-                <tr key={r.id}>
+        {/* Images */}
+        <label style={{ marginTop: 10 }}>Upload images (optional)</label>
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => setImages([...e.target.files])}
+        />
 
-                  <td>{i + 1}</td>
+        <button
+          onClick={submitRequest}
+          disabled={loading}
+          style={{
+            marginTop: 15,
+            width: "100%",
+            background: "#1976ff",
+            color: "#fff",
+            padding: 12,
+            borderRadius: 8,
+            border: "none"
+          }}
+        >
+          {loading ? "Submitting..." : "Submit Request"}
+        </button>
 
-                  <td>#{r.order_id}</td>
+        <button
+          onClick={onClose}
+          style={{
+            marginTop: 8,
+            width: "100%",
+            background: "#eee",
+            padding: 10,
+            borderRadius: 8,
+            border: "none"
+          }}
+        >
+          Cancel
+        </button>
 
-                  <td>{r.customer_name || "Customer"}</td>
-
-                  <td>{r.phone}</td>
-
-                  <td>{r.product_name}</td>
-
-                  <td>{r.reason_type}</td>
-
-                  <td style={{ maxWidth: 200 }}>
-                    {r.message || "—"}
-                  </td>
-
-                  <td>
-                    {Array.isArray(r.images) && r.images.length > 0 ? (
-                      r.images.map((img, idx) => (
-                        <a
-                          key={idx}
-                          href={img}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <img
-                            src={img}
-                            alt=""
-                            style={{
-                              width: 40,
-                              height: 40,
-                              objectFit: "cover",
-                              borderRadius: 4,
-                              marginRight: 5,
-                              border: "1px solid #ccc"
-                            }}
-                          />
-                        </a>
-                      ))
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-
-                  <td>
-                    <span
-                      style={{
-                        padding: "4px 8px",
-                        borderRadius: 6,
-                        fontSize: 12,
-                        color: "#fff",
-                        background:
-                          r.status === "approved"
-                            ? "#2e7d32"
-                            : r.status === "rejected"
-                            ? "#c62828"
-                            : "#f9a825"
-                      }}
-                    >
-                      {r.status}
-                    </span>
-                  </td>
-
-                  <td>
-                    {r.status === "pending" ? (
-                      <>
-                        <button
-                          className="btn-small green"
-                          onClick={() => updateStatus(r.id, "approved")}
-                        >
-                          Approve
-                        </button>
-
-                        <button
-                          className="btn-small red"
-                          onClick={() => updateStatus(r.id, "rejected")}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-
-                </tr>
-              ))
-            )}
-          </tbody>
-
-        </table>
       </div>
-
     </div>
   );
-            }
+          }
