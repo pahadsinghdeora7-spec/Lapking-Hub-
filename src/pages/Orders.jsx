@@ -9,6 +9,9 @@ export default function Orders() {
   const [replaceItem, setReplaceItem] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔁 replacement status map
+  const [replacementMap, setReplacementMap] = useState({});
+
   useEffect(() => {
     loadOrders();
   }, []);
@@ -23,13 +26,27 @@ export default function Orders() {
       return;
     }
 
-    const { data } = await supabase
+    // orders
+    const { data: ordersData } = await supabase
       .from("orders")
       .select("*")
       .eq("user_id", user.id)
       .order("id", { ascending: false });
 
-    setOrders(data || []);
+    setOrders(ordersData || []);
+
+    // 🔥 fetch replacement requests
+    const { data: replacements } = await supabase
+      .from("replacement_requests")
+      .select("order_id, product_id, status");
+
+    // create lookup map
+    let map = {};
+    (replacements || []).forEach(r => {
+      map[`${r.order_id}_${r.product_id}`] = r.status;
+    });
+
+    setReplacementMap(map);
     setLoading(false);
   }
 
@@ -39,43 +56,25 @@ export default function Orders() {
 
   return (
     <div style={{ padding: 15 }}>
-
       <h2 style={{ marginBottom: 12 }}>📦 My Orders</h2>
 
       {orders.length === 0 && <p>No orders found.</p>}
 
       {/* ================= ORDER LIST ================= */}
-      {orders.map((order) => (
+      {orders.map(order => (
         <div key={order.id} className="order-card">
 
           <div className="order-row">
-
-            {/* LEFT */}
             <div className="order-left">
-              <p className="order-id">
-                <b>Order ID:</b> {order.order_code}
-              </p>
-
-              <p className="order-date">
-                📅 {new Date(order.created_at).toLocaleDateString()}
-              </p>
-
-              <p className="order-payment">
-                💳 {order.payment_status}
-              </p>
+              <p><b>Order ID:</b> {order.order_code}</p>
+              <p>📅 {new Date(order.created_at).toLocaleDateString()}</p>
+              <p>💳 {order.payment_status}</p>
             </div>
 
-            {/* RIGHT */}
             <div className="order-right">
-              <div className="order-total">
-                ₹{order.total}
-              </div>
-
-              <div className="order-status">
-                {order.order_status}
-              </div>
+              <div className="order-total">₹{order.total}</div>
+              <div className="order-status">{order.order_status}</div>
             </div>
-
           </div>
 
           <button
@@ -84,11 +83,10 @@ export default function Orders() {
           >
             View Details
           </button>
-
         </div>
       ))}
 
-      {/* ================= ORDER DETAILS POPUP ================= */}
+      {/* ================= ORDER DETAILS ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
           <div className="modal-box">
@@ -100,74 +98,82 @@ export default function Orders() {
 
             <div className="modal-body">
 
-              <h4>👤 Customer</h4>
-              <p>{selectedOrder.name}</p>
-              <p>{selectedOrder.phone}</p>
-
-              <h4>🏠 Delivery Address</h4>
-              <p>
-                {typeof selectedOrder.address === "string"
-                  ? selectedOrder.address
-                  : `${selectedOrder.address?.address || ""},
-                     ${selectedOrder.address?.city || ""},
-                     ${selectedOrder.address?.state || ""} -
-                     ${selectedOrder.address?.pincode || ""}`}
-              </p>
-
-              <hr />
-
               <h4>🧾 Ordered Items</h4>
 
               {Array.isArray(selectedOrder.items) &&
-                selectedOrder.items.map((item, i) => (
-                  <div key={i} style={{ marginBottom: 14 }}>
+                selectedOrder.items.map((item, i) => {
 
-                    <div className="item-row">
-                      <span>{item.name}</span>
-                      <span>
-                        {item.qty} × ₹{item.price}
-                      </span>
+                  const key = `${selectedOrder.id}_${item.product_id}`;
+                  const status = replacementMap[key];
+
+                  return (
+                    <div key={i} style={{ marginBottom: 14 }}>
+
+                      <div className="item-row">
+                        <span>{item.name}</span>
+                        <span>{item.qty} × ₹{item.price}</span>
+                      </div>
+
+                      {/* ✅ ALREADY REQUESTED */}
+                      {status && (
+                        <p
+                          style={{
+                            marginTop: 6,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color:
+                              status === "approved"
+                                ? "green"
+                                : status === "rejected"
+                                ? "red"
+                                : "#ff9800"
+                          }}
+                        >
+                          🔁 Replacement {status}
+                        </p>
+                      )}
+
+                      {/* ✅ ALLOW ONLY ON DELIVERED */}
+                      {!status &&
+                        selectedOrder.order_status === "Delivered" && (
+                          <button
+                            style={{
+                              marginTop: 6,
+                              background: "#fff",
+                              border: "1px solid #1976ff",
+                              color: "#1976ff",
+                              padding: "6px 12px",
+                              borderRadius: 6,
+                              fontSize: 13,
+                              cursor: "pointer"
+                            }}
+                            onClick={() => setReplaceItem(item)}
+                          >
+                            🔁 Request Replacement
+                          </button>
+                        )}
+
+                      {!status &&
+                        selectedOrder.order_status !== "Delivered" && (
+                          <p
+                            style={{
+                              marginTop: 6,
+                              fontSize: 12,
+                              color: "#999"
+                            }}
+                          >
+                            Replacement available after delivery
+                          </p>
+                        )}
                     </div>
-
-                    {/* ✅ REPLACEMENT ONLY AFTER DELIVERY */}
-                    {selectedOrder.order_status === "Delivered" ? (
-                      <button
-                        style={{
-                          marginTop: 6,
-                          background: "#fff",
-                          border: "1px solid #1976ff",
-                          color: "#1976ff",
-                          padding: "6px 12px",
-                          borderRadius: 6,
-                          fontSize: 13,
-                          cursor: "pointer"
-                        }}
-                        onClick={() => setReplaceItem(item)}
-                      >
-                        🔁 Request Replacement
-                      </button>
-                    ) : (
-                      <p
-                        style={{
-                          marginTop: 6,
-                          fontSize: 12,
-                          color: "#999"
-                        }}
-                      >
-                        Replacement available after delivery
-                      </p>
-                    )}
-
-                  </div>
-                ))}
+                  );
+                })}
 
               <hr />
 
-              <p><b>Shipping:</b> ₹{selectedOrder.shipping_price}</p>
-
               <h3>Total: ₹{selectedOrder.total}</h3>
 
-              <p style={{ fontSize: 12, color: "#777", marginTop: 6 }}>
+              <p style={{ fontSize: 12, color: "#777" }}>
                 Replacement requests are reviewed within 24–48 hours.
               </p>
 
@@ -181,10 +187,12 @@ export default function Orders() {
         <ReplacementRequest
           order={selectedOrder}
           item={replaceItem}
-          onClose={() => setReplaceItem(null)}
+          onClose={() => {
+            setReplaceItem(null);
+            loadOrders(); // 🔁 refresh status
+          }}
         />
       )}
-
     </div>
   );
-      }
+                          }
