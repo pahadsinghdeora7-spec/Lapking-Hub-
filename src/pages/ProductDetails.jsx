@@ -110,11 +110,28 @@ export default function ProductDetails() {
           <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
 
           <input
-            value={qty}
-            onChange={(e) =>
-              setQty(Math.max(,1 Number(e.target.value) || 1 ))
-            }
-          />
+  value={qty}
+  onChange={(e) => {
+    const val = e.target.value;
+
+    // allow empty while typing
+    if (val === "") {
+      setQty("");
+      return;
+    }
+
+    // only numbers allowed
+    if (!isNaN(val)) {
+      setQty(Number(val));
+    }
+  }}
+  onBlur={() => {
+    // when user leaves input
+    if (qty === "" || qty < 1) {
+      setQty(1);
+    }
+  }}
+/>
 
           <button onClick={() => setQty(qty + 1)}>+</button>
         </div>
