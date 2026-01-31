@@ -1,123 +1,87 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import ProductCard from "../components/ProductCard";
+import "../styles/theme.css";
 
-
-/* ================= UTILS ================= */
+/* ===============================
+   SEARCH NORMALIZER
+   dc-65w / DC65W / dc_65w → dc65w
+================================= */
 function normalize(text = "") {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    .replace(/[^a-z0-9]/g, "");
 }
 
 export default function Search() {
   const location = useLocation();
-  const queryParam = new URLSearchParams(location.search).get("q") || "";
+  const query = new URLSearchParams(location.search).get("q") || "";
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadProducts();
-  }, [queryParam]);
+    if (query) searchProducts();
+  }, [query]);
 
-  async function loadProducts() {
+  const searchProducts = async () => {
     setLoading(true);
 
+    const searchKey = normalize(query);
+
+    // 🔥 Load all products (safe & fast)
     const { data, error } = await supabase
       .from("products")
-      .select("*")
-      .eq("status", "active");
+      .select("*");
 
-    if (!error && data) {
-      const searchText = normalize(queryParam);
-
-      const filtered = data.filter((p) => {
-        const searchableText = normalize(
-          `
-          ${p.name}
-          ${p.brand}
-          ${p.part_no}
-          ${p.compatible_model}
-          ${p.category}
-          ${p.keywords}
-        `
-        );
-
-        return searchableText.includes(searchText);
-      });
-
-      setProducts(filtered);
+    if (error) {
+      setProducts([]);
+      setLoading(false);
+      return;
     }
 
+    // ✅ SMART FILTER
+    const result = data.filter((p) => {
+      const name = normalize(p.name);
+      const brand = normalize(p.brand);
+      const part = normalize(p.part_no);
+      const model = normalize(p.compatible_model || "");
+
+      return (
+        name.includes(searchKey) ||
+        brand.includes(searchKey) ||
+        part.includes(searchKey) ||
+        model.includes(searchKey)
+      );
+    });
+
+    setProducts(result);
     setLoading(false);
-  }
+  };
 
   return (
-    <div style={{ padding: 15 }}>
+    <div className="home">
 
-      <h3 style={{ marginBottom: 10 }}>
-        🔍 Search results for: <b>{queryParam}</b>
-      </h3>
+      <h2 className="section-title">
+        🔍 Search results for: <span style={{ color: "#1976ff" }}>{query}</span>
+      </h2>
 
-      {/* ================= LOADING ================= */}
-      {loading && <p>⏳ Searching products...</p>}
+      {loading && <p>Searching products...</p>}
 
-      {/* ================= NO RESULT ================= */}
       {!loading && products.length === 0 && (
-        <div style={{ marginTop: 30, textAlign: "center", color: "#777" }}>
-          <h4>No products found</h4>
-          <p>
-            Try searching with:
-            <br />
-            product name, brand, part number or model
+        <div style={{ padding: 20, color: "#777" }}>
+          <p>No products found.</p>
+          <p style={{ fontSize: 13 }}>
+            Try searching by product name, brand, part number or model.
           </p>
         </div>
       )}
 
-      {/* ================= PRODUCTS ================= */}
-      <div className="search-grid">
-
-        {products.map((p) => (
-          <div key={p.id} className="search-card">
-
-            <img
-              src={p.image || "/no-image.png"}
-              alt={p.name}
-              className="search-img"
-            />
-
-            <h4 className="search-name">{p.name}</h4>
-
-            {p.brand && (
-              <p className="search-meta">
-                <b>Brand:</b> {p.brand}
-              </p>
-            )}
-
-            {p.part_no && (
-              <p className="search-meta">
-                <b>Part No:</b> {p.part_no}
-              </p>
-            )}
-
-            {p.compatible_model && (
-              <p className="search-meta">
-                <b>Compatible:</b> {p.compatible_model}
-              </p>
-            )}
-
-            <div className="search-price">₹{p.price}</div>
-
-            <button className="search-btn">
-              View Product
-            </button>
-
-          </div>
+      <div className="product-grid">
+        {products.map((item) => (
+          <ProductCard key={item.id} product={item} />
         ))}
-
       </div>
 
     </div>
