@@ -31,28 +31,28 @@ export default function Orders() {
     setLoading(false);
   }
 
-  // 🔁 SEND REPLACEMENT REQUEST
+  // ✅ REPLACEMENT REQUEST (FINAL)
   async function requestReplacement(item) {
     const reason = prompt(
-      "Reason for replacement?\n(Example: Damaged / Wrong item / Not working)"
+      "Reason for replacement?\n(Damaged / Wrong item / Not working)"
     );
 
     if (!reason) return;
 
-    const { error } = await supabase.from("replacements").insert([
-      {
-        order_id: selectedOrder.id,
-        product_name: item.name,
-        qty: item.qty,
-        reason: reason,
-        status: "Requested"
-      }
-    ]);
+    const { error } = await supabase.from("replacements").insert({
+      order_id: selectedOrder.id,
+      product_id: item.product_id || null,
+      customer_name: selectedOrder.name,
+      phone: selectedOrder.phone,
+      reason: reason,
+      status: "pending"
+    });
 
     if (error) {
-      alert("Replacement request failed");
+      alert("❌ Replacement request failed");
+      console.error(error);
     } else {
-      alert("✅ Replacement request submitted");
+      alert("✅ Replacement request submitted successfully");
     }
   }
 
@@ -88,13 +88,11 @@ export default function Orders() {
         <div className="modal-backdrop">
           <div className="modal-box">
 
-            {/* HEADER */}
             <div className="modal-header">
               <h3>📦 Order #{selectedOrder.order_code}</h3>
               <button onClick={() => setSelectedOrder(null)}>✕</button>
             </div>
 
-            {/* BODY */}
             <div className="modal-body">
 
               <h4>👤 Customer</h4>
@@ -126,7 +124,6 @@ export default function Orders() {
                       </span>
                     </div>
 
-                    {/* 🔁 REPLACEMENT BUTTON */}
                     <button
                       style={{
                         marginTop: 6,
@@ -161,4 +158,4 @@ export default function Orders() {
       )}
     </div>
   );
-}
+                    }
