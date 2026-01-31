@@ -11,10 +11,10 @@ export default function ProductDetails() {
   const [related, setRelated] = useState([]);
   const [tab, setTab] = useState("description");
   const [qty, setQty] = useState(1);
-  const [activeImg, setActiveImg] = useState("");
 
   useEffect(() => {
     loadProduct();
+    window.scrollTo(0, 0);
   }, [id]);
 
   async function loadProduct() {
@@ -26,98 +26,71 @@ export default function ProductDetails() {
 
     if (data) {
       setProduct(data);
-      setActiveImg(data.image);
 
       const { data: rel } = await supabase
         .from("products")
         .select("*")
         .eq("category", data.category)
         .neq("id", data.id)
-        .limit(20);
+        .limit(12);
 
       setRelated(rel || []);
-
-      // ✅ SEO
-      document.title = `${data.name} | ${data.brand} Laptop Spare Part`;
     }
   }
 
-  if (!product) return <div className="pd-loading">Loading...</div>;
+  if (!product) {
+    return <div style={{ padding: 20 }}>Loading product...</div>;
+  }
 
   return (
     <div className="pd-container">
 
-      {/* ================= TOP SECTION ================= */}
-      <div className="pd-top">
-
-        {/* LEFT IMAGES */}
-        <div className="pd-left">
-          <img src={activeImg} className="pd-main-img" alt={product.name} />
-
-          {product.images && (
-            <div className="pd-thumbs">
-              {product.images.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  onClick={() => setActiveImg(img)}
-                  alt=""
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* RIGHT DETAILS */}
-        <div className="pd-right">
-
-          <h1 className="pd-title">
-            {product.name} – {product.brand} Laptop Spare Part
-          </h1>
-
-          <div className="pd-stock">
-            {product.stock > 0 ? "✅ In Stock" : "❌ Out of Stock"}
-          </div>
-
-          <div className="pd-price">₹{product.price}</div>
-
-          {/* ICON INFO */}
-          <div className="pd-icons">
-            <div>🧩 Original Spare</div>
-            <div>💯 Quality Tested</div>
-            <div>📦 Safe Packaging</div>
-            <div>🔄 7 Days Replacement</div>
-          </div>
-
-          {/* QUANTITY */}
-          <div className="pd-qty">
-            <button onClick={() => qty > 1 && setQty(qty - 1)}>-</button>
-            <input
-              type="number"
-              value={qty}
-              min="1"
-              onChange={(e) => setQty(Number(e.target.value))}
-            />
-            <button onClick={() => setQty(qty + 1)}>+</button>
-          </div>
-
-          {/* BUTTONS */}
-          <div className="pd-buttons">
-            <a
-              href={`https://wa.me/919873670361?text=I want ${product.name} Qty ${qty}`}
-              target="_blank"
-              className="btn-whatsapp"
-            >
-              Order on WhatsApp
-            </a>
-
-            <button className="btn-cart">Add to Cart</button>
-          </div>
-
-          <button className="btn-buy">Buy Now</button>
-
-        </div>
+      {/* ================= IMAGE ================= */}
+      <div className="pd-image-box">
+        <img src={product.image} alt={product.name} />
       </div>
+
+      {/* ================= TITLE ================= */}
+      <h1 className="pd-title">{product.name}</h1>
+
+      {/* ================= META ================= */}
+      <div className="pd-meta">
+        <span>🏷 Brand: <b>{product.brand || "N/A"}</b></span>
+        <span>🔢 Part No: <b>{product.part_no || "N/A"}</b></span>
+        <span className={product.stock > 0 ? "stock" : "out"}>
+          {product.stock > 0 ? "✅ In Stock" : "❌ Out of Stock"}
+        </span>
+      </div>
+
+      {/* ================= PRICE ================= */}
+      <div className="pd-price">₹{product.price}</div>
+
+      {/* ================= QUANTITY ================= */}
+      <div className="pd-qty">
+        <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
+        <input
+          type="number"
+          value={qty}
+          min="1"
+          onChange={(e) => setQty(Number(e.target.value) || 1)}
+        />
+        <button onClick={() => setQty(qty + 1)}>+</button>
+      </div>
+
+      {/* ================= BUTTONS ================= */}
+      <div className="pd-buttons">
+        <a
+          className="whatsapp-btn"
+          href={`https://wa.me/919873670361?text=I want to order ${product.name}`}
+          target="_blank"
+        >
+          💬 Order on WhatsApp
+        </a>
+
+        <button className="cart-btn">🛒 Add to Cart</button>
+      </div>
+
+      <button className="buy-btn">⚡ Buy Now</button>
 
       {/* ================= TABS ================= */}
       <div className="pd-tabs">
@@ -125,21 +98,14 @@ export default function ProductDetails() {
           className={tab === "description" ? "active" : ""}
           onClick={() => setTab("description")}
         >
-          Description
+          📄 Description
         </button>
 
         <button
           className={tab === "models" ? "active" : ""}
           onClick={() => setTab("models")}
         >
-          Compatible Models
-        </button>
-
-        <button
-          className={tab === "specs" ? "active" : ""}
-          onClick={() => setTab("specs")}
-        >
-          Specifications
+          💻 Compatible Models
         </button>
       </div>
 
@@ -151,25 +117,20 @@ export default function ProductDetails() {
         {tab === "models" && (
           <p>{product.compatible_models || "Not specified."}</p>
         )}
-
-        {tab === "specs" && (
-          <ul>
-            <li>Brand: {product.brand}</li>
-            <li>Part No: {product.part_no}</li>
-            <li>Condition: New</li>
-            <li>Warranty: 7 Days Replacement</li>
-          </ul>
-        )}
       </div>
 
       {/* ================= RELATED ================= */}
-      <h3 className="pd-related-title">More Products</h3>
+      {related.length > 0 && (
+        <>
+          <h3 className="related-title">More Products</h3>
 
-      <div className="pd-related-grid">
-        {related.map((item) => (
-          <ProductCard key={item.id} product={item} />
-        ))}
-      </div>
+          <div className="related-grid">
+            {related.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </>
+      )}
 
     </div>
   );
