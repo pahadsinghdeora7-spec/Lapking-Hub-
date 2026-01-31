@@ -11,6 +11,9 @@ export default function ProductDetails() {
   const [related, setRelated] = useState([]);
   const [tab, setTab] = useState("description");
 
+  const [activeImage, setActiveImage] = useState("");
+  const [images, setImages] = useState([]);
+
   useEffect(() => {
     loadProduct();
   }, [id]);
@@ -24,6 +27,18 @@ export default function ProductDetails() {
 
     if (data) {
       setProduct(data);
+
+      // ✅ image handling
+      let imgs = [];
+
+      if (Array.isArray(data.images) && data.images.length > 0) {
+        imgs = data.images;
+      } else if (data.image) {
+        imgs = [data.image];
+      }
+
+      setImages(imgs);
+      setActiveImage(imgs[0]);
 
       const { data: rel } = await supabase
         .from("products")
@@ -41,19 +56,39 @@ export default function ProductDetails() {
   return (
     <div className="pd-page">
 
-      {/* ================= IMAGE ================= */}
-      <img
-        src={product.image}
-        className="pd-image"
-        alt={product.name}
-      />
+      {/* ================= IMAGE SECTION ================= */}
+      <div className="pd-image-box">
+
+        <img
+          src={activeImage}
+          className="pd-image"
+          alt={product.name}
+        />
+
+        {images.length > 1 && (
+          <div className="pd-thumbs">
+            {images.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                className={
+                  img === activeImage ? "thumb active" : "thumb"
+                }
+                onClick={() => setActiveImage(img)}
+                alt="thumb"
+              />
+            ))}
+          </div>
+        )}
+
+      </div>
 
       {/* ================= INFO ================= */}
       <h2 className="pd-title">{product.name}</h2>
 
       <div className="pd-meta">
-        <span><b>Brand:</b> {product.brand}</span>
-        <span><b>Part No:</b> {product.part_no}</span>
+        <span><b>Brand:</b> {product.brand || "-"}</span>
+        <span><b>Part No:</b> {product.part_no || "-"}</span>
         <span className="stock">
           {product.stock > 0 ? "In Stock" : "Out of Stock"}
         </span>
@@ -67,6 +102,7 @@ export default function ProductDetails() {
           className="whatsapp-btn"
           href={`https://wa.me/919873670361?text=I want ${product.name}`}
           target="_blank"
+          rel="noreferrer"
         >
           Order on WhatsApp
         </a>
@@ -114,4 +150,4 @@ export default function ProductDetails() {
 
     </div>
   );
-}
+      }
