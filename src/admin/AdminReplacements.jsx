@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./Admin.css";
+import "./admin.css";
 
 export default function AdminReplacementRequests() {
   const [requests, setRequests] = useState([]);
