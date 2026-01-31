@@ -32,38 +32,64 @@ export default function Orders() {
   }
 
   if (loading) {
-    return <div style={{ padding: 20 }}>⏳ Loading orders...</div>;
+    return <div className="loader">⏳ Loading your orders...</div>;
   }
 
   return (
-    <div style={{ padding: 15 }}>
-      <h2>📦 My Orders</h2>
+    <div className="orders-page">
 
-      {orders.length === 0 && <p>No orders found.</p>}
+      <h2 className="page-title">📦 My Orders</h2>
+
+      {orders.length === 0 && (
+        <div className="empty-box">
+          <p>🛒 No orders found</p>
+        </div>
+      )}
 
       {orders.map((order) => (
-        <div
-          key={order.id}
-          className="order-card"
-        >
-          <p><b>Order ID:</b> {order.order_code}</p>
-          <p><b>Date:</b> {new Date(order.created_at).toLocaleString()}</p>
-          <p><b>Total:</b> ₹{order.total}</p>
-          <p><b>Payment:</b> {order.payment_status}</p>
-          <p><b>Status:</b> {order.order_status}</p>
+        <div key={order.id} className="order-card">
+
+          <div className="order-top">
+            <div>
+              <div className="order-id">📄 Order ID</div>
+              <div className="order-code">{order.order_code}</div>
+            </div>
+
+            <span className="status-badge">
+              {order.order_status}
+            </span>
+          </div>
+
+          <div className="order-row">
+            <span>📅 Date</span>
+            <span>{new Date(order.created_at).toLocaleString()}</span>
+          </div>
+
+          <div className="order-row">
+            <span>💳 Payment</span>
+            <span>{order.payment_status}</span>
+          </div>
+
+          <div className="order-row total">
+            <span>💰 Total</span>
+            <span>₹{order.total}</span>
+          </div>
 
           <button
-            className="view-btn"
+            className="primary-btn"
             onClick={() => setSelectedOrder(order)}
           >
-            View Details
+            👁 View Order Details
           </button>
+
         </div>
       ))}
 
-      {/* ================= ORDER DETAILS POPUP ================= */}
+      {/* ================= ORDER DETAILS MODAL ================= */}
+
       {selectedOrder && (
         <div className="modal-backdrop">
+
           <div className="modal-box">
 
             <div className="modal-header">
@@ -77,7 +103,7 @@ export default function Orders() {
               <p>{selectedOrder.name}</p>
               <p>{selectedOrder.phone}</p>
 
-              <h4>🏠 Address</h4>
+              <h4>🏠 Delivery Address</h4>
               <p>
                 {typeof selectedOrder.address === "string"
                   ? selectedOrder.address
@@ -90,6 +116,7 @@ export default function Orders() {
               <hr />
 
               <h4>🧾 Items</h4>
+
               {Array.isArray(selectedOrder.items) &&
                 selectedOrder.items.map((item, i) => (
                   <div key={i} className="item-row">
@@ -100,14 +127,21 @@ export default function Orders() {
 
               <hr />
 
-              <p><b>Shipping:</b> ₹{selectedOrder.shipping_price}</p>
+              <div className="order-row">
+                <span>🚚 Shipping</span>
+                <span>₹{selectedOrder.shipping_price}</span>
+              </div>
 
-              <h3>Total: ₹{selectedOrder.total}</h3>
+              <div className="order-row total">
+                <span>Total</span>
+                <span>₹{selectedOrder.total}</span>
+              </div>
 
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
