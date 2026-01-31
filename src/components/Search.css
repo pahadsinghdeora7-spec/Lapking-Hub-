@@ -1,0 +1,111 @@
+/* ===============================
+   SEARCH PAGE STYLES
+================================= */
+
+.home {
+  padding: 12px;
+}
+
+/* ===============================
+   SEARCH TITLE
+================================= */
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 10px 0 15px;
+  color: #222;
+}
+
+/* ===============================
+   EMPTY RESULT
+================================= */
+
+.home p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* ===============================
+   PRODUCT GRID
+================================= */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* ===============================
+   MOBILE FIRST
+================================= */
+
+@media (min-width: 600px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ===============================
+   SEARCH LOADING
+================================= */
+
+.search-loading {
+  text-align: center;
+  padding: 25px;
+  font-size: 14px;
+  color: #1976ff;
+}
+
+/* ===============================
+   SEARCH EMPTY BOX
+================================= */
+
+.search-empty {
+  text-align: center;
+  padding: 25px;
+  border-radius: 10px;
+  background: #f7f9fc;
+  border: 1px dashed #cfd8dc;
+  margin-top: 15px;
+}
+
+.search-empty p:first-child {
+  font-weight: 600;
+  color: #333;
+}
+
+.search-empty p:last-child {
+  font-size: 13px;
+  color: #777;
+}
+
+/* ===============================
+   PRODUCT CARD FIX
+================================= */
+
+.product-grid .product-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: 0.25s;
+}
+
+.product-grid .product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* ===============================
+   AMAZON FEEL
+================================= */
+
+.section-title span {
+  color: #1976ff;
+}
