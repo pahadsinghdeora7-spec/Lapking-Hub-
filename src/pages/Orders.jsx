@@ -31,24 +31,46 @@ export default function Orders() {
     setLoading(false);
   }
 
+  // 🔁 SEND REPLACEMENT REQUEST
+  async function requestReplacement(item) {
+    const reason = prompt(
+      "Reason for replacement?\n(Example: Damaged / Wrong item / Not working)"
+    );
+
+    if (!reason) return;
+
+    const { error } = await supabase.from("replacements").insert([
+      {
+        order_id: selectedOrder.id,
+        product_name: item.name,
+        qty: item.qty,
+        reason: reason,
+        status: "Requested"
+      }
+    ]);
+
+    if (error) {
+      alert("Replacement request failed");
+    } else {
+      alert("✅ Replacement request submitted");
+    }
+  }
+
   if (loading) {
-    return <div style={{ padding: 20 }}>â³ Loading orders...</div>;
+    return <div style={{ padding: 20 }}>⏳ Loading orders...</div>;
   }
 
   return (
     <div style={{ padding: 15 }}>
-      <h2>ðŸ“¦ My Orders</h2>
+      <h2>📦 My Orders</h2>
 
       {orders.length === 0 && <p>No orders found.</p>}
 
       {orders.map((order) => (
-        <div
-          key={order.id}
-          className="order-card"
-        >
+        <div key={order.id} className="order-card">
           <p><b>Order ID:</b> {order.order_code}</p>
           <p><b>Date:</b> {new Date(order.created_at).toLocaleString()}</p>
-          <p><b>Total:</b> â‚¹{order.total}</p>
+          <p><b>Total:</b> ₹{order.total}</p>
           <p><b>Payment:</b> {order.payment_status}</p>
           <p><b>Status:</b> {order.order_status}</p>
 
@@ -66,18 +88,20 @@ export default function Orders() {
         <div className="modal-backdrop">
           <div className="modal-box">
 
+            {/* HEADER */}
             <div className="modal-header">
-              <h3>ðŸ“¦ Order #{selectedOrder.order_code}</h3>
-              <button onClick={() => setSelectedOrder(null)}>âœ•</button>
+              <h3>📦 Order #{selectedOrder.order_code}</h3>
+              <button onClick={() => setSelectedOrder(null)}>✕</button>
             </div>
 
+            {/* BODY */}
             <div className="modal-body">
 
-              <h4>ðŸ‘¤ Customer</h4>
+              <h4>👤 Customer</h4>
               <p>{selectedOrder.name}</p>
               <p>{selectedOrder.phone}</p>
 
-              <h4>ðŸ  Address</h4>
+              <h4>🏠 Delivery Address</h4>
               <p>
                 {typeof selectedOrder.address === "string"
                   ? selectedOrder.address
@@ -89,20 +113,47 @@ export default function Orders() {
 
               <hr />
 
-              <h4>ðŸ§¾ Items</h4>
+              <h4>🧾 Ordered Items</h4>
+
               {Array.isArray(selectedOrder.items) &&
                 selectedOrder.items.map((item, i) => (
-                  <div key={i} className="item-row">
-                    <span>{item.name}</span>
-                    <span>{item.qty} Ã— â‚¹{item.price}</span>
+                  <div key={i} style={{ marginBottom: 14 }}>
+
+                    <div className="item-row">
+                      <span>{item.name}</span>
+                      <span>
+                        {item.qty} × ₹{item.price}
+                      </span>
+                    </div>
+
+                    {/* 🔁 REPLACEMENT BUTTON */}
+                    <button
+                      style={{
+                        marginTop: 6,
+                        background: "#fff",
+                        border: "1px solid #1976ff",
+                        color: "#1976ff",
+                        padding: "6px 12px",
+                        borderRadius: 6,
+                        fontSize: 13,
+                        cursor: "pointer"
+                      }}
+                      onClick={() => requestReplacement(item)}
+                    >
+                      🔁 Request Replacement
+                    </button>
                   </div>
                 ))}
 
               <hr />
 
-              <p><b>Shipping:</b> â‚¹{selectedOrder.shipping_price}</p>
+              <p><b>Shipping:</b> ₹{selectedOrder.shipping_price}</p>
 
-              <h3>Total: â‚¹{selectedOrder.total}</h3>
+              <h3>Total: ₹{selectedOrder.total}</h3>
+
+              <p style={{ fontSize: 12, color: "#777", marginTop: 6 }}>
+                Replacement requests are reviewed within 24–48 hours.
+              </p>
 
             </div>
           </div>
