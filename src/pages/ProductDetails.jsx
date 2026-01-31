@@ -112,7 +112,7 @@ export default function ProductDetails() {
           <input
             value={qty}
             onChange={(e) =>
-              setQty(Math.max(, Number(e.target.value) || ))
+              setQty(Math.max(,1 Number(e.target.value) || 1 ))
             }
           />
 
