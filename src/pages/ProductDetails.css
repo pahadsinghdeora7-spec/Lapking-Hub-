@@ -229,3 +229,19 @@
     font-size: 22px;
   }
 }
+
+/* ================= DESCRIPTION FULL WIDTH ================= */
+
+.pd-full-section {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.pd-desc {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.7;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
