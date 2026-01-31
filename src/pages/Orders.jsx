@@ -39,17 +39,46 @@ export default function Orders() {
 
   return (
     <div style={{ padding: 15 }}>
-      <h2>📦 My Orders</h2>
 
-      {orders.length === 0 && <p>No orders found.</p>}
+      <h2 style={{ marginBottom: 12 }}>📦 My Orders</h2>
 
+      {orders.length === 0 && (
+        <p>No orders found.</p>
+      )}
+
+      {/* ================= ORDER LIST ================= */}
       {orders.map((order) => (
         <div key={order.id} className="order-card">
-          <p><b>Order ID:</b> {order.order_code}</p>
-          <p><b>Date:</b> {new Date(order.created_at).toLocaleString()}</p>
-          <p><b>Total:</b> ₹{order.total}</p>
-          <p><b>Payment:</b> {order.payment_status}</p>
-          <p><b>Status:</b> {order.order_status}</p>
+
+          <div className="order-row">
+
+            {/* LEFT */}
+            <div className="order-left">
+              <p className="order-id">
+                <b>Order ID:</b> {order.order_code}
+              </p>
+
+              <p className="order-date">
+                📅 {new Date(order.created_at).toLocaleDateString()}
+              </p>
+
+              <p className="order-payment">
+                💳 {order.payment_status}
+              </p>
+            </div>
+
+            {/* RIGHT */}
+            <div className="order-right">
+              <div className="order-total">
+                ₹{order.total}
+              </div>
+
+              <div className="order-status">
+                {order.order_status}
+              </div>
+            </div>
+
+          </div>
 
           <button
             className="view-btn"
@@ -57,10 +86,11 @@ export default function Orders() {
           >
             View Details
           </button>
+
         </div>
       ))}
 
-      {/* ================= ORDER DETAILS ================= */}
+      {/* ================= ORDER DETAILS POPUP ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
           <div className="modal-box">
@@ -142,6 +172,7 @@ export default function Orders() {
           onClose={() => setReplaceItem(null)}
         />
       )}
+
     </div>
   );
-}
+                }
