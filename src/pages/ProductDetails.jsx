@@ -1,53 +1,96 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { supabase } from "../supabaseClient";
+import ProductCard from "../components/ProductCard";
+import "../styles/ProductDetails.css";
 
-export default function OrderDetails() {
-  const navigate = useNavigate();
-  const [order, setOrder] = useState(null);
+export default function ProductDetails() {
+  const { id } = useParams();
+
+  const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("selectedOrder");
+    loadProduct();
+  }, [id]);
 
-    if (saved) {
-      setOrder(JSON.parse(saved));
+  async function loadProduct() {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (data) {
+      setProduct(data);
+      loadRelated(data.category);
     }
-  }, []);
+  }
 
-  if (!order) {
-    return (
-      <div style={{ padding: 20 }}>
-        ❌ Order not found
-        <br /><br />
-        <button onClick={() => navigate("/orders")}>
-          Go Back
-        </button>
-      </div>
-    );
+  async function loadRelated(category) {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category", category)
+      .neq("id", id)
+      .limit(10);
+
+    setRelated(data || []);
+  }
+
+  if (!product) {
+    return <div style={{ padding: 20 }}>Loading product...</div>;
   }
 
   return (
-    <div style={{ padding: 15 }}>
-      <h2>📦 Order #{order.order_code}</h2>
+    <div className="product-details-page">
 
-      <p><b>Name:</b> {order.name}</p>
-      <p><b>Phone:</b> {order.phone}</p>
+      {/* ================= MAIN PRODUCT ================= */}
+      <div className="product-main">
 
-      <h3>📍 Address</h3>
-      <pre>{JSON.stringify(order.address, null, 2)}</pre>
+        <img
+          src={product.image || "/no-image.png"}
+          alt={product.name}
+          className="product-image"
+        />
 
-      <h3>🛒 Items</h3>
-      {Array.isArray(order.items) &&
-        order.items.map((i, idx) => (
-          <div key={idx}>
-            {i.name} × {i.qty} — ₹{i.price}
+        <div className="product-info">
+          <h2>{product.name}</h2>
+
+          <p><b>Brand:</b> {product.brand}</p>
+          <p><b>Part No:</b> {product.part_no}</p>
+          <p><b>Category:</b> {product.category}</p>
+
+          <h3>₹{product.price}</h3>
+
+          <p className="stock">
+            {product.stock > 0 ? "In Stock" : "Out of Stock"}
+          </p>
+
+          <button className="add-cart-btn">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+
+      {/* ================= RELATED ================= */}
+      {related.length > 0 && (
+        <>
+          <h3 className="related-title">
+            Related Products
+          </h3>
+
+          <div className="related-scroll">
+            {related.map((item) => (
+              <ProductCard
+                key={item.id}
+                product={item}
+              />
+            ))}
           </div>
-        ))}
+        </>
+      )}
 
-      <hr />
-
-      <p><b>Total:</b> ₹{order.total}</p>
-      <p><b>Payment:</b> {order.payment_status}</p>
-      <p><b>Status:</b> {order.order_status}</p>
     </div>
   );
-}
+                }
