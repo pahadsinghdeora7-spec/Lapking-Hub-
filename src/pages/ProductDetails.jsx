@@ -11,6 +11,7 @@ export default function ProductDetails() {
   const [related, setRelated] = useState([]);
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState("");
+  const [tab, setTab] = useState("description");
 
   // ================= LOAD PRODUCT =================
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function ProductDetails() {
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
-    // cart count update without alert
+    // navbar cart count refresh
     window.dispatchEvent(new Event("storage"));
   }
 
@@ -68,13 +69,6 @@ export default function ProductDetails() {
 
   return (
     <div className="pd-container">
-
-      {/* ================= SEO ================= */}
-      <title>{product.name} | LapkingHub</title>
-      <meta
-        name="description"
-        content={`${product.name} ${product.part_number || ""} buy online at best price`}
-      />
 
       {/* ================= IMAGE ================= */}
       <div className="pd-image-box">
@@ -90,9 +84,9 @@ export default function ProductDetails() {
             <img
               key={i}
               src={img}
-              onClick={() => setActiveImg(img)}
-              className={activeImg === img ? "active" : ""}
               alt=""
+              className={activeImg === img ? "active" : ""}
+              onClick={() => setActiveImg(img)}
             />
           ))}
         </div>
@@ -114,12 +108,14 @@ export default function ProductDetails() {
       <div className="pd-qty-row">
         <div className="qty-box">
           <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
+
           <input
             value={qty}
             onChange={(e) =>
               setQty(Math.max(1, Number(e.target.value) || 1))
             }
           />
+
           <button onClick={() => setQty(qty + 1)}>+</button>
         </div>
 
@@ -147,18 +143,37 @@ export default function ProductDetails() {
 
       {/* ================= TABS ================= */}
       <div className="pd-tabs">
-        <button>Description</button>
-        <button>Compatible Models</button>
+        <button
+          className={tab === "description" ? "active" : ""}
+          onClick={() => setTab("description")}
+        >
+          📄 Description
+        </button>
+
+        <button
+          className={tab === "models" ? "active" : ""}
+          onClick={() => setTab("models")}
+        >
+          💻 Compatible Models
+        </button>
       </div>
 
+      {/* ================= TAB CONTENT ================= */}
       <div className="pd-desc">
-        {product.description || "No description available."}
+        {tab === "description" && (
+          <p>{product.description || "No description available."}</p>
+        )}
+
+        {tab === "models" && (
+          <p>{product.compatible_model || "Not specified."}</p>
+        )}
       </div>
 
       {/* ================= RELATED ================= */}
       {related.length > 0 && (
         <>
           <h3 className="related-title">Related Products</h3>
+
           <div className="related-grid">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
@@ -169,4 +184,4 @@ export default function ProductDetails() {
 
     </div>
   );
-}
+      }
