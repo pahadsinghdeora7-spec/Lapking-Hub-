@@ -1,124 +1,165 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient.js";
-import {
-  FaCheckCircle,
-  FaTimesCircle,
-  FaImage,
-} from "react-icons/fa";
+import { supabase } from "../supabaseClient";
+import "./Admin.css";
 
-export default function AdminReplacements() {
-  const [list, setList] = useState([]);
+export default function AdminReplacementRequests() {
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadRequests();
   }, []);
 
-  const loadRequests = async () => {
+  async function loadRequests() {
     const { data } = await supabase
       .from("replacement_requests")
       .select("*")
       .order("id", { ascending: false });
 
-    setList(data || []);
+    setRequests(data || []);
     setLoading(false);
-  };
+  }
 
-  const updateStatus = async (id, status) => {
+  async function updateStatus(id, status) {
     await supabase
       .from("replacement_requests")
       .update({ status })
       .eq("id", id);
 
     loadRequests();
-  };
+  }
+
+  if (loading) {
+    return <div style={{ padding: 20 }}>Loading replacement requests...</div>;
+  }
 
   return (
-    <div className="admin-page">
-      <h2>Replacement Requests</h2>
+    <div className="card">
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="card">
-          <table className="admin-table">
-            <thead>
+      <h3 style={{ marginBottom: 15 }}>🔁 Replacement Requests</h3>
+
+      <div style={{ overflowX: "auto" }}>
+        <table className="table">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Product</th>
+              <th>Reason</th>
+              <th>Message</th>
+              <th>Photos</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {requests.length === 0 ? (
               <tr>
-                <th>#</th>
-                <th>Order</th>
-                <th>Product</th>
-                <th>Email</th>
-                <th>Reason</th>
-                <th>Photo</th>
-                <th>Status</th>
-                <th>Action</th>
+                <td colSpan="10" style={{ textAlign: "center" }}>
+                  No replacement requests
+                </td>
               </tr>
-            </thead>
-
-            <tbody>
-              {list.map((r, i) => (
+            ) : (
+              requests.map((r, i) => (
                 <tr key={r.id}>
+
                   <td>{i + 1}</td>
+
                   <td>#{r.order_id}</td>
-                  <td>{r.product_id}</td>
-                  <td>{r.user_email}</td>
+
+                  <td>{r.customer_name || "Customer"}</td>
+
+                  <td>{r.phone}</td>
+
+                  <td>{r.product_name}</td>
+
                   <td>{r.reason_type}</td>
 
+                  <td style={{ maxWidth: 200 }}>
+                    {r.message || "—"}
+                  </td>
+
                   <td>
-                    {r.image && (
-                      <a
-                        href={r.image}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FaImage /> View
-                      </a>
+                    {Array.isArray(r.images) && r.images.length > 0 ? (
+                      r.images.map((img, idx) => (
+                        <a
+                          key={idx}
+                          href={img}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <img
+                            src={img}
+                            alt=""
+                            style={{
+                              width: 40,
+                              height: 40,
+                              objectFit: "cover",
+                              borderRadius: 4,
+                              marginRight: 5,
+                              border: "1px solid #ccc"
+                            }}
+                          />
+                        </a>
+                      ))
+                    ) : (
+                      "—"
                     )}
                   </td>
 
                   <td>
-                    <span className={`badge ${r.status}`}>
+                    <span
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        fontSize: 12,
+                        color: "#fff",
+                        background:
+                          r.status === "approved"
+                            ? "#2e7d32"
+                            : r.status === "rejected"
+                            ? "#c62828"
+                            : "#f9a825"
+                      }}
+                    >
                       {r.status}
                     </span>
                   </td>
 
-                  <td className="actions">
-                    {r.status === "pending" && (
+                  <td>
+                    {r.status === "pending" ? (
                       <>
                         <button
-                          className="btn green"
-                          onClick={() =>
-                            updateStatus(r.id, "approved")
-                          }
+                          className="btn-small green"
+                          onClick={() => updateStatus(r.id, "approved")}
                         >
-                          <FaCheckCircle /> Approve
+                          Approve
                         </button>
 
                         <button
-                          className="btn red"
-                          onClick={() =>
-                            updateStatus(r.id, "rejected")
-                          }
+                          className="btn-small red"
+                          onClick={() => updateStatus(r.id, "rejected")}
                         >
-                          <FaTimesCircle /> Reject
+                          Reject
                         </button>
                       </>
+                    ) : (
+                      "—"
                     )}
                   </td>
-                </tr>
-              ))}
 
-              {list.length === 0 && (
-                <tr>
-                  <td colSpan="8" align="center">
-                    No replacement requests
-                  </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+
+        </table>
+      </div>
+
     </div>
   );
-                }
+            }
