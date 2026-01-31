@@ -2,7 +2,7 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 /* ================= USER PAGES ================= */
 import Home from "./pages/Home.jsx";
-import Search from "./pages/Search.jsx";
+
 import Account from "./pages/Account.jsx";
 import Categories from "./pages/Categories.jsx";
 import CategoryProducts from "./pages/CategoryProducts.jsx";
@@ -55,7 +55,7 @@ export default function App() {
 
             {/* ================= USER ================= */}
             <Route path="/" element={<Home />} />
-            <Route path="/search" element={<Search />} />
+            
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-otp" element={<VerifyOtp />} />
