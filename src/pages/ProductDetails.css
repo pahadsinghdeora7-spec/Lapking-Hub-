@@ -1,57 +1,36 @@
-/* ================= PAGE ================= */
+/* ===============================
+   PRODUCT DETAILS PAGE ONLY
+   =============================== */
+
 .pd-page {
-  padding: 12px;
-  background: #f7f9fc;
-  min-height: 100vh;
+  padding: 14px;
+  background: #f6f8fb;
 }
 
-/* ================= IMAGE SECTION ================= */
-.pd-image-box {
+/* ================= IMAGE ================= */
+
+.pd-image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+  margin: auto;
   background: #fff;
   border-radius: 10px;
   padding: 12px;
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-.pd-image {
-  width: 85%;                 /* 🔥 15% smaller */
-  max-height: 280px;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-/* THUMBNAILS */
-.pd-thumbs {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.thumb {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-}
-
-.thumb.active {
-  border: 2px solid #1976ff;
 }
 
 /* ================= TITLE ================= */
+
 .pd-title {
   font-size: 18px;
   font-weight: 600;
-  margin: 10px 0 6px;
-  color: #222;
+  margin-top: 12px;
+  margin-bottom: 6px;
 }
 
 /* ================= META ================= */
+
 .pd-meta {
   display: flex;
   flex-wrap: wrap;
@@ -61,44 +40,52 @@
   margin-bottom: 6px;
 }
 
+.pd-meta span {
+  background: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
 .stock {
-  color: green;
+  color: #1a9c35;
   font-weight: 600;
 }
 
 /* ================= PRICE ================= */
+
 .pd-price {
-  font-size: 20px;
-  color: #111;
+  font-size: 22px;
   font-weight: 700;
-  margin: 8px 0;
+  margin: 10px 0;
+  color: #000;
 }
 
 /* ================= BUTTONS ================= */
+
 .pd-btns {
   display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .whatsapp-btn {
   flex: 1;
   background: #25d366;
   color: #fff;
+  text-align: center;
   padding: 10px;
   border-radius: 6px;
-  text-align: center;
+  font-size: 14px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 14px;
 }
 
 .cart-btn {
   flex: 1;
-  background: #eee;
+  background: #eaeaea;
   border: none;
-  border-radius: 6px;
   padding: 10px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -108,23 +95,24 @@
   background: #1976ff;
   color: #fff;
   border: none;
+  padding: 11px;
   border-radius: 6px;
-  padding: 12px;
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 12px;
 }
 
 /* ================= TABS ================= */
+
 .pd-tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .pd-tabs button {
   flex: 1;
-  padding: 8px;
+  padding: 9px;
   border-radius: 20px;
   border: 1px solid #ddd;
   background: #fff;
@@ -139,41 +127,38 @@
 }
 
 /* ================= TAB CONTENT ================= */
+
 .pd-tab-content {
   background: #fff;
   padding: 12px;
   border-radius: 8px;
   font-size: 14px;
-  color: #444;
-  margin-bottom: 14px;
   line-height: 1.5;
+  margin-bottom: 14px;
 }
 
 /* ================= RELATED ================= */
+
 .related-title {
   font-size: 16px;
-  margin: 10px 0;
   font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .related-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-bottom: 40px;
 }
 
-/* ================= MOBILE SAFE ================= */
+/* ================= MOBILE FIX ================= */
+
 @media (max-width: 480px) {
   .pd-image {
-    max-height: 240px;
-  }
-
-  .pd-title {
-    font-size: 17px;
+    max-height: 360px;
   }
 
   .pd-price {
-    font-size: 18px;
+    font-size: 20px;
   }
 }
