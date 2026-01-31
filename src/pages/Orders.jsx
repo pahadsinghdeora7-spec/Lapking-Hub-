@@ -32,78 +32,52 @@ export default function Orders() {
   }
 
   if (loading) {
-    return <div className="loader">⏳ Loading your orders...</div>;
+    return <div style={{ padding: 20 }}>â³ Loading orders...</div>;
   }
 
   return (
-    <div className="orders-page">
+    <div style={{ padding: 15 }}>
+      <h2>ðŸ“¦ My Orders</h2>
 
-      <h2 className="page-title">📦 My Orders</h2>
-
-      {orders.length === 0 && (
-        <div className="empty-box">
-          <p>🛒 No orders found</p>
-        </div>
-      )}
+      {orders.length === 0 && <p>No orders found.</p>}
 
       {orders.map((order) => (
-        <div key={order.id} className="order-card">
-
-          <div className="order-top">
-            <div>
-              <div className="order-id">📄 Order ID</div>
-              <div className="order-code">{order.order_code}</div>
-            </div>
-
-            <span className="status-badge">
-              {order.order_status}
-            </span>
-          </div>
-
-          <div className="order-row">
-            <span>📅 Date</span>
-            <span>{new Date(order.created_at).toLocaleString()}</span>
-          </div>
-
-          <div className="order-row">
-            <span>💳 Payment</span>
-            <span>{order.payment_status}</span>
-          </div>
-
-          <div className="order-row total">
-            <span>💰 Total</span>
-            <span>₹{order.total}</span>
-          </div>
+        <div
+          key={order.id}
+          className="order-card"
+        >
+          <p><b>Order ID:</b> {order.order_code}</p>
+          <p><b>Date:</b> {new Date(order.created_at).toLocaleString()}</p>
+          <p><b>Total:</b> â‚¹{order.total}</p>
+          <p><b>Payment:</b> {order.payment_status}</p>
+          <p><b>Status:</b> {order.order_status}</p>
 
           <button
-            className="primary-btn"
+            className="view-btn"
             onClick={() => setSelectedOrder(order)}
           >
-            👁 View Order Details
+            View Details
           </button>
-
         </div>
       ))}
 
-      {/* ================= ORDER DETAILS MODAL ================= */}
-
+      {/* ================= ORDER DETAILS POPUP ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
-
           <div className="modal-box">
 
             <div className="modal-header">
-              <h3>📦 Order #{selectedOrder.order_code}</h3>
-              <button onClick={() => setSelectedOrder(null)}>✕</button>
+              <h3>ðŸ“¦ Order #{selectedOrder.order_code}</h3>
+              <button onClick={() => setSelectedOrder(null)}>âœ•</button>
             </div>
 
             <div className="modal-body">
 
-              <h4>👤 Customer</h4>
+              <h4>ðŸ‘¤ Customer</h4>
               <p>{selectedOrder.name}</p>
               <p>{selectedOrder.phone}</p>
 
-              <h4>🏠 Delivery Address</h4>
+              <h4>ðŸ  Address</h4>
               <p>
                 {typeof selectedOrder.address === "string"
                   ? selectedOrder.address
@@ -115,33 +89,25 @@ export default function Orders() {
 
               <hr />
 
-              <h4>🧾 Items</h4>
-
+              <h4>ðŸ§¾ Items</h4>
               {Array.isArray(selectedOrder.items) &&
                 selectedOrder.items.map((item, i) => (
                   <div key={i} className="item-row">
                     <span>{item.name}</span>
-                    <span>{item.qty} × ₹{item.price}</span>
+                    <span>{item.qty} Ã— â‚¹{item.price}</span>
                   </div>
                 ))}
 
               <hr />
 
-              <div className="order-row">
-                <span>🚚 Shipping</span>
-                <span>₹{selectedOrder.shipping_price}</span>
-              </div>
+              <p><b>Shipping:</b> â‚¹{selectedOrder.shipping_price}</p>
 
-              <div className="order-row total">
-                <span>Total</span>
-                <span>₹{selectedOrder.total}</span>
-              </div>
+              <h3>Total: â‚¹{selectedOrder.total}</h3>
 
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }
