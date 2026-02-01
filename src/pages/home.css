@@ -1,6 +1,7 @@
-/* =====================================================
-   RESET (VERY IMPORTANT)
-===================================================== */
+/* ===============================
+   GLOBAL FIX
+================================ */
+
 * {
   box-sizing: border-box;
 }
@@ -14,87 +15,86 @@ body {
   background: #f6f8fb;
 }
 
-/* =====================================================
-   HEADER FIX — MOBILE SAFE
-===================================================== */
-@media (max-width: 768px) {
-  header,
-  .header,
-  .top-header,
-  .main-header {
-    position: sticky;
-    top: 0;
-    z-index: 9999;
-    background: #eaf5ff;
-  }
+/* ===============================
+   HEADER FIX (VERY IMPORTANT)
+================================ */
+
+header,
+.header,
+.top-header,
+.main-header {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: #eaf5ff;
+  width: 100%;
 }
 
-/* =====================================================
+/* ===============================
    HOME WRAPPER
-===================================================== */
+================================ */
+
 .home {
   width: 100%;
   max-width: 1200px;
   margin: auto;
   padding: 10px;
-  padding-bottom: 90px; /* bottom nav safe */
+  padding-bottom: 90px; /* bottom nav space */
 }
 
-/* =====================================================
+/* ===============================
    SECTION TITLE
-===================================================== */
+================================ */
+
 .section-title {
   font-size: 18px;
   font-weight: 700;
-  margin: 16px 6px 10px;
+  margin: 18px 6px 12px;
   color: #222;
 }
 
-/* =====================================================
-   PRODUCT GRID — PERFECT FIX
-===================================================== */
+/* ===============================
+   PRODUCT GRID
+================================ */
+
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  width: 100%;
 }
 
 /* Tablet */
 @media (min-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
   }
 }
 
 /* Desktop */
 @media (min-width: 1024px) {
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* =====================================================
+/* ===============================
    PRODUCT CARD
-===================================================== */
+================================ */
+
 .product-card {
   background: #ffffff;
   border-radius: 14px;
   padding: 10px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: 0.15s ease;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
 }
 
-.product-card:hover {
-  transform: translateY(-2px);
-}
-
-/* =====================================================
+/* ===============================
    PRODUCT IMAGE
-===================================================== */
+================================ */
+
 .product-card img {
   width: 100%;
   height: 150px;
@@ -102,76 +102,81 @@ body {
   border-radius: 8px;
 }
 
-@media (min-width: 768px) {
-  .product-card img {
-    height: 180px;
-  }
-}
-
-/* =====================================================
+/* ===============================
    PRODUCT TEXT
-===================================================== */
+================================ */
+
 .product-card h3 {
   font-size: 14px;
   margin: 6px 0;
   font-weight: 600;
-  color: #222;
 }
 
 .product-card p {
-  font-size: 13px;
-  margin: 2px 0;
+  font-size: 12px;
+  margin: 3px 0;
   color: #555;
 }
 
-.product-price {
+.product-card .price {
   font-size: 16px;
   font-weight: 700;
-  margin-top: 5px;
 }
 
-/* =====================================================
+/* ===============================
    BUTTON
-===================================================== */
+================================ */
+
 .product-card button {
-  margin-top: auto;
+  width: 100%;
+  margin-top: 8px;
   padding: 9px;
   border-radius: 8px;
-  background: #1677ff;
-  color: #fff;
   border: none;
+  background: #1a73e8;
+  color: #fff;
   font-weight: 600;
-  font-size: 14px;
   cursor: pointer;
-  transition: 0.15s;
 }
 
 .product-card button:active {
   transform: scale(0.97);
 }
 
+/* Disabled */
 .product-card button:disabled {
   background: #ccc;
 }
 
-/* =====================================================
-   WHATSAPP FLOAT
-===================================================== */
-.whatsapp-float {
-  position: fixed;
-  right: 15px;
-  bottom: 75px;
-  z-index: 999;
+/* ===============================
+   MOBILE OVERFLOW FIX
+================================ */
+
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .home {
+    overflow-x: hidden;
+  }
+
+  .product-grid {
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 
-/* =====================================================
-   BOTTOM NAV FIX
-===================================================== */
+/* ===============================
+   BOTTOM NAV SAFE AREA
+================================ */
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
   width: 100%;
   background: #ffffff;
-  border-top: 1px solid #ddd;
   z-index: 9998;
+  border-top: 1px solid #ddd;
 }
