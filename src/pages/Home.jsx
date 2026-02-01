@@ -9,25 +9,29 @@ export default function Home() {
   const [recent, setRecent] = useState([]);
 
   useEffect(() => {
-    // ================= SEO SAFE =================
+    // ================= SEO (100% SAFE) =================
     document.title =
-      "Professional Supplier Of Laptop Accessories And Spare Parts Online | LapkingHub";
+      "Laptop Accessories & Spare Parts Online | LapkingHub India";
 
-    const metaDesc = document.querySelector("meta[name='description']");
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        "content",
-        "Buy laptop accessories online at best price. Laptop keyboard, charger, battery, DC jack, screen and all laptop spare parts available at LapkingHub."
-      );
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
     }
 
-    const metaKeywords = document.querySelector("meta[name='keywords']");
-    if (metaKeywords) {
-      metaKeywords.setAttribute(
-        "content",
-        "laptop accessories, laptop keyboard, dell keyboard, hp charger, dc jack, laptop screen, laptop speaker, laptop fan, laptop body parts, lcd back cover, front bezel, palmrest, bottom base cover, laptop spare parts, dell hp lenovo acer asus apple msi accessories"
-      );
+    metaDesc.content =
+      "Buy laptop accessories and spare parts online in India. Keyboard, charger, battery, screen, DC jack, fan, speaker and all laptop parts available at best price on LapkingHub.";
+
+    let metaKeywords = document.querySelector("meta[name='keywords']");
+    if (!metaKeywords) {
+      metaKeywords = document.createElement("meta");
+      metaKeywords.name = "keywords";
+      document.head.appendChild(metaKeywords);
     }
+
+    metaKeywords.content =
+      "laptop accessories, laptop spare parts, laptop keyboard, laptop charger, laptop battery, dc jack, laptop screen, dell hp lenovo acer asus spare parts";
 
     loadProducts();
     loadRecent();
@@ -68,6 +72,36 @@ export default function Home() {
 
   return (
     <div className="home">
+
+      {/* ================= H1 (SEO REQUIRED — visually hidden) ================= */}
+      <h1
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          height: "1px",
+          width: "1px",
+          overflow: "hidden",
+        }}
+      >
+        Laptop Accessories and Spare Parts Online Store in India
+      </h1>
+
+      {/* ================= SEO TEXT (Hidden but crawlable) ================= */}
+      <p
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          height: "1px",
+          width: "1px",
+          overflow: "hidden",
+        }}
+      >
+        LapkingHub is a professional supplier of laptop accessories and spare
+        parts in India. Buy laptop keyboard, charger, battery, DC jack, screen,
+        speaker, fan and all laptop parts for Dell, HP, Lenovo, Acer, Asus and
+        other brands at best price online.
+      </p>
+
       {/* ================= SLIDER ================= */}
       <HomeSlider />
 
@@ -116,4 +150,4 @@ export default function Home() {
       )}
     </div>
   );
-}
+    }
