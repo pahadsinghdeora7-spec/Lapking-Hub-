@@ -1,7 +1,6 @@
-/* ===============================
-   GLOBAL FIX
-================================ */
-
+/* =====================================
+   GLOBAL RESET (VERY IMPORTANT)
+===================================== */
 * {
   box-sizing: border-box;
 }
@@ -10,91 +9,84 @@ html,
 body {
   margin: 0;
   padding: 0;
-  width: 100%;
   overflow-x: hidden;
   background: #f6f8fb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ===============================
-   HEADER FIX (VERY IMPORTANT)
-================================ */
-
-header,
-.header,
-.top-header,
-.main-header {
-  position: sticky;
-  top: 0;
-  z-index: 9999;
-  background: #eaf5ff;
-  width: 100%;
-}
-
-/* ===============================
-   HOME WRAPPER
-================================ */
-
+/* =====================================
+   HOME CONTAINER
+===================================== */
 .home {
   width: 100%;
   max-width: 1200px;
   margin: auto;
   padding: 10px;
-  padding-bottom: 90px; /* bottom nav space */
+  padding-top: 130px;   /* HEADER + SEARCH SPACE */
+  padding-bottom: 90px; /* BOTTOM NAV SPACE */
 }
 
-/* ===============================
+/* =====================================
    SECTION TITLE
-================================ */
-
+===================================== */
 .section-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  margin: 18px 6px 12px;
   color: #222;
+  margin: 18px 6px 12px;
 }
 
-/* ===============================
+/* =====================================
    PRODUCT GRID
-================================ */
-
+===================================== */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 14px;
   width: 100%;
 }
 
-/* Tablet */
-@media (min-width: 768px) {
+/* MOBILE */
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* TABLET */
+@media (min-width: 769px) and (max-width: 1023px) {
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Desktop */
+/* DESKTOP */
 @media (min-width: 1024px) {
   .product-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* ===============================
+/* =====================================
    PRODUCT CARD
-================================ */
-
+===================================== */
 .product-card {
   background: #ffffff;
   border-radius: 14px;
   padding: 10px;
   width: 100%;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: 0.2s ease;
 }
 
-/* ===============================
-   PRODUCT IMAGE
-================================ */
+.product-card:hover {
+  transform: translateY(-2px);
+}
 
+/* =====================================
+   PRODUCT IMAGE
+===================================== */
 .product-card img {
   width: 100%;
   height: 150px;
@@ -102,105 +94,126 @@ header,
   border-radius: 8px;
 }
 
-/* ===============================
-   PRODUCT TEXT
-================================ */
+@media (min-width: 768px) {
+  .product-card img {
+    height: 180px;
+  }
+}
 
+/* =====================================
+   PRODUCT TEXT
+===================================== */
 .product-card h3 {
-  font-size: 14px;
-  margin: 6px 0;
+  font-size: 15px;
   font-weight: 600;
+  margin: 6px 0;
+  color: #222;
 }
 
 .product-card p {
-  font-size: 12px;
-  margin: 3px 0;
+  font-size: 13px;
+  margin: 2px 0;
   color: #555;
 }
 
-.product-card .price {
-  font-size: 16px;
+.product-card .price,
+.product-price {
+  font-size: 17px;
   font-weight: 700;
+  margin-top: 6px;
+  color: #000;
 }
 
-/* ===============================
-   BUTTON
-================================ */
+/* =====================================
+   STOCK TEXT
+===================================== */
+.product-card .in-stock {
+  color: #1ca94a;
+  font-weight: 600;
+  font-size: 12px;
+}
 
+.product-card .out-stock {
+  color: #e53935;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* =====================================
+   ADD TO CART BUTTON
+===================================== */
 .product-card button {
   width: 100%;
-  margin-top: 8px;
-  padding: 9px;
-  border-radius: 8px;
   border: none;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 600;
   background: #1a73e8;
   color: #fff;
-  font-weight: 600;
   cursor: pointer;
+  transition: 0.15s;
 }
 
 .product-card button:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
-/* Disabled */
 .product-card button:disabled {
   background: #ccc;
 }
 
-/* ===============================
-   MOBILE OVERFLOW FIX
-================================ */
-
+/* =====================================
+   HEADER FIX (MOBILE ONLY)
+===================================== */
 @media (max-width: 768px) {
-
-  body {
-    overflow-x: hidden;
-  }
-
-  .home {
-    overflow-x: hidden;
-  }
-
-  .product-grid {
-    margin-left: 0;
-    margin-right: 0;
+  header,
+  .header,
+  .top-header,
+  .main-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 9999;
+    background: #eaf5ff;
   }
 }
 
-/* ===============================
-   BOTTOM NAV SAFE AREA
-================================ */
+/* =====================================
+   SEARCH BAR SAFE
+===================================== */
+.search-bar,
+.search-box {
+  position: relative;
+  z-index: 9998;
+}
 
+/* =====================================
+   WHATSAPP FLOAT
+===================================== */
+.whatsapp-float {
+  position: fixed;
+  right: 14px;
+  bottom: 80px;
+  z-index: 999;
+}
+
+/* =====================================
+   BOTTOM NAV FIX
+===================================== */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   width: 100%;
   background: #ffffff;
-  z-index: 9998;
   border-top: 1px solid #ddd;
+  z-index: 9998;
 }
 
-/* ===============================
-   HEADER FINAL FIX (MOBILE)
-================================ */
-
-@media (max-width: 768px) {
-
-  header,
-  .header,
-  .top-header,
-  .main-header {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 10000;
-    background: #eaf5ff;
-  }
-
-  /* content header ke niche se start ho */
-  .home {
-    padding-top: 110px;
-  }
+/* =====================================
+   FINAL SAFETY
+===================================== */
+#root {
+  overflow-x: hidden;
 }
