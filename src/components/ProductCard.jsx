@@ -7,7 +7,7 @@ const ProductCard = ({ product }) => {
 
   // 🔥 card open logic
   const openDetails = () => {
-    navigate(`/product/${product.id}`);
+    navigate(`/product/${product.slug}`);
   };
 
   // 🔥 add to cart logic
