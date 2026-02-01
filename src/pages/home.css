@@ -1,12 +1,13 @@
 /* ===============================
-   HOME PAGE – PROFESSIONAL UI
+   HOME PAGE PROFESSIONAL GRID
    =============================== */
 
 .home {
   width: 100%;
-  max-width: 1300px;
+  max-width: 1400px;
   margin: auto;
-  padding: 12px;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 /* ===============================
@@ -16,7 +17,7 @@
 .section-title {
   font-size: 18px;
   font-weight: 700;
-  margin: 18px 0 10px;
+  margin: 18px 0 12px;
   color: #222;
 }
 
@@ -24,6 +25,7 @@
    PRODUCT GRID
    =============================== */
 
+/* MOBILE (default) */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -31,34 +33,44 @@
 }
 
 /* ===============================
-   DESKTOP GRID
+   TABLET (3 PRODUCTS)
    =============================== */
-
 @media (min-width: 768px) {
   .product-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 
   .section-title {
-    font-size: 22px;
+    font-size: 20px;
   }
 }
 
 /* ===============================
-   PRODUCT CARD FIX
+   DESKTOP (3 PRODUCTS FIXED)
+   =============================== */
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .home {
+    padding: 16px;
+  }
+}
+
+/* ===============================
+   PRODUCT CARD
    =============================== */
 
 .product-card {
   background: #fff;
   border-radius: 10px;
   padding: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  transition: 0.2s;
-}
-
-.product-card:hover {
-  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===============================
@@ -78,7 +90,7 @@
 }
 
 /* ===============================
-   PRODUCT NAME
+   PRODUCT TEXT
    =============================== */
 
 .product-card h3 {
@@ -88,33 +100,18 @@
   color: #222;
 }
 
-/* ===============================
-   PRICE
-   =============================== */
-
 .product-price {
   font-size: 15px;
   font-weight: 700;
-  color: #000;
-  margin: 4px 0;
+  margin-top: 4px;
 }
 
 /* ===============================
-   STOCK
-   =============================== */
-
-.product-stock {
-  font-size: 12px;
-  color: green;
-}
-
-/* ===============================
-   ADD TO CART
+   BUTTON
    =============================== */
 
 .product-card button {
-  width: 100%;
-  margin-top: 6px;
+  margin-top: auto;
   padding: 8px;
   border-radius: 6px;
   background: #1677ff;
@@ -124,31 +121,17 @@
 }
 
 /* ===============================
-   RECENTLY VIEWED
+   OUT OF STOCK
    =============================== */
 
-.home .recent-grid {
-  margin-top: 10px;
+.product-card .out-stock {
+  background: #ccc !important;
 }
 
 /* ===============================
-   SLIDER GAP
+   MOBILE OVERFLOW FIX
    =============================== */
 
-.home-slider {
-  margin-bottom: 15px;
-}
-
-/* ===============================
-   MOBILE FIX
-   =============================== */
-
-@media (max-width: 480px) {
-  .home {
-    padding: 8px;
-  }
-
-  .section-title {
-    font-size: 16px;
-  }
+body {
+  overflow-x: hidden;
 }
