@@ -3,7 +3,8 @@ import {
   MdHome,
   MdCategory,
   MdShoppingCart,
-  MdPerson
+  MdPerson,
+  MdReceiptLong
 } from "react-icons/md";
 import { useEffect, useState } from "react";
 import "./bottomNav.css";
@@ -13,6 +14,13 @@ export default function BottomNav() {
   const location = useLocation();
   const [cartCount, setCartCount] = useState(0);
 
+  // 🔐 simple login check
+  const isLoggedIn = () => {
+    const user = localStorage.getItem("user");
+    return !!user;
+  };
+
+  // 🛒 cart count
   const updateCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const total = cart.reduce((s, i) => s + (i.qty || 1), 0);
@@ -26,9 +34,19 @@ export default function BottomNav() {
       window.removeEventListener("cartUpdated", updateCart);
   }, []);
 
+  // 🔐 protected navigation
+  const goProtected = (path) => {
+    if (!isLoggedIn()) {
+      navigate("/login");
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <div className="bottom-nav">
 
+      {/* HOME */}
       <div
         className={location.pathname === "/" ? "active" : ""}
         onClick={() => navigate("/")}
@@ -37,6 +55,7 @@ export default function BottomNav() {
         <span>Home</span>
       </div>
 
+      {/* CATEGORIES */}
       <div
         className={location.pathname === "/categories" ? "active" : ""}
         onClick={() => navigate("/categories")}
@@ -45,6 +64,7 @@ export default function BottomNav() {
         <span>Categories</span>
       </div>
 
+      {/* CART */}
       <div
         style={{ position: "relative" }}
         className={location.pathname === "/cart" ? "active" : ""}
@@ -57,9 +77,19 @@ export default function BottomNav() {
         <span>Cart</span>
       </div>
 
+      {/* ORDERS (login required) */}
+      <div
+        className={location.pathname === "/orders" ? "active" : ""}
+        onClick={() => goProtected("/orders")}
+      >
+        <MdReceiptLong />
+        <span>Orders</span>
+      </div>
+
+      {/* ACCOUNT (login required) */}
       <div
         className={location.pathname === "/account" ? "active" : ""}
-        onClick={() => navigate("/account")}
+        onClick={() => goProtected("/account")}
       >
         <MdPerson />
         <span>Account</span>
