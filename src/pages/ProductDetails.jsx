@@ -21,36 +21,43 @@ export default function ProductDetails() {
   }, [slug]);
 
   async function loadProduct() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    if (data) {
-      setProduct(data);
-      setActiveImg(data.image);
-
-      // ================= SEO =================
-      document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
-
-      const metaDesc = document.querySelector("meta[name='description']");
-      if (metaDesc) {
-        metaDesc.setAttribute(
-          "content",
-          `${data.name} ${data.part_number || ""}. Buy laptop accessories online at best price. Genuine spare parts available at LapkingHub.`
-        );
-      }
-
-      const { data: rel } = await supabase
-        .from("products")
-        .select("*")
-        .eq("category_slug", data.category_slug)
-        .neq("id", data.id)
-        .limit(12);
-
-      setRelated(rel || []);
+    if (!data || error) {
+      navigate("/");
+      return;
     }
+
+    setProduct(data);
+    setActiveImg(data.image);
+
+    // ✅ SEO
+    document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
+
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+
+    metaDesc.content = `${data.name} ${
+      data.part_number || ""
+    }. Buy genuine laptop accessories and spare parts online at best price from LapkingHub.`;
+
+    // ================= RELATED =================
+    const { data: rel } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_slug", data.category_slug)
+      .neq("id", data.id)
+      .limit(12);
+
+    setRelated(rel || []);
   }
 
   // ================= CART =================
@@ -69,7 +76,6 @@ export default function ProductDetails() {
     window.dispatchEvent(new Event("storage"));
   }
 
-  // ================= BUY NOW =================
   function buyNow() {
     addToCart();
     navigate("/cart");
@@ -86,7 +92,8 @@ export default function ProductDetails() {
 
   return (
     <div className="pd-container">
-      {/* ================= IMAGE ================= */}
+
+      {/* IMAGE */}
       <div className="pd-image-box">
         <img
           src={activeImg}
@@ -108,7 +115,7 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* ================= INFO ================= */}
+      {/* INFO */}
       <h1 className="pd-title">{product.name}</h1>
 
       <div className="pd-meta">
@@ -120,7 +127,7 @@ export default function ProductDetails() {
 
       <h2 className="pd-price">₹{product.price}</h2>
 
-      {/* ================= QTY + STOCK ================= */}
+      {/* QTY */}
       <div className="pd-qty-row">
         <div className="qty-box">
           <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
@@ -129,10 +136,7 @@ export default function ProductDetails() {
             value={qty}
             onChange={(e) => {
               const v = e.target.value;
-              if (v === "") {
-                setQty("");
-                return;
-              }
+              if (v === "") return setQty("");
               if (!isNaN(v)) setQty(Number(v));
             }}
             onBlur={() => {
@@ -148,7 +152,7 @@ export default function ProductDetails() {
         </span>
       </div>
 
-      {/* ================= BUTTONS ================= */}
+      {/* BUTTONS */}
       <div className="pd-buttons">
         <a
           href={`https://wa.me/919873670361?text=I want ${product.name} | Part No: ${product.part_number || "N/A"} | Price: ₹${product.price}`}
@@ -167,7 +171,7 @@ export default function ProductDetails() {
         ⚡ Buy Now
       </button>
 
-      {/* ================= TABS ================= */}
+      {/* TABS */}
       <div className="pd-tabs">
         <button
           className={tab === "description" ? "active" : ""}
@@ -184,7 +188,6 @@ export default function ProductDetails() {
         </button>
       </div>
 
-      {/* ================= TAB CONTENT ================= */}
       <div className="pd-full-section">
         {tab === "description" && (
           <div className="pd-desc">
@@ -199,7 +202,7 @@ export default function ProductDetails() {
         )}
       </div>
 
-      {/* ================= RELATED ================= */}
+      {/* RELATED */}
       {related.length > 0 && (
         <>
           <h2 className="related-title">
