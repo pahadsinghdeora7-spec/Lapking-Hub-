@@ -8,7 +8,7 @@ export default function ProductDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState(undefined);
   const [related, setRelated] = useState([]);
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState("");
@@ -27,16 +27,17 @@ export default function ProductDetails() {
       .eq("slug", slug)
       .single();
 
-    if (!data || error) {
-      navigate("/");
+    // ❌ NO AUTO REDIRECT
+    if (error || !data) {
+      setProduct(null);
       return;
     }
 
     setProduct(data);
     setActiveImg(data.image);
 
-    // ✅ SEO
-    document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
+    // ================= SEO =================
+    document.title = `${data.name} ${data.part_number || ""} | LapkingHub`;
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -45,9 +46,7 @@ export default function ProductDetails() {
       document.head.appendChild(metaDesc);
     }
 
-    metaDesc.content = `${data.name} ${
-      data.part_number || ""
-    }. Buy genuine laptop accessories and spare parts online at best price from LapkingHub.`;
+    metaDesc.content = `${data.name} ${data.part_number || ""}. Buy laptop accessories and spare parts online at best price from LapkingHub.`;
 
     // ================= RELATED =================
     const { data: rel } = await supabase
@@ -81,7 +80,18 @@ export default function ProductDetails() {
     navigate("/cart");
   }
 
-  if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
+  // ================= STATES =================
+  if (product === undefined) {
+    return <div style={{ padding: 30 }}>Loading...</div>;
+  }
+
+  if (product === null) {
+    return (
+      <div style={{ padding: 40, textAlign: "center" }}>
+        ❌ Product not found
+      </div>
+    );
+  }
 
   const images = [
     product.image,
@@ -92,7 +102,6 @@ export default function ProductDetails() {
 
   return (
     <div className="pd-container">
-
       {/* IMAGE */}
       <div className="pd-image-box">
         <img
@@ -107,9 +116,9 @@ export default function ProductDetails() {
             <img
               key={i}
               src={img}
-              alt=""
               className={activeImg === img ? "active" : ""}
               onClick={() => setActiveImg(img)}
+              alt=""
             />
           ))}
         </div>
@@ -119,9 +128,9 @@ export default function ProductDetails() {
       <h1 className="pd-title">{product.name}</h1>
 
       <div className="pd-meta">
-        <span>🏷 Brand: {product.brand || "N/A"}</span>
+        <span>Brand: {product.brand || "N/A"}</span>
         <span style={{ marginLeft: 20 }}>
-          🔢 Part No: {product.part_number || "N/A"}
+          Part No: {product.part_number || "N/A"}
         </span>
       </div>
 
@@ -177,14 +186,14 @@ export default function ProductDetails() {
           className={tab === "description" ? "active" : ""}
           onClick={() => setTab("description")}
         >
-          📄 Description
+          Description
         </button>
 
         <button
           className={tab === "models" ? "active" : ""}
           onClick={() => setTab("models")}
         >
-          💻 Compatible Models
+          Compatible Models
         </button>
       </div>
 
@@ -205,9 +214,7 @@ export default function ProductDetails() {
       {/* RELATED */}
       {related.length > 0 && (
         <>
-          <h2 className="related-title">
-            Related Laptop Accessories
-          </h2>
+          <h2 className="related-title">Related Products</h2>
 
           <div className="related-grid">
             {related.map((p) => (
@@ -218,4 +225,4 @@ export default function ProductDetails() {
       )}
     </div>
   );
-}
+      }
