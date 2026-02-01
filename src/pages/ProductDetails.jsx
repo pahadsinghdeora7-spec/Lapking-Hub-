@@ -11,30 +11,40 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadProduct();
+    if (!slug) return;
+    fetchProduct();
     window.scrollTo(0, 0);
   }, [slug]);
 
-  async function loadProduct() {
+  async function fetchProduct() {
     setLoading(true);
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
+      .limit(1)
       .single();
 
-    setProduct(data || null);
+    console.log("URL slug:", slug);
+    console.log("DB product:", data);
+
+    if (!data || error) {
+      setProduct(null);
+    } else {
+      setProduct(data);
+    }
+
     setLoading(false);
   }
 
   if (loading) {
-    return <div className="pd-loading">Loading...</div>;
+    return <div style={{ padding: 20 }}>Loading...</div>;
   }
 
   if (!product) {
     return (
-      <div className="pd-notfound">
+      <div style={{ padding: 30, textAlign: "center", color: "red" }}>
         ❌ Product not found
       </div>
     );
@@ -43,53 +53,28 @@ export default function ProductDetails() {
   return (
     <div className="pd-container">
 
-      {/* ================= SEO ================= */}
+      {/* SEO */}
       <Helmet>
-        <title>
-          {product.name} | Buy Online at Best Price | LapkingHub
-        </title>
-
+        <title>{product.name} | LapkingHub</title>
         <meta
           name="description"
-          content={`${product.name} ${
-            product.part_number || ""
-          } buy online at best price. Genuine laptop accessories and spare parts for HP, Dell, Lenovo and Acer at LapkingHub.`}
+          content={`${product.name} ${product.part_number || ""} buy online at best price from LapkingHub.`}
         />
       </Helmet>
 
-      {/* ================= PRODUCT ================= */}
-      <h1 className="pd-title">{product.name}</h1>
+      <h1>{product.name}</h1>
 
-      <p className="pd-part">
-        Part No: {product.part_number || "N/A"}
-      </p>
+      <p>Part No: {product.part_number || "-"}</p>
 
       <img
         src={product.image}
         alt={product.name}
-        className="pd-image"
+        style={{ width: "100%", maxWidth: 300 }}
       />
 
-      <h2 className="pd-price">₹{product.price}</h2>
+      <h2>₹{product.price}</h2>
 
-      <p className="pd-desc">
-        {product.description ||
-          "High quality genuine laptop spare part with perfect compatibility."}
-      </p>
-
-      <p className="pd-stock">
-        {product.stock > 0
-          ? "✅ In Stock"
-          : "❌ Out of Stock"}
-      </p>
-
-      <a
-        className="pd-whatsapp"
-        target="_blank"
-        href={`https://wa.me/919873670361?text=I want ${product.name} | Part No: ${product.part_number}`}
-      >
-        💬 Order on WhatsApp
-      </a>
+      <p>{product.description}</p>
 
     </div>
   );
