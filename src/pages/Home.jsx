@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
 import HomeSlider from "../components/HomeSlider";
+import { useLoader } from "../context/LoaderContext";
 import "./home.css";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [recent, setRecent] = useState([]);
+
+  // ✅ GLOBAL LOADER
+  const { setLoading } = useLoader();
 
   useEffect(() => {
     // ================= SEO (100% SAFE) =================
@@ -33,9 +37,20 @@ export default function Home() {
     metaKeywords.content =
       "laptop accessories, laptop spare parts, laptop keyboard, laptop charger, laptop battery, dc jack, laptop screen, dell hp lenovo acer asus spare parts";
 
-    loadProducts();
-    loadRecent();
+    loadAll();
   }, []);
+
+  // ========================
+  // LOAD ALL DATA (WITH LOADER)
+  // ========================
+  const loadAll = async () => {
+    setLoading(true);
+
+    await loadProducts();
+    loadRecent();
+
+    setLoading(false);
+  };
 
   // ========================
   // LOAD PRODUCTS
@@ -73,7 +88,7 @@ export default function Home() {
   return (
     <div className="home">
 
-      {/* ================= H1 (SEO REQUIRED — visually hidden) ================= */}
+      {/* ================= H1 SEO ================= */}
       <h1
         style={{
           position: "absolute",
@@ -86,7 +101,7 @@ export default function Home() {
         Laptop Accessories and Spare Parts Online Store in India
       </h1>
 
-      {/* ================= SEO TEXT (Hidden but crawlable) ================= */}
+      {/* ================= SEO TEXT ================= */}
       <p
         style={{
           position: "absolute",
@@ -150,4 +165,4 @@ export default function Home() {
       )}
     </div>
   );
-    }
+                        }
