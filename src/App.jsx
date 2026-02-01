@@ -1,122 +1,160 @@
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
+import ProductCard from "../components/ProductCard";
+import HomeSlider from "../components/HomeSlider";
+import { useLoader } from "../context/LoaderContext"; // ✅ ADD
+import "./home.css";
 
-/* ================= LOADER ================= */
-import { LoaderProvider } from "./context/LoaderContext";
-import GlobalLoader from "./components/GlobalLoader";
+export default function Home() {
+  const [products, setProducts] = useState([]);
+  const [recent, setRecent] = useState([]);
 
-/* ================= USER PAGES ================= */
-import Home from "./pages/Home.jsx";
+  const { setLoading } = useLoader(); // ✅ ADD
 
-import Account from "./pages/Account.jsx";
-import Categories from "./pages/Categories.jsx";
-import CategoryProducts from "./pages/CategoryProducts.jsx";
-import ProductDetails from "./pages/ProductDetails.jsx";
-import Cart from "./pages/Cart.jsx";
-import Orders from "./pages/Orders.jsx";
-import OrderDetails from "./pages/OrderDetails";
-import SearchResult from "./pages/SearchResult";
+  useEffect(() => {
+    // ================= SEO (100% SAFE) =================
+    document.title =
+      "Laptop Accessories & Spare Parts Online | LapkingHub India";
 
-import Login from "./pages/Login.jsx";
-import Signup from "./pages/Signup.jsx";
-import VerifyOtp from "./pages/VerifyOtp.jsx";
-import About from "./pages/About.jsx";
-import PageView from "./pages/PageView";
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
 
-/* ================= CHECKOUT ================= */
-import CheckoutAddress from "./pages/CheckoutAddress.jsx";
-import CheckoutShipping from "./pages/CheckoutShipping.jsx";
-import CheckoutPayment from "./pages/CheckoutPayment.jsx";
-import OrderSuccess from "./pages/OrderSuccess.jsx";
-import ReplacementRequest from "./pages/ReplacementRequest.jsx";
+    metaDesc.content =
+      "Buy laptop accessories and spare parts online in India. Keyboard, charger, battery, screen, DC jack, fan, speaker and all laptop parts available at best price on LapkingHub.";
 
-/* ================= ADMIN ================= */
-import AdminLogin from "./admin/AdminLogin.jsx";
-import AdminLayout from "./admin/AdminLayout.jsx";
-import AdminDashboard from "./admin/AdminDashboard.jsx";
-import AdminProducts from "./admin/AdminProducts.jsx";
-import AdminCategories from "./admin/AdminCategories.jsx";
-import AdminOrders from "./admin/AdminOrders.jsx";
+    let metaKeywords = document.querySelector("meta[name='keywords']");
+    if (!metaKeywords) {
+      metaKeywords = document.createElement("meta");
+      metaKeywords.name = "keywords";
+      document.head.appendChild(metaKeywords);
+    }
 
-import AdminReplacements from "./admin/AdminReplacements.jsx";
-import AdminCouriers from "./admin/AdminCouriers.jsx";
-import AdminSettings from "./admin/AdminSettings.jsx";
-import AdminAbout from "./admin/AdminAbout.jsx";
-import AdminPolicies from "./admin/AdminPolicies.jsx";
+    metaKeywords.content =
+      "laptop accessories, laptop spare parts, laptop keyboard, laptop charger, laptop battery, dc jack, laptop screen, dell hp lenovo acer asus spare parts";
 
-/* ================= COMPONENTS ================= */
-import Header from "./components/Header.jsx";
-import BottomNav from "./components/BottomNav.jsx";
-import WhatsAppButton from "./components/WhatsAppButton.jsx";
+    loadProducts();
+    loadRecent();
+  }, []);
 
-export default function App() {
+  // ========================
+  // LOAD PRODUCTS
+  // ========================
+  const loadProducts = async () => {
+    setLoading(true); // ✅ START LOADER
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error) {
+      setProducts(data || []);
+    }
+
+    setLoading(false); // ✅ STOP LOADER
+  };
+
+  // ========================
+  // LOAD RECENT VIEWED
+  // ========================
+  const loadRecent = () => {
+    try {
+      const r = JSON.parse(localStorage.getItem("recentProducts") || "[]");
+      setRecent(r);
+    } catch {
+      setRecent([]);
+    }
+  };
+
+  // ========================
+  // DATA SPLIT (LOCKED)
+  // ========================
+  const newArrivals = products.slice(0, 6);
+  const trending = products.slice(6, 12);
+  const suggested = products.slice(12, 20);
+
   return (
-    <Router>
-      <LoaderProvider>
+    <div className="home">
 
-        {/* 🔥 GLOBAL LOADER */}
-        <GlobalLoader />
+      {/* ================= H1 (SEO REQUIRED — hidden) ================= */}
+      <h1
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          height: "1px",
+          width: "1px",
+          overflow: "hidden",
+        }}
+      >
+        Laptop Accessories and Spare Parts Online Store in India
+      </h1>
 
-        <div className="app-root">
+      {/* ================= SEO TEXT ================= */}
+      <p
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          height: "1px",
+          width: "1px",
+          overflow: "hidden",
+        }}
+      >
+        LapkingHub is a professional supplier of laptop accessories and spare
+        parts in India. Buy laptop keyboard, charger, battery, DC jack, screen,
+        speaker, fan and all laptop parts for Dell, HP, Lenovo, Acer, Asus and
+        other brands at best price online.
+      </p>
 
-          <Header />
+      {/* ================= SLIDER ================= */}
+      <HomeSlider />
 
-          <main className="app-main">
-            <Routes>
+      {/* ================= NEW ARRIVALS ================= */}
+      <h2 className="section-title">New Arrivals</h2>
+      <div className="product-grid">
+        {newArrivals.map((item) => (
+          <ProductCard key={item.id} product={item} />
+        ))}
+      </div>
 
-              {/* ================= USER ================= */}
-              <Route path="/" element={<Home />} />
+      {/* ================= TRENDING ================= */}
+      {trending.length > 0 && (
+        <>
+          <h2 className="section-title">Trending Products</h2>
+          <div className="product-grid">
+            {trending.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </>
+      )}
 
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/verify-otp" element={<VerifyOtp />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/category/:slug" element={<CategoryProducts />} />
-              <Route path="/product/:slug" element={<ProductDetails />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/orders/:id" element={<OrderDetails />} />
-              <Route path="/search/:keyword" element={<SearchResult />} />
+      {/* ================= RECENTLY VIEWED ================= */}
+      {recent.length > 0 && (
+        <>
+          <h2 className="section-title">Recently Viewed</h2>
+          <div className="product-grid">
+            {recent.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </>
+      )}
 
-              {/* CMS */}
-              <Route path="/page/:slug" element={<PageView />} />
-              <Route path="/about-us" element={<About />} />
-
-              {/* ================= CHECKOUT ================= */}
-              <Route path="/checkout/address" element={<CheckoutAddress />} />
-              <Route path="/checkout/shipping" element={<CheckoutShipping />} />
-              <Route path="/checkout/payment" element={<CheckoutPayment />} />
-              <Route path="/order/success" element={<OrderSuccess />} />
-
-              {/* ================= REPLACEMENT ================= */}
-              <Route
-                path="/replacement/order/:id/product/:productId"
-                element={<ReplacementRequest />}
-              />
-
-              {/* ================= ADMIN ================= */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="categories" element={<AdminCategories />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="replacements" element={<AdminReplacements />} />
-                <Route path="couriers" element={<AdminCouriers />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="about" element={<AdminAbout />} />
-                <Route path="policies" element={<AdminPolicies />} />
-              </Route>
-
-            </Routes>
-          </main>
-
-          <BottomNav />
-          <WhatsAppButton />
-
-        </div>
-      </LoaderProvider>
-    </Router>
+      {/* ================= SUGGESTED ================= */}
+      {suggested.length > 0 && (
+        <>
+          <h2 className="section-title">Suggestions For You</h2>
+          <div className="product-grid">
+            {suggested.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
-}
+      }
