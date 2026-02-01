@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# =========================
+# BLOCK ADMIN & PRIVATE
+# =========================
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /verify-otp
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order/success
+
+# =========================
+# ALLOW IMPORTANT PAGES
+# =========================
+Allow: /
+Allow: /product/
+Allow: /category/
+Allow: /page/
+
+# =========================
+# SITEMAP
+# =========================
+Sitemap: https://lapkinghub.com/sitemap.xml
