@@ -29,29 +29,59 @@ export default function PageView() {
     setLoading(false);
 
     if (error || !data) {
-      console.log("PAGE ERROR:", error);
       setPage(null);
       return;
     }
 
-    // ✅ SEO
-    if (data.meta_title) {
-      document.title = data.meta_title;
-    }
+    /* ================= SEO ================= */
 
-    if (data.meta_description) {
-      let metaDesc = document.querySelector(
-        "meta[name='description']"
+    // Title
+    document.title =
+      data.meta_title || `${data.title} | LapkingHub`;
+
+    // Meta description
+    let metaDesc = document.querySelector(
+      "meta[name='description']"
+    );
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content =
+      data.meta_description ||
+      "Laptop accessories and spare parts information from LapkingHub.";
+
+    // Meta keywords (optional)
+    if (data.meta_keywords) {
+      let metaKey = document.querySelector(
+        "meta[name='keywords']"
       );
-
-      if (!metaDesc) {
-        metaDesc = document.createElement("meta");
-        metaDesc.name = "description";
-        document.head.appendChild(metaDesc);
+      if (!metaKey) {
+        metaKey = document.createElement("meta");
+        metaKey.name = "keywords";
+        document.head.appendChild(metaKey);
       }
-
-      metaDesc.content = data.meta_description;
+      metaKey.content = data.meta_keywords;
     }
+
+    // Canonical
+    let canonical = document.querySelector("link[rel='canonical']");
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = window.location.href;
+
+    // Robots
+    let robots = document.querySelector("meta[name='robots']");
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.name = "robots";
+      document.head.appendChild(robots);
+    }
+    robots.content = "index, follow";
 
     setPage(data);
   }
@@ -71,14 +101,21 @@ export default function PageView() {
   return (
     <div className="page-wrapper">
       <div className="page-card">
+
+        {/* H1 — SEO GOLD */}
         <h1 className="page-title">{page.title}</h1>
 
+        {/* CONTENT */}
         <div className="page-content">
-          {page.content.split("\n").map((line, i) => (
-            <p key={i}>{line}</p>
-          ))}
+          {page.content
+            .split("\n")
+            .filter(line => line.trim() !== "")
+            .map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
         </div>
+
       </div>
     </div>
   );
-        }
+}
