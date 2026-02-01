@@ -8,11 +8,12 @@ export default function ProductDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState(undefined);
+  const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState("");
   const [tab, setTab] = useState("description");
+  const [loading, setLoading] = useState(true);
 
   // ================= LOAD PRODUCT =================
   useEffect(() => {
@@ -21,15 +22,17 @@ export default function ProductDetails() {
   }, [slug]);
 
   async function loadProduct() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    // ❌ NO AUTO REDIRECT
     if (error || !data) {
       setProduct(null);
+      setLoading(false);
       return;
     }
 
@@ -37,7 +40,7 @@ export default function ProductDetails() {
     setActiveImg(data.image);
 
     // ================= SEO =================
-    document.title = `${data.name} ${data.part_number || ""} | LapkingHub`;
+    document.title = `${data.name} | Buy Online | LapkingHub`;
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -46,7 +49,7 @@ export default function ProductDetails() {
       document.head.appendChild(metaDesc);
     }
 
-    metaDesc.content = `${data.name} ${data.part_number || ""}. Buy laptop accessories and spare parts online at best price from LapkingHub.`;
+    metaDesc.content = `${data.name} ${data.part_number || ""} buy online at best price. Genuine laptop spare parts available at LapkingHub.`;
 
     // ================= RELATED =================
     const { data: rel } = await supabase
@@ -57,12 +60,12 @@ export default function ProductDetails() {
       .limit(12);
 
     setRelated(rel || []);
+    setLoading(false);
   }
 
   // ================= CART =================
   function addToCart() {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
     const exist = cart.find((i) => i.id === product.id);
 
     if (exist) {
@@ -80,14 +83,15 @@ export default function ProductDetails() {
     navigate("/cart");
   }
 
-  // ================= STATES =================
-  if (product === undefined) {
-    return <div style={{ padding: 30 }}>Loading...</div>;
+  // ================= LOADING =================
+  if (loading) {
+    return <div style={{ padding: 20 }}>Loading...</div>;
   }
 
-  if (product === null) {
+  // ================= NOT FOUND =================
+  if (!product) {
     return (
-      <div style={{ padding: 40, textAlign: "center" }}>
+      <div style={{ padding: 30, textAlign: "center" }}>
         ❌ Product not found
       </div>
     );
@@ -97,12 +101,13 @@ export default function ProductDetails() {
     product.image,
     product.image1,
     product.image2,
-    product.image3,
+    product.image3
   ].filter(Boolean);
 
   return (
     <div className="pd-container">
-      {/* IMAGE */}
+
+      {/* ================= IMAGE ================= */}
       <div className="pd-image-box">
         <img
           src={activeImg}
@@ -124,19 +129,19 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* INFO */}
+      {/* ================= INFO ================= */}
       <h1 className="pd-title">{product.name}</h1>
 
       <div className="pd-meta">
-        <span>Brand: {product.brand || "N/A"}</span>
-        <span style={{ marginLeft: 20 }}>
-          Part No: {product.part_number || "N/A"}
+        <span>🏷 Brand: {product.brand || "N/A"}</span>
+        <span style={{ marginLeft: 15 }}>
+          🔢 Part No: {product.part_number || "N/A"}
         </span>
       </div>
 
       <h2 className="pd-price">₹{product.price}</h2>
 
-      {/* QTY */}
+      {/* ================= QTY ================= */}
       <div className="pd-qty-row">
         <div className="qty-box">
           <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
@@ -149,7 +154,7 @@ export default function ProductDetails() {
               if (!isNaN(v)) setQty(Number(v));
             }}
             onBlur={() => {
-              if (qty === "" || qty < 1) setQty(1);
+              if (!qty || qty < 1) setQty(1);
             }}
           />
 
@@ -161,10 +166,10 @@ export default function ProductDetails() {
         </span>
       </div>
 
-      {/* BUTTONS */}
+      {/* ================= BUTTONS ================= */}
       <div className="pd-buttons">
         <a
-          href={`https://wa.me/919873670361?text=I want ${product.name} | Part No: ${product.part_number || "N/A"} | Price: ₹${product.price}`}
+          href={`https://wa.me/919873670361?text=I want ${product.name} | Part No: ${product.part_number || "N/A"} | Price ₹${product.price}`}
           target="_blank"
           className="wa-btn"
         >
@@ -180,20 +185,20 @@ export default function ProductDetails() {
         ⚡ Buy Now
       </button>
 
-      {/* TABS */}
+      {/* ================= TABS ================= */}
       <div className="pd-tabs">
         <button
           className={tab === "description" ? "active" : ""}
           onClick={() => setTab("description")}
         >
-          Description
+          📄 Description
         </button>
 
         <button
           className={tab === "models" ? "active" : ""}
           onClick={() => setTab("models")}
         >
-          Compatible Models
+          💻 Compatible Models
         </button>
       </div>
 
@@ -211,10 +216,12 @@ export default function ProductDetails() {
         )}
       </div>
 
-      {/* RELATED */}
+      {/* ================= RELATED ================= */}
       {related.length > 0 && (
         <>
-          <h2 className="related-title">Related Products</h2>
+          <h2 className="related-title">
+            Related Laptop Accessories
+          </h2>
 
           <div className="related-grid">
             {related.map((p) => (
