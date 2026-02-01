@@ -5,7 +5,7 @@ import ProductCard from "../components/ProductCard";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
