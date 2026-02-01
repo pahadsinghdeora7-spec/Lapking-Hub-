@@ -1,201 +1,80 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
-  const { slug } = useParams(); // ✅ slug
-  const navigate = useNavigate();
+  const { slug } = useParams();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
-  const [qty, setQty] = useState(1);
-  const [activeImg, setActiveImg] = useState("");
-  const [tab, setTab] = useState("description");
+  const [loading, setLoading] = useState(true);
 
-  // ================= LOAD PRODUCT =================
   useEffect(() => {
     loadProduct();
     window.scrollTo(0, 0);
   }, [slug]);
 
   async function loadProduct() {
+    setLoading(true);
+
     const { data } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (!data) {
       setProduct(null);
+      setLoading(false);
       return;
     }
 
     setProduct(data);
-    setActiveImg(data.image);
 
     // ✅ SEO
-    document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
+    document.title = `${data.name} | LapkingHub`;
 
-    let metaDesc = document.querySelector("meta[name='description']");
-    if (!metaDesc) {
-      metaDesc = document.createElement("meta");
-      metaDesc.name = "description";
-      document.head.appendChild(metaDesc);
+    let meta = document.querySelector("meta[name='description']");
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "description";
+      document.head.appendChild(meta);
     }
 
-    metaDesc.content = `${data.name} ${data.part_number || ""}. Genuine laptop spare parts available at LapkingHub.`;
+    meta.content = `${data.name} ${data.part_number || ""} laptop spare part available at LapkingHub`;
 
-    // ================= RELATED =================
     const { data: rel } = await supabase
       .from("products")
       .select("*")
       .eq("category_slug", data.category_slug)
       .neq("id", data.id)
-      .limit(12);
+      .limit(8);
 
     setRelated(rel || []);
+    setLoading(false);
   }
 
-  // ================= CART =================
-  function addToCart() {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  if (loading) return <div style={{ padding: 30 }}>Loading...</div>;
 
-    const exist = cart.find((i) => i.id === product.id);
-
-    if (exist) {
-      exist.qty += qty;
-    } else {
-      cart.push({ ...product, qty });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    window.dispatchEvent(new Event("storage"));
-  }
-
-  function buyNow() {
-    addToCart();
-    navigate("/cart");
-  }
-
-  if (!product) {
+  if (!product)
     return (
       <div style={{ padding: 30, textAlign: "center" }}>
         ❌ Product not found
       </div>
     );
-  }
-
-  const images = [
-    product.image,
-    product.image1,
-    product.image2,
-    product.image3
-  ].filter(Boolean);
 
   return (
     <div className="pd-container">
+      <h1>{product.name}</h1>
+      <p>Part No: {product.part_number}</p>
+      <h2>₹{product.price}</h2>
 
-      {/* IMAGE */}
-      <div className="pd-image-box">
-        <img
-          src={activeImg}
-          className="pd-main-image"
-          alt={product.name}
-        />
-
-        <div className="pd-thumbs">
-          {images.map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              className={activeImg === img ? "active" : ""}
-              onClick={() => setActiveImg(img)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* INFO */}
-      <h1 className="pd-title">{product.name}</h1>
-
-      <div className="pd-meta">
-        <span>🏷 Brand: {product.brand || "N/A"}</span>
-        <span>🔢 Part No: {product.part_number || "N/A"}</span>
-      </div>
-
-      <h2 className="pd-price">₹{product.price}</h2>
-
-      {/* QTY */}
-      <div className="pd-qty-row">
-        <div className="qty-box">
-          <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
-          <input
-            value={qty}
-            onChange={(e) =>
-              setQty(Number(e.target.value) || 1)
-            }
-          />
-          <button onClick={() => setQty(qty + 1)}>+</button>
-        </div>
-
-        <span className="pd-stock">
-          {product.stock > 0 ? "✅ In Stock" : "❌ Out of Stock"}
-        </span>
-      </div>
-
-      {/* BUTTONS */}
-      <div className="pd-buttons">
-        <a
-          href={`https://wa.me/919873670361?text=I want ${product.name}`}
-          target="_blank"
-          className="wa-btn"
-        >
-          💬 Order on WhatsApp
-        </a>
-
-        <button className="cart-btn" onClick={addToCart}>
-          🛒 Add to Cart
-        </button>
-      </div>
-
-      <button className="buy-btn" onClick={buyNow}>
-        ⚡ Buy Now
-      </button>
-
-      {/* TABS */}
-      <div className="pd-tabs">
-        <button
-          className={tab === "description" ? "active" : ""}
-          onClick={() => setTab("description")}
-        >
-          📄 Description
-        </button>
-        <button
-          className={tab === "models" ? "active" : ""}
-          onClick={() => setTab("models")}
-        >
-          💻 Compatible Models
-        </button>
-      </div>
-
-      <div className="pd-full-section">
-        {tab === "description" && (
-          <div>{product.description}</div>
-        )}
-        {tab === "models" && (
-          <div>{product.compatible_model}</div>
-        )}
-      </div>
-
-      {/* RELATED */}
       {related.length > 0 && (
         <>
-          <h2 className="related-title">
-            Related Laptop Accessories
-          </h2>
-
+          <h3>Related Products</h3>
           <div className="related-grid">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
