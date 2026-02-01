@@ -1,12 +1,18 @@
 // src/main.jsx
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
-import './Styles.css'; // dhyaan: file ka naam exactly Styles.css hai
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
+import "./Styles.css";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// ✅ loader context
+import { LoaderProvider } from "./context/LoaderContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    {/* ✅ PURE APP ROOT */}
+    <LoaderProvider>
+      <App />
+    </LoaderProvider>
   </React.StrictMode>
 );
