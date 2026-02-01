@@ -1,63 +1,49 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import ProductCard from "../components/ProductCard";
-import "./ProductDetails.css";
 
 export default function ProductDetails() {
   const { slug } = useParams();
 
   const [product, setProduct] = useState(null);
-  const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadProduct();
-    window.scrollTo(0, 0);
   }, [slug]);
 
   async function loadProduct() {
     setLoading(true);
 
+    // 🔥 fetch all slugs and match safely
     const { data } = await supabase
       .from("products")
       .select("*")
-      .eq("slug", slug)
-      .limit(1)
-      .maybeSingle();
+      .eq("status", true);
 
-    if (!data) {
-      setProduct(null);
+    if (!data || data.length === 0) {
       setLoading(false);
       return;
     }
 
-    setProduct(data);
+    const found = data.find(
+      (p) => p.slug?.trim() === slug?.trim()
+    );
 
-    // ✅ SEO
-    document.title = `${data.name} | LapkingHub`;
+    if (!found) {
+      setProduct(null);
+    } else {
+      setProduct(found);
 
-    let meta = document.querySelector("meta[name='description']");
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.name = "description";
-      document.head.appendChild(meta);
+      // SEO
+      document.title = `${found.name} | LapkingHub`;
     }
 
-    meta.content = `${data.name} ${data.part_number || ""} laptop spare part available at LapkingHub`;
-
-    const { data: rel } = await supabase
-      .from("products")
-      .select("*")
-      .eq("category_slug", data.category_slug)
-      .neq("id", data.id)
-      .limit(8);
-
-    setRelated(rel || []);
     setLoading(false);
   }
 
-  if (loading) return <div style={{ padding: 30 }}>Loading...</div>;
+  if (loading)
+    return <div style={{ padding: 30 }}>Loading...</div>;
 
   if (!product)
     return (
@@ -67,21 +53,11 @@ export default function ProductDetails() {
     );
 
   return (
-    <div className="pd-container">
+    <div style={{ padding: 20 }}>
       <h1>{product.name}</h1>
       <p>Part No: {product.part_number}</p>
       <h2>₹{product.price}</h2>
-
-      {related.length > 0 && (
-        <>
-          <h3>Related Products</h3>
-          <div className="related-grid">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </>
-      )}
+      <p>{product.description}</p>
     </div>
   );
 }
