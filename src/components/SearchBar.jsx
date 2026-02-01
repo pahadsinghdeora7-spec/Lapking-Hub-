@@ -1,31 +1,84 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./SearchBar.css";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { supabase } from "../supabaseClient";
+import ProductCard from "../components/ProductCard";
+import "./Search.css";
 
-export default function SearchBar() {
-  const [query, setQuery] = useState("");
-  const navigate = useNavigate();
+export default function Search() {
+  const [searchParams] = useSearchParams();
+  const keyword = searchParams.get("q") || "";
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    if (!query.trim()) return;
+  // ================= CLEAN SEARCH TEXT =================
+  function cleanText(text) {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
 
-    navigate(`/search?q=${query}`);
-  };
+  useEffect(() => {
+    if (!keyword) return;
+
+    searchProducts();
+    window.scrollTo(0, 0);
+  }, [keyword]);
+
+  // ================= SEARCH ENGINE =================
+  async function searchProducts() {
+    setLoading(true);
+
+    const cleanQuery = cleanText(keyword);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .ilike("search_text", `%${cleanQuery}%`)
+      .limit(100);
+
+    if (!error) {
+      setProducts(data || []);
+    }
+
+    setLoading(false);
+  }
 
   return (
-    <form className="search-bar" onSubmit={handleSearch}>
-      <input
-        type="text"
-        placeholder="Search laptop accessories..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+    <div className="search-page">
 
-      <button type="submit">
-        🔍
-      </button>
-    </form>
+      {/* ================= SEO ================= */}
+      <title>
+        Search results for {keyword} | LapkingHub
+      </title>
+
+      <h2 className="search-title">
+        Search results for: <span>{keyword}</span>
+      </h2>
+
+      {loading && (
+        <div className="search-loading">
+          Searching products...
+        </div>
+      )}
+
+      {!loading && products.length === 0 && (
+        <div className="search-empty">
+          ❌ No products found
+        </div>
+      )}
+
+      <div className="search-grid">
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+          />
+        ))}
+      </div>
+
+    </div>
   );
 }
