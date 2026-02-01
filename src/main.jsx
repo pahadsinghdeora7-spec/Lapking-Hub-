@@ -5,13 +5,11 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./Styles.css";
 
-// ✅ loader context
-import { LoaderProvider } from "./context/LoaderContext";
+import { LoaderProvider } from "./context/LoaderContext"; // ✅ ADD
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    {/* ✅ PURE APP ROOT */}
-    <LoaderProvider>
+    <LoaderProvider>      {/* ✅ WRAP APP */}
       <App />
     </LoaderProvider>
   </React.StrictMode>
