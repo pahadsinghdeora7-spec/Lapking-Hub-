@@ -19,7 +19,6 @@ export default function CategoryProducts() {
     loadCart();
   }, [slug]);
 
-  // ================= CATEGORY SEO =================
   const fetchCategory = async () => {
     const { data } = await supabase
       .from("categories")
@@ -30,7 +29,6 @@ export default function CategoryProducts() {
     setCategory(data);
   };
 
-  // ================= PRODUCTS =================
   const fetchProducts = async () => {
     setLoading(true);
 
@@ -43,7 +41,6 @@ export default function CategoryProducts() {
     setLoading(false);
   };
 
-  // ================= CART =================
   const loadCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartIds(cart.map(i => i.id));
@@ -65,39 +62,31 @@ export default function CategoryProducts() {
   return (
     <div className="cat-page">
 
-      {/* ================= SEO ================= */}
       <Helmet>
         <title>
           Buy {category?.name || slug} Online | Best Price | LapkingHub
         </title>
-
         <meta
           name="description"
           content={
             category?.description ||
-            "Buy genuine laptop accessories and spare parts online at best price. Compatible with HP, Dell, Lenovo, Acer and Asus. Fast delivery & easy replacement available."
+            "Buy genuine laptop accessories online at best price."
           }
         />
       </Helmet>
 
-      {/* ================= H1 ================= */}
       <h1 className="cat-h1">
         {category?.h1 || category?.name}
       </h1>
 
-      {/* ================= DESCRIPTION ================= */}
       {category?.description && (
         <p className="cat-desc">{category.description}</p>
       )}
 
-      {/* ================= TRUST LINE ================= */}
       <p className="cat-trust">
-        ✔ Genuine Products &nbsp; | &nbsp;
-        ✔ Tested Quality &nbsp; | &nbsp;
-        ✔ Easy Replacement
+        ✔ Genuine Products | ✔ Tested Quality | ✔ Easy Replacement
       </p>
 
-      {/* ================= PRODUCTS ================= */}
       {loading ? (
         <div className="cat-loading">Loading products...</div>
       ) : products.length === 0 ? (
@@ -108,14 +97,14 @@ export default function CategoryProducts() {
             <div
               className="cat-card"
               key={product.id}
-              onClick={() => navigate(`/product/${product.id}`)}
+              ✅
+              onClick={() => navigate(`/product/${product.slug}`)}
             >
               <img src={product.image} alt={product.name} />
 
               <div className="cat-body">
                 <h3>{product.name}</h3>
 
-                {/* BRAND + PART NUMBER */}
                 <div className="cat-meta">
                   <span>Brand: {product.brand || "-"}</span>
                   <span>Part No: {product.part_number || "-"}</span>
