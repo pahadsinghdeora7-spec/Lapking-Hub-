@@ -8,7 +8,7 @@ export default function Header() {
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
 
-  // cart count live update
+  // ================= CART COUNT =================
   const updateCartCount = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const totalQty = cart.reduce(
@@ -21,12 +21,12 @@ export default function Header() {
   useEffect(() => {
     updateCartCount();
 
-    window.addEventListener("cartUpdated", updateCartCount);
     window.addEventListener("storage", updateCartCount);
+    window.addEventListener("cartUpdated", updateCartCount);
 
     return () => {
-      window.removeEventListener("cartUpdated", updateCartCount);
       window.removeEventListener("storage", updateCartCount);
+      window.removeEventListener("cartUpdated", updateCartCount);
     };
   }, []);
 
@@ -42,15 +42,20 @@ export default function Header() {
           justifyContent: "space-between",
           padding: "0 16px",
           borderBottom: "1px solid #cce0ff",
-          position: "sticky",
+
+          /* 🔒 VERY IMPORTANT FIX */
+          position: "fixed",
           top: 0,
-          zIndex: 100
+          left: 0,
+          right: 0,
+          zIndex: 1000
         }}
       >
-        {/* LEFT */}
+        {/* LEFT SIDE */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* MENU BUTTON */}
+          {/* MENU */}
           <button
+            aria-label="Open menu"
             onClick={() => setOpen(true)}
             style={{
               fontSize: "26px",
@@ -133,11 +138,14 @@ export default function Header() {
         </div>
       </header>
 
-      {/* SEARCH BAR */}
+      {/* 🔽 SPACE FIX SO CONTENT DOESN'T GO UNDER HEADER */}
+      <div style={{ height: "72px" }} />
+
+      {/* SEARCH BAR (NEXT STEP WE WILL CONTROL IT) */}
       <SearchBar />
 
-      {/* DRAWER MENU */}
+      {/* DRAWER */}
       <DrawerMenu open={open} onClose={() => setOpen(false)} />
     </>
   );
-            }
+        }
