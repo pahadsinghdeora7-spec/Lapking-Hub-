@@ -19,6 +19,7 @@ export default function CategoryProducts() {
     loadCart();
   }, [slug]);
 
+  // ================= CATEGORY =================
   const fetchCategory = async () => {
     const { data } = await supabase
       .from("categories")
@@ -29,6 +30,7 @@ export default function CategoryProducts() {
     setCategory(data);
   };
 
+  // ================= PRODUCTS =================
   const fetchProducts = async () => {
     setLoading(true);
 
@@ -41,6 +43,7 @@ export default function CategoryProducts() {
     setLoading(false);
   };
 
+  // ================= CART =================
   const loadCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartIds(cart.map(i => i.id));
@@ -59,9 +62,16 @@ export default function CategoryProducts() {
     window.dispatchEvent(new Event("storage"));
   };
 
+  // ✅ SAFE NAVIGATION
+  const openProduct = (product) => {
+    if (!product?.slug) return;
+    navigate("/product/" + product.slug);
+  };
+
   return (
     <div className="cat-page">
 
+      {/* ================= SEO ================= */}
       <Helmet>
         <title>
           Buy {category?.name || slug} Online | Best Price | LapkingHub
@@ -75,6 +85,7 @@ export default function CategoryProducts() {
         />
       </Helmet>
 
+      {/* ================= TITLE ================= */}
       <h1 className="cat-h1">
         {category?.h1 || category?.name}
       </h1>
@@ -84,9 +95,12 @@ export default function CategoryProducts() {
       )}
 
       <p className="cat-trust">
-        ✔ Genuine Products | ✔ Tested Quality | ✔ Easy Replacement
+        ✔ Genuine Products &nbsp; | &nbsp;
+        ✔ Tested Quality &nbsp; | &nbsp;
+        ✔ Easy Replacement
       </p>
 
+      {/* ================= PRODUCTS ================= */}
       {loading ? (
         <div className="cat-loading">Loading products...</div>
       ) : products.length === 0 ? (
@@ -95,10 +109,9 @@ export default function CategoryProducts() {
         <div className="cat-grid">
           {products.map((product) => (
             <div
-              className="cat-card"
               key={product.id}
-              ✅
-              onClick={() => navigate(`/product/${product.slug}`)}
+              className="cat-card"
+              onClick={() => openProduct(product)}
             >
               <img src={product.image} alt={product.name} />
 
@@ -134,4 +147,4 @@ export default function CategoryProducts() {
       )}
     </div>
   );
-}
+                      }
