@@ -59,6 +59,7 @@ export default function CategoryProducts() {
     }
 
     setCartIds(cart.map(i => i.id));
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -67,11 +68,15 @@ export default function CategoryProducts() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>
-          {category?.name || slug} | Lapking Hub
+          Buy {category?.name || slug} Online | Best Price | LapkingHub
         </title>
+
         <meta
           name="description"
-          content={category?.description || ""}
+          content={
+            category?.description ||
+            "Buy genuine laptop accessories and spare parts online at best price. Compatible with HP, Dell, Lenovo, Acer and Asus. Fast delivery & easy replacement available."
+          }
         />
       </Helmet>
 
@@ -85,6 +90,13 @@ export default function CategoryProducts() {
         <p className="cat-desc">{category.description}</p>
       )}
 
+      {/* ================= TRUST LINE ================= */}
+      <p className="cat-trust">
+        ✔ Genuine Products &nbsp; | &nbsp;
+        ✔ Tested Quality &nbsp; | &nbsp;
+        ✔ Easy Replacement
+      </p>
+
       {/* ================= PRODUCTS ================= */}
       {loading ? (
         <div className="cat-loading">Loading products...</div>
@@ -92,38 +104,37 @@ export default function CategoryProducts() {
         <div className="cat-empty">No products found</div>
       ) : (
         <div className="cat-grid">
-          {products.map((p) => (
+          {products.map((product) => (
             <div
               className="cat-card"
-              key={p.id}
-              onClick={() => navigate(`/product/${p.id}`)}
+              key={product.id}
+              onClick={() => navigate(`/product/${product.id}`)}
             >
-              <img src={p.image} alt={p.name} />
+              <img src={product.image} alt={product.name} />
 
               <div className="cat-body">
-                <h3>{p.name}</h3>
+                <h3>{product.name}</h3>
 
-                {/* BRAND + PART NO */}
+                {/* BRAND + PART NUMBER */}
                 <div className="cat-meta">
-                  <span>Brand: {p.brand || "-"}</span>
-                  <span>Part No: {p.part_no || "-"}</span>
+                  <span>Brand: {product.brand || "-"}</span>
+                  <span>Part No: {product.part_number || "-"}</span>
                 </div>
 
-                <div className="cat-price">₹{p.price}</div>
+                <div className="cat-price">₹{product.price}</div>
 
-                {/* ADD TO CART */}
                 <button
                   className={
-                    cartIds.includes(p.id)
+                    cartIds.includes(product.id)
                       ? "cat-btn added"
                       : "cat-btn"
                   }
                   onClick={(e) => {
                     e.stopPropagation();
-                    addToCart(p);
+                    addToCart(product);
                   }}
                 >
-                  {cartIds.includes(p.id)
+                  {cartIds.includes(product.id)
                     ? "Added ✓"
                     : "Add to Cart"}
                 </button>
@@ -134,4 +145,4 @@ export default function CategoryProducts() {
       )}
     </div>
   );
-                  }
+}
