@@ -18,20 +18,20 @@ export default function ProductDetails() {
   useEffect(() => {
     loadProduct();
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [slug]);
 
   async function loadProduct() {
     const { data } = await supabase
       .from("products")
       .select("*")
-      .eq("id", id)
+      .eq("slug", slug)
       .single();
 
     if (data) {
       setProduct(data);
       setActiveImg(data.image);
 
-      // ✅ SEO (PRODUCT PAGE)
+      // ================= SEO =================
       document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
 
       const metaDesc = document.querySelector("meta[name='description']");
@@ -66,8 +66,6 @@ export default function ProductDetails() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-
-    // refresh navbar cart count
     window.dispatchEvent(new Event("storage"));
   }
 
@@ -83,12 +81,11 @@ export default function ProductDetails() {
     product.image,
     product.image1,
     product.image2,
-    product.image3
+    product.image3,
   ].filter(Boolean);
 
   return (
     <div className="pd-container">
-
       {/* ================= IMAGE ================= */}
       <div className="pd-image-box">
         <img
