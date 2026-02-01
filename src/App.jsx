@@ -1,5 +1,9 @@
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
+/* ================= LOADER ================= */
+import { LoaderProvider } from "./context/LoaderContext";
+import GlobalLoader from "./components/GlobalLoader";
+
 /* ================= USER PAGES ================= */
 import Home from "./pages/Home.jsx";
 
@@ -47,70 +51,72 @@ import WhatsAppButton from "./components/WhatsAppButton.jsx";
 export default function App() {
   return (
     <Router>
-      <div className="app-root">
+      <LoaderProvider>
 
-        <Header />
+        {/* 🔥 GLOBAL LOADER */}
+        <GlobalLoader />
 
-        <main className="app-main">
-          <Routes>
+        <div className="app-root">
 
-            {/* ================= USER ================= */}
-            <Route path="/" element={<Home />} />
-            
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/verify-otp" element={<VerifyOtp />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/category/:slug" element={<CategoryProducts />} />
-            <Route path="/product/:slug" element={<ProductDetails />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/:id" element={<OrderDetails />} />
-            <Route path="/search/:keyword" element={<SearchResult />} />
-            
+          <Header />
 
-            {/* âœ… ALL POLICIES + CMS PAGES */}
-            <Route path="/page/:slug" element={<PageView />} />
+          <main className="app-main">
+            <Routes>
 
-            {/* ABOUT */}
-            <Route path="/about-us" element={<About />} />
+              {/* ================= USER ================= */}
+              <Route path="/" element={<Home />} />
 
-            {/* ================= CHECKOUT ================= */}
-            <Route path="/checkout/address" element={<CheckoutAddress />} />
-            <Route path="/checkout/shipping" element={<CheckoutShipping />} />
-            <Route path="/checkout/payment" element={<CheckoutPayment />} />
-            <Route path="/order/success" element={<OrderSuccess />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/category/:slug" element={<CategoryProducts />} />
+              <Route path="/product/:slug" element={<ProductDetails />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/:id" element={<OrderDetails />} />
+              <Route path="/search/:keyword" element={<SearchResult />} />
 
-            {/* ================= REPLACEMENT ================= */}
-            <Route
-              path="/replacement/order/:id/product/:productId"
-              element={<ReplacementRequest />}
-            />
+              {/* CMS */}
+              <Route path="/page/:slug" element={<PageView />} />
+              <Route path="/about-us" element={<About />} />
 
-            {/* ================= ADMIN ================= */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+              {/* ================= CHECKOUT ================= */}
+              <Route path="/checkout/address" element={<CheckoutAddress />} />
+              <Route path="/checkout/shipping" element={<CheckoutShipping />} />
+              <Route path="/checkout/payment" element={<CheckoutPayment />} />
+              <Route path="/order/success" element={<OrderSuccess />} />
 
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="orders" element={<AdminOrders />} />
-              
-              <Route path="replacements" element={<AdminReplacements />} />
-              <Route path="couriers" element={<AdminCouriers />} />
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="about" element={<AdminAbout />} />
-              <Route path="policies" element={<AdminPolicies />} />
-            </Route>
+              {/* ================= REPLACEMENT ================= */}
+              <Route
+                path="/replacement/order/:id/product/:productId"
+                element={<ReplacementRequest />}
+              />
 
-          </Routes>
-        </main>
+              {/* ================= ADMIN ================= */}
+              <Route path="/admin/login" element={<AdminLogin />} />
 
-        <BottomNav />
-        <WhatsAppButton />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="replacements" element={<AdminReplacements />} />
+                <Route path="couriers" element={<AdminCouriers />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="about" element={<AdminAbout />} />
+                <Route path="policies" element={<AdminPolicies />} />
+              </Route>
 
-      </div>
+            </Routes>
+          </main>
+
+          <BottomNav />
+          <WhatsAppButton />
+
+        </div>
+      </LoaderProvider>
     </Router>
   );
 }
