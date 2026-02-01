@@ -26,7 +26,7 @@ export default function Home() {
         "content",
         "laptop accessories, laptop keyboard, dell keyboard, hp charger, dc jack, laptop screen, lapy speaker, laptop fan, 
         laptop body part, lacd back cover, front bazel, touchpad palmrest, bottom base cover, all laptop spare parts, 
-        all laptop brand dell, hp, lenovo, acer, asus, apple, msi, all accessories available"
+        all accessories available"
       );
     }
 
