@@ -10,13 +10,14 @@ export default function Home() {
 
   useEffect(() => {
     // ================= SEO SAFE =================
-    document.title = "Professional Supplier Of Laptop Accessories And Spare Parts Online | LapkingHub";
+    document.title =
+      "Professional Supplier Of Laptop Accessories And Spare Parts Online | LapkingHub";
 
     const metaDesc = document.querySelector("meta[name='description']");
     if (metaDesc) {
       metaDesc.setAttribute(
         "content",
-        "Buy laptop accessories online at best price. screen, cable, body, Keyboard, charger, battery, dc jack and laptop spare parts at LapkingHub."
+        "Buy laptop accessories online at best price. Laptop keyboard, charger, battery, DC jack, screen and all laptop spare parts available at LapkingHub."
       );
     }
 
@@ -24,9 +25,7 @@ export default function Home() {
     if (metaKeywords) {
       metaKeywords.setAttribute(
         "content",
-        "laptop accessories, laptop keyboard, dell keyboard, hp charger, dc jack, laptop screen, lapy speaker, laptop fan, 
-        laptop body part, lacd back cover, front bazel, touchpad palmrest, bottom base cover, all laptop spare parts, 
-        all accessories available"
+        "laptop accessories, laptop keyboard, dell keyboard, hp charger, dc jack, laptop screen, laptop speaker, laptop fan, laptop body parts, lcd back cover, front bezel, palmrest, bottom base cover, laptop spare parts, dell hp lenovo acer asus apple msi accessories"
       );
     }
 
@@ -53,9 +52,7 @@ export default function Home() {
   // ========================
   const loadRecent = () => {
     try {
-      const r = JSON.parse(
-        localStorage.getItem("recentProducts") || "[]"
-      );
+      const r = JSON.parse(localStorage.getItem("recentProducts") || "[]");
       setRecent(r);
     } catch {
       setRecent([]);
@@ -71,7 +68,6 @@ export default function Home() {
 
   return (
     <div className="home">
-
       {/* ================= SLIDER ================= */}
       <HomeSlider />
 
@@ -79,10 +75,7 @@ export default function Home() {
       <h2 className="section-title">New Arrivals</h2>
       <div className="product-grid">
         {newArrivals.map((item) => (
-          <ProductCard
-            key={item.id}
-            product={item}
-          />
+          <ProductCard key={item.id} product={item} />
         ))}
       </div>
 
@@ -92,10 +85,7 @@ export default function Home() {
           <h2 className="section-title">Trending Products</h2>
           <div className="product-grid">
             {trending.map((item) => (
-              <ProductCard
-                key={item.id}
-                product={item}
-              />
+              <ProductCard key={item.id} product={item} />
             ))}
           </div>
         </>
@@ -107,10 +97,7 @@ export default function Home() {
           <h2 className="section-title">Recently Viewed</h2>
           <div className="product-grid">
             {recent.map((item) => (
-              <ProductCard
-                key={item.id}
-                product={item}
-              />
+              <ProductCard key={item.id} product={item} />
             ))}
           </div>
         </>
@@ -122,15 +109,11 @@ export default function Home() {
           <h2 className="section-title">Suggestions For You</h2>
           <div className="product-grid">
             {suggested.map((item) => (
-              <ProductCard
-                key={item.id}
-                product={item}
-              />
+              <ProductCard key={item.id} product={item} />
             ))}
           </div>
         </>
       )}
-
     </div>
   );
 }
