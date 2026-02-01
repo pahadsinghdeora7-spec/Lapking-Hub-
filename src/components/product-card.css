@@ -145,3 +145,24 @@
   -webkit-tap-highlight-color: transparent;
 }
 }
+
+/* ===============================
+   FIX BUTTON POSITION
+   =============================== */
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* content area */
+.product-card .card-body {
+  flex: 1;
+}
+
+/* button always bottom */
+.product-card button,
+.product-card .whatsapp {
+  margin-top: auto;
+}
