@@ -1,219 +1,112 @@
-/* =====================================
-   GLOBAL RESET (VERY IMPORTANT)
-===================================== */
-* {
-  box-sizing: border-box;
-}
+/* ===============================
+   HOME WRAPPER
+   =============================== */
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  background: #f6f8fb;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-/* =====================================
-   HOME CONTAINER
-===================================== */
 .home {
   width: 100%;
   max-width: 1200px;
-  margin: auto;
+  margin: 0 auto;
   padding: 10px;
-  padding-top: 130px;   /* HEADER + SEARCH SPACE */
-  padding-bottom: 90px; /* BOTTOM NAV SPACE */
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* =====================================
+/* ===============================
    SECTION TITLE
-===================================== */
+   =============================== */
+
 .section-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
+  margin: 18px 0 12px;
   color: #222;
-  margin: 18px 6px 12px;
 }
 
-/* =====================================
+/* ===============================
    PRODUCT GRID
-===================================== */
+   =============================== */
+
 .product-grid {
   display: grid;
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   width: 100%;
 }
 
-/* MOBILE */
+/* ===============================
+   MOBILE FIX (MOST IMPORTANT)
+   =============================== */
+
 @media (max-width: 768px) {
+  .home {
+    padding: 10px 8px 90px;
+    overflow-x: hidden;
+  }
+
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 }
 
-/* TABLET */
+/* ===============================
+   TABLET
+   =============================== */
+
 @media (min-width: 769px) and (max-width: 1023px) {
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
   }
 }
 
-/* DESKTOP */
+/* ===============================
+   DESKTOP
+   =============================== */
+
 @media (min-width: 1024px) {
   .product-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
   }
 }
 
-/* =====================================
-   PRODUCT CARD
-===================================== */
+/* ===============================
+   PRODUCT CARD SAFETY
+   =============================== */
+
 .product-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 10px;
   width: 100%;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  transition: 0.2s ease;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
 }
 
-.product-card:hover {
-  transform: translateY(-2px);
-}
+/* ===============================
+   IMAGE FIX
+   =============================== */
 
-/* =====================================
-   PRODUCT IMAGE
-===================================== */
 .product-card img {
   width: 100%;
+  max-width: 100%;
   height: 150px;
   object-fit: contain;
-  border-radius: 8px;
+  display: block;
 }
 
-@media (min-width: 768px) {
-  .product-card img {
-    height: 180px;
-  }
-}
+/* ===============================
+   BUTTON FIX
+   =============================== */
 
-/* =====================================
-   PRODUCT TEXT
-===================================== */
-.product-card h3 {
-  font-size: 15px;
-  font-weight: 600;
-  margin: 6px 0;
-  color: #222;
-}
-
-.product-card p {
-  font-size: 13px;
-  margin: 2px 0;
-  color: #555;
-}
-
-.product-card .price,
-.product-price {
-  font-size: 17px;
-  font-weight: 700;
-  margin-top: 6px;
-  color: #000;
-}
-
-/* =====================================
-   STOCK TEXT
-===================================== */
-.product-card .in-stock {
-  color: #1ca94a;
-  font-weight: 600;
-  font-size: 12px;
-}
-
-.product-card .out-stock {
-  color: #e53935;
-  font-weight: 600;
-  font-size: 12px;
-}
-
-/* =====================================
-   ADD TO CART BUTTON
-===================================== */
 .product-card button {
   width: 100%;
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  margin-top: auto;
-  font-size: 14px;
-  font-weight: 600;
-  background: #1a73e8;
-  color: #fff;
-  cursor: pointer;
-  transition: 0.15s;
 }
 
-.product-card button:active {
-  transform: scale(0.96);
-}
+/* ===============================
+   WHATSAPP FLOAT SAFE
+   =============================== */
 
-.product-card button:disabled {
-  background: #ccc;
-}
-
-/* =====================================
-   HEADER FIX (MOBILE ONLY)
-===================================== */
-@media (max-width: 768px) {
-  header,
-  .header,
-  .top-header,
-  .main-header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 9999;
-    background: #eaf5ff;
-  }
-}
-
-/* =====================================
-   SEARCH BAR SAFE
-===================================== */
-.search-bar,
-.search-box {
-  position: relative;
-  z-index: 9998;
-}
-
-/* =====================================
-   WHATSAPP FLOAT
-===================================== */
+.product-card .whatsapp,
 .whatsapp-float {
-  position: fixed;
-  right: 14px;
-  bottom: 80px;
-  z-index: 999;
-}
-
-/* =====================================
-   BOTTOM NAV FIX
-===================================== */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #ffffff;
-  border-top: 1px solid #ddd;
-  z-index: 9998;
-}
-
-/* =====================================
-   FINAL SAFETY
-===================================== */
-#root {
-  overflow-x: hidden;
+  max-width: 100%;
 }
