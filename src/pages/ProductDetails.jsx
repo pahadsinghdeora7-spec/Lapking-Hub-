@@ -5,7 +5,7 @@ import ProductCard from "../components/ProductCard";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
-  const { slug } = useParams();
+  const { slug } = useParams(); // ✅ slug
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
@@ -13,7 +13,6 @@ export default function ProductDetails() {
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState("");
   const [tab, setTab] = useState("description");
-  const [loading, setLoading] = useState(true);
 
   // ================= LOAD PRODUCT =================
   useEffect(() => {
@@ -22,25 +21,22 @@ export default function ProductDetails() {
   }, [slug]);
 
   async function loadProduct() {
-    setLoading(true);
-
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    if (error || !data) {
+    if (!data) {
       setProduct(null);
-      setLoading(false);
       return;
     }
 
     setProduct(data);
     setActiveImg(data.image);
 
-    // ================= SEO =================
-    document.title = `${data.name} | Buy Online | LapkingHub`;
+    // ✅ SEO
+    document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -49,7 +45,7 @@ export default function ProductDetails() {
       document.head.appendChild(metaDesc);
     }
 
-    metaDesc.content = `${data.name} ${data.part_number || ""} buy online at best price. Genuine laptop spare parts available at LapkingHub.`;
+    metaDesc.content = `${data.name} ${data.part_number || ""}. Genuine laptop spare parts available at LapkingHub.`;
 
     // ================= RELATED =================
     const { data: rel } = await supabase
@@ -60,12 +56,12 @@ export default function ProductDetails() {
       .limit(12);
 
     setRelated(rel || []);
-    setLoading(false);
   }
 
   // ================= CART =================
   function addToCart() {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
     const exist = cart.find((i) => i.id === product.id);
 
     if (exist) {
@@ -83,12 +79,6 @@ export default function ProductDetails() {
     navigate("/cart");
   }
 
-  // ================= LOADING =================
-  if (loading) {
-    return <div style={{ padding: 20 }}>Loading...</div>;
-  }
-
-  // ================= NOT FOUND =================
   if (!product) {
     return (
       <div style={{ padding: 30, textAlign: "center" }}>
@@ -107,13 +97,12 @@ export default function ProductDetails() {
   return (
     <div className="pd-container">
 
-      {/* ================= IMAGE ================= */}
+      {/* IMAGE */}
       <div className="pd-image-box">
         <img
           src={activeImg}
           className="pd-main-image"
           alt={product.name}
-          onClick={() => window.open(activeImg, "_blank")}
         />
 
         <div className="pd-thumbs">
@@ -123,41 +112,31 @@ export default function ProductDetails() {
               src={img}
               className={activeImg === img ? "active" : ""}
               onClick={() => setActiveImg(img)}
-              alt=""
             />
           ))}
         </div>
       </div>
 
-      {/* ================= INFO ================= */}
+      {/* INFO */}
       <h1 className="pd-title">{product.name}</h1>
 
       <div className="pd-meta">
         <span>🏷 Brand: {product.brand || "N/A"}</span>
-        <span style={{ marginLeft: 15 }}>
-          🔢 Part No: {product.part_number || "N/A"}
-        </span>
+        <span>🔢 Part No: {product.part_number || "N/A"}</span>
       </div>
 
       <h2 className="pd-price">₹{product.price}</h2>
 
-      {/* ================= QTY ================= */}
+      {/* QTY */}
       <div className="pd-qty-row">
         <div className="qty-box">
           <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
-
           <input
             value={qty}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") return setQty("");
-              if (!isNaN(v)) setQty(Number(v));
-            }}
-            onBlur={() => {
-              if (!qty || qty < 1) setQty(1);
-            }}
+            onChange={(e) =>
+              setQty(Number(e.target.value) || 1)
+            }
           />
-
           <button onClick={() => setQty(qty + 1)}>+</button>
         </div>
 
@@ -166,10 +145,10 @@ export default function ProductDetails() {
         </span>
       </div>
 
-      {/* ================= BUTTONS ================= */}
+      {/* BUTTONS */}
       <div className="pd-buttons">
         <a
-          href={`https://wa.me/919873670361?text=I want ${product.name} | Part No: ${product.part_number || "N/A"} | Price ₹${product.price}`}
+          href={`https://wa.me/919873670361?text=I want ${product.name}`}
           target="_blank"
           className="wa-btn"
         >
@@ -185,7 +164,7 @@ export default function ProductDetails() {
         ⚡ Buy Now
       </button>
 
-      {/* ================= TABS ================= */}
+      {/* TABS */}
       <div className="pd-tabs">
         <button
           className={tab === "description" ? "active" : ""}
@@ -193,7 +172,6 @@ export default function ProductDetails() {
         >
           📄 Description
         </button>
-
         <button
           className={tab === "models" ? "active" : ""}
           onClick={() => setTab("models")}
@@ -204,19 +182,14 @@ export default function ProductDetails() {
 
       <div className="pd-full-section">
         {tab === "description" && (
-          <div className="pd-desc">
-            {product.description || "No description available."}
-          </div>
+          <div>{product.description}</div>
         )}
-
         {tab === "models" && (
-          <div className="pd-desc">
-            {product.compatible_model || "Not specified."}
-          </div>
+          <div>{product.compatible_model}</div>
         )}
       </div>
 
-      {/* ================= RELATED ================= */}
+      {/* RELATED */}
       {related.length > 0 && (
         <>
           <h2 className="related-title">
@@ -232,4 +205,4 @@ export default function ProductDetails() {
       )}
     </div>
   );
-      }
+}
