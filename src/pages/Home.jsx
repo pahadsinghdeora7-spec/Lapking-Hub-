@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
 import HomeSlider from "../components/HomeSlider";
-import "../styles/theme.css";
+import "../home.css";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
