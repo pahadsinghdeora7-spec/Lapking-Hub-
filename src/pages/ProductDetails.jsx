@@ -12,36 +12,42 @@ export default function ProductDetails() {
 
   useEffect(() => {
     if (!slug) return;
-    fetchProduct();
+    loadProduct();
     window.scrollTo(0, 0);
   }, [slug]);
 
-  async function fetchProduct() {
+  async function loadProduct() {
     setLoading(true);
 
     const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
-      .limit(1)
-      .single();
+      .eq("status", true)
+      .limit(1);
 
     console.log("URL slug:", slug);
-    console.log("DB product:", data);
+    console.log("DB result:", data);
 
-    if (!data || error) {
+    if (error || !data || data.length === 0) {
       setProduct(null);
     } else {
-      setProduct(data);
+      setProduct(data[0]);
     }
 
     setLoading(false);
   }
 
+  // ================= LOADING =================
   if (loading) {
-    return <div style={{ padding: 20 }}>Loading...</div>;
+    return (
+      <div style={{ padding: 30, textAlign: "center" }}>
+        Loading product...
+      </div>
+    );
   }
 
+  // ================= NOT FOUND =================
   if (!product) {
     return (
       <div style={{ padding: 30, textAlign: "center", color: "red" }}>
@@ -53,28 +59,58 @@ export default function ProductDetails() {
   return (
     <div className="pd-container">
 
-      {/* SEO */}
+      {/* ================= SEO ================= */}
       <Helmet>
-        <title>{product.name} | LapkingHub</title>
+        <title>
+          {product.name} | Buy Online at Best Price | LapkingHub
+        </title>
+
         <meta
           name="description"
-          content={`${product.name} ${product.part_number || ""} buy online at best price from LapkingHub.`}
+          content={`${product.name} ${product.part_number || ""}. Genuine laptop spare parts online. Compatible with Dell, HP, Lenovo laptops.`}
         />
       </Helmet>
 
-      <h1>{product.name}</h1>
+      {/* ================= PRODUCT ================= */}
+      <h1 className="pd-title">{product.name}</h1>
 
-      <p>Part No: {product.part_number || "-"}</p>
+      <p>
+        <strong>Brand:</strong> {product.brand}
+      </p>
+
+      <p>
+        <strong>Part No:</strong> {product.part_number}
+      </p>
 
       <img
         src={product.image}
         alt={product.name}
-        style={{ width: "100%", maxWidth: 300 }}
+        style={{
+          width: "100%",
+          maxWidth: "320px",
+          margin: "15px 0"
+        }}
       />
 
-      <h2>₹{product.price}</h2>
+      <h2 className="pd-price">₹{product.price}</h2>
 
-      <p>{product.description}</p>
+      <p className="pd-desc">
+        {product.description}
+      </p>
+
+      <p>
+        <strong>Compatible Models:</strong>
+        <br />
+        {product.compatible_model}
+      </p>
+
+      <a
+        href={`https://wa.me/919873670361?text=I want ${product.name} (${product.part_number})`}
+        target="_blank"
+        className="wa-btn"
+      >
+        💬 Order on WhatsApp
+      </a>
 
     </div>
   );
