@@ -1,84 +1,47 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import ProductCard from "../components/ProductCard";
-import "./Search.css";
+import "./SearchBar.css";
 
-export default function Search() {
-  const [searchParams] = useSearchParams();
-  const keyword = searchParams.get("q") || "";
+export default function SearchBar() {
+  const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const handleSearch = async (e) => {
+    e.preventDefault();
 
-  // ================= CLEAN SEARCH TEXT =================
-  function cleanText(text) {
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9 ]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
+    if (!keyword.trim()) return;
 
-  useEffect(() => {
-    if (!keyword) return;
-
-    searchProducts();
-    window.scrollTo(0, 0);
-  }, [keyword]);
-
-  // ================= SEARCH ENGINE =================
-  async function searchProducts() {
     setLoading(true);
 
-    const cleanQuery = cleanText(keyword);
-
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("products")
-      .select("*")
-      .ilike("search_text", `%${cleanQuery}%`)
-      .limit(100);
-
-    if (!error) {
-      setProducts(data || []);
-    }
+      .select("id")
+      .ilike("search_text", `%${keyword.toLowerCase()}%`)
+      .limit(30);
 
     setLoading(false);
-  }
+
+    if (data && data.length > 0) {
+      navigate(`/search/${encodeURIComponent(keyword)}`);
+    } else {
+      alert("No product found");
+    }
+  };
 
   return (
-    <div className="search-page">
+    <form className="search-bar" onSubmit={handleSearch}>
+      <input
+        type="text"
+        placeholder="Search laptop accessories..."
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+      />
 
-      {/* ================= SEO ================= */}
-      <title>
-        Search results for {keyword} | LapkingHub
-      </title>
-
-      <h2 className="search-title">
-        Search results for: <span>{keyword}</span>
-      </h2>
-
-      {loading && (
-        <div className="search-loading">
-          Searching products...
-        </div>
-      )}
-
-      {!loading && products.length === 0 && (
-        <div className="search-empty">
-          ❌ No products found
-        </div>
-      )}
-
-      <div className="search-grid">
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-          />
-        ))}
-      </div>
-
-    </div>
+      <button type="submit">
+        {loading ? "..." : "🔍"}
+      </button>
+    </form>
   );
 }
