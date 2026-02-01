@@ -10,6 +10,7 @@ import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Orders from "./pages/Orders.jsx";
 import OrderDetails from "./pages/OrderDetails";
+import SearchResult from "./pages/SearchResult";
 
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -66,6 +67,7 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
+            <Route path="/search/:keyword" element={<SearchResult />} />
             
 
             {/* âœ… ALL POLICIES + CMS PAGES */}
