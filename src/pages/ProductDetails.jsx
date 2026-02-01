@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -29,6 +30,17 @@ export default function ProductDetails() {
     if (data) {
       setProduct(data);
       setActiveImg(data.image);
+
+      // ✅ SEO (PRODUCT PAGE)
+      document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
+
+      const metaDesc = document.querySelector("meta[name='description']");
+      if (metaDesc) {
+        metaDesc.setAttribute(
+          "content",
+          `${data.name} ${data.part_number || ""}. Buy laptop accessories online at best price. Genuine spare parts available at LapkingHub.`
+        );
+      }
 
       const { data: rel } = await supabase
         .from("products")
@@ -55,8 +67,14 @@ export default function ProductDetails() {
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
-    // navbar cart count refresh
+    // refresh navbar cart count
     window.dispatchEvent(new Event("storage"));
+  }
+
+  // ================= BUY NOW =================
+  function buyNow() {
+    addToCart();
+    navigate("/cart");
   }
 
   if (!product) return <div style={{ padding: 20 }}>Loading...</div>;
@@ -65,6 +83,7 @@ export default function ProductDetails() {
     product.image,
     product.image1,
     product.image2,
+    product.image3
   ].filter(Boolean);
 
   return (
@@ -110,28 +129,19 @@ export default function ProductDetails() {
           <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
 
           <input
-  value={qty}
-  onChange={(e) => {
-    const val = e.target.value;
-
-    // allow empty while typing
-    if (val === "") {
-      setQty("");
-      return;
-    }
-
-    // only numbers allowed
-    if (!isNaN(val)) {
-      setQty(Number(val));
-    }
-  }}
-  onBlur={() => {
-    // when user leaves input
-    if (qty === "" || qty < 1) {
-      setQty(1);
-    }
-  }}
-/>
+            value={qty}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "") {
+                setQty("");
+                return;
+              }
+              if (!isNaN(v)) setQty(Number(v));
+            }}
+            onBlur={() => {
+              if (qty === "" || qty < 1) setQty(1);
+            }}
+          />
 
           <button onClick={() => setQty(qty + 1)}>+</button>
         </div>
@@ -144,7 +154,7 @@ export default function ProductDetails() {
       {/* ================= BUTTONS ================= */}
       <div className="pd-buttons">
         <a
-          href={`https://wa.me/919873670361?text=I want ${product.name}`}
+          href={`https://wa.me/919873670361?text=I want ${product.name} | Part No: ${product.part_number || "N/A"} | Price: ₹${product.price}`}
           target="_blank"
           className="wa-btn"
         >
@@ -156,7 +166,9 @@ export default function ProductDetails() {
         </button>
       </div>
 
-      <button className="buy-btn">⚡ Buy Now</button>
+      <button className="buy-btn" onClick={buyNow}>
+        ⚡ Buy Now
+      </button>
 
       {/* ================= TABS ================= */}
       <div className="pd-tabs">
@@ -176,25 +188,26 @@ export default function ProductDetails() {
       </div>
 
       {/* ================= TAB CONTENT ================= */}
-      {/* ============== TAB CONTENT ============== */}
-<div className="pd-full-section">
+      <div className="pd-full-section">
+        {tab === "description" && (
+          <div className="pd-desc">
+            {product.description || "No description available."}
+          </div>
+        )}
 
-  <div className="pd-desc">
-    {tab === "description" && (
-      <p>{product.description || "No description available."}</p>
-    )}
-
-    {tab === "models" && (
-      <p>{product.compatible_model || "Not specified."}</p>
-    )}
-  </div>
-
-</div>
+        {tab === "models" && (
+          <div className="pd-desc">
+            {product.compatible_model || "Not specified."}
+          </div>
+        )}
+      </div>
 
       {/* ================= RELATED ================= */}
       {related.length > 0 && (
         <>
-          <h3 className="related-title">Related Products</h3>
+          <h2 className="related-title">
+            Related Laptop Accessories
+          </h2>
 
           <div className="related-grid">
             {related.map((p) => (
@@ -203,7 +216,6 @@ export default function ProductDetails() {
           </div>
         </>
       )}
-
     </div>
   );
-      }
+}
