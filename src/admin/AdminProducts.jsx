@@ -73,36 +73,47 @@ export default function AdminProducts() {
     });
   };
 
-  // ================= IMAGE UPLOAD =================
+  // ================= IMAGE UPLOAD (FIXED) =================
   const uploadImage = async (file, field) => {
     if (!file) return;
 
-    setUploading(true);
+    try {
+      setUploading(true);
 
-    const ext = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random()}.${ext}`;
-    const filePath = `products/${fileName}`;
+      const ext = file.name.split(".").pop();
+      const safeName = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const filePath = `products/${safeName}`;
 
-    const { error } = await supabase.storage
-      .from("product-images")
-      .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: true,
+          contentType: file.type
+        });
 
-    if (error) {
-      alert("Image upload failed");
+      if (uploadError) {
+        console.error(uploadError);
+        alert("Image upload failed");
+        setUploading(false);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
+      setForm(prev => ({
+        ...prev,
+        [field]: data.publicUrl
+      }));
+
+    } catch (err) {
+      console.error(err);
+      alert("Upload error");
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data } = supabase.storage
-      .from("product-images")
-      .getPublicUrl(filePath);
-
-    setForm(prev => ({
-      ...prev,
-      [field]: data.publicUrl
-    }));
-
-    setUploading(false);
   };
 
   // ================= UPDATE =================
@@ -243,4 +254,4 @@ export default function AdminProducts() {
 
     </div>
   );
-}
+    }
