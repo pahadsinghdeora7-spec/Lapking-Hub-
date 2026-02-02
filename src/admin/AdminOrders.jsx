@@ -1,21 +1,40 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./AdminOrders.css";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     loadOrders();
-  }, []);
+  }, [location.search]);
 
   async function loadOrders() {
-    const { data, error } = await supabase
+    const params = new URLSearchParams(location.search);
+    const status = params.get("status");
+
+    let query = supabase
       .from("orders")
       .select("*")
       .order("id", { ascending: false });
 
+    // ✅ STATUS FILTER
+    if (status === "pending") {
+      query = query.in("order_status", ["pending", "new", "Order Placed"]);
+    }
+
+    if (status === "cancelled") {
+      query = query.eq("order_status", "Cancelled");
+    }
+
+    if (status === "completed") {
+      query = query.in("order_status", ["Delivered", "Completed"]);
+    }
+
+    const { data, error } = await query;
     if (!error) setOrders(data || []);
   }
 
@@ -39,34 +58,40 @@ export default function AdminOrders() {
         </thead>
 
         <tbody>
-          {orders.map((order, index) => (
-            <tr key={order.id}>
-              <td>{index + 1}</td>
-              <td>{order.name}</td>
-              <td>{order.phone}</td>
-              <td>₹{order.total}</td>
-              <td>{order.payment_status}</td>
-              <td>{order.order_status}</td>
-              <td>
-                <button
-                  className="view-btn"
-                  onClick={() => setSelectedOrder(order)}
-                >
-                  View
-                </button>
+          {orders.length === 0 ? (
+            <tr>
+              <td colSpan="7" style={{ textAlign: "center" }}>
+                No orders found
               </td>
             </tr>
-          ))}
+          ) : (
+            orders.map((order, index) => (
+              <tr key={order.id}>
+                <td>{index + 1}</td>
+                <td>{order.name}</td>
+                <td>{order.phone}</td>
+                <td>₹{order.total}</td>
+                <td>{order.payment_status}</td>
+                <td>{order.order_status}</td>
+                <td>
+                  <button
+                    className="view-btn"
+                    onClick={() => setSelectedOrder(order)}
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
       {/* ================= ORDER POPUP ================= */}
       {selectedOrder && (
         <div className="modal-backdrop">
-
           <div className="modal-box">
 
-            {/* HEADER */}
             <div className="modal-header">
               <h3>📦 Order #{selectedOrder.order_code}</h3>
               <button
@@ -77,7 +102,6 @@ export default function AdminOrders() {
               </button>
             </div>
 
-            {/* BODY */}
             <div className="modal-body">
 
               <h4>👤 Customer Details</h4>
@@ -97,14 +121,11 @@ export default function AdminOrders() {
               <hr />
 
               <h4>🧾 Order Items</h4>
-
               {Array.isArray(selectedOrder.items) &&
                 selectedOrder.items.map((item, i) => (
                   <div key={i} className="item-row">
                     <span>{item.name}</span>
-                    <span>
-                      {item.qty} × ₹{item.price}
-                    </span>
+                    <span>{item.qty} × ₹{item.price}</span>
                   </div>
                 ))}
 
@@ -120,7 +141,6 @@ export default function AdminOrders() {
 
               <hr />
 
-              {/* STATUS CONTROL */}
               <div className="status-row">
                 <div>
                   <label>Payment Status</label>
@@ -159,7 +179,6 @@ export default function AdminOrders() {
                 </div>
               </div>
 
-              {/* SAVE */}
               <button
                 className="save-btn"
                 onClick={async () => {
