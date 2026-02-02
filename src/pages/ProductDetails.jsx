@@ -83,7 +83,7 @@ export default function ProductDetails() {
   if (!product)
     return (
       <div style={{ padding: 30, textAlign: "center" }}>
-        ❌ Product not found
+        Loading....
       </div>
     );
 
