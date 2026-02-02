@@ -21,17 +21,23 @@ export default function AdminOrders() {
       .select("*")
       .order("id", { ascending: false });
 
-    // ✅ STATUS FILTER
+    // ✅ PENDING ORDERS
     if (status === "pending") {
-      query = query.in("order_status", ["pending", "new", "Order Placed"]);
+      query = query.in("order_status", [
+        "Pending",
+        "New",
+        "Order Placed"
+      ]);
     }
 
+    // ✅ CANCELLED ORDERS
     if (status === "cancelled") {
       query = query.eq("order_status", "Cancelled");
     }
 
-    if (status === "completed") {
-      query = query.in("order_status", ["Delivered", "Completed"]);
+    // ✅ DELIVERED ORDERS (REVENUE CARD)
+    if (status === "delivered") {
+      query = query.eq("order_status", "Delivered");
     }
 
     const { data, error } = await query;
