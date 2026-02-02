@@ -21,3 +21,11 @@
 .admin-table tr:hover {
   background: #fafafa;
 }
+
+.row-click {
+  cursor: pointer;
+}
+
+.row-click:hover {
+  background: #f1f5f9;
+}
