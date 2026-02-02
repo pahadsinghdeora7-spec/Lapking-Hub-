@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import DrawerMenu from "./DrawerMenu";
 import SearchBar from "./SearchBar";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   // ================= CART COUNT =================
   const updateCartCount = () => {
@@ -30,6 +32,13 @@ export default function Header() {
     };
   }, []);
 
+  // ================= SEARCH BAR CONTROL =================
+  const showSearch =
+    location.pathname === "/" ||
+    location.pathname === "/categories" ||
+    location.pathname.startsWith("/category/") ||
+    location.pathname.startsWith("/search/");
+
   return (
     <>
       {/* ================= HEADER ================= */}
@@ -42,8 +51,6 @@ export default function Header() {
           justifyContent: "space-between",
           padding: "0 16px",
           borderBottom: "1px solid #cce0ff",
-
-          /* 🔒 VERY IMPORTANT FIX */
           position: "fixed",
           top: 0,
           left: 0,
@@ -138,14 +145,14 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 🔽 SPACE FIX SO CONTENT DOESN'T GO UNDER HEADER */}
+      {/* 🔽 SPACE FIX */}
       <div style={{ height: "72px" }} />
 
-      {/* SEARCH BAR (NEXT STEP WE WILL CONTROL IT) */}
-      <SearchBar />
+      {/* 🔍 SEARCH BAR (CONTROLLED) */}
+      {showSearch && <SearchBar />}
 
       {/* DRAWER */}
       <DrawerMenu open={open} onClose={() => setOpen(false)} />
     </>
   );
-        }
+}
