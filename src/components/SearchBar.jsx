@@ -11,20 +11,27 @@ export default function SearchBar() {
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    if (!keyword.trim()) return;
+    const searchValue = keyword.trim().toLowerCase();
+    if (!searchValue) return;
 
     setLoading(true);
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("products")
       .select("id")
-      .ilike("search_text", `%${keyword.toLowerCase()}%`)
+      .ilike("search_text", `%${searchValue}%`)
       .limit(30);
 
     setLoading(false);
 
+    if (error) {
+      console.error("Search error:", error);
+      alert("Search failed. Try again.");
+      return;
+    }
+
     if (data && data.length > 0) {
-      navigate(`/search/${encodeURIComponent(keyword)}`);
+      navigate(`/search/${encodeURIComponent(searchValue)}`);
     } else {
       alert("No product found");
     }
@@ -39,7 +46,7 @@ export default function SearchBar() {
         onChange={(e) => setKeyword(e.target.value)}
       />
 
-      <button type="submit">
+      <button type="submit" disabled={loading}>
         {loading ? "..." : "🔍"}
       </button>
     </form>
