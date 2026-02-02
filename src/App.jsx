@@ -52,18 +52,14 @@ import Header from "./components/Header.jsx";
 import BottomNav from "./components/BottomNav.jsx";
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
 
-/* ================= ROUTE LOADER HANDLER ================= */
+/* ================= ROUTE LOADER ================= */
 function RouteLoader() {
   const location = useLocation();
   const { setLoading } = useLoader();
 
   useEffect(() => {
     setLoading(true);
-
-    const t = setTimeout(() => {
-      setLoading(false);
-    }, 400);
-
+    const t = setTimeout(() => setLoading(false), 400);
     return () => clearTimeout(t);
   }, [location.pathname]);
 
@@ -73,25 +69,44 @@ function RouteLoader() {
 /* ================= APP CONTENT ================= */
 function AppContent() {
   const location = useLocation();
-
-  // 🔐 ADMIN PAGE CHECK
   const isAdminPage = location.pathname.startsWith("/admin");
 
+  /* ================= ADMIN = NO FRONTEND LAYOUT ================= */
+  if (isAdminPage) {
+    return (
+      <>
+        <GlobalLoader />
+        <RouteLoader />
+
+        <Routes>
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="replacements" element={<AdminReplacements />} />
+            <Route path="couriers" element={<AdminCouriers />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="about" element={<AdminAbout />} />
+            <Route path="policies" element={<AdminPolicies />} />
+          </Route>
+        </Routes>
+      </>
+    );
+  }
+
+  /* ================= USER APP LAYOUT ================= */
   return (
     <>
-      {/* 🔥 GLOBAL LOADER */}
       <GlobalLoader />
       <RouteLoader />
 
       <div className="app-root">
-
-        {/* ✅ USER HEADER ONLY */}
-        {!isAdminPage && <Header />}
+        <Header />
 
         <main className="app-main">
           <Routes>
-
-            {/* ================= USER ================= */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -104,45 +119,23 @@ function AppContent() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
             <Route path="/search/:keyword" element={<SearchResult />} />
-
-            {/* CMS */}
             <Route path="/page/:slug" element={<PageView />} />
             <Route path="/about-us" element={<About />} />
 
-            {/* ================= CHECKOUT ================= */}
             <Route path="/checkout/address" element={<CheckoutAddress />} />
             <Route path="/checkout/shipping" element={<CheckoutShipping />} />
             <Route path="/checkout/payment" element={<CheckoutPayment />} />
             <Route path="/order/success" element={<OrderSuccess />} />
 
-            {/* ================= REPLACEMENT ================= */}
             <Route
               path="/replacement/order/:id/product/:productId"
               element={<ReplacementRequest />}
             />
-
-            {/* ================= ADMIN ================= */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="replacements" element={<AdminReplacements />} />
-              <Route path="couriers" element={<AdminCouriers />} />
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="about" element={<AdminAbout />} />
-              <Route path="policies" element={<AdminPolicies />} />
-            </Route>
-
           </Routes>
         </main>
 
-        {/* ✅ USER BOTTOM NAV + WHATSAPP ONLY */}
-        {!isAdminPage && <BottomNav />}
-        {!isAdminPage && <WhatsAppButton />}
-
+        <BottomNav />
+        <WhatsAppButton />
       </div>
     </>
   );
