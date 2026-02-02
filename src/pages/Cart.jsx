@@ -77,8 +77,9 @@ export default function Cart() {
             Add laptop accessories or spare parts to continue.
           </p>
 
+          {/* ✅ FIX: GO TO HOME PAGE */}
           <button
-            onClick={() => navigate("/categories")}
+            onClick={() => navigate("/")}
             style={{
               marginTop: 20,
               padding: "10px 22px",
@@ -90,7 +91,7 @@ export default function Cart() {
               cursor: "pointer"
             }}
           >
-            🛍 Continue Shopping
+            🏠 Continue Shopping
           </button>
         </div>
       )}
@@ -164,4 +165,4 @@ export default function Cart() {
       )}
     </div>
   );
-          }
+}
