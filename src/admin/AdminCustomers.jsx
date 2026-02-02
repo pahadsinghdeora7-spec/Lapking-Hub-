@@ -1,108 +1,107 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient.js";
+import { supabase } from "../supabaseClient";
+import "./AdminCustomers.css";
+
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadCustomers();
   }, []);
 
-  const loadCustomers = async () => {
-    // orders
-    const { data: orders } = await supabase
-      .from("orders")
-      .select("id, name, phone, email, total, created_at")
+  async function loadCustomers() {
+    setLoading(true);
+
+    // 1️⃣ Get all user profiles (only logged-in users)
+    const { data: profiles, error } = await supabase
+      .from("user_profiles")
+      .select("*")
       .order("created_at", { ascending: false });
 
-    // order items
-    const { data: items } = await supabase
-      .from("order_items")
-      .select("order_id, name");
+    if (error) {
+      console.error(error);
+      setLoading(false);
+      return;
+    }
 
-    if (!orders) return;
+    // 2️⃣ Get all orders
+    const { data: orders = [] } = await supabase
+      .from("orders")
+      .select("id, user_id, total");
 
-    const map = {};
+    // 3️⃣ Merge profile + order data
+    const finalCustomers = profiles.map(profile => {
+      const userOrders = orders.filter(
+        o => o.user_id === profile.user_id
+      );
 
-    orders.forEach((o) => {
-      const key = o.phone || o.email;
+      const totalSpent = userOrders.reduce(
+        (sum, o) => sum + Number(o.total || 0),
+        0
+      );
 
-      if (!map[key]) {
-        map[key] = {
-          name: o.name,
-          phone: o.phone,
-          email: o.email,
-          orders: 0,
-          amount: 0,
-          last: o.created_at,
-          items: new Set(),
-        };
-      }
-
-      map[key].orders += 1;
-      map[key].amount += Number(o.total || 0);
-
-      if (new Date(o.created_at) > new Date(map[key].last)) {
-        map[key].last = o.created_at;
-      }
-
-      // attach items
-      items?.forEach((it) => {
-        if (it.order_id === o.id) {
-          map[key].items.add(it.name);
-        }
-      });
+      return {
+        ...profile,
+        ordersCount: userOrders.length,
+        totalSpent
+      };
     });
 
-    // convert Set → string
-    const result = Object.values(map).map((c) => ({
-      ...c,
-      items: Array.from(c.items).join(", "),
-    }));
-
-    setCustomers(result);
-  };
+    setCustomers(finalCustomers);
+    setLoading(false);
+  }
 
   return (
-    <div className="admin-page">
-      <h2>Customers</h2>
+    <div style={{ padding: 20 }}>
 
-      <div className="card">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Items Purchased</th>
-              <th>Total Orders</th>
-              <th>Total Amount</th>
-              <th>Last Order</th>
-            </tr>
-          </thead>
+      <h2>👥 Customers</h2>
+      <p style={{ color: "#666", marginBottom: 15 }}>
+        List of all logged-in customers
+      </p>
 
-          <tbody>
-            {customers.length === 0 && (
+      {loading ? (
+        <p>Loading customers...</p>
+      ) : customers.length === 0 ? (
+        <p>No customers found</p>
+      ) : (
+        <div style={{ overflowX: "auto" }}>
+          <table className="admin-table">
+            <thead>
               <tr>
-                <td colSpan="7">No customers found</td>
+                <th>#</th>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th>Business</th>
+                <th>GST</th>
+                <th>Orders</th>
+                <th>Total Spent</th>
               </tr>
-            )}
+            </thead>
 
-            {customers.map((c, i) => (
-              <tr key={i}>
-                <td>{c.name}</td>
-                <td>{c.phone || "-"}</td>
-                <td>{c.email || "-"}</td>
-                <td>{c.items || "-"}</td>
-                <td>{c.orders}</td>
-                <td>₹{c.amount}</td>
-                <td>
-                  {new Date(c.last).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            <tbody>
+              {customers.map((c, index) => (
+                <tr key={c.id}>
+                  <td>{index + 1}</td>
+                  <td>{c.full_name || "—"}</td>
+                  <td>{c.mobile || "—"}</td>
+                  <td>{c.email || "—"}</td>
+                  <td>{c.business_name || "—"}</td>
+                  <td>{c.gst_number || "—"}</td>
+                  <td style={{ textAlign: "center" }}>
+                    {c.ordersCount}
+                  </td>
+                  <td style={{ fontWeight: 600 }}>
+                    ₹{c.totalSpent}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
     </div>
   );
-        }
+}
