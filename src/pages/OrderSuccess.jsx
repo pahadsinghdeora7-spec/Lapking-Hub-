@@ -1,7 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
+
+  // ✅ ORDER SUCCESS PAR CART CLEAR
+  useEffect(() => {
+    localStorage.removeItem("cart");
+    window.dispatchEvent(new Event("cartUpdated"));
+  }, []);
 
   return (
     <div style={{ padding: 20, textAlign: "center" }}>
@@ -82,4 +89,4 @@ export default function OrderSuccess() {
 
     </div>
   );
-            }
+}
