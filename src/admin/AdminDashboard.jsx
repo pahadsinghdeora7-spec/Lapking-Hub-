@@ -26,15 +26,11 @@ export default function AdminDashboard() {
     const { data: orders = [] } = await supabase.from("orders").select("*");
     const { data: products = [] } = await supabase.from("products").select("*");
 
-    // 🔁 replacement requests
     const { data: replacements = [] } = await supabase
       .from("replacement_requests")
       .select("id, status");
 
-    const pending = replacements.filter(
-      r => r.status === "pending"
-    );
-
+    const pending = replacements.filter(r => r.status === "pending");
     setPendingReplacements(pending.length);
 
     const now = new Date();
@@ -139,13 +135,41 @@ export default function AdminDashboard() {
           <p>Total Customers</p>
         </div>
 
-        {/* 🔁 REPLACEMENT REQUESTS */}
         <div
           className="stat-card purple clickable"
           onClick={() => navigate("/admin/replacements")}
         >
           <h4>{pendingReplacements}</h4>
           <p>Pending Replacement Requests</p>
+        </div>
+
+        {/* ================= NEW 3 ADMIN ACTION CARDS ================= */}
+
+        {/* ➕ ADD PRODUCT */}
+        <div
+          className="stat-card blue clickable"
+          onClick={() => navigate("/admin/add-product")}
+        >
+          <h4>➕</h4>
+          <p>Add Product</p>
+        </div>
+
+        {/* 📤 BULK UPLOAD */}
+        <div
+          className="stat-card green clickable"
+          onClick={() => navigate("/admin/bulk-upload")}
+        >
+          <h4>📤</h4>
+          <p>Bulk Upload</p>
+        </div>
+
+        {/* 🗑 BULK DELETE */}
+        <div
+          className="stat-card red clickable"
+          onClick={() => navigate("/admin/bulk-delete")}
+        >
+          <h4>🗑</h4>
+          <p>Bulk Delete</p>
         </div>
 
       </div>
@@ -217,4 +241,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-           }
+}
