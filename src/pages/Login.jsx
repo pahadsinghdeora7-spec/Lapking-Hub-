@@ -32,6 +32,17 @@ export default function Login() {
       return;
     }
 
+    /* ================= 🔐 IMPORTANT FIX ================= */
+    const userData = {
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.user_metadata?.name || "Account"
+    };
+
+    // ✅ SAME KEY jo BottomNav use karta hai
+    localStorage.setItem("user", JSON.stringify(userData));
+    /* ==================================================== */
+
     // ✅ redirect logic (checkout → same page)
     const redirect = localStorage.getItem("redirect_after_login");
     if (redirect) {
