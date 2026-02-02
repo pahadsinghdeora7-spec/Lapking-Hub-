@@ -71,8 +71,6 @@ export default function ProductDetails() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-
-    // ✅ FIX: Bottom nav cart count update
     window.dispatchEvent(new Event("cartUpdated"));
   }
 
@@ -197,15 +195,21 @@ export default function ProductDetails() {
       {/* CONTENT */}
       <div className="pd-full-section">
         {tab === "description" && (
-          <div className="pd-desc">
-            {product.description || "No description available."}
-          </div>
+          <div
+            className="pd-desc"
+            dangerouslySetInnerHTML={{
+              __html: product.description || "<p>No description available.</p>",
+            }}
+          />
         )}
 
         {tab === "models" && (
-          <div className="pd-desc">
-            {product.compatible_model || "Not specified."}
-          </div>
+          <div
+            className="pd-desc"
+            dangerouslySetInnerHTML={{
+              __html: product.compatible_model || "<p>Not specified.</p>",
+            }}
+          />
         )}
       </div>
 
