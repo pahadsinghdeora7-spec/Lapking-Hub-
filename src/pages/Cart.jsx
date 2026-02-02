@@ -45,11 +45,17 @@ export default function Cart() {
     0
   );
 
-  // 🔐 FINAL SAFE CHECKOUT
+  // 🔐 FINAL SAFE CHECKOUT (✅ FIXED)
   const handleCheckout = async () => {
     const user = await getCurrentUser();
 
     if (!user) {
+      // ✅ save redirect path
+      localStorage.setItem(
+        "redirect_after_login",
+        "/checkout/address"
+      );
+
       window.location.hash = "#/login";
     } else {
       window.location.hash = "#/checkout/address";
@@ -77,7 +83,6 @@ export default function Cart() {
             Add laptop accessories or spare parts to continue.
           </p>
 
-          {/* ✅ FIX: GO TO HOME PAGE */}
           <button
             onClick={() => navigate("/")}
             style={{
