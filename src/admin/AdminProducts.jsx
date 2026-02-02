@@ -8,6 +8,7 @@ export default function AdminProducts() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -72,6 +73,38 @@ export default function AdminProducts() {
     });
   };
 
+  // ================= IMAGE UPLOAD =================
+  const uploadImage = async (file, field) => {
+    if (!file) return;
+
+    setUploading(true);
+
+    const ext = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random()}.${ext}`;
+    const filePath = `products/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(filePath, file);
+
+    if (error) {
+      alert("Image upload failed");
+      setUploading(false);
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from("product-images")
+      .getPublicUrl(filePath);
+
+    setForm(prev => ({
+      ...prev,
+      [field]: data.publicUrl
+    }));
+
+    setUploading(false);
+  };
+
   // ================= UPDATE =================
   const updateProduct = async () => {
     await supabase
@@ -110,7 +143,6 @@ export default function AdminProducts() {
             <tr>
               <th>Image</th>
               <th>Product</th>
-              <th>Category</th>
               <th>Brand</th>
               <th>Part No</th>
               <th>Price</th>
@@ -121,7 +153,7 @@ export default function AdminProducts() {
           </thead>
 
           <tbody>
-            {loading && <tr><td colSpan="9">Loading...</td></tr>}
+            {loading && <tr><td colSpan="8">Loading...</td></tr>}
 
             {!loading && filtered.map(p => (
               <tr key={p.id}>
@@ -131,11 +163,10 @@ export default function AdminProducts() {
                     : <div className="no-img">No image</div>}
                 </td>
                 <td>{p.name}</td>
-                <td>{p.category_slug || "-"}</td>
-                <td>{p.brand || "-"}</td>
-                <td>{p.part_number || "-"}</td>
-                <td>₹{p.price || 0}</td>
-                <td>{p.stock || 0}</td>
+                <td>{p.brand}</td>
+                <td>{p.part_number}</td>
+                <td>₹{p.price}</td>
+                <td>{p.stock}</td>
                 <td>{p.status ? "Active" : "Inactive"}</td>
                 <td>
                   <button className="edit-btn" onClick={() => openProduct(p)}>
@@ -158,9 +189,6 @@ export default function AdminProducts() {
             <label>Product Name</label>
             <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
 
-            <label>Category Slug</label>
-            <input value={form.category_slug} onChange={e => setForm({ ...form, category_slug: e.target.value })} />
-
             <label>Brand</label>
             <input value={form.brand} onChange={e => setForm({ ...form, brand: e.target.value })} />
 
@@ -168,12 +196,7 @@ export default function AdminProducts() {
             <input value={form.part_number} onChange={e => setForm({ ...form, part_number: e.target.value })} />
 
             <label>Compatible Models</label>
-            <textarea
-              rows="2"
-              placeholder="X407, X407U, A407"
-              value={form.compatible_model}
-              onChange={e => setForm({ ...form, compatible_model: e.target.value })}
-            />
+            <textarea value={form.compatible_model} onChange={e => setForm({ ...form, compatible_model: e.target.value })} />
 
             <label>Description</label>
             <textarea rows="4" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
@@ -193,17 +216,20 @@ export default function AdminProducts() {
               <option value="false">Inactive</option>
             </select>
 
-            <label>Main Image URL</label>
-            <input value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} />
+            {/* IMAGE UPLOADS */}
+            <label>Main Image</label>
+            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0], "image")} />
             {form.image && <img src={form.image} className="preview" />}
 
             <label>Image 1</label>
-            <input value={form.image1} onChange={e => setForm({ ...form, image1: e.target.value })} />
+            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0], "image1")} />
             {form.image1 && <img src={form.image1} className="preview" />}
 
             <label>Image 2</label>
-            <input value={form.image2} onChange={e => setForm({ ...form, image2: e.target.value })} />
+            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0], "image2")} />
             {form.image2 && <img src={form.image2} className="preview" />}
+
+            {uploading && <p style={{ color: "blue" }}>Uploading image...</p>}
 
             <div className="modal-actions">
               <button className="save" onClick={updateProduct}>Update</button>
