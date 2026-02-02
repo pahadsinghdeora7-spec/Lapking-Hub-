@@ -8,6 +8,13 @@ export default function SearchBar() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // 🔥 normalize function (MOST IMPORTANT)
+  const normalizeText = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, ""); // remove all special characters
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
 
@@ -15,8 +22,8 @@ export default function SearchBar() {
 
     setLoading(true);
 
-    // ✅ IMPORTANT: normalize user input
-    const normalized = keyword.toLowerCase().trim();
+    // ✅ normalize user input
+    const normalized = normalizeText(keyword);
 
     const { data, error } = await supabase
       .from("products")
