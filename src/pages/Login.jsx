@@ -39,17 +39,20 @@ export default function Login() {
       name: data.user.user_metadata?.name || "Account"
     };
 
-    // ✅ SAME KEY jo BottomNav use karta hai
+    // ✅ SAME KEY jo BottomNav / Header use karta hai
     localStorage.setItem("user", JSON.stringify(userData));
+
+    // 🔥 UI ko turant batane ke liye
+    window.dispatchEvent(new Event("userUpdated"));
     /* ==================================================== */
 
-    // ✅ redirect logic (checkout → same page)
+    // ✅ redirect logic (account / checkout / orders → same page)
     const redirect = localStorage.getItem("redirect_after_login");
     if (redirect) {
       localStorage.removeItem("redirect_after_login");
       navigate(redirect);
     } else {
-      navigate("/");
+      navigate("/"); // ✅ default HOME
     }
   }
 
@@ -104,4 +107,4 @@ export default function Login() {
       </div>
     </div>
   );
-}
+            }
