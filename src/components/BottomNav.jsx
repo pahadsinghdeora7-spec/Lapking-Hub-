@@ -12,15 +12,29 @@ import "./bottomNav.css";
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [cartCount, setCartCount] = useState(0);
+  const [user, setUser] = useState(null);
 
-  // 🔐 simple login check
-  const isLoggedIn = () => {
-    const user = localStorage.getItem("user");
-    return !!user;
-  };
+  // ======================
+  // LOAD USER (LOGIN STATE)
+  // ======================
+  useEffect(() => {
+    const u = localStorage.getItem("user");
+    if (u) {
+      try {
+        setUser(JSON.parse(u));
+      } catch {
+        setUser(null);
+      }
+    } else {
+      setUser(null);
+    }
+  }, [location.pathname]); // route change par re-check
 
-  // 🛒 cart count
+  // ======================
+  // CART COUNT
+  // ======================
   const updateCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const total = cart.reduce((s, i) => s + (i.qty || 1), 0);
@@ -33,15 +47,6 @@ export default function BottomNav() {
     return () =>
       window.removeEventListener("cartUpdated", updateCart);
   }, []);
-
-  // 🔐 protected navigation
-  const goProtected = (path) => {
-    if (!isLoggedIn()) {
-      navigate("/login");
-    } else {
-      navigate(path);
-    }
-  };
 
   return (
     <div className="bottom-nav">
@@ -77,22 +82,26 @@ export default function BottomNav() {
         <span>Cart</span>
       </div>
 
-      {/* ORDERS (login required) */}
+      {/* ORDERS */}
       <div
         className={location.pathname === "/orders" ? "active" : ""}
-        onClick={() => goProtected("/orders")}
+        onClick={() => navigate("/orders")}
       >
         <MdReceiptLong />
         <span>Orders</span>
       </div>
 
-      {/* ACCOUNT (login required) */}
+      {/* ACCOUNT / LOGIN */}
       <div
         className={location.pathname === "/account" ? "active" : ""}
-        onClick={() => goProtected("/account")}
+        onClick={() =>
+          user ? navigate("/account") : navigate("/login")
+        }
       >
         <MdPerson />
-        <span>Account</span>
+        <span>
+          {user?.name || "Login"}
+        </span>
       </div>
 
     </div>
