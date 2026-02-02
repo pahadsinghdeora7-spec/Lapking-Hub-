@@ -85,3 +85,27 @@ th, td {
   border: none;
   border-radius: 6px;
 }
+
+
+/* IMAGE PREVIEW */
+.preview {
+  width: 100%;
+  max-width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-top: 6px;
+  border: 1px solid #ddd;
+}
+
+/* MODAL SCROLL FIX */
+.modal {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* FILE INPUT LOOK */
+.modal input[type="file"] {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
