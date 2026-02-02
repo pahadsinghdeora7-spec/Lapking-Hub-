@@ -4,6 +4,7 @@ import "./AdminCustomers.css";
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +14,6 @@ export default function AdminCustomers() {
   async function loadCustomers() {
     setLoading(true);
 
-    // 1️⃣ Get all user profiles (only logged-in users)
     const { data: profiles, error } = await supabase
       .from("user_profiles")
       .select("*")
@@ -25,30 +25,25 @@ export default function AdminCustomers() {
       return;
     }
 
-    // 2️⃣ Get all orders
     const { data: orders = [] } = await supabase
       .from("orders")
       .select("id, user_id, total");
 
-    // 3️⃣ Merge profile + order data
-    const finalCustomers = profiles.map(profile => {
-      const userOrders = orders.filter(
-        o => o.user_id === profile.user_id
-      );
-
+    const finalData = profiles.map(p => {
+      const userOrders = orders.filter(o => o.user_id === p.user_id);
       const totalSpent = userOrders.reduce(
         (sum, o) => sum + Number(o.total || 0),
         0
       );
 
       return {
-        ...profile,
+        ...p,
         ordersCount: userOrders.length,
         totalSpent
       };
     });
 
-    setCustomers(finalCustomers);
+    setCustomers(finalData);
     setLoading(false);
   }
 
@@ -57,11 +52,11 @@ export default function AdminCustomers() {
 
       <h2>👥 Customers</h2>
       <p style={{ color: "#666", marginBottom: 15 }}>
-        List of all logged-in customers
+        Click on a customer to view full details
       </p>
 
       {loading ? (
-        <p>Loading customers...</p>
+        <p>Loading...</p>
       ) : customers.length === 0 ? (
         <p>No customers found</p>
       ) : (
@@ -73,25 +68,23 @@ export default function AdminCustomers() {
                 <th>Name</th>
                 <th>Mobile</th>
                 <th>Email</th>
-                <th>Business</th>
-                <th>GST</th>
-                <th>Orders</th>
-                <th>Total Spent</th>
+                <th>City</th>
+                <th>Total Spend</th>
               </tr>
             </thead>
 
             <tbody>
               {customers.map((c, index) => (
-                <tr key={c.id}>
+                <tr
+                  key={c.id}
+                  className="row-click"
+                  onClick={() => setSelectedCustomer(c)}
+                >
                   <td>{index + 1}</td>
                   <td>{c.full_name || "—"}</td>
                   <td>{c.mobile || "—"}</td>
                   <td>{c.email || "—"}</td>
-                  <td>{c.business_name || "—"}</td>
-                  <td>{c.gst_number || "—"}</td>
-                  <td style={{ textAlign: "center" }}>
-                    {c.ordersCount}
-                  </td>
+                  <td>{c.city || "—"}</td>
                   <td style={{ fontWeight: 600 }}>
                     ₹{c.totalSpent}
                   </td>
@@ -99,6 +92,48 @@ export default function AdminCustomers() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* ================= CUSTOMER POPUP ================= */}
+      {selectedCustomer && (
+        <div className="modal-backdrop">
+          <div className="modal-box">
+
+            <div className="modal-header">
+              <h3>👤 Customer Details</h3>
+              <button
+                className="close-btn"
+                onClick={() => setSelectedCustomer(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p><b>Name:</b> {selectedCustomer.full_name}</p>
+              <p><b>Mobile:</b> {selectedCustomer.mobile}</p>
+              <p><b>Email:</b> {selectedCustomer.email}</p>
+
+              <hr />
+
+              <p><b>Business:</b> {selectedCustomer.business_name || "—"}</p>
+              <p><b>GST:</b> {selectedCustomer.gst_number || "—"}</p>
+
+              <p>
+                <b>Address:</b>{" "}
+                {selectedCustomer.address || "—"},{" "}
+                {selectedCustomer.city || ""},{" "}
+                {selectedCustomer.state || ""}{" "}
+                {selectedCustomer.pincode || ""}
+              </p>
+
+              <hr />
+
+              <p><b>Total Orders:</b> {selectedCustomer.ordersCount}</p>
+              <p><b>Total Spent:</b> ₹{selectedCustomer.totalSpent}</p>
+            </div>
+          </div>
         </div>
       )}
 
