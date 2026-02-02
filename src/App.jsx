@@ -47,6 +47,10 @@ import AdminSettings from "./admin/AdminSettings.jsx";
 import AdminAbout from "./admin/AdminAbout.jsx";
 import AdminPolicies from "./admin/AdminPolicies.jsx";
 
+import AddProductPage from "./admin/AddProductPage.jsx";
+import AdminBulkUpload from "./admin/AdminBulkUpload.jsx";
+import AdminBulkDelete from "./admin/AdminBulkDelete.jsx";
+
 /* ================= COMPONENTS ================= */
 import Header from "./components/Header.jsx";
 import BottomNav from "./components/BottomNav.jsx";
@@ -90,6 +94,10 @@ function AppContent() {
             <Route path="settings" element={<AdminSettings />} />
             <Route path="about" element={<AdminAbout />} />
             <Route path="policies" element={<AdminPolicies />} />
+
+            <Route path="add-product" element={<AddProductPage />} />
+<Route path="bulk-upload" element={<AdminBulkUpload />} />
+<Route path="bulk-delete" element={<AdminBulkDelete />} />
           </Route>
         </Routes>
       </>
