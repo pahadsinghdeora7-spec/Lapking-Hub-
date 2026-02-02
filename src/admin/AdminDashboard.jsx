@@ -11,7 +11,7 @@ export default function AdminDashboard() {
     pending: 0,
     cancelled: 0,
     products: 0,
-    customers: 0,
+    customers: 0
   });
 
   const [recentOrders, setRecentOrders] = useState([]);
@@ -23,25 +23,35 @@ export default function AdminDashboard() {
   }, []);
 
   const loadDashboard = async () => {
-    const { data: orders = [] } = await supabase.from("orders").select("*");
-    const { data: products = [] } = await supabase.from("products").select("*");
+    const { data: orders = [] } = await supabase
+      .from("orders")
+      .select("*");
+
+    const { data: products = [] } = await supabase
+      .from("products")
+      .select("*");
 
     const { data: replacements = [] } = await supabase
       .from("replacement_requests")
       .select("id, status");
 
-    const pending = replacements.filter(r => r.status === "pending");
-    setPendingReplacements(pending.length);
+    /* ================= REPLACEMENTS ================= */
+    const pendingReplacementOnly = replacements.filter(
+      r => r.status === "pending"
+    );
+    setPendingReplacements(pendingReplacementOnly.length);
 
+    /* ================= DATE ================= */
     const now = new Date();
     const month = now.getMonth();
     const year = now.getFullYear();
 
+    /* ================= DELIVERED (REVENUE) ================= */
     const deliveredOrders = orders.filter(o => {
       const d = new Date(o.created_at);
       return (
-        (o.order_status === "completed" ||
-          o.order_status === "delivered") &&
+        (o.order_status === "delivered" ||
+          o.order_status === "completed") &&
         d.getMonth() === month &&
         d.getFullYear() === year
       );
@@ -52,26 +62,39 @@ export default function AdminDashboard() {
       0
     );
 
+    /* ================= PENDING ORDERS ================= */
     const pendingOrders = orders.filter(
-      o => o.order_status === "pending" || o.order_status === "new"
+      o =>
+        o.order_status === "pending" ||
+        o.order_status === "new"
     );
 
+    /* ================= CANCELLED ORDERS ================= */
     const cancelledOrders = orders.filter(
       o => o.order_status === "cancelled"
     );
 
-    const low = products.filter(p => Number(p.stock) <= 5);
+    /* ================= LOW STOCK ================= */
+    const low = products.filter(
+      p => Number(p.stock) <= 5
+    );
 
+    /* ================= SET STATS ================= */
     setStats({
       monthRevenue,
-      totalOrders: orders.length,
-      pending: pendingOrders.length,
-      cancelled: cancelledOrders.length,
+      totalOrders: orders.length, // ✅ ALL orders
+      pending: pendingOrders.length, // ✅ ONLY pending
+      cancelled: cancelledOrders.length, // ✅ ONLY cancelled
       products: products.length,
-      customers: orders.length ? 1 : 0,
+      customers: orders.length ? 1 : 0
     });
 
-    setRecentOrders(orders.slice(0, 5));
+    /* ================= RECENT ORDERS ================= */
+    const sortedOrders = [...orders].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
+    setRecentOrders(sortedOrders.slice(0, 5));
     setLowStock(low);
   };
 
@@ -89,7 +112,7 @@ export default function AdminDashboard() {
 
         <div
           className="stat-card green clickable"
-          onClick={() => navigate("/admin/orders?status=completed")}
+          onClick={() => navigate("/admin/orders?status=delivered")}
         >
           <h4>₹{stats.monthRevenue}</h4>
           <p>Revenue (Delivered - This Month)</p>
@@ -142,8 +165,6 @@ export default function AdminDashboard() {
           <h4>{pendingReplacements}</h4>
           <p>Pending Replacement Requests</p>
         </div>
-
-        {/* ================= NEW 3 ADMIN ACTION CARDS ================= */}
 
         {/* ➕ ADD PRODUCT */}
         <div
