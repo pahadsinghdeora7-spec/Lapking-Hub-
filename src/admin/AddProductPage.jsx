@@ -2,6 +2,30 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./AddProductPage.css";
 
+/* ================= HTML FORMAT HELPERS ================= */
+
+// Description: paragraphs + line breaks
+function formatDescription(text) {
+  if (!text) return "";
+  return text
+    .split("\n\n")
+    .map(p => `<p>${p.trim().replace(/\n/g, "<br/>")}</p>`)
+    .join("");
+}
+
+// Compatible models: auto bullet list
+function formatModels(text) {
+  if (!text) return "";
+  const items = text
+    .split(/,|\n/)
+    .map(i => i.trim())
+    .filter(Boolean);
+
+  if (!items.length) return "";
+
+  return `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+}
+
 export default function AdminAddProduct() {
 
   const [categories, setCategories] = useState([]);
@@ -71,16 +95,20 @@ export default function AdminAddProduct() {
     const img1 = await uploadImage(images.image1);
     const img2 = await uploadImage(images.image2);
 
+    // 🔥 AUTO FORMAT HERE (PERMANENT FIX)
+    const finalDescription = formatDescription(form.description);
+    const finalModels = formatModels(form.compatible_model);
+
     const { error } = await supabase.from("products").insert([{
       name: form.name,
       category_id: Number(form.category_id),
       category_slug: form.category_slug,
       brand: form.brand,
       part_number: form.part_number,
-      compatible_model: form.compatible_model,
+      compatible_model: finalModels,
       price: Number(form.price),
       stock: Number(form.stock || 0),
-      description: form.description,
+      description: finalDescription,
       image: mainImg,
       image1: img1,
       image2: img2,
@@ -154,8 +182,9 @@ export default function AdminAddProduct() {
           onChange={(e)=>setForm({...form,part_number:e.target.value})}
         />
 
-        <label>Compatible Model</label>
+        <label>Compatible Models</label>
         <input
+          placeholder="Example: 840 G5, 840 G6, 745 G5"
           value={form.compatible_model}
           onChange={(e)=>setForm({...form,compatible_model:e.target.value})}
         />
@@ -177,6 +206,7 @@ export default function AdminAddProduct() {
         <label>Description</label>
         <textarea
           rows="5"
+          placeholder="Write normally. Code will auto format for SEO."
           value={form.description}
           onChange={(e)=>setForm({...form,description:e.target.value})}
         />
