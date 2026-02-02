@@ -59,10 +59,12 @@ export default function CategoryProducts() {
     }
 
     setCartIds(cart.map(i => i.id));
-    window.dispatchEvent(new Event("storage"));
+
+    // ✅ FIX: bottom nav cart count update
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // ✅ SAFE NAVIGATION
+  // ================= SAFE NAVIGATION =================
   const openProduct = (product) => {
     if (!product?.slug) return;
     navigate("/product/" + product.slug);
@@ -147,4 +149,4 @@ export default function CategoryProducts() {
       )}
     </div>
   );
-                      }
+}
