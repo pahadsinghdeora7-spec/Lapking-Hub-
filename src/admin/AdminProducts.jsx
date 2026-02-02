@@ -73,50 +73,34 @@ export default function AdminProducts() {
     });
   };
 
-  // ================= IMAGE UPLOAD (FINAL FIX) =================
+  // ================= IMAGE UPLOAD (FIXED – SAME AS ADD PRODUCT) =================
   const uploadImage = async (file, field) => {
     if (!file) return;
 
-    try {
-      setUploading(true);
+    setUploading(true);
 
-      // ✅ ensure auth session
-      await supabase.auth.getSession();
+    const fileName = `${Date.now()}-${file.name}`;
 
-      const ext = file.name.split(".").pop();
-      const safeRandom = Math.floor(Math.random() * 1000000);
-      const fileName = `${Date.now()}-${safeRandom}.${ext}`;
-      const filePath = `products/${fileName}`;
+    const { error } = await supabase.storage
+      .from("products") // ✅ SAME BUCKET AS ADD PRODUCT
+      .upload(fileName, file, { upsert: true });
 
-      const { error } = await supabase.storage
-        .from("product-images")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: true,
-          contentType: file.type
-        });
-
-      if (error) {
-        console.error("UPLOAD ERROR:", error);
-        alert("Image upload failed");
-        return;
-      }
-
-      const { data } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(filePath);
-
-      setForm(prev => ({
-        ...prev,
-        [field]: data.publicUrl
-      }));
-
-    } catch (err) {
-      console.error("UPLOAD EXCEPTION:", err);
-      alert("Upload error");
-    } finally {
+    if (error) {
+      alert(error.message);
       setUploading(false);
+      return;
     }
+
+    const { data } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+    setForm(prev => ({
+      ...prev,
+      [field]: data.publicUrl
+    }));
+
+    setUploading(false);
   };
 
   // ================= UPDATE =================
@@ -231,15 +215,15 @@ export default function AdminProducts() {
             </select>
 
             <label>Main Image</label>
-            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0], "image")} />
+            <input type="file" onChange={e => uploadImage(e.target.files[0], "image")} />
             {form.image && <img src={form.image} className="preview" />}
 
             <label>Image 1</label>
-            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0], "image1")} />
+            <input type="file" onChange={e => uploadImage(e.target.files[0], "image1")} />
             {form.image1 && <img src={form.image1} className="preview" />}
 
             <label>Image 2</label>
-            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0], "image2")} />
+            <input type="file" onChange={e => uploadImage(e.target.files[0], "image2")} />
             {form.image2 && <img src={form.image2} className="preview" />}
 
             {uploading && <p style={{ color: "blue" }}>Uploading image...</p>}
@@ -256,4 +240,4 @@ export default function AdminProducts() {
 
     </div>
   );
-        }
+}
