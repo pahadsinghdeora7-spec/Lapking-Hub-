@@ -24,7 +24,7 @@ export default function ProductDetails() {
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .eq("slug", slug) // ✅ VERY IMPORTANT
+      .eq("slug", slug)
       .single();
 
     if (error || !data) {
@@ -71,7 +71,9 @@ export default function ProductDetails() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    window.dispatchEvent(new Event("storage"));
+
+    // ✅ FIX: Bottom nav cart count update
+    window.dispatchEvent(new Event("cartUpdated"));
   }
 
   // ================= BUY NOW =================
@@ -223,4 +225,4 @@ export default function ProductDetails() {
       )}
     </div>
   );
-                            }
+}
