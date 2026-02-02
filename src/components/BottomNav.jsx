@@ -82,14 +82,16 @@ export default function BottomNav() {
         <span>Cart</span>
       </div>
 
-      {/* ORDERS */}
-      <div
-        className={location.pathname === "/orders" ? "active" : ""}
-        onClick={() => navigate("/orders")}
-      >
-        <MdReceiptLong />
-        <span>Orders</span>
-      </div>
+      {/* ORDERS — 🔐 LOGIN KE BAAD HI DIKHE */}
+      {user && (
+        <div
+          className={location.pathname === "/orders" ? "active" : ""}
+          onClick={() => navigate("/orders")}
+        >
+          <MdReceiptLong />
+          <span>Orders</span>
+        </div>
+      )}
 
       {/* ACCOUNT / LOGIN */}
       <div
@@ -99,9 +101,7 @@ export default function BottomNav() {
         }
       >
         <MdPerson />
-        <span>
-          {user?.name || "Login"}
-        </span>
+        <span>{user?.name || "Login"}</span>
       </div>
 
     </div>
