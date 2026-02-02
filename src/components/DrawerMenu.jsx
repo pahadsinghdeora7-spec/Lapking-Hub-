@@ -1,7 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function DrawerMenu({ open, onClose }) {
+  const navigate = useNavigate();
+
   if (!open) return null;
+
+  // 🔐 login check
+  const user = localStorage.getItem("user");
+  const isLoggedIn = !!user;
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    onClose();
+    navigate("/login");
+  };
 
   return (
     <>
@@ -59,45 +71,59 @@ export default function DrawerMenu({ open, onClose }) {
         <div style={{ flex: 1 }}>
           <MenuItem to="/" text="🏠 Home" onClose={onClose} />
           <MenuItem to="/categories" text="📂 Categories" onClose={onClose} />
-          <MenuItem to="/orders" text="📦 My Orders" onClose={onClose} />
-          <MenuItem to="/wishlist" text="❤️ Wishlist" onClose={onClose} />
-          <MenuItem to="/rewards" text="🎁 Rewards" onClose={onClose} />
-          <MenuItem to="/account" text="👤 My Account" onClose={onClose} />
+
+          {/* 🔐 LOGIN REQUIRED ITEMS */}
+          {isLoggedIn && (
+            <>
+              <MenuItem to="/orders" text="📦 My Orders" onClose={onClose} />
+              <MenuItem to="/wishlist" text="❤️ Wishlist" onClose={onClose} />
+              <MenuItem to="/rewards" text="🎁 Rewards" onClose={onClose} />
+              <MenuItem to="/account" text="👤 My Account" onClose={onClose} />
+            </>
+          )}
+
+          {/* 🔓 LOGIN BUTTON (guest only) */}
+          {!isLoggedIn && (
+            <MenuItem to="/login" text="🔐 Login / Sign In" onClose={onClose} />
+          )}
 
           <hr style={{ margin: "15px 0" }} />
 
           {/* POLICIES */}
-          <MenuItem
-            to="/page/privacy-policy"
-            text="🔒 Privacy Policy"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/terms-conditions"
-            text="📄 Terms & Conditions"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/refund-policy"
-            text="💸 Refund Policy"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/shipping-policy"
-            text="🚚 Shipping Policy"
-            onClose={onClose}
-          />
-          <MenuItem
-            to="/page/warranty-policy"
-            text="🛡️ Warranty Policy"
-            onClose={onClose}
-          />
+          <MenuItem to="/page/privacy-policy" text="🔒 Privacy Policy" onClose={onClose} />
+          <MenuItem to="/page/terms-conditions" text="📄 Terms & Conditions" onClose={onClose} />
+          <MenuItem to="/page/refund-policy" text="💸 Refund Policy" onClose={onClose} />
+          <MenuItem to="/page/shipping-policy" text="🚚 Shipping Policy" onClose={onClose} />
+          <MenuItem to="/page/warranty-policy" text="🛡️ Warranty Policy" onClose={onClose} />
 
           <hr style={{ margin: "15px 0" }} />
 
           {/* ABOUT */}
           <MenuItem to="/page/about-us" text="ℹ️ About Us" onClose={onClose} />
           <MenuItem to="/page/contact-us" text="📞 Contact Us" onClose={onClose} />
+
+          {/* 🔴 LOGOUT */}
+          {isLoggedIn && (
+            <>
+              <hr style={{ margin: "15px 0" }} />
+              <button
+                onClick={handleLogout}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  background: "#ff3b3b",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                🚪 Logout
+              </button>
+            </>
+          )}
         </div>
 
         {/* 🌐 SOCIAL ICONS */}
@@ -115,32 +141,9 @@ export default function DrawerMenu({ open, onClose }) {
             fontSize: "26px"
           }}
         >
-          <a
-            href="https://www.facebook.com/share/1DcvZTzkiW/"
-            target="_blank"
-            rel="noreferrer"
-            style={{ textDecoration: "none" }}
-          >
-            📘
-          </a>
-
-          <a
-            href="https://www.instagram.com/lapkinghub"
-            target="_blank"
-            rel="noreferrer"
-            style={{ textDecoration: "none" }}
-          >
-            📸
-          </a>
-
-          <a
-            href="https://wa.me/918306939006"
-            target="_blank"
-            rel="noreferrer"
-            style={{ textDecoration: "none" }}
-          >
-            💬
-          </a>
+          <a href="https://www.facebook.com/share/1DcvZTzkiW/" target="_blank" rel="noreferrer">📘</a>
+          <a href="https://www.instagram.com/lapkinghub" target="_blank" rel="noreferrer">📸</a>
+          <a href="https://wa.me/918306939006" target="_blank" rel="noreferrer">💬</a>
         </div>
       </div>
 
