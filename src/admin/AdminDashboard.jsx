@@ -46,11 +46,12 @@ export default function AdminDashboard() {
     const month = now.getMonth();
     const year = now.getFullYear();
 
-    /* ================= DELIVERED ORDERS (REVENUE) ================= */
+    /* ================= REVENUE (ONLY DELIVERED + PAID) ================= */
     const deliveredOrders = orders.filter(o => {
       const d = new Date(o.created_at);
       return (
         o.order_status === "Delivered" &&
+        o.payment_status === "Paid" &&
         d.getMonth() === month &&
         d.getFullYear() === year
       );
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
       pending: pendingOrders.length,
       cancelled: cancelledOrders.length,
       products: products.length,
-      customers: orders.length ? 1 : 0
+      customers: new Set(orders.map(o => o.phone)).size // real customer count
     });
 
     /* ================= RECENT ORDERS ================= */
@@ -145,7 +146,11 @@ export default function AdminDashboard() {
           <p>Total Products</p>
         </div>
 
-        <div className="stat-card orange">
+        {/* ✅ CUSTOMER CARD FIXED */}
+        <div
+          className="stat-card orange clickable"
+          onClick={() => navigate("/admin/orders")}
+        >
           <h4>{stats.customers}</h4>
           <p>Total Customers</p>
         </div>
@@ -238,4 +243,4 @@ export default function AdminDashboard() {
 
     </div>
   );
-                                          }
+  }
