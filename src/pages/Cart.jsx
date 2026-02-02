@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { getCurrentUser } from "../utils/auth";
+import { useNavigate } from "react-router-dom";
 import "./Cart.css";
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -48,10 +50,8 @@ export default function Cart() {
     const user = await getCurrentUser();
 
     if (!user) {
-      // login page
       window.location.hash = "#/login";
     } else {
-      // checkout address
       window.location.hash = "#/checkout/address";
     }
   };
@@ -60,12 +60,42 @@ export default function Cart() {
     <div className="cart-page">
       <h2>Shopping Cart ({cartItems.length} items)</h2>
 
+      {/* ================= EMPTY CART ================= */}
       {cartItems.length === 0 && (
-        <p style={{ textAlign: "center", marginTop: 30 }}>
-          Cart is empty
-        </p>
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: 50,
+            color: "#555"
+          }}
+        >
+          <div style={{ fontSize: 70, marginBottom: 10 }}>💻🧩</div>
+
+          <h3>Your Shopping Cart is Empty</h3>
+
+          <p style={{ fontSize: 14, marginTop: 6 }}>
+            Add laptop accessories or spare parts to continue.
+          </p>
+
+          <button
+            onClick={() => navigate("/categories")}
+            style={{
+              marginTop: 20,
+              padding: "10px 22px",
+              background: "#0d6efd",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              fontSize: 15,
+              cursor: "pointer"
+            }}
+          >
+            🛍 Continue Shopping
+          </button>
+        </div>
       )}
 
+      {/* ================= CART ITEMS ================= */}
       {cartItems.map((item) => (
         <div className="cart-item" key={item.id}>
           <img src={item.image} alt={item.name} />
@@ -105,6 +135,7 @@ export default function Cart() {
         </div>
       ))}
 
+      {/* ================= SUMMARY ================= */}
       {cartItems.length > 0 && (
         <div className="order-summary">
           <h3>Order Summary</h3>
@@ -133,4 +164,4 @@ export default function Cart() {
       )}
     </div>
   );
-}
+          }
