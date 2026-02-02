@@ -73,18 +73,22 @@ export default function AdminProducts() {
     });
   };
 
-  // ================= IMAGE UPLOAD (FIXED) =================
+  // ================= IMAGE UPLOAD (FINAL FIX) =================
   const uploadImage = async (file, field) => {
     if (!file) return;
 
     try {
       setUploading(true);
 
-      const ext = file.name.split(".").pop();
-      const safeName = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
-      const filePath = `products/${safeName}`;
+      // ✅ ensure auth session
+      await supabase.auth.getSession();
 
-      const { error: uploadError } = await supabase.storage
+      const ext = file.name.split(".").pop();
+      const safeRandom = Math.floor(Math.random() * 1000000);
+      const fileName = `${Date.now()}-${safeRandom}.${ext}`;
+      const filePath = `products/${fileName}`;
+
+      const { error } = await supabase.storage
         .from("product-images")
         .upload(filePath, file, {
           cacheControl: "3600",
@@ -92,10 +96,9 @@ export default function AdminProducts() {
           contentType: file.type
         });
 
-      if (uploadError) {
-        console.error(uploadError);
+      if (error) {
+        console.error("UPLOAD ERROR:", error);
         alert("Image upload failed");
-        setUploading(false);
         return;
       }
 
@@ -109,7 +112,7 @@ export default function AdminProducts() {
       }));
 
     } catch (err) {
-      console.error(err);
+      console.error("UPLOAD EXCEPTION:", err);
       alert("Upload error");
     } finally {
       setUploading(false);
@@ -227,7 +230,6 @@ export default function AdminProducts() {
               <option value="false">Inactive</option>
             </select>
 
-            {/* IMAGE UPLOADS */}
             <label>Main Image</label>
             <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0], "image")} />
             {form.image && <img src={form.image} className="preview" />}
@@ -254,4 +256,4 @@ export default function AdminProducts() {
 
     </div>
   );
-    }
+        }
