@@ -13,9 +13,8 @@ export default function ProductDetails() {
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState("");
   const [tab, setTab] = useState("description");
-  const [showMore, setShowMore] = useState(false); // ✅ NEW
+  const [showMore, setShowMore] = useState(false);
 
-  // ================= LOAD PRODUCT =================
   useEffect(() => {
     loadProduct();
     window.scrollTo(0, 0);
@@ -36,7 +35,6 @@ export default function ProductDetails() {
     setProduct(data);
     setActiveImg(data.image);
 
-    // ================= SEO =================
     document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
 
     let metaDesc = document.querySelector("meta[name='description']");
@@ -48,7 +46,6 @@ export default function ProductDetails() {
 
     metaDesc.content = `${data.name} ${data.part_number || ""}. Buy genuine laptop accessories and spare parts online at best price from LapkingHub.`;
 
-    // ================= RELATED =================
     const { data: rel } = await supabase
       .from("products")
       .select("*")
@@ -59,17 +56,12 @@ export default function ProductDetails() {
     setRelated(rel || []);
   }
 
-  // ================= CART =================
   function addToCart() {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
     const exist = cart.find((i) => i.id === product.id);
 
-    if (exist) {
-      exist.qty += qty;
-    } else {
-      cart.push({ ...product, qty });
-    }
+    if (exist) exist.qty += qty;
+    else cart.push({ ...product, qty });
 
     localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("cartUpdated"));
@@ -81,11 +73,7 @@ export default function ProductDetails() {
   }
 
   if (!product) {
-    return (
-      <div style={{ padding: 30, textAlign: "center" }}>
-        Loading....
-      </div>
-    );
+    return <div style={{ padding: 30, textAlign: "center" }}>Loading....</div>;
   }
 
   const images = [
@@ -97,7 +85,6 @@ export default function ProductDetails() {
 
   return (
     <div className="pd-container">
-
       {/* IMAGE */}
       <div className="pd-image-box">
         <img
@@ -136,7 +123,6 @@ export default function ProductDetails() {
       <div className="pd-qty-row">
         <div className="qty-box">
           <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>-</button>
-
           <input
             value={qty}
             onChange={(e) => {
@@ -148,7 +134,6 @@ export default function ProductDetails() {
               if (qty === "" || qty < 1) setQty(1);
             }}
           />
-
           <button onClick={() => setQty(qty + 1)}>+</button>
         </div>
 
@@ -203,7 +188,6 @@ export default function ProductDetails() {
                 __html: product.description || "<p>No description available.</p>",
               }}
             />
-
             <button
               className="show-more-btn"
               onClick={() => setShowMore(!showMore)}
@@ -226,11 +210,10 @@ export default function ProductDetails() {
       {/* RELATED */}
       {related.length > 0 && (
         <>
-          <h2 className="related-title">
-            Related Laptop Accessories
-          </h2>
+          <h2 className="related-title">Related Laptop Accessories</h2>
 
-          <div className="related-grid">
+          {/* ✅ ONLY CHANGE HERE */}
+          <div className="product-grid">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
@@ -239,4 +222,4 @@ export default function ProductDetails() {
       )}
     </div>
   );
-}
+    }
