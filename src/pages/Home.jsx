@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
 import HomeSlider from "../components/HomeSlider";
-import { useLoader } from "../context/LoaderContext"; // ✅ ADD
+import { useLoader } from "../context/LoaderContext";
 import "./home.css";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [recent, setRecent] = useState([]);
 
-  const { setLoading } = useLoader(); // ✅ ADD
+  const { setLoading } = useLoader();
 
   useEffect(() => {
-    // ================= SEO (100% SAFE) =================
     document.title =
       "Laptop Accessories & Spare Parts Online | LapkingHub India";
 
@@ -40,11 +39,8 @@ export default function Home() {
     loadRecent();
   }, []);
 
-  // ========================
-  // LOAD PRODUCTS
-  // ========================
   const loadProducts = async () => {
-    setLoading(true); // ✅ START LOADER
+    setLoading(true);
 
     const { data, error } = await supabase
       .from("products")
@@ -55,12 +51,9 @@ export default function Home() {
       setProducts(data || []);
     }
 
-    setLoading(false); // ✅ STOP LOADER
+    setLoading(false);
   };
 
-  // ========================
-  // LOAD RECENT VIEWED
-  // ========================
   const loadRecent = () => {
     try {
       const r = JSON.parse(localStorage.getItem("recentProducts") || "[]");
@@ -70,49 +63,38 @@ export default function Home() {
     }
   };
 
-  // ========================
-  // DATA SPLIT (LOCKED)
-  // ========================
   const newArrivals = products.slice(0, 6);
   const trending = products.slice(6, 12);
   const suggested = products.slice(12, 20);
 
   return (
     <div className="home">
-
-      {/* ================= H1 (SEO REQUIRED — hidden) ================= */}
-      <h1
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          height: "1px",
-          width: "1px",
-          overflow: "hidden",
-        }}
-      >
+      {/* HIDDEN SEO */}
+      <h1 style={{ position: "absolute", left: "-9999px" }}>
         Laptop Accessories and Spare Parts Online Store in India
       </h1>
 
-      {/* ================= SEO TEXT ================= */}
-      <p
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          height: "1px",
-          width: "1px",
-          overflow: "hidden",
-        }}
-      >
-        LapkingHub is a professional supplier of laptop accessories and spare
-        parts in India. Buy laptop keyboard, charger, battery, DC jack, screen,
-        speaker, fan and all laptop parts for Dell, HP, Lenovo, Acer, Asus and
-        other brands at best price online.
+      <p style={{ position: "absolute", left: "-9999px" }}>
+        Buy laptop keyboard, battery, screen, fan, speaker, adapter and all spare
+        parts for HP, Dell, Lenovo, Asus, Acer laptops in India.
       </p>
 
-      {/* ================= SLIDER ================= */}
+      {/* SLIDER */}
       <HomeSlider />
 
-      {/* ================= NEW ARRIVALS ================= */}
+      {/* 🔥 NEW HARD-CODED SEO BANNER */}
+      <section className="lp-banner">
+        <div className="lp-banner-overlay">
+          <h2>All Laptop Accessories & Spare Parts Available</h2>
+          <p>
+            Keyboard • Fan • Speaker • Screen • Battery • Adapter <br />
+            HP • Dell • Lenovo • Asus • Acer
+          </p>
+          <span>Search by Model Number or Part Number</span>
+        </div>
+      </section>
+
+      {/* NEW ARRIVALS */}
       <h2 className="section-title">New Arrivals</h2>
       <div className="product-grid">
         {newArrivals.map((item) => (
@@ -120,7 +102,6 @@ export default function Home() {
         ))}
       </div>
 
-      {/* ================= TRENDING ================= */}
       {trending.length > 0 && (
         <>
           <h2 className="section-title">Trending Products</h2>
@@ -132,7 +113,6 @@ export default function Home() {
         </>
       )}
 
-      {/* ================= RECENTLY VIEWED ================= */}
       {recent.length > 0 && (
         <>
           <h2 className="section-title">Recently Viewed</h2>
@@ -144,7 +124,6 @@ export default function Home() {
         </>
       )}
 
-      {/* ================= SUGGESTED ================= */}
       {suggested.length > 0 && (
         <>
           <h2 className="section-title">Suggestions For You</h2>
