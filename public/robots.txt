@@ -17,4 +17,4 @@ Allow: /category/
 Allow: /page/
 
 # SITEMAP
-Sitemap: https://lapking-hub.pages.dev/sitemap.xml
+Sitemap: https://lapkinghub.com/sitemap.xml
