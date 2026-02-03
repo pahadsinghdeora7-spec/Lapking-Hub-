@@ -5,7 +5,7 @@ import ProductCard from "../components/ProductCard";
 import "./ProductDetails.css";
 
 export default function ProductDetails() {
-  const { slug } = useParams(); // ✅ SLUG
+  const { slug } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
@@ -13,6 +13,7 @@ export default function ProductDetails() {
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState("");
   const [tab, setTab] = useState("description");
+  const [showMore, setShowMore] = useState(false); // ✅ NEW
 
   // ================= LOAD PRODUCT =================
   useEffect(() => {
@@ -74,18 +75,18 @@ export default function ProductDetails() {
     window.dispatchEvent(new Event("cartUpdated"));
   }
 
-  // ================= BUY NOW =================
   function buyNow() {
     addToCart();
     navigate("/cart");
   }
 
-  if (!product)
+  if (!product) {
     return (
       <div style={{ padding: 30, textAlign: "center" }}>
         Loading....
       </div>
     );
+  }
 
   const images = [
     product.image,
@@ -195,12 +196,21 @@ export default function ProductDetails() {
       {/* CONTENT */}
       <div className="pd-full-section">
         {tab === "description" && (
-          <div
-            className="pd-desc"
-            dangerouslySetInnerHTML={{
-              __html: product.description || "<p>No description available.</p>",
-            }}
-          />
+          <>
+            <div
+              className={`pd-desc ${showMore ? "open" : "closed"}`}
+              dangerouslySetInnerHTML={{
+                __html: product.description || "<p>No description available.</p>",
+              }}
+            />
+
+            <button
+              className="show-more-btn"
+              onClick={() => setShowMore(!showMore)}
+            >
+              {showMore ? "Show Less ▲" : "Show More ▼"}
+            </button>
+          </>
         )}
 
         {tab === "models" && (
