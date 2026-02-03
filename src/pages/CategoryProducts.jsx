@@ -19,7 +19,7 @@ export default function CategoryProducts() {
     loadCart();
   }, [slug]);
 
-  // ================= CATEGORY =================
+  /* ================= CATEGORY ================= */
   const fetchCategory = async () => {
     const { data } = await supabase
       .from("categories")
@@ -30,7 +30,7 @@ export default function CategoryProducts() {
     setCategory(data);
   };
 
-  // ================= PRODUCTS =================
+  /* ================= PRODUCTS ================= */
   const fetchProducts = async () => {
     setLoading(true);
 
@@ -43,7 +43,7 @@ export default function CategoryProducts() {
     setLoading(false);
   };
 
-  // ================= CART =================
+  /* ================= CART ================= */
   const loadCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartIds(cart.map(i => i.id));
@@ -51,24 +51,20 @@ export default function CategoryProducts() {
 
   const addToCart = (product) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    const exists = cart.find(i => i.id === product.id);
-    if (!exists) {
+    if (!cart.find(i => i.id === product.id)) {
       cart.push({ ...product, qty: 1 });
       localStorage.setItem("cart", JSON.stringify(cart));
     }
-
     setCartIds(cart.map(i => i.id));
-
-    // ✅ FIX: bottom nav cart count update
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // ================= SAFE NAVIGATION =================
   const openProduct = (product) => {
     if (!product?.slug) return;
     navigate("/product/" + product.slug);
   };
+
+  const productCount = products.length;
 
   return (
     <div className="cat-page">
@@ -76,22 +72,25 @@ export default function CategoryProducts() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>
-          Buy {category?.name || slug} Online | Best Price | LapkingHub
+          Buy {category?.name || slug} Online ({productCount}+ Products) | Best Price | LapkingHub
         </title>
+
         <meta
           name="description"
           content={
-            category?.description ||
-            "Buy genuine laptop accessories online at best price."
+            category?.description
+              ? `${category.description} ✓ Genuine products ✓ Best price ✓ Fast delivery from LapkingHub.`
+              : "Buy genuine laptop accessories online at best price from LapkingHub. Trusted quality and fast delivery."
           }
         />
       </Helmet>
 
-      {/* ================= TITLE ================= */}
+      {/* ================= H1 ================= */}
       <h1 className="cat-h1">
         {category?.h1 || category?.name}
       </h1>
 
+      {/* ================= INTRO ================= */}
       {category?.description && (
         <p className="cat-desc">{category.description}</p>
       )}
@@ -147,6 +146,18 @@ export default function CategoryProducts() {
           ))}
         </div>
       )}
+
+      {/* ================= SEO FOOTER TEXT ================= */}
+      {category && products.length > 0 && (
+        <div className="cat-seo-text">
+          <h2>Buy {category.name} Online from LapkingHub</h2>
+          <p>
+            LapkingHub offers a wide range of {category.name} including genuine
+            spare parts, accessories and compatible products. All items are
+            quality checked, competitively priced and shipped fast across India.
+          </p>
+        </div>
+      )}
     </div>
   );
-}
+      }
