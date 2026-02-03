@@ -1,5 +1,5 @@
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   useLocation
@@ -46,7 +46,6 @@ import AdminCouriers from "./admin/AdminCouriers.jsx";
 import AdminSettings from "./admin/AdminSettings.jsx";
 import AdminAbout from "./admin/AdminAbout.jsx";
 import AdminPolicies from "./admin/AdminPolicies.jsx";
-
 import AdminCustomers from "./admin/AdminCustomers.jsx";
 
 import AddProductPage from "./admin/AddProductPage.jsx";
@@ -77,7 +76,7 @@ function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
 
-  /* ================= ADMIN = NO FRONTEND LAYOUT ================= */
+  /* ================= ADMIN ROUTES ================= */
   if (isAdminPage) {
     return (
       <>
@@ -96,19 +95,17 @@ function AppContent() {
             <Route path="settings" element={<AdminSettings />} />
             <Route path="about" element={<AdminAbout />} />
             <Route path="policies" element={<AdminPolicies />} />
-
             <Route path="customers" element={<AdminCustomers />} />
-
             <Route path="add-product" element={<AddProductPage />} />
-<Route path="bulk-upload" element={<AdminBulkUpload />} />
-<Route path="bulk-delete" element={<AdminBulkDelete />} />
+            <Route path="bulk-upload" element={<AdminBulkUpload />} />
+            <Route path="bulk-delete" element={<AdminBulkDelete />} />
           </Route>
         </Routes>
       </>
     );
   }
 
-  /* ================= USER APP LAYOUT ================= */
+  /* ================= USER ROUTES ================= */
   return (
     <>
       <GlobalLoader />
