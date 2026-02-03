@@ -245,3 +245,33 @@
   line-height: 1.7;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
+
+
+.pd-main-image {
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.pd-desc.closed {
+  max-height: 220px;
+  overflow: hidden;
+}
+
+.show-more-btn {
+  background: none;
+  border: none;
+  color: #0a58ca;
+  cursor: pointer;
+}
