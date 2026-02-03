@@ -265,3 +265,29 @@
     font-size: 22px;
   }
 }
+
+
+/* ===============================
+   FIX: RELATED PRODUCTS FULL WIDTH
+================================ */
+
+/* Related section ko full row do */
+.related-title,
+.product-grid {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Same grid as home page */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
