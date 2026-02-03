@@ -16,5 +16,4 @@ Allow: /product/
 Allow: /category/
 Allow: /page/
 
-# SITEMAP
-Sitemap: https://lapkinghub.com/sitemap.xml
+Sitemap: https://lapkinghub.com/sitemap-static.xml
