@@ -35,8 +35,10 @@ export default function ProductDetails() {
     setProduct(data);
     setActiveImg(data.image);
 
+    /* ================= SEO : TITLE ================= */
     document.title = `${data.name} | Buy Online at Best Price | LapkingHub`;
 
+    /* ================= SEO : META DESCRIPTION ================= */
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
       metaDesc = document.createElement("meta");
@@ -44,8 +46,60 @@ export default function ProductDetails() {
       document.head.appendChild(metaDesc);
     }
 
-    metaDesc.content = `${data.name} ${data.part_number || ""}. Buy genuine laptop accessories and spare parts online at best price from LapkingHub.`;
+    metaDesc.content = `Buy ${data.name} (Part No: ${data.part_number || "N/A"}) at best price in India. Genuine laptop accessories & spare parts with fast delivery from LapkingHub.`;
 
+    /* ================= SEO : CANONICAL ================= */
+    let canonical = document.querySelector("link[rel='canonical']");
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = `https://lapkinghub.com/product/${data.slug}`;
+
+    /* ================= SEO : PRODUCT SCHEMA ================= */
+    const images = [
+      data.image,
+      data.image1,
+      data.image2,
+      data.image3
+    ].filter(Boolean);
+
+    const productSchema = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": data.name,
+      "image": images,
+      "description": (data.description || "")
+        .replace(/<[^>]*>?/gm, "")
+        .substring(0, 300),
+      "sku": data.part_number || data.id,
+      "brand": {
+        "@type": "Brand",
+        "name": data.brand || "LapkingHub"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": `https://lapkinghub.com/product/${data.slug}`,
+        "priceCurrency": "INR",
+        "price": data.price,
+        "availability":
+          data.stock > 0
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock"
+      }
+    };
+
+    let schemaScript = document.getElementById("product-schema");
+    if (schemaScript) schemaScript.remove();
+
+    schemaScript = document.createElement("script");
+    schemaScript.type = "application/ld+json";
+    schemaScript.id = "product-schema";
+    schemaScript.textContent = JSON.stringify(productSchema);
+    document.head.appendChild(schemaScript);
+
+    /* ================= RELATED PRODUCTS ================= */
     const { data: rel } = await supabase
       .from("products")
       .select("*")
@@ -73,14 +127,14 @@ export default function ProductDetails() {
   }
 
   if (!product) {
-    return <div style={{ padding: 30, textAlign: "center" }}>Loading....</div>;
+    return <div style={{ padding: 30, textAlign: "center" }}>Loading...</div>;
   }
 
   const images = [
     product.image,
     product.image1,
     product.image2,
-    product.image3,
+    product.image3
   ].filter(Boolean);
 
   return (
@@ -90,7 +144,7 @@ export default function ProductDetails() {
         <img
           src={activeImg}
           className="pd-main-image"
-          alt={product.name}
+          alt={`${product.name} | LapkingHub`}
           onClick={() => window.open(activeImg, "_blank")}
         />
 
@@ -99,7 +153,7 @@ export default function ProductDetails() {
             <img
               key={i}
               src={img}
-              alt=""
+              alt={`${product.name} image ${i + 1}`}
               className={activeImg === img ? "active" : ""}
               onClick={() => setActiveImg(img)}
             />
@@ -147,9 +201,10 @@ export default function ProductDetails() {
         <a
           href={`https://wa.me/919873670361?text=I want ${product.name} | Part No: ${product.part_number || "N/A"} | Price: ₹${product.price}`}
           target="_blank"
+          rel="noopener noreferrer"
           className="wa-btn"
         >
-          💬 Order on WhatsApp
+          Get Best Price 
         </a>
 
         <button className="cart-btn" onClick={addToCart}>
@@ -185,7 +240,8 @@ export default function ProductDetails() {
             <div
               className={`pd-desc ${showMore ? "open" : "closed"}`}
               dangerouslySetInnerHTML={{
-                __html: product.description || "<p>No description available.</p>",
+                __html:
+                  product.description || "<p>No description available.</p>",
               }}
             />
             <button
@@ -211,8 +267,6 @@ export default function ProductDetails() {
       {related.length > 0 && (
         <>
           <h2 className="related-title">Related Laptop Accessories</h2>
-
-          {/* ✅ ONLY CHANGE HERE */}
           <div className="product-grid">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
@@ -222,4 +276,4 @@ export default function ProductDetails() {
       )}
     </div>
   );
-    }
+}
