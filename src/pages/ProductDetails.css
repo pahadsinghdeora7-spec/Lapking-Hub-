@@ -21,6 +21,7 @@
 .pd-main-image {
   width: 100%;
   max-height: 420px;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   cursor: zoom-in;
 }
@@ -171,15 +172,35 @@
   border-color: #1a73e8;
 }
 
-.pd-desc {
-  background: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 12px;
-  font-size: 15px;
+/* ================= DESCRIPTION ================= */
+
+.pd-full-section {
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
-/* ================= RELATED ================= */
+.pd-desc {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.7;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.pd-desc.closed {
+  max-height: 220px;
+  overflow: hidden;
+}
+
+.show-more-btn {
+  background: none;
+  border: none;
+  color: #0a58ca;
+  cursor: pointer;
+}
+
+/* ================= RELATED PRODUCTS – FINAL FIX ================= */
 
 .related-title {
   margin: 25px 0 10px;
@@ -187,15 +208,28 @@
 }
 
 .related-grid {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* card stable height */
+.related-grid .product-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* image jump fix */
+.related-grid .product-card img {
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
 }
 
 /* ================= DESKTOP ================= */
 
 @media (min-width: 900px) {
-
   .pd-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -212,13 +246,15 @@
   .pd-title {
     font-size: 30px;
   }
-
-  .related-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
-/* ================= SMALL MOBILE ================= */
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+  .related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 @media (max-width: 480px) {
   .pd-main-image {
@@ -228,50 +264,4 @@
   .pd-title {
     font-size: 22px;
   }
-}
-
-/* ================= DESCRIPTION FULL WIDTH ================= */
-
-.pd-full-section {
-  grid-column: 1 / -1;
-  width: 100%;
-}
-
-.pd-desc {
-  background: #ffffff;
-  padding: 18px;
-  border-radius: 12px;
-  font-size: 15px;
-  line-height: 1.7;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-
-
-.pd-main-image {
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-}
-
-.related-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 768px) {
-  .related-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.pd-desc.closed {
-  max-height: 220px;
-  overflow: hidden;
-}
-
-.show-more-btn {
-  background: none;
-  border: none;
-  color: #0a58ca;
-  cursor: pointer;
 }
