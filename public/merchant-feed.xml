@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"
   xmlns:g="http://base.google.com/ns/1.0">
-
   <channel>
+
     <title>LapkingHub Products</title>
     <link>https://lapkinghub.com</link>
-    <description>Laptop Accessories & Spare Parts</description>
+    <description>Laptop Accessories &amp; Spare Parts Online Store</description>
 
     <!-- ================= PRODUCT 1 ================= -->
+
     <item>
       <g:id>L11307-001</g:id>
 
@@ -27,15 +28,13 @@
       </g:link>
 
       <g:image_link>
-        https://lapkinghub.com/path-to-image.jpg
+        https://lapkinghub.com/uploads/products/hp-elitebook-840-g5-keyboard.jpg
       </g:image_link>
 
       <g:availability>in_stock</g:availability>
-
       <g:price>600 INR</g:price>
 
       <g:brand>HP</g:brand>
-
       <g:condition>new</g:condition>
 
       <g:google_product_category>
