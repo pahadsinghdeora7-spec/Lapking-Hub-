@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:g="http://base.google.com/ns/1.0">
+
+  <channel>
+    <title>LapkingHub Products</title>
+    <link>https://lapkinghub.com</link>
+    <description>Laptop Accessories & Spare Parts</description>
+
+    <!-- ================= PRODUCT 1 ================= -->
+    <item>
+      <g:id>L11307-001</g:id>
+
+      <g:title>
+        Replacement Keyboard for HP EliteBook 840 G5, 840 G6, 745 G5, 745 G6 – Non Backlight
+      </g:title>
+
+      <g:description>
+        Genuine replacement keyboard for HP EliteBook laptops.
+        Compatible models: HP EliteBook 840 G5, 840 G6, 745 G5, 745 G6.
+        Part Number: L11307-001.
+        Tested quality, perfect fit, brand new product.
+      </g:description>
+
+      <g:link>
+        https://lapkinghub.com/product/replacement-keyboard-for-hp-elitebook-840-g5-840-g6-745-g5-745-g6-series-non-backlight-keyboard-l11307-001
+      </g:link>
+
+      <g:image_link>
+        https://lapkinghub.com/path-to-image.jpg
+      </g:image_link>
+
+      <g:availability>in_stock</g:availability>
+
+      <g:price>600 INR</g:price>
+
+      <g:brand>HP</g:brand>
+
+      <g:condition>new</g:condition>
+
+      <g:google_product_category>
+        Electronics &gt; Computers &gt; Computer Components &gt; Keyboards
+      </g:google_product_category>
+    </item>
+
+    <!-- ================= ADD MORE PRODUCTS BELOW SAME FORMAT ================= -->
+
+  </channel>
+</rss>
