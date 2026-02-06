@@ -5,7 +5,7 @@ import "./adminProducts.css";
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [categories, setCategories] = useState([]); // ✅ added
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -13,7 +13,7 @@ export default function AdminProducts() {
 
   const [form, setForm] = useState({
     name: "",
-    category_id: "",        // ✅ added
+    category_id: "",
     category_slug: "",
     brand: "",
     part_number: "",
@@ -52,7 +52,7 @@ export default function AdminProducts() {
 
   useEffect(() => {
     fetchProducts();
-    fetchCategories(); // ✅ added
+    fetchCategories();
   }, []);
 
   // ================= SEARCH =================
@@ -72,7 +72,7 @@ export default function AdminProducts() {
     setSelected(item);
     setForm({
       name: item.name || "",
-      category_id: item.category_id || "", // ✅ added
+      category_id: item.category_id || "",
       category_slug: item.category_slug || "",
       brand: item.brand || "",
       part_number: item.part_number || "",
@@ -87,31 +87,32 @@ export default function AdminProducts() {
     });
   };
 
-  // ================= IMAGE UPLOAD =================
-  const uploadImage = async (file, field) => {
-    if (!file) return;
+  // ================= MULTIPLE IMAGE UPLOAD =================
+  const uploadMultipleImages = async (files) => {
+    if (!files || files.length === 0) return;
 
     setUploading(true);
-    const fileName = `${Date.now()}-${file.name}`;
+    const fields = ["image", "image1", "image2"];
 
-    const { error } = await supabase.storage
-      .from("products")
-      .upload(fileName, file, { upsert: true });
+    for (let i = 0; i < files.length && i < 3; i++) {
+      const file = files[i];
+      const fileName = `${Date.now()}-${i}-${file.name}`;
 
-    if (error) {
-      alert(error.message);
-      setUploading(false);
-      return;
+      const { error } = await supabase.storage
+        .from("products")
+        .upload(fileName, file, { upsert: true });
+
+      if (error) continue;
+
+      const { data } = supabase.storage
+        .from("products")
+        .getPublicUrl(fileName);
+
+      setForm(prev => ({
+        ...prev,
+        [fields[i]]: data.publicUrl
+      }));
     }
-
-    const { data } = supabase.storage
-      .from("products")
-      .getPublicUrl(fileName);
-
-    setForm(prev => ({
-      ...prev,
-      [field]: data.publicUrl
-    }));
 
     setUploading(false);
   };
@@ -200,7 +201,6 @@ export default function AdminProducts() {
             <label>Product Name</label>
             <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
 
-            {/* ✅ CATEGORY DROPDOWN */}
             <label>Category</label>
             <select
               value={form.category_id}
@@ -246,16 +246,17 @@ export default function AdminProducts() {
               <option value="false">Inactive</option>
             </select>
 
-            <label>Main Image</label>
-            <input type="file" onChange={e => uploadImage(e.target.files[0], "image")} />
+            {/* ✅ SINGLE INPUT – MULTIPLE IMAGES */}
+            <label>Upload Images (max 3)</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={e => uploadMultipleImages(e.target.files)}
+            />
+
             {form.image && <img src={form.image} className="preview" />}
-
-            <label>Image 1</label>
-            <input type="file" onChange={e => uploadImage(e.target.files[0], "image1")} />
             {form.image1 && <img src={form.image1} className="preview" />}
-
-            <label>Image 2</label>
-            <input type="file" onChange={e => uploadImage(e.target.files[0], "image2")} />
             {form.image2 && <img src={form.image2} className="preview" />}
 
             {uploading && <p style={{ color: "blue" }}>Uploading image...</p>}
