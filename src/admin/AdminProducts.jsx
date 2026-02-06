@@ -5,6 +5,7 @@ import "./adminProducts.css";
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [categories, setCategories] = useState([]); // ✅ added
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -12,6 +13,7 @@ export default function AdminProducts() {
 
   const [form, setForm] = useState({
     name: "",
+    category_id: "",        // ✅ added
     category_slug: "",
     brand: "",
     part_number: "",
@@ -25,7 +27,7 @@ export default function AdminProducts() {
     image2: ""
   });
 
-  // ================= FETCH =================
+  // ================= FETCH PRODUCTS =================
   const fetchProducts = async () => {
     setLoading(true);
     const { data } = await supabase
@@ -38,8 +40,19 @@ export default function AdminProducts() {
     setLoading(false);
   };
 
+  // ================= FETCH CATEGORIES =================
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from("categories")
+      .select("id, name, slug")
+      .order("name");
+
+    setCategories(data || []);
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories(); // ✅ added
   }, []);
 
   // ================= SEARCH =================
@@ -54,11 +67,12 @@ export default function AdminProducts() {
     );
   }, [search, products]);
 
-  // ================= OPEN =================
+  // ================= OPEN PRODUCT =================
   const openProduct = (item) => {
     setSelected(item);
     setForm({
       name: item.name || "",
+      category_id: item.category_id || "", // ✅ added
       category_slug: item.category_slug || "",
       brand: item.brand || "",
       part_number: item.part_number || "",
@@ -73,16 +87,15 @@ export default function AdminProducts() {
     });
   };
 
-  // ================= IMAGE UPLOAD (FIXED – SAME AS ADD PRODUCT) =================
+  // ================= IMAGE UPLOAD =================
   const uploadImage = async (file, field) => {
     if (!file) return;
 
     setUploading(true);
-
     const fileName = `${Date.now()}-${file.name}`;
 
     const { error } = await supabase.storage
-      .from("products") // ✅ SAME BUCKET AS ADD PRODUCT
+      .from("products")
       .upload(fileName, file, { upsert: true });
 
     if (error) {
@@ -177,7 +190,7 @@ export default function AdminProducts() {
         </table>
       </div>
 
-      {/* ================= EDIT POPUP ================= */}
+      {/* ================= EDIT MODAL ================= */}
       {selected && (
         <div className="modal-bg">
           <div className="modal">
@@ -186,6 +199,25 @@ export default function AdminProducts() {
 
             <label>Product Name</label>
             <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+
+            {/* ✅ CATEGORY DROPDOWN */}
+            <label>Category</label>
+            <select
+              value={form.category_id}
+              onChange={(e) => {
+                const cat = categories.find(c => c.id == e.target.value);
+                setForm({
+                  ...form,
+                  category_id: cat.id,
+                  category_slug: cat.slug
+                });
+              }}
+            >
+              <option value="">-- Select Category --</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
 
             <label>Brand</label>
             <input value={form.brand} onChange={e => setForm({ ...form, brand: e.target.value })} />
@@ -240,4 +272,4 @@ export default function AdminProducts() {
 
     </div>
   );
-}
+            }
