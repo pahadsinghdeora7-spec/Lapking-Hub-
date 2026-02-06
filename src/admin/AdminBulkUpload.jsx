@@ -22,17 +22,25 @@ export default function AdminBulkUpload() {
     setCategories(data || []);
   }
 
-  // ================= SMART CSV READER =================
+  // ================= CSV PARSER (SAFE) =================
   const readCSV = (text) => {
-    const lines = text.split("\n").filter(l => l.trim());
-    const headers = lines[0].split(",").map(h => h.trim());
+    const lines = text
+      .replace(/\r/g, "")
+      .split("\n")
+      .filter(l => l.trim() !== "");
+
+    const headers = lines[0]
+      .split(",")
+      .map(h => h.trim().toLowerCase());
 
     return lines.slice(1).map(line => {
       const values = line.split(",");
       let obj = {};
+
       headers.forEach((h, i) => {
         obj[h] = values[i]?.trim() || "";
       });
+
       return obj;
     });
   };
@@ -49,24 +57,29 @@ export default function AdminBulkUpload() {
 
     reader.onload = async (e) => {
       try {
-        const rows = readCSV(e.target.result);
+        const text = e.target.result;
+        const rows = readCSV(text);
 
         const products = rows.map((row) => {
-          // 🔹 PRICE CLEAN (250 PCS → 250)
-          const cleanPrice = parseInt(
-            String(row.price || row.price_unit || "0").replace(/\D/g, "")
-          );
+          // 🔥 CLEAN PRICE & STOCK
+          const price = parseInt(
+            String(row.price || "0").replace(/\D/g, "")
+          ) || 0;
+
+          const stock = parseInt(
+            String(row.stock || "0").replace(/\D/g, "")
+          ) || 0;
 
           return {
             name: row.product_name || row.name || "",
             brand: row.brand || "",
             part_number: row.part_number || "",
-            price: cleanPrice || 0,
-            stock: Number(row.stock || 0),
-            category_id: category,
-            image: row.image_url || row.image || "",
-            description: row.description || "",
             compatible_model: row.compatible_model || "",
+            description: row.description || "",
+            image: row.image_url || row.image || "",
+            price,
+            stock,
+            category_id: category,
             status: true
           };
         });
@@ -77,11 +90,12 @@ export default function AdminBulkUpload() {
 
         if (error) {
           console.error(error);
-          alert("❌ Upload failed");
+          alert("❌ Upload failed. Check CSV format.");
         } else {
-          alert("✅ Products uploaded successfully (100%)");
+          alert(`✅ ${products.length} products uploaded successfully`);
           setFile(null);
         }
+
       } catch (err) {
         console.error(err);
         alert("❌ Invalid CSV file");
@@ -93,6 +107,7 @@ export default function AdminBulkUpload() {
     reader.readAsText(file);
   }
 
+  // ================= UI =================
   return (
     <div className="bulk-wrapper">
       <h2>📦 Bulk Upload Products</h2>
@@ -123,17 +138,11 @@ export default function AdminBulkUpload() {
         </button>
 
         <div className="note">
-          <b>Supported CSV Columns:</b><br />
-          product_name / name,<br />
-          brand,<br />
-          part_number,<br />
-          price / price_unit,<br />
-          stock,<br />
-          image_url / image,<br />
-          description,<br />
-          compatible_model
+          <b>CSV FORMAT (exact):</b><br />
+          product_name, brand, part_number, price, stock,<br />
+          image_url, description, compatible_model
         </div>
       </div>
     </div>
   );
-      }
+}
