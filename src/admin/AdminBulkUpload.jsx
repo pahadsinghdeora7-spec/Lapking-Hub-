@@ -8,7 +8,7 @@ export default function AdminBulkUpload() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // load categories
+  // ================= LOAD CATEGORIES =================
   useEffect(() => {
     loadCategories();
   }, []);
@@ -22,9 +22,9 @@ export default function AdminBulkUpload() {
     setCategories(data || []);
   }
 
-  // CSV reader (NO library)
+  // ================= SMART CSV READER =================
   const readCSV = (text) => {
-    const lines = text.split("\n").filter(Boolean);
+    const lines = text.split("\n").filter(l => l.trim());
     const headers = lines[0].split(",").map(h => h.trim());
 
     return lines.slice(1).map(line => {
@@ -37,6 +37,7 @@ export default function AdminBulkUpload() {
     });
   };
 
+  // ================= UPLOAD =================
   async function handleUpload() {
     if (!file || !category) {
       alert("Select category and CSV file");
@@ -44,35 +45,46 @@ export default function AdminBulkUpload() {
     }
 
     setLoading(true);
-
     const reader = new FileReader();
 
     reader.onload = async (e) => {
       try {
-        const text = e.target.result;
-        const rows = readCSV(text);
+        const rows = readCSV(e.target.result);
 
-        const products = rows.map((row) => ({
-          name: row.name,
-          price: Number(row.price || 0),
-          stock: Number(row.stock || 0),
-          category_id: category,
-          image: row.image || "",
-          description: row.description || ""
-        }));
+        const products = rows.map((row) => {
+          // 🔹 PRICE CLEAN (250 PCS → 250)
+          const cleanPrice = parseInt(
+            String(row.price || row.price_unit || "0").replace(/\D/g, "")
+          );
+
+          return {
+            name: row.product_name || row.name || "",
+            brand: row.brand || "",
+            part_number: row.part_number || "",
+            price: cleanPrice || 0,
+            stock: Number(row.stock || 0),
+            category_id: category,
+            image: row.image_url || row.image || "",
+            description: row.description || "",
+            compatible_model: row.compatible_model || "",
+            status: true
+          };
+        });
 
         const { error } = await supabase
           .from("products")
           .insert(products);
 
         if (error) {
-          alert("Upload failed");
+          console.error(error);
+          alert("❌ Upload failed");
         } else {
-          alert("✅ Products uploaded successfully");
+          alert("✅ Products uploaded successfully (100%)");
           setFile(null);
         }
       } catch (err) {
-        alert("Invalid CSV file");
+        console.error(err);
+        alert("❌ Invalid CSV file");
       }
 
       setLoading(false);
@@ -93,7 +105,9 @@ export default function AdminBulkUpload() {
         >
           <option value="">-- Select Category --</option>
           {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
           ))}
         </select>
 
@@ -109,10 +123,17 @@ export default function AdminBulkUpload() {
         </button>
 
         <div className="note">
-          <b>CSV Format:</b><br />
-          name, price, stock, category, image, description
+          <b>Supported CSV Columns:</b><br />
+          product_name / name,<br />
+          brand,<br />
+          part_number,<br />
+          price / price_unit,<br />
+          stock,<br />
+          image_url / image,<br />
+          description,<br />
+          compatible_model
         </div>
       </div>
     </div>
   );
-}
+      }
