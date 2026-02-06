@@ -19,7 +19,7 @@ export default function AdminBulkUpload() {
   async function loadCategories() {
     const { data } = await supabase
       .from("categories")
-      .select("id,name")
+      .select("id,name,slug")
       .order("name");
 
     setCategories(data || []);
@@ -113,10 +113,13 @@ export default function AdminBulkUpload() {
     setLoading(true);
 
     try {
+      const selectedCategory = categories.find(c => c.id === category);
+
       for (let i = 0; i < preview.length; i += 50) {
         const chunk = preview.slice(i, i + 50).map(p => ({
           ...p,
-          category_id: category // ✅ FINAL CATEGORY HERE
+          category_id: category,
+          category_slug: selectedCategory?.slug
         }));
 
         await supabase.from("products").insert(chunk);
