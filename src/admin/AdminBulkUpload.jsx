@@ -7,8 +7,8 @@ export default function AdminBulkUpload() {
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
 
-  const [rows, setRows] = useState([]);        // 👉 READ DATA
-  const [preview, setPreview] = useState([]); // 👉 VALID DATA
+  const [rows, setRows] = useState([]);
+  const [preview, setPreview] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // ================= LOAD CATEGORIES =================
@@ -25,7 +25,7 @@ export default function AdminBulkUpload() {
     setCategories(data || []);
   }
 
-  // ================= CSV PARSER (PROFESSIONAL) =================
+  // ================= CSV PARSER (SAFE) =================
   const parseCSV = (text) => {
     const rows = [];
     let row = [];
@@ -82,7 +82,7 @@ export default function AdminBulkUpload() {
       const data = parseCSV(text);
       setRows(data);
 
-      // VALIDATE + CLEAN
+      // CLEAN & VALIDATE (NO CATEGORY HERE)
       const cleaned = data
         .filter(r => r.name && r.part_number)
         .map(r => ({
@@ -94,7 +94,6 @@ export default function AdminBulkUpload() {
           description: r.description?.trim() || "",
           compatible_model: r.compatible_model?.trim() || "",
           image: r.image || "",
-          category_id: category,
           status: true
         }));
 
@@ -105,7 +104,7 @@ export default function AdminBulkUpload() {
     reader.readAsText(file);
   };
 
-  // ================= SAVE DATA (CHUNK INSERT) =================
+  // ================= SAVE DATA (CATEGORY FIXED HERE) =================
   const saveData = async () => {
     if (!category || preview.length === 0) {
       alert("Category select karo aur data read karo");
@@ -116,7 +115,11 @@ export default function AdminBulkUpload() {
 
     try {
       for (let i = 0; i < preview.length; i += 50) {
-        const chunk = preview.slice(i, i + 50);
+        const chunk = preview.slice(i, i + 50).map(p => ({
+          ...p,
+          category_id: category // ✅ SELECTED CATEGORY APPLIED HERE
+        }));
+
         await supabase.from("products").insert(chunk);
       }
 
@@ -152,9 +155,7 @@ export default function AdminBulkUpload() {
           onChange={(e) => setFile(e.target.files[0])}
         />
 
-        <button onClick={readFile}>
-          📖 Read CSV
-        </button>
+        <button onClick={readFile}>📖 Read CSV</button>
 
         {preview.length > 0 && (
           <p style={{ color: "green" }}>
