@@ -6,37 +6,45 @@ export default function AdminBulkUpload() {
   const [file, setFile] = useState(null);
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
+
+  const [rows, setRows] = useState([]);        // 👉 READ DATA
+  const [preview, setPreview] = useState([]); // 👉 VALID DATA
   const [loading, setLoading] = useState(false);
 
   // ================= LOAD CATEGORIES =================
   useEffect(() => {
-    supabase
-      .from("categories")
-      .select("id,name")
-      .order("name")
-      .then(({ data }) => setCategories(data || []));
+    loadCategories();
   }, []);
 
-  // ================= SAFE CSV PARSER =================
+  async function loadCategories() {
+    const { data } = await supabase
+      .from("categories")
+      .select("id,name")
+      .order("name");
+
+    setCategories(data || []);
+  }
+
+  // ================= CSV PARSER (PROFESSIONAL) =================
   const parseCSV = (text) => {
     const rows = [];
-    let current = [];
+    let row = [];
     let value = "";
-    let insideQuotes = false;
+    let inQuotes = false;
 
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
 
       if (char === '"') {
-        insideQuotes = !insideQuotes;
-      } else if (char === "," && !insideQuotes) {
-        current.push(value.trim());
+        inQuotes = !inQuotes;
+      } else if (char === "," && !inQuotes) {
+        row.push(value.trim());
         value = "";
-      } else if ((char === "\n" || char === "\r") && !insideQuotes) {
-        if (value || current.length) {
-          current.push(value.trim());
-          rows.push(current);
-          current = [];
+      } else if ((char === "\n" || char === "\r") && !inQuotes) {
+        if (value || row.length) {
+          row.push(value.trim());
+          rows.push(row);
+          row = [];
           value = "";
         }
       } else {
@@ -44,9 +52,9 @@ export default function AdminBulkUpload() {
       }
     }
 
-    if (value || current.length) {
-      current.push(value.trim());
-      rows.push(current);
+    if (value || row.length) {
+      row.push(value.trim());
+      rows.push(row);
     }
 
     const headers = rows[0].map(h => h.toLowerCase());
@@ -60,75 +68,73 @@ export default function AdminBulkUpload() {
     });
   };
 
-  // ================= DELAY FUNCTION =================
-  const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+  // ================= READ CSV ONLY =================
+  const readFile = () => {
+    if (!file) {
+      alert("CSV file select karo");
+      return;
+    }
 
-  // ================= UPLOAD =================
-  async function handleUpload() {
-    if (!file || !category) {
-      alert("Select category and CSV file");
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const data = parseCSV(text);
+      setRows(data);
+
+      // VALIDATE + CLEAN
+      const cleaned = data
+        .filter(r => r.name && r.part_number)
+        .map(r => ({
+          name: r.name.trim(),
+          brand: r.brand?.trim() || "",
+          part_number: r.part_number.trim(),
+          price: Number(r.price) || 0,
+          stock: Number(r.stock) || 0,
+          description: r.description?.trim() || "",
+          compatible_model: r.compatible_model?.trim() || "",
+          image: r.image || "",
+          category_id: category,
+          status: true
+        }));
+
+      setPreview(cleaned);
+      alert(`✅ ${cleaned.length} products ready to upload`);
+    };
+
+    reader.readAsText(file);
+  };
+
+  // ================= SAVE DATA (CHUNK INSERT) =================
+  const saveData = async () => {
+    if (!category || preview.length === 0) {
+      alert("Category select karo aur data read karo");
       return;
     }
 
     setLoading(true);
-    const reader = new FileReader();
 
-    reader.onload = async (e) => {
-      try {
-        const text = e.target.result;
-        const rows = parseCSV(text);
-
-        let success = 0;
-
-        for (let row of rows) {
-          const price =
-            parseInt(String(row.price || "").replace(/\D/g, "")) || 0;
-
-          const stock =
-            parseInt(String(row.stock || "").replace(/\D/g, "")) || 0;
-
-          const product = {
-            name: row.product_name || row.name || "",
-            brand: row.brand || "",
-            part_number: row.part_number || "",
-            compatible_model: row.compatible_model || "",
-            description: row.description || "",
-            image: row.image_url || row.image || "",
-            price,
-            stock,
-            category_id: category,
-            status: true
-          };
-
-          if (!product.name) continue;
-
-          const { error } = await supabase
-            .from("products")
-            .insert(product);
-
-          if (!error) success++;
-
-          // 🔥 IMPORTANT: delay (mobile + supabase safe)
-          await sleep(120);
-        }
-
-        alert(`✅ ${success} products uploaded perfectly`);
-        setFile(null);
-      } catch (err) {
-        console.error(err);
-        alert("❌ CSV parsing failed");
+    try {
+      for (let i = 0; i < preview.length; i += 50) {
+        const chunk = preview.slice(i, i + 50);
+        await supabase.from("products").insert(chunk);
       }
 
-      setLoading(false);
-    };
+      alert("✅ All products uploaded successfully");
+      setFile(null);
+      setRows([]);
+      setPreview([]);
+    } catch (err) {
+      alert("❌ Upload error");
+    }
 
-    reader.readAsText(file);
-  }
+    setLoading(false);
+  };
 
   // ================= UI =================
   return (
     <div className="bulk-wrapper">
-      <h2>📦 Bulk Upload Products (Safe Mode)</h2>
+      <h2>📦 Bulk Upload Products</h2>
 
       <div className="bulk-card">
         <label>Select Category</label>
@@ -146,16 +152,25 @@ export default function AdminBulkUpload() {
           onChange={(e) => setFile(e.target.files[0])}
         />
 
-        <button onClick={handleUpload} disabled={loading}>
-          {loading ? "Uploading safely..." : "Upload CSV"}
+        <button onClick={readFile}>
+          📖 Read CSV
+        </button>
+
+        {preview.length > 0 && (
+          <p style={{ color: "green" }}>
+            {preview.length} products validated ✔
+          </p>
+        )}
+
+        <button onClick={saveData} disabled={loading}>
+          {loading ? "Uploading..." : "💾 Save to Database"}
         </button>
 
         <div className="note">
-          <b>CSV Headers (exact):</b><br />
-          product_name, brand, part_number, price, stock,<br />
-          image_url, description, compatible_model
+          <b>CSV Header (EXACT):</b><br />
+          name, brand, part_number, price, stock, description, compatible_model, image
         </div>
       </div>
     </div>
   );
-    }
+}
