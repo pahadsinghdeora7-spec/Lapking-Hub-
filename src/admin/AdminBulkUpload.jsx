@@ -25,7 +25,7 @@ export default function AdminBulkUpload() {
     setCategories(data || []);
   }
 
-  // ================= CSV PARSER (SAFE) =================
+  // ================= CSV PARSER =================
   const parseCSV = (text) => {
     const rows = [];
     let row = [];
@@ -82,7 +82,6 @@ export default function AdminBulkUpload() {
       const data = parseCSV(text);
       setRows(data);
 
-      // CLEAN & VALIDATE (NO CATEGORY HERE)
       const cleaned = data
         .filter(r => r.name && r.part_number)
         .map(r => ({
@@ -104,7 +103,7 @@ export default function AdminBulkUpload() {
     reader.readAsText(file);
   };
 
-  // ================= SAVE DATA (CATEGORY FIXED HERE) =================
+  // ================= SAVE DATA =================
   const saveData = async () => {
     if (!category || preview.length === 0) {
       alert("Category select karo aur data read karo");
@@ -117,7 +116,7 @@ export default function AdminBulkUpload() {
       for (let i = 0; i < preview.length; i += 50) {
         const chunk = preview.slice(i, i + 50).map(p => ({
           ...p,
-          category_id: category // ✅ SELECTED CATEGORY APPLIED HERE
+          category_id: category // ✅ FINAL CATEGORY HERE
         }));
 
         await supabase.from("products").insert(chunk);
