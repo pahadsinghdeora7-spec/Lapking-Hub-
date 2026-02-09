@@ -1,15 +1,14 @@
 export async function onRequest(context) {
-  const { env } = context;
 
-  const SUPABASE_URL = env.SUPABASE_URL;
-  const SUPABASE_KEY = env.SUPABASE_ANON_KEY;
+  const SUPABASE_URL = context.env.SUPABASE_URL;
+  const SUPABASE_KEY = context.env.SUPABASE_ANON_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     return new Response("Env not found", { status: 500 });
   }
 
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/products?select=slug,updated_at&status=eq.true`,
+  const productRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/products?select=id,updated_at,slug`,
     {
       headers: {
         apikey: SUPABASE_KEY,
@@ -18,19 +17,17 @@ export async function onRequest(context) {
     }
   );
 
-  const products = await res.json();
+  const products = await productRes.json();
 
   let urls = "";
-
   products.forEach((p) => {
-    if (!p.slug) return;
     urls += `
-    <url>
-      <loc>https://lapkinghub.com/product/${p.slug}</loc>
-      <lastmod>${p.updated_at || new Date().toISOString()}</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.8</priority>
-    </url>`;
+      <url>
+        <loc>https://lapkinghub.com/product/${p.slug}</loc>
+        <lastmod>${p.updated_at || new Date().toISOString()}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>`;
   });
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
