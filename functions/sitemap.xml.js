@@ -1,7 +1,6 @@
-export async function onRequest() {
-  // 👇 IMPORTANT CHANGE (VITE_ env use karo)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+export async function onRequest(context) {
+  const SUPABASE_URL = context.env.VITE_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = context.env.VITE_SUPABASE_ANON_KEY;
 
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/products?select=slug,updated_at`,
