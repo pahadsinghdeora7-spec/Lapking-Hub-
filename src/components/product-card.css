@@ -166,3 +166,16 @@
 .product-card .whatsapp {
   margin-top: auto;
 }
+
+.image-placeholder {
+  height: 180px;
+  width: 100%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+}
