@@ -39,11 +39,17 @@ const ProductCard = ({ product }) => {
       onClick={openDetails}
     >
       {/* IMAGE */}
-      <img
-        src={product.image || "/no-image.png"}
-        alt={product.name}
-        className="product-image"
-      />
+      {product.image ? (
+        <img
+          src={product.image}
+          alt={product.name}
+          className="product-image"
+        />
+      ) : (
+        <div className="image-placeholder">
+          Image Coming Soon
+        </div>
+      )}
 
       {/* NAME */}
       <h3 className="product-name">{product.name}</h3>
