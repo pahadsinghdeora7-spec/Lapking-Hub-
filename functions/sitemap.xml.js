@@ -1,9 +1,19 @@
-export async function onRequest({ env }) {
+export async function onRequest(context) {
+  const env = context.env || {};
+
   const SUPABASE_URL = env.SUPABASE_URL;
   const SUPABASE_ANON_KEY = env.SUPABASE_ANON_KEY;
 
+  // 🔴 DEBUG — remove later
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    return new Response("Env not found", { status: 500 });
+    return new Response(
+      JSON.stringify({
+        error: "ENV_NOT_FOUND",
+        hasEnv: !!env,
+        keys: Object.keys(env || {}),
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   const res = await fetch(
@@ -22,7 +32,6 @@ export async function onRequest({ env }) {
 
   for (const p of products) {
     if (!p.slug) continue;
-
     urls += `
     <url>
       <loc>https://lapkinghub.com/product/${p.slug}</loc>
@@ -34,20 +43,15 @@ export async function onRequest({ env }) {
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
   <url>
     <loc>https://lapkinghub.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-
   ${urls}
-
 </urlset>`;
 
   return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml",
-    },
+    headers: { "Content-Type": "application/xml" },
   });
 }
