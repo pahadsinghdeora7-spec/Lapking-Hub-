@@ -1,11 +1,7 @@
-export async function onRequest() {
+export async function onRequest({ env }) {
   try {
     const SUPABASE_URL = env.SUPABASE_URL;
     const SUPABASE_KEY = env.SUPABASE_ANON_KEY;
-
-    if (!SUPABASE_URL || !SUPABASE_KEY) {
-      return new Response("Supabase env missing", { status: 500 });
-    }
 
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/products?select=slug,updated_at&status=eq.true`,
@@ -16,10 +12,6 @@ export async function onRequest() {
         },
       }
     );
-
-    if (!res.ok) {
-      return new Response("Supabase fetch failed", { status: 500 });
-    }
 
     const products = await res.json();
 
@@ -49,8 +41,7 @@ export async function onRequest() {
     return new Response(xml, {
       headers: { "Content-Type": "application/xml" },
     });
-
   } catch (err) {
-    return new Response("Worker error: " + err.message, { status: 500 });
+    return new Response("Sitemap error: " + err.message, { status: 500 });
   }
 }
