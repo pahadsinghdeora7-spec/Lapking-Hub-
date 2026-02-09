@@ -68,7 +68,7 @@ export default function AdminBulkUpload() {
     });
   };
 
-  // ================= READ CSV ONLY =================
+  // ================= READ CSV =================
   const readFile = () => {
     if (!file) {
       alert("CSV file select karo");
@@ -106,20 +106,22 @@ export default function AdminBulkUpload() {
   // ================= SAVE DATA =================
   const saveData = async () => {
     if (!category || preview.length === 0) {
-      alert("Category select karo aur data read karo");
+      alert("Category select karo aur CSV read karo");
       return;
     }
 
     setLoading(true);
 
     try {
-      const selectedCategory = categories.find(c => c.id === category);
+      const selectedCategory = categories.find(
+        c => String(c.id) === String(category)
+      );
 
       for (let i = 0; i < preview.length; i += 50) {
         const chunk = preview.slice(i, i + 50).map(p => ({
           ...p,
-          category_id: category,
-          category_slug: selectedCategory?.slug
+          category_id: Number(category),
+          category_slug: selectedCategory?.slug || ""
         }));
 
         await supabase.from("products").insert(chunk);
@@ -130,6 +132,7 @@ export default function AdminBulkUpload() {
       setRows([]);
       setPreview([]);
     } catch (err) {
+      console.error(err);
       alert("❌ Upload error");
     }
 
