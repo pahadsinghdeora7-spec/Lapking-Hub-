@@ -3,17 +3,14 @@ export async function onRequest(context) {
     const SUPABASE_URL = context.env.VITE_SUPABASE_URL;
     const SUPABASE_ANON_KEY = context.env.VITE_SUPABASE_ANON_KEY;
 
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      return new Response("ENV missing", { status: 500 });
-    }
-
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/products?select=slug,updated_at`,
       {
         headers: {
           apikey: SUPABASE_ANON_KEY,
           Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        },
+          Accept: "application/json"
+        }
       }
     );
 
@@ -24,7 +21,6 @@ export async function onRequest(context) {
     const products = await res.json();
 
     let urls = "";
-
     for (const p of products) {
       if (!p.slug) continue;
       urls += `
@@ -45,9 +41,10 @@ export async function onRequest(context) {
 </urlset>`;
 
     return new Response(xml, {
-      headers: { "Content-Type": "application/xml" },
+      headers: { "Content-Type": "application/xml" }
     });
-  } catch (err) {
-    return new Response("Worker crash: " + err.message, { status: 500 });
+
+  } catch (e) {
+    return new Response("Worker error: " + e.message, { status: 500 });
   }
 }
