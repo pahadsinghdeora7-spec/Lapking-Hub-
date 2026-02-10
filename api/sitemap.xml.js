@@ -1,20 +1,16 @@
 export default async function handler(req, res) {
   try {
-    const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+    const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
-    // 1️⃣ ENV check
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       return res.status(500).json({
-        error: "ENV_MISSING",
-        hasUrl: !!SUPABASE_URL,
-        hasKey: !!SUPABASE_ANON_KEY,
+        error: "ENV_NOT_FOUND",
       });
     }
 
-    // 2️⃣ Supabase fetch
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?select=slug,updated_at`,
+      `${SUPABASE_URL}/rest/v1/products?select=slug,updated_at&updated_at=not.is.null`,
       {
         headers: {
           apikey: SUPABASE_ANON_KEY,
@@ -23,22 +19,21 @@ export default async function handler(req, res) {
       }
     );
 
-    // 3️⃣ Supabase error handling
     if (!response.ok) {
       const text = await response.text();
       return res.status(500).json({
         error: "SUPABASE_ERROR",
-        status: response.status,
-        body: text,
+        details: text,
       });
     }
 
     const products = await response.json();
 
-    // 4️⃣ XML build
     let urls = "";
+
     for (const p of products) {
       if (!p.slug) continue;
+
       urls += `
   <url>
     <loc>https://lapkinghub.com/product/${p.slug}</loc>
@@ -49,7 +44,7 @@ export default async function handler(req, res) {
     }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lapkinghub.com/</loc>
     <changefreq>daily</changefreq>
@@ -58,11 +53,11 @@ export default async function handler(req, res) {
   ${urls}
 </urlset>`;
 
-    res.setHeader("Content-Type", "application/xml; charset=utf-8");
-    return res.status(200).send(xml);
+    res.setHeader("Content-Type", "application/xml; charset=UTF-8");
+    res.status(200).send(xml);
   } catch (err) {
-    return res.status(500).json({
-      error: "UNEXPECTED_ERROR",
+    res.status(500).json({
+      error: "SERVER_ERROR",
       message: err.message,
     });
   }
