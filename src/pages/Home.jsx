@@ -22,7 +22,7 @@ export default function Home() {
   useEffect(() => {
     /* ===== SEO (LOCKED) ===== */
     document.title =
-      "Professional Supplier Of Laptop Spare Parts & Accessories Keyboard, Fan, Speaker, Body Parts, Batterry, Screen, Online in India | LapkingHub";
+      "Professional Supplier Of Laptop Spare Parts & Accessories Keyboard, Fan, Speaker, Body Parts, Battery, Screen Online in India | LapkingHub";
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -45,19 +45,16 @@ export default function Home() {
   const loadInitial = async () => {
     setLoading(true);
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("products")
       .select("*")
       .order("created_at", { ascending: false })
       .range(0, FIRST_LOAD - 1);
 
-    if (!error && data) {
+    if (data) {
       setProducts(data);
       setOffset(FIRST_LOAD);
-
-      if (data.length < FIRST_LOAD) {
-        setHasMore(false);
-      }
+      if (data.length < FIRST_LOAD) setHasMore(false);
     }
 
     setLoading(false);
@@ -72,19 +69,16 @@ export default function Home() {
     const from = offset;
     const to = offset + LOAD_MORE - 1;
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("products")
       .select("*")
       .order("created_at", { ascending: false })
       .range(from, to);
 
-    if (!error && data) {
+    if (data) {
       setProducts((prev) => [...prev, ...data]);
       setOffset(offset + LOAD_MORE);
-
-      if (data.length < LOAD_MORE) {
-        setHasMore(false);
-      }
+      if (data.length < LOAD_MORE) setHasMore(false);
     }
 
     setLoadingMore(false);
@@ -94,10 +88,7 @@ export default function Home() {
   const handleScroll = () => {
     const scrollPosition = window.innerHeight + window.scrollY;
     const threshold = document.body.offsetHeight - 300;
-
-    if (scrollPosition >= threshold) {
-      loadMore();
-    }
+    if (scrollPosition >= threshold) loadMore();
   };
 
   /* ================= RECENT ================= */
@@ -117,8 +108,8 @@ export default function Home() {
         style={{
           position: "absolute",
           left: "-9999px",
-          height: "1px",
           width: "1px",
+          height: "1px",
           overflow: "hidden",
         }}
       >
@@ -128,32 +119,37 @@ export default function Home() {
       {/* ===== SLIDER ===== */}
       <HomeSlider />
 
-      {/* ===== CATEGORY LINKS (SEO IMPORTANT) ===== */}
-      <section className="home-categories">
-        <h2 className="section-title">
-          Laptop Replacement Spare Parts Categories
-        </h2>
+      {/* ===== CATEGORY LINKS (SEO ONLY – USER HIDDEN) ===== */}
+      <section
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden",
+        }}
+      >
+        <h2>Laptop Replacement Spare Parts Categories</h2>
 
-        <div className="category-links">
-          <Link to="/category/laptop-replacement-keyboard">
-            Laptop Replacement Keyboard
-          </Link>
-          <Link to="/category/laptop-replacement-body">
-            Laptop Replacement Body Parts
-          </Link>
-          <Link to="/category/laptop-replacement-speaker">
-            Laptop Replacement Speaker
-          </Link>
-          <Link to="/category/laptop-replacement-battery">
-            Laptop Replacement Battery
-          </Link>
-          <Link to="/category/laptop-replacement-dc-jack">
-            Laptop Replacement DC Jack
-          </Link>
-          <Link to="/category/laptop-replacement-fan">
-            Laptop Replacement Fan
-          </Link>
-        </div>
+        <Link to="/category/laptop-replacement-keyboard">
+          Laptop Replacement Keyboard
+        </Link>
+        <Link to="/category/laptop-replacement-body">
+          Laptop Replacement Body Parts
+        </Link>
+        <Link to="/category/laptop-replacement-speaker">
+          Laptop Replacement Speaker
+        </Link>
+        <Link to="/category/laptop-replacement-battery">
+          Laptop Replacement Battery
+        </Link>
+        <Link to="/category/laptop-replacement-dc-jack">
+          Laptop Replacement DC Jack
+        </Link>
+        <Link to="/category/laptop-replacement-fan">
+          Laptop Replacement Fan
+        </Link>
+        <Link to="/categories">All Laptop Spare Parts Categories</Link>
       </section>
 
       {/* ===== PRODUCTS ===== */}
