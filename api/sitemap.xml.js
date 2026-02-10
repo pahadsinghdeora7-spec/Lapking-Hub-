@@ -1,12 +1,11 @@
 export default async function handler(req, res) {
   try {
-    const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+    // ✅ Vercel ENV (NO import.meta.env here)
+    const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      return res.status(500).json({
-        error: "ENV_NOT_FOUND",
-      });
+      return res.status(500).json({ error: "ENV_NOT_FOUND" });
     }
 
     const response = await fetch(
@@ -29,19 +28,16 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
     const products = await response.json();
 
-    let urls = "";
-
-    for (const p of products) {
-      if (!p.slug) continue;
-
-      urls += `
+    const urls = products
+      .filter(p => p.slug)
+      .map(p => `
   <url>
     <loc>https://lapkinghub.com/product/${p.slug}</loc>
     <lastmod>${new Date(p.updated_at).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>`;
-    }
+  </url>`)
+      .join("");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
@@ -62,4 +58,3 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
     });
   }
 }
-
