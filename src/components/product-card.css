@@ -135,15 +135,18 @@
   .add-to-cart-btn {
     font-size: 13px;
   }
-/* 🔥 Remove mobile blue tap highlight */
+}
+
+/* ===============================
+   REMOVE MOBILE TAP HIGHLIGHT
+   =============================== */
+
 .product-card {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* button par bhi blue na aaye */
 .add-to-cart-btn {
   -webkit-tap-highlight-color: transparent;
-}
 }
 
 /* ===============================
@@ -166,6 +169,10 @@
 .product-card .whatsapp {
   margin-top: auto;
 }
+
+/* ===============================
+   IMAGE PLACEHOLDER
+   =============================== */
 
 .image-placeholder {
   height: 180px;
