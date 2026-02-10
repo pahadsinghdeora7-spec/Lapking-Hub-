@@ -1,4 +1,5 @@
 // src/main.jsx
+throw new Error("Lapking Hub TEST ERROR");
 
 import React from "react";
 import ReactDOM from "react-dom/client";
