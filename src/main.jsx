@@ -1,13 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
+import ErrorBoundary from "./ErrorBoundary";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <div style={{
-    fontSize: "28px",
-    color: "green",
-    textAlign: "center",
-    marginTop: "100px"
-  }}>
-    ✅ LAPKING HUB – JS LOADED
-  </div>
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
 );
