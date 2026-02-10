@@ -7,7 +7,7 @@ import {
 import { useEffect } from "react";
 
 /* ================= LOADER ================= */
-import { LoaderProvider, useLoader } from "./context/LoaderContext";
+import { useLoader } from "./context/LoaderContext";
 import GlobalLoader from "./components/GlobalLoader";
 
 /* ================= USER PAGES ================= */
@@ -154,9 +154,7 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <LoaderProvider>
-        <AppContent />
-      </LoaderProvider>
+      <AppContent />
     </Router>
   );
 }
