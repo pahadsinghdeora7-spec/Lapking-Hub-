@@ -1,7 +1,6 @@
 export default async function handler(req, res) {
-  const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-  const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
-
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
   const response = await fetch(
     `${SUPABASE_URL}/rest/v1/products?select=slug,updated_at`,
     {
