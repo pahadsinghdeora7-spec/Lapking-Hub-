@@ -2,19 +2,27 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import ProductCard from "../components/ProductCard";
 import HomeSlider from "../components/HomeSlider";
-import { useLoader } from "../context/LoaderContext"; // âœ… ADD
+import { useLoader } from "../context/LoaderContext";
+import { Link } from "react-router-dom";
 import "./home.css";
+
+/* ===== LOCKED CONFIG ===== */
+const FIRST_LOAD = 20;
+const LOAD_MORE = 10;
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [recent, setRecent] = useState([]);
 
-  const { setLoading } = useLoader(); // âœ… ADD
+  const { setLoading } = useLoader();
 
   useEffect(() => {
-    // ================= SEO (100% SAFE) =================
+    /* ===== SEO (LOCKED) ===== */
     document.title =
-      "Laptop Accessories & Spare Parts Online | LapkingHub India";
+      "Professional Supplier Of Laptop Spare Parts & Accessories Keyboard, Fan, Speaker, Body Parts, Batterry, Screen, Online in India | LapkingHub";
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -24,43 +32,75 @@ export default function Home() {
     }
 
     metaDesc.content =
-      "Buy laptop accessories and spare parts online in India. Keyboard, charger, battery, screen, DC jack, fan, speaker and all laptop parts available at best price on LapkingHub.";
+      "LapkingHub is a trusted wholesale supplier of laptop replacement spare parts in India. Buy laptop replacement keyboard, body parts, battery, speaker, DC jack, fan and accessories for HP, Dell, Lenovo, Acer & Asus at best price.";
 
-    let metaKeywords = document.querySelector("meta[name='keywords']");
-    if (!metaKeywords) {
-      metaKeywords = document.createElement("meta");
-      metaKeywords.name = "keywords";
-      document.head.appendChild(metaKeywords);
-    }
-
-    metaKeywords.content =
-      "laptop accessories, laptop spare parts, laptop keyboard, laptop charger, laptop battery, dc jack, laptop screen, dell hp lenovo acer asus spare parts";
-
-    loadProducts();
+    loadInitial();
     loadRecent();
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ========================
-  // LOAD PRODUCTS
-  // ========================
-  const loadProducts = async () => {
-    setLoading(true); // âœ… START LOADER
+  /* ================= INITIAL LOAD (20 PRODUCTS) ================= */
+  const loadInitial = async () => {
+    setLoading(true);
 
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(0, FIRST_LOAD - 1);
 
-    if (!error) {
-      setProducts(data || []);
+    if (!error && data) {
+      setProducts(data);
+      setOffset(FIRST_LOAD);
+
+      if (data.length < FIRST_LOAD) {
+        setHasMore(false);
+      }
     }
 
-    setLoading(false); // âœ… STOP LOADER
+    setLoading(false);
   };
 
-  // ========================
-  // LOAD RECENT VIEWED
-  // ========================
+  /* ================= LOAD MORE (10 PRODUCTS) ================= */
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+
+    const from = offset;
+    const to = offset + LOAD_MORE - 1;
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (!error && data) {
+      setProducts((prev) => [...prev, ...data]);
+      setOffset(offset + LOAD_MORE);
+
+      if (data.length < LOAD_MORE) {
+        setHasMore(false);
+      }
+    }
+
+    setLoadingMore(false);
+  };
+
+  /* ================= SCROLL HANDLER ================= */
+  const handleScroll = () => {
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const threshold = document.body.offsetHeight - 300;
+
+    if (scrollPosition >= threshold) {
+      loadMore();
+    }
+  };
+
+  /* ================= RECENT ================= */
   const loadRecent = () => {
     try {
       const r = JSON.parse(localStorage.getItem("recentProducts") || "[]");
@@ -70,17 +110,9 @@ export default function Home() {
     }
   };
 
-  // ========================
-  // DATA SPLIT (LOCKED)
-  // ========================
-  const newArrivals = products.slice(0, 6);
-  const trending = products.slice(6, 12);
-  const suggested = products.slice(12, 20);
-
   return (
     <div className="home">
-
-      {/* ================= H1 (SEO REQUIRED â€” hidden) ================= */}
+      {/* ===== SEO H1 (hidden) ===== */}
       <h1
         style={{
           position: "absolute",
@@ -90,49 +122,62 @@ export default function Home() {
           overflow: "hidden",
         }}
       >
-        Laptop Accessories and Spare Parts Online Store in India
+        Laptop Spare Parts & Accessories Online Dealer in India
       </h1>
 
-      {/* ================= SEO TEXT ================= */}
-      <p
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          height: "1px",
-          width: "1px",
-          overflow: "hidden",
-        }}
-      >
-        LapkingHub is a professional supplier of laptop accessories and spare
-        parts in India. Buy laptop keyboard, charger, battery, DC jack, screen,
-        speaker, fan and all laptop parts for Dell, HP, Lenovo, Acer, Asus and
-        other brands at best price online.
-      </p>
-
-      {/* ================= SLIDER ================= */}
+      {/* ===== SLIDER ===== */}
       <HomeSlider />
 
-      {/* ================= NEW ARRIVALS ================= */}
-      <h2 className="section-title">New Arrivals</h2>
+      {/* ===== CATEGORY LINKS (SEO IMPORTANT) ===== */}
+      <section className="home-categories">
+        <h2 className="section-title">
+          Laptop Replacement Spare Parts Categories
+        </h2>
+
+        <div className="category-links">
+          <Link to="/category/laptop-replacement-keyboard">
+            Laptop Replacement Keyboard
+          </Link>
+          <Link to="/category/laptop-replacement-body">
+            Laptop Replacement Body Parts
+          </Link>
+          <Link to="/category/laptop-replacement-speaker">
+            Laptop Replacement Speaker
+          </Link>
+          <Link to="/category/laptop-replacement-battery">
+            Laptop Replacement Battery
+          </Link>
+          <Link to="/category/laptop-replacement-dc-jack">
+            Laptop Replacement DC Jack
+          </Link>
+          <Link to="/category/laptop-replacement-fan">
+            Laptop Replacement Fan
+          </Link>
+        </div>
+      </section>
+
+      {/* ===== PRODUCTS ===== */}
+      <h2 className="section-title">Latest Laptop Spare Parts</h2>
       <div className="product-grid">
-        {newArrivals.map((item) => (
+        {products.map((item) => (
           <ProductCard key={item.id} product={item} />
         ))}
       </div>
 
-      {/* ================= TRENDING ================= */}
-      {trending.length > 0 && (
-        <>
-          <h2 className="section-title">Trending Products</h2>
-          <div className="product-grid">
-            {trending.map((item) => (
-              <ProductCard key={item.id} product={item} />
-            ))}
-          </div>
-        </>
+      {/* ===== LOADERS ===== */}
+      {loadingMore && (
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          Loading more products…
+        </div>
       )}
 
-      {/* ================= RECENTLY VIEWED ================= */}
+      {!hasMore && (
+        <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
+          You have reached the end
+        </div>
+      )}
+
+      {/* ===== RECENTLY VIEWED ===== */}
       {recent.length > 0 && (
         <>
           <h2 className="section-title">Recently Viewed</h2>
@@ -143,18 +188,6 @@ export default function Home() {
           </div>
         </>
       )}
-
-      {/* ================= SUGGESTED ================= */}
-      {suggested.length > 0 && (
-        <>
-          <h2 className="section-title">Suggestions For You</h2>
-          <div className="product-grid">
-            {suggested.map((item) => (
-              <ProductCard key={item.id} product={item} />
-            ))}
-          </div>
-        </>
-      )}
     </div>
   );
-        }
+}
