@@ -46,16 +46,16 @@ export default function CategoryProducts() {
   /* ================= CART ================= */
   const loadCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartIds(cart.map(i => i.id));
+    setCartIds(cart.map((i) => i.id));
   };
 
   const addToCart = (product) => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (!cart.find(i => i.id === product.id)) {
+    if (!cart.find((i) => i.id === product.id)) {
       cart.push({ ...product, qty: 1 });
       localStorage.setItem("cart", JSON.stringify(cart));
     }
-    setCartIds(cart.map(i => i.id));
+    setCartIds(cart.map((i) => i.id));
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
@@ -68,27 +68,29 @@ export default function CategoryProducts() {
 
   return (
     <div className="cat-page">
-
       {/* ================= SEO ================= */}
       <Helmet>
         <title>
-          Buy {category?.name || slug} Online ({productCount}+ Products) | Best Price | LapkingHub
+          {category?.name || slug} | Laptop Spare Parts Online in India | LapkingHub
         </title>
 
         <meta
           name="description"
           content={
             category?.description
-              ? `${category.description} ✓ Genuine products ✓ Best price ✓ Fast delivery from LapkingHub.`
-              : "Buy genuine laptop accessories online at best price from LapkingHub. Trusted quality and fast delivery."
+              ? `${category.description} Buy genuine ${category.name} for HP, Dell, Lenovo, Acer & Asus laptops at best price in India. Trusted supplier – LapkingHub.`
+              : `Buy ${category?.name} laptop spare parts online in India. Genuine quality, wholesale price & fast delivery from LapkingHub.`
           }
         />
       </Helmet>
 
       {/* ================= H1 ================= */}
-      <h1 className="cat-h1">
-        {category?.h1 || category?.name}
-      </h1>
+      <h1 className="cat-h1">{category?.h1 || category?.name}</h1>
+
+      {/* ================= SUB HEADING ================= */}
+      <p className="cat-sub">
+        {category?.name} for HP, Dell, Lenovo, Acer & Asus Laptops
+      </p>
 
       {/* ================= INTRO ================= */}
       {category?.description && (
@@ -96,9 +98,8 @@ export default function CategoryProducts() {
       )}
 
       <p className="cat-trust">
-        ✔ Genuine Products &nbsp; | &nbsp;
-        ✔ Tested Quality &nbsp; | &nbsp;
-        ✔ Easy Replacement
+        ✔ Genuine Products &nbsp; | &nbsp; ✔ Tested Quality &nbsp; | &nbsp; ✔ Easy
+        Replacement
       </p>
 
       {/* ================= PRODUCTS ================= */}
@@ -137,9 +138,7 @@ export default function CategoryProducts() {
                     addToCart(product);
                   }}
                 >
-                  {cartIds.includes(product.id)
-                    ? "Added ✓"
-                    : "Add to Cart"}
+                  {cartIds.includes(product.id) ? "Added ✓" : "Add to Cart"}
                 </button>
               </div>
             </div>
@@ -153,11 +152,11 @@ export default function CategoryProducts() {
           <h2>Buy {category.name} Online from LapkingHub</h2>
           <p>
             LapkingHub offers a wide range of {category.name} including genuine
-            spare parts, accessories and compatible products. All items are
-            quality checked, competitively priced and shipped fast across India.
+            laptop spare parts and accessories. All products are quality checked,
+            competitively priced and shipped fast across India.
           </p>
         </div>
       )}
     </div>
   );
-      }
+}
