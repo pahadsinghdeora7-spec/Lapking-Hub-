@@ -1,5 +1,3 @@
-document.body.innerHTML = "<h2 style='color:red'>APP FILE LOADED</h2>";
-
 import {
   BrowserRouter as Router,
   Routes,
