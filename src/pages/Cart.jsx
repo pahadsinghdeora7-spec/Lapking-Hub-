@@ -45,20 +45,18 @@ export default function Cart() {
     0
   );
 
-  // 🔐 FINAL SAFE CHECKOUT (✅ FIXED)
+  // ✅ FIXED CHECKOUT FUNCTION (React Router based)
   const handleCheckout = async () => {
     const user = await getCurrentUser();
 
     if (!user) {
-      // ✅ save redirect path
       localStorage.setItem(
         "redirect_after_login",
         "/checkout/address"
       );
-
-      window.location.hash = "#/login";
+      navigate("/login");
     } else {
-      window.location.hash = "#/checkout/address";
+      navigate("/checkout/address");
     }
   };
 
