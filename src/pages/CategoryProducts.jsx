@@ -14,32 +14,37 @@ export default function CategoryProducts() {
   const [cartIds, setCartIds] = useState([]);
 
   useEffect(() => {
-    fetchCategory();
-    fetchProducts();
+    loadCategoryAndProducts();
     loadCart();
   }, [slug]);
 
-  /* ================= CATEGORY ================= */
-  const fetchCategory = async () => {
-    const { data } = await supabase
+  /* ================= CATEGORY + PRODUCTS ================= */
+  const loadCategoryAndProducts = async () => {
+    setLoading(true);
+
+    // 👉 slug se category lao (ID IMPORTANT)
+    const { data: categoryData } = await supabase
       .from("categories")
-      .select("name, h1, description")
+      .select("id, name, h1, description")
       .eq("slug", slug)
       .single();
 
-    setCategory(data);
-  };
+    if (!categoryData) {
+      setCategory(null);
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
 
-  /* ================= PRODUCTS ================= */
-  const fetchProducts = async () => {
-    setLoading(true);
+    setCategory(categoryData);
 
-    const { data } = await supabase
+    // 👉 category_id se products lao (slug-safe)
+    const { data: productData } = await supabase
       .from("products")
       .select("*")
-      .eq("category_slug", slug);
+      .eq("category_id", categoryData.id);
 
-    setProducts(data || []);
+    setProducts(productData || []);
     setLoading(false);
   };
 
@@ -63,8 +68,6 @@ export default function CategoryProducts() {
     if (!product?.slug) return;
     navigate("/product/" + product.slug);
   };
-
-  const productCount = products.length;
 
   return (
     <div className="cat-page">
